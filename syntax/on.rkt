@@ -13,32 +13,33 @@
            rackunit/text-ui))
 
 (define-syntax-parser on-predicate
-  [(on-predicate ((~datum eq?) v)) #'(curry eq? v)]
-  [(on-predicate ((~datum equal?) v)) #'(curry equal? v)]
-  [(on-predicate ((~datum and) preds ...)) #'(conjoin preds ...)]
-  [(on-predicate ((~datum or) preds ...)) #'(disjoin preds ...)]
-  [(on-predicate ((~datum not) pred)) #'(negate pred)]
-  [(on-predicate ((~datum and-jux) preds ...)) #'(conjux preds ...)]
-  [(on-predicate ((~datum or-jux) preds ...)) #'(disjux preds ...)]
-  [(on-predicate fn) #'fn])
+  [(_ ((~datum eq?) v)) #'(curry eq? v)]
+  [(_ ((~datum equal?) v)) #'(curry equal? v)]
+  [(_ ((~datum all) pred)) #'(curry give (curry andmap pred))]
+  [(_ ((~datum any) pred)) #'(curry give (curry ormap pred))]
+  [(_ ((~datum none) pred)) #'(negate (curry give (curry ormap pred)))]
+  [(_ ((~datum and) preds ...)) #'(conjoin preds ...)]
+  [(_ ((~datum or) preds ...)) #'(disjoin preds ...)]
+  [(_ ((~datum not) pred)) #'(negate pred)]
+  [(_ ((~datum and-jux) preds ...)) #'(conjux preds ...)]
+  [(_ ((~datum or-jux) preds ...)) #'(disjux preds ...)]
+  [(_ fn) #'fn])
 
 (define-syntax-parser on-consequent
-  [(on-consequent ((~datum call) func) arg ...)
-   #'(func arg ...)]
-  [(on-consequent consequent arg ...)
-   #'consequent])
+  [(_ ((~datum call) func) arg ...) #'(func arg ...)]
+  [(_ consequent arg ...) #'consequent])
 
 (define-syntax-parser on
-  [(on (arg ...)) #'(cond)]
-  [(on (arg ...)
-       [predicate consequent ...] ...
-       [(~datum else) else-consequent ...])
+  [(_ (arg ...)) #'(cond)]
+  [(_ (arg ...)
+      [predicate consequent ...] ...
+      [(~datum else) else-consequent ...])
    #'(cond [((on-predicate predicate) arg ...)
             (on-consequent consequent arg ...) ...]
            ...
            [else (on-consequent else-consequent arg ...) ...])]
-  [(on (arg ...)
-       [predicate consequent ...] ...)
+  [(_ (arg ...)
+      [predicate consequent ...] ...)
    #'(cond [((on-predicate predicate) arg ...)
             (on-consequent consequent arg ...) ...]
            ...)])
@@ -98,113 +99,169 @@
                        [positive? 1 2 3])
                    3
                    "more than one body form")
-     (check-equal? (on (5)
-                       [(eq? 5) 'five]
-                       [else 'not-five])
-                   'five
-                   "eq?")
-     (check-equal? (on (6)
-                       [(eq? 5) 'five]
-                       [else 'not-five])
-                   'not-five
-                   "eq?")
-     (check-equal? (on ("hello")
-                       [(equal? "hello") 'hello]
-                       [else 'not-hello])
-                   'hello
-                   "equal?")
-     (check-equal? (on ("bye")
-                       [(equal? "hello") 'hello]
-                       [else 'not-hello])
-                   'not-hello
-                   "equal?")
-     (check-equal? (on (5)
-                       [(and positive? integer?) 'yes]
-                       [else 'no])
-                   'yes
-                   "and (conjoin)")
-     (check-equal? (on (5.4)
-                       [(and positive? integer?) 'yes]
-                       [else 'no])
-                   'no
-                   "and (conjoin)")
-     (check-equal? (on (5.3)
-                       [(or positive? integer?) 'yes]
-                       [else 'no])
-                   'yes
-                   "or (disjoin)")
-     (check-equal? (on (-5.4)
-                       [(or positive? integer?) 'yes]
-                       [else 'no])
-                   'no
-                   "or (disjoin)")
-     (check-equal? (on (-5)
-                       [(not positive?) 'yes]
-                       [else 'no])
-                   'yes
-                   "not (predicate negation)")
-     (check-equal? (on (5)
-                       [(not positive?) 'yes]
-                       [else 'no])
-                   'no
-                   "not (predicate negation)")
-     (check-equal? (on (5 "hi")
-                       [(and-jux positive? string?) 'yes]
-                       [else 'no])
-                   'yes
-                   "juxtaposed conjoin")
-     (check-equal? (on (5 5)
-                       [(and-jux positive? string?) 'yes]
-                       [else 'no])
-                   'no
-                   "juxtaposed conjoin")
-     (check-equal? (on (5 "hi")
-                       [(or-jux positive? string?) 'yes]
-                       [else 'no])
-                   'yes
-                   "juxtaposed disjoin")
-     (check-equal? (on (-5 "hi")
-                       [(or-jux positive? string?) 'yes]
-                       [else 'no])
-                   'yes
-                   "juxtaposed disjoin")
-     (check-equal? (on (-5 5)
-                       [(or-jux positive? string?) 'yes]
-                       [else 'no])
-                   'no
-                   "juxtaposed disjoin")
-     (check-equal? (on (5)
-                       [positive? (call add1)]
-                       [else 'no])
-                   6
-                   "on-call")
-     (check-equal? (on (-5)
-                       [positive? (call add1)]
-                       [else 'no])
-                   'no
-                   "on-call")
-     (check-equal? (on (3 5)
-                       [< (call +)]
-                       [else 'no])
-                   8
-                   "on-call n-ary predicate")
-     (check-equal? (on (3 5)
-                       [> (call +)]
-                       [else 'no])
-                   'no
-                   "on-call n-ary predicate")
-     (check-equal? (on (-3 5)
-                       [> (call +)]
-                       [(or-jux positive? integer?) 'yes]
-                       [else 'no])
-                   'yes
-                   "heterogeneous clauses")
-     (check-equal? (on (-3 5)
-                       [> (call +)]
-                       [(and-jux positive? integer?) 'yes]
-                       [else 'no])
-                   'no
-                   "heterogeneous clauses"))))
+     (test-case
+         "eq?"
+       (check-equal? (on (5)
+                         [(eq? 5) 'five]
+                         [else 'not-five])
+                     'five
+                     "eq?")
+       (check-equal? (on (6)
+                         [(eq? 5) 'five]
+                         [else 'not-five])
+                     'not-five
+                     "eq?"))
+     (test-case
+         "equal?"
+       (check-equal? (on ("hello")
+                         [(equal? "hello") 'hello]
+                         [else 'not-hello])
+                     'hello
+                     "equal?")
+       (check-equal? (on ("bye")
+                         [(equal? "hello") 'hello]
+                         [else 'not-hello])
+                     'not-hello
+                     "equal?"))
+     (test-case
+         "and (conjoin)"
+       (check-equal? (on (5)
+                         [(and positive? integer?) 'yes]
+                         [else 'no])
+                     'yes
+                     "and (conjoin)")
+       (check-equal? (on (5.4)
+                         [(and positive? integer?) 'yes]
+                         [else 'no])
+                     'no
+                     "and (conjoin)"))
+     (test-case
+         "or (disjoin)"
+       (check-equal? (on (5.3)
+                         [(or positive? integer?) 'yes]
+                         [else 'no])
+                     'yes
+                     "or (disjoin)")
+       (check-equal? (on (-5.4)
+                         [(or positive? integer?) 'yes]
+                         [else 'no])
+                     'no
+                     "or (disjoin)"))
+     (test-case
+         "not (predicate negation)"
+       (check-equal? (on (-5)
+                         [(not positive?) 'yes]
+                         [else 'no])
+                     'yes
+                     "not (predicate negation)")
+       (check-equal? (on (5)
+                         [(not positive?) 'yes]
+                         [else 'no])
+                     'no
+                     "not (predicate negation)"))
+     (test-case
+         "juxtaposed conjoin"
+       (check-equal? (on (5 "hi")
+                         [(and-jux positive? string?) 'yes]
+                         [else 'no])
+                     'yes
+                     "juxtaposed conjoin")
+       (check-equal? (on (5 5)
+                         [(and-jux positive? string?) 'yes]
+                         [else 'no])
+                     'no
+                     "juxtaposed conjoin"))
+     (test-case
+         "juxtaposed disjoin"
+       (check-equal? (on (5 "hi")
+                         [(or-jux positive? string?) 'yes]
+                         [else 'no])
+                     'yes
+                     "juxtaposed disjoin")
+       (check-equal? (on (-5 "hi")
+                         [(or-jux positive? string?) 'yes]
+                         [else 'no])
+                     'yes
+                     "juxtaposed disjoin")
+       (check-equal? (on (-5 5)
+                         [(or-jux positive? string?) 'yes]
+                         [else 'no])
+                     'no
+                     "juxtaposed disjoin"))
+     (test-case
+         "on-call"
+       (check-equal? (on (5)
+                         [positive? (call add1)]
+                         [else 'no])
+                     6
+                     "on-call")
+       (check-equal? (on (-5)
+                         [positive? (call add1)]
+                         [else 'no])
+                     'no
+                     "on-call")
+       (check-equal? (on (3 5)
+                         [< (call +)]
+                         [else 'no])
+                     8
+                     "on-call n-ary predicate")
+       (check-equal? (on (3 5)
+                         [> (call +)]
+                         [else 'no])
+                     'no
+                     "on-call n-ary predicate"))
+     (test-case
+         "heterogeneous clauses"
+       (check-equal? (on (-3 5)
+                         [> (call +)]
+                         [(or-jux positive? integer?) 'yes]
+                         [else 'no])
+                     'yes
+                     "heterogeneous clauses")
+       (check-equal? (on (-3 5)
+                         [> (call +)]
+                         [(and-jux positive? integer?) 'yes]
+                         [else 'no])
+                     'no
+                     "heterogeneous clauses"))
+     (test-case
+         "all"
+       (check-equal? (on (3 5)
+                         [(all positive?) 'yes]
+                         [else 'no])
+                     'yes)
+       (check-equal? (on (3 -5)
+                         [(all positive?) 'yes]
+                         [else 'no])
+                     'no))
+     (test-case
+         "any"
+       (check-equal? (on (3 5)
+                         [(any positive?) 'yes]
+                         [else 'no])
+                     'yes)
+       (check-equal? (on (3 -5)
+                         [(any positive?) 'yes]
+                         [else 'no])
+                     'yes)
+       (check-equal? (on (-3 -5)
+                         [(any positive?) 'yes]
+                         [else 'no])
+                     'no))
+     (test-case
+         "none"
+       (check-equal? (on (-3 -5)
+                         [(none positive?) 'yes]
+                         [else 'no])
+                     'yes)
+       (check-equal? (on (3 -5)
+                         [(none positive?) 'yes]
+                         [else 'no])
+                     'no)
+       (check-equal? (on (3 5)
+                         [(none positive?) 'yes]
+                         [else 'no])
+                     'no)))))
 
 (module+ test
   (run-tests tests))
