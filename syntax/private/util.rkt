@@ -1,7 +1,6 @@
 #lang racket/base
 
-(require racket/function
-         racket/match)
+(require racket/match)
 
 (provide conjux
          disjux)

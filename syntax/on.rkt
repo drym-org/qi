@@ -1,6 +1,7 @@
 #lang racket/base
 
 (require syntax/parse/define
+         racket/function
          (for-syntax racket/base))
 
 (require "private/util.rkt")
