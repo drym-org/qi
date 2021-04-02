@@ -24,8 +24,8 @@
   [(_ ((~datum and) pred ...)) #'(conjoin (on-predicate pred) ...)]
   [(_ ((~datum or) pred ...)) #'(disjoin (on-predicate pred) ...)]
   [(_ ((~datum not) pred)) #'(negate (on-predicate pred))]
-  [(_ ((~datum and-jux) pred ...)) #'(conjux pred ...)]
-  [(_ ((~datum or-jux) pred ...)) #'(disjux pred ...)]
+  [(_ ((~datum and-jux) pred ...)) #'(conjux (on-predicate pred) ...)]
+  [(_ ((~datum or-jux) pred ...)) #'(disjux (on-predicate pred) ...)]
   [(_ pred) #'pred])
 
 (define-syntax-parser on-consequent
@@ -236,6 +236,20 @@
                          [(and positive?
                                (or (eq? 3)
                                    (eq? 6))) 'yes]
+                         [else 'no])
+                     'no))
+     (test-case
+         "juxtaposed boolean combinators"
+       (check-equal? (on (20 5)
+                         [(and-jux positive?
+                                   (or (> 10)
+                                       odd?)) 'yes]
+                         [else 'no])
+                     'yes)
+       (check-equal? (on (20 5)
+                         [(and-jux positive?
+                                   (or (> 10)
+                                       even?)) 'yes]
                          [else 'no])
                      'no))
      (test-case
