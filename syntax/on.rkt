@@ -21,11 +21,11 @@
   [(_ ((~datum all) pred)) #'(curry give (curry andmap pred))]
   [(_ ((~datum any) pred)) #'(curry give (curry ormap pred))]
   [(_ ((~datum none) pred)) #'(negate (curry give (curry ormap pred)))]
-  [(_ ((~datum and) preds ...)) #'(conjoin preds ...)]
-  [(_ ((~datum or) preds ...)) #'(disjoin preds ...)]
-  [(_ ((~datum not) pred)) #'(negate pred)]
-  [(_ ((~datum and-jux) preds ...)) #'(conjux preds ...)]
-  [(_ ((~datum or-jux) preds ...)) #'(disjux preds ...)]
+  [(_ ((~datum and) pred ...)) #'(conjoin (on-predicate pred) ...)]
+  [(_ ((~datum or) pred ...)) #'(disjoin (on-predicate pred) ...)]
+  [(_ ((~datum not) pred)) #'(negate (on-predicate pred))]
+  [(_ ((~datum and-jux) pred ...)) #'(conjux pred ...)]
+  [(_ ((~datum or-jux) pred ...)) #'(disjux pred ...)]
   [(_ pred) #'pred])
 
 (define-syntax-parser on-consequent
@@ -210,6 +210,32 @@
                      'yes)
        (check-equal? (on (5)
                          [(not positive?) 'yes]
+                         [else 'no])
+                     'no))
+     (test-case
+         "boolean combinators"
+       (check-equal? (on (5)
+                         [(and positive?
+                               (or integer?
+                                   odd?)) 'yes]
+                         [else 'no])
+                     'yes)
+       (check-equal? (on (5)
+                         [(and positive?
+                               (or (> 6)
+                                   even?)) 'yes]
+                         [else 'no])
+                     'no)
+       (check-equal? (on (5)
+                         [(and positive?
+                               (or (eq? 3)
+                                   (eq? 5))) 'yes]
+                         [else 'no])
+                     'yes)
+       (check-equal? (on (5)
+                         [(and positive?
+                               (or (eq? 3)
+                                   (eq? 6))) 'yes]
                          [else 'no])
                      'no))
      (test-case
