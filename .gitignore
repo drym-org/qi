@@ -1,0 +1,6 @@
+# vim noise
+*~
+*.sw?
+compiled
+doc
+coverage
