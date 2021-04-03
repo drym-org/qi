@@ -2,6 +2,7 @@
 
 (require syntax/parse/define
          racket/function
+         mischief/shorthand
          (for-syntax racket/base))
 
 (require "private/util.rkt")
@@ -56,6 +57,22 @@
   [(_ (arg ...) expr ...)
    #'(on (arg ...)
          (if expr ...))])
+
+(define-syntax-parser predicate-lambda
+  [(_ (arg ...) expr ...)
+   #'(lambda (arg ...)
+       (on (arg ...)
+           expr ...))])
+
+(define-alias lambdap predicate-lambda)
+
+(define-alias π predicate-lambda)
+
+(define-syntax-parser define-predicate
+  [(_ (name arg ...) expr ...)
+   #'(define name
+       (predicate-lambda (arg ...)
+         expr ...))])
 
 (module+ test
 
@@ -381,7 +398,27 @@
                               [> (call +)]
                               [(and-jux positive? integer?) 'yes]
                               [else 'no])
-                     'no)))))
+                     'no))
+     (test-case
+         "predicate lambda"
+       (check-true ((predicate-lambda (x)
+                                      (and positive? integer?))
+                    5))
+       (check-false ((predicate-lambda (x)
+                                       (and positive? integer?))
+                     -5))
+       (check-false ((predicate-lambda (x)
+                                       (and positive? integer?))
+                     5.3))
+       (check-true ((predicate-lambda (x y)
+                                      (or < =))
+                    5 6))
+       (check-true ((predicate-lambda (x y)
+                                      (or < =))
+                    5 5))
+       (check-false ((predicate-lambda (x y)
+                                       (or < =))
+                     5 4))))))
 
 (module+ test
   (run-tests tests))
