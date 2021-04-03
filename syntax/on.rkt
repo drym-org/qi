@@ -26,9 +26,9 @@
   [(_ ((~datum not) pred)) #'(negate (on-predicate pred))]
   [(_ ((~datum and-jux) pred ...)) #'(conjux (on-predicate pred) ...)]
   [(_ ((~datum or-jux) pred ...)) #'(disjux (on-predicate pred) ...)]
-  [(_ ((~datum under-map) f pred)) #'(compose
-                                      (curry apply (on-predicate pred))
-                                      (give (curry map f)))]
+  [(_ ((~datum with-key) f pred)) #'(compose
+                                     (curry apply (on-predicate pred))
+                                     (give (curry map f)))]
   [(_ pred) #'pred])
 
 (define-syntax-parser on-consequent
@@ -172,13 +172,13 @@
      (test-case
          "predicate under a mapping"
        (check-equal? (on ("5")
-                         [(under-map string->number
-                                     (< 10)) 'yes]
+                         [(with-key string->number
+                            (< 10)) 'yes]
                          [else 'no])
                      'yes)
        (check-equal? (on ("5")
-                         [(under-map string->number
-                                     (> 10)) 'yes]
+                         [(with-key string->number
+                            (> 10)) 'yes]
                          [else 'no])
                      'no))
      (test-case
