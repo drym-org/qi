@@ -3,6 +3,7 @@
 (require racket/match)
 
 (provide give
+         ->boolean
          conjux
          disjux)
 
@@ -12,6 +13,9 @@
 (define (give f)
   (λ args
     (f args)))
+
+(define (->boolean v)
+  (if v #t #f))
 
 ;; "juxtaposed conjoin"
 (define (conjux . preds)

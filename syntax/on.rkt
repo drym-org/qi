@@ -16,6 +16,9 @@
 (define-syntax-parser on-predicate
   [(_ ((~datum eq?) v)) #'(curry eq? v)]
   [(_ ((~datum equal?) v)) #'(curry equal? v)]
+  [(_ ((~datum one-of?) v ...)) #'(compose
+                                   ->boolean
+                                   (curryr member (list v ...)))]
   [(_ ((~datum =) v)) #'(curry = v)]
   [(_ ((~datum <) v)) #'(curryr < v)]
   [(_ ((~datum >) v)) #'(curryr > v)]
@@ -189,6 +192,16 @@
                              [(equal? "hello") 'hello]
                              [else 'not-hello])
                      'not-hello))
+     (test-case
+         "one-of?"
+       (check-equal? (switch ("hello")
+                             [(one-of? "hi" "hello") 'yes]
+                             [else 'no])
+                     'yes)
+       (check-equal? (switch ("hello")
+                             [(one-of? "hi" "ola") 'yes]
+                             [else 'no])
+                     'no))
      (test-case
          "<"
        (check-equal? (switch (5)
