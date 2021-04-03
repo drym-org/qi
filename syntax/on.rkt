@@ -18,14 +18,17 @@
   [(_ ((~datum =) v)) #'(curry = v)]
   [(_ ((~datum <) v)) #'(curryr < v)]
   [(_ ((~datum >) v)) #'(curryr > v)]
-  [(_ ((~datum all) pred)) #'(curry give (curry andmap pred))]
-  [(_ ((~datum any) pred)) #'(curry give (curry ormap pred))]
-  [(_ ((~datum none) pred)) #'(negate (curry give (curry ormap pred)))]
+  [(_ ((~datum all) pred)) #'(give (curry andmap pred))]
+  [(_ ((~datum any) pred)) #'(give (curry ormap pred))]
+  [(_ ((~datum none) pred)) #'(negate (give (curry ormap pred)))]
   [(_ ((~datum and) pred ...)) #'(conjoin (on-predicate pred) ...)]
   [(_ ((~datum or) pred ...)) #'(disjoin (on-predicate pred) ...)]
   [(_ ((~datum not) pred)) #'(negate (on-predicate pred))]
   [(_ ((~datum and-jux) pred ...)) #'(conjux (on-predicate pred) ...)]
   [(_ ((~datum or-jux) pred ...)) #'(disjux (on-predicate pred) ...)]
+  [(_ ((~datum under-map) f pred)) #'(compose
+                                      (curry apply (on-predicate pred))
+                                      (give (curry map f)))]
   [(_ pred) #'pred])
 
 (define-syntax-parser on-consequent
@@ -164,6 +167,18 @@
                      'yes)
        (check-equal? (on (5)
                          [(= 10) 'yes]
+                         [else 'no])
+                     'no))
+     (test-case
+         "predicate under a mapping"
+       (check-equal? (on ("5")
+                         [(under-map string->number
+                                     (< 10)) 'yes]
+                         [else 'no])
+                     'yes)
+       (check-equal? (on ("5")
+                         [(under-map string->number
+                                     (> 10)) 'yes]
                          [else 'no])
                      'no))
      (test-case

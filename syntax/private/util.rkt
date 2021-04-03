@@ -9,8 +9,9 @@
 ;; give a (list-)lifted function available arguments
 ;; directly instead of wrapping them with a list
 ;; related to `unpack`
-(define (give f . args)
-  (f args))
+(define (give f)
+  (λ args
+    (f args)))
 
 ;; "juxtaposed conjoin"
 (define (conjux . preds)
