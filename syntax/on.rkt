@@ -39,14 +39,14 @@
 (define-syntax-parser on
   [(_ (arg ...)) #'(cond)]
   [(_ (arg ...)
-      (if [predicate consequent ...] ...
-          [(~datum else) else-consequent ...]))
+      ((~datum if) [predicate consequent ...] ...
+                   [(~datum else) else-consequent ...]))
    #'(cond [((on-predicate predicate) arg ...)
             (on-consequent consequent arg ...) ...]
            ...
            [else (on-consequent else-consequent arg ...) ...])]
   [(_ (arg ...)
-      (if [predicate consequent ...] ...))
+      ((~datum if) [predicate consequent ...] ...))
    #'(cond [((on-predicate predicate) arg ...)
             (on-consequent consequent arg ...) ...]
            ...)]
@@ -418,7 +418,15 @@
                     5 5))
        (check-false ((predicate-lambda (x y)
                                        (or < =))
-                     5 4))))))
+                     5 4))
+       (check-true ((π (x) (and (> 5) (< 10))) 7))
+       (check-false ((π (x) (and (> 5) (< 10))) 2))
+       (check-false ((π (x) (and (> 5) (< 10))) 12)))
+     (test-case
+         "..."
+       (check-true (on (6) (and (> 5) (< 10))))
+       (check-false (on (4) (and (> 5) (< 10))))
+       (check-false (on (14) (and (> 5) (< 10))))))))
 
 (module+ test
   (run-tests tests))
