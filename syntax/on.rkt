@@ -7,7 +7,14 @@
 
 (require "private/util.rkt")
 
-(provide on)
+(provide on
+         switch
+         switch-lambda
+         define-switch
+         predicate-lambda
+         define-predicate
+         lambdap
+         π)
 
 (module+ test
   (require rackunit
