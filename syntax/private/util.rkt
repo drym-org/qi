@@ -5,7 +5,8 @@
 (provide give
          ->boolean
          conjux
-         disjux)
+         disjux
+         map-values)
 
 ;; give a (list-)lifted function available arguments
 ;; directly instead of wrapping them with a list
@@ -14,8 +15,11 @@
   (λ args
     (f args)))
 
+(define (map-values f . args)
+  (apply values (map f args)))
+
 (define (->boolean v)
-  (if v #t #f))
+  (not (not v)))
 
 ;; "juxtaposed conjoin"
 (define (conjux . preds)

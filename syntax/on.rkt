@@ -11,6 +11,8 @@
          switch
          switch-lambda
          define-switch
+         lambda/subject
+         define/subject
          predicate-lambda
          define-predicate
          lambdap
@@ -40,6 +42,8 @@
   [(_ ((~datum with-key) f pred)) #'(compose
                                      (curry apply (on-predicate pred))
                                      (give (curry map f)))]
+  [(_ ((~datum ..) fn ...)) #'(compose (on-predicate fn) ...)]
+  [(_ ((~datum %) fn)) #'(curry map-values (on-predicate fn))]
   [(_ pred) #'pred])
 
 (define-syntax-parser on-consequent
@@ -68,21 +72,25 @@
    #'(on (arg ...)
          (if expr ...))])
 
-(define-syntax-parser predicate-lambda
+(define-syntax-parser lambda/subject
   [(_ (arg ...) expr ...)
    #'(lambda (arg ...)
        (on (arg ...)
            expr ...))])
 
+(define-alias predicate-lambda lambda/subject)
+
 (define-alias lambdap predicate-lambda)
 
 (define-alias π predicate-lambda)
 
-(define-syntax-parser define-predicate
+(define-syntax-parser define/subject
   [(_ (name arg ...) expr ...)
    #'(define name
-       (predicate-lambda (arg ...)
+       (lambda/subject (arg ...)
          expr ...))])
+
+(define-alias define-predicate define/subject)
 
 (define-syntax-parser switch-lambda
   [(_ (arg ...) expr ...)
@@ -127,10 +135,18 @@
                        (or eq?
                            equal?
                            (with-key string->number =))))
+       (check-true (on ("5.0" "5")
+                       (or eq?
+                           equal?
+                           (.. = (% string->number)))))
        (check-false (on ("5" "6")
                         (or eq?
                             equal?
-                            (with-key string->number =)))))
+                            (with-key string->number =))))
+       (check-false (on ("5" "6")
+                        (or eq?
+                            equal?
+                            (.. = (% string->number))))))
      (test-case
          "unary predicate"
        (check-equal? (switch (5)
