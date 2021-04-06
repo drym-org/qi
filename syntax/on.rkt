@@ -42,12 +42,17 @@
   [(_ ((~datum with-key) f pred)) #'(compose
                                      (curry apply (on-predicate pred))
                                      (give (curry map f)))]
-  [(_ ((~datum ..) fn ...)) #'(compose (on-predicate fn) ...)]
-  [(_ ((~datum %) fn)) #'(curry map-values (on-predicate fn))]
+  [(_ ((~datum ..) func ...)) #'(compose (on-predicate func) ...)]
+  [(_ ((~datum %) func)) #'(curry map-values (on-predicate func))]
   [(_ pred) #'pred])
 
+(define-syntax-parser on-consequent-call
+  [(_ ((~datum ..) func ...)) #'(compose (on-consequent-call func) ...)]
+  [(_ ((~datum %) func)) #'(curry map-values func)]
+  [(_ func) #'func])
+
 (define-syntax-parser on-consequent
-  [(_ ((~datum call) func) arg ...) #'(func arg ...)]
+  [(_ ((~datum call) func) arg ...) #'((on-consequent-call func) arg ...)]
   [(_ consequent arg ...) #'consequent])
 
 (define-syntax-parser on
@@ -396,7 +401,12 @@
                              [> (call +)]
                              [else 'no])
                      'no
-                     "n-ary predicate"))
+                     "n-ary predicate")
+       (check-equal? (switch (3 5)
+                             [< (call (.. + (% add1)))]
+                             [else 'no])
+                     10
+                     ".. and % in call position"))
      (test-case
          "all"
        (check-equal? (switch (3 5)
