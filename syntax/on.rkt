@@ -56,29 +56,29 @@
   [(_ consequent arg ...) #'consequent])
 
 (define-syntax-parser on
-  [(_ (arg ...)) #'(cond)]
-  [(_ (arg ...)
+  [(_ (arg:expr ...)) #'(cond)]
+  [(_ (arg:expr ...)
       ((~datum if) [predicate consequent ...] ...
                    [(~datum else) else-consequent ...]))
    #'(cond [((on-predicate predicate) arg ...)
             (on-consequent consequent arg ...) ...]
            ...
            [else (on-consequent else-consequent arg ...) ...])]
-  [(_ (arg ...)
+  [(_ (arg:expr ...)
       ((~datum if) [predicate consequent ...] ...))
    #'(cond [((on-predicate predicate) arg ...)
             (on-consequent consequent arg ...) ...]
            ...)]
-  [(_ (arg ...) predicate)
+  [(_ (arg:expr ...) predicate)
    #'((on-predicate predicate) arg ...)])
 
 (define-syntax-parser switch
-  [(_ (arg ...) expr ...)
+  [(_ (arg:expr ...) expr:expr ...)
    #'(on (arg ...)
          (if expr ...))])
 
 (define-syntax-parser lambda/subject
-  [(_ (arg ...) expr ...)
+  [(_ (arg:id ...) expr:expr ...)
    #'(lambda (arg ...)
        (on (arg ...)
            expr ...))])
@@ -90,7 +90,7 @@
 (define-alias π predicate-lambda)
 
 (define-syntax-parser define/subject
-  [(_ (name arg ...) expr ...)
+  [(_ (name:id arg:id ...) expr:expr ...)
    #'(define name
        (lambda/subject (arg ...)
          expr ...))])
@@ -98,13 +98,13 @@
 (define-alias define-predicate define/subject)
 
 (define-syntax-parser switch-lambda
-  [(_ (arg ...) expr ...)
+  [(_ (arg:id ...) expr:expr ...)
    #'(lambda (arg ...)
        (switch (arg ...)
                expr ...))])
 
 (define-syntax-parser define-switch
-  [(_ (name arg ...) expr ...)
+  [(_ (name:id arg:id ...) expr:expr ...)
    #'(define name
        (switch-lambda (arg ...)
                       expr ...))])
