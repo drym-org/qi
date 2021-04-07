@@ -129,7 +129,11 @@
        (check-equal? (switch (5)
                              [positive? 1 2 3])
                      3
-                     "more than one body form"))
+                     "more than one body form")
+       (check-equal? (on ()
+                         (const 3))
+                     3
+                     "no arguments"))
      (test-case
          "predicate-only"
        (check-true (on (5)
