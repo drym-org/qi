@@ -16,7 +16,8 @@
          predicate-lambda
          define-predicate
          lambdap
-         π)
+         π
+         λ01)
 
 (module+ test
   (require rackunit
@@ -110,6 +111,8 @@
    #'(lambda (arg ...)
        (switch (arg ...)
                expr ...))])
+
+(define-alias λ01 switch-lambda)
 
 (define-syntax-parser define-switch
   [(_ (name:id arg:id ...) expr:expr ...)
