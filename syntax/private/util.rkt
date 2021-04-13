@@ -1,9 +1,12 @@
 #lang racket/base
 
-(require racket/match)
+(require racket/match
+         (only-in racket/function const))
 
 (provide give
          ->boolean
+         true.
+         false.
          conjux
          disjux
          map-values)
@@ -20,6 +23,14 @@
 
 (define (->boolean v)
   (not (not v)))
+
+(define true.
+  (procedure-rename (const #t)
+                    'true.))
+
+(define false.
+  (procedure-rename (const #f)
+                    'false.))
 
 ;; "juxtaposed conjoin"
 (define (conjux . preds)

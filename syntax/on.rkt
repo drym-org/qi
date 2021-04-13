@@ -22,6 +22,14 @@
   (require rackunit
            rackunit/text-ui))
 
+(define-syntax-parser conjux-predicate
+  [(_ (~datum _)) #'true.]
+  [(_ pred) #'(on-predicate pred)])
+
+(define-syntax-parser disjux-predicate
+  [(_ (~datum _)) #'false.]
+  [(_ pred) #'(on-predicate pred)])
+
 (define-syntax-parser on-predicate
   [(_ ((~datum eq?) v)) #'(curry eq? v)]
   [(_ ((~datum equal?) v)) #'(curry equal? v)]
@@ -37,8 +45,8 @@
   [(_ ((~datum and) pred ...)) #'(conjoin (on-predicate pred) ...)]
   [(_ ((~datum or) pred ...)) #'(disjoin (on-predicate pred) ...)]
   [(_ ((~datum not) pred)) #'(negate (on-predicate pred))]
-  [(_ ((~datum and-jux) pred ...)) #'(conjux (on-predicate pred) ...)]
-  [(_ ((~datum or-jux) pred ...)) #'(disjux (on-predicate pred) ...)]
+  [(_ ((~datum and%) pred ...)) #'(conjux (conjux-predicate pred) ...)]
+  [(_ ((~datum or%) pred ...)) #'(disjux (disjux-predicate pred) ...)]
   [(_ ((~datum with-key) f pred)) #'(compose
                                      (curry apply (on-predicate pred))
                                      (give (curry map f)))]
@@ -351,39 +359,63 @@
      (test-case
          "juxtaposed boolean combinators"
        (check-equal? (switch (20 5)
-                             [(and-jux positive?
-                                       (or (> 10)
-                                           odd?)) 'yes]
+                             [(and% positive?
+                                    (or (> 10)
+                                        odd?)) 'yes]
                              [else 'no])
                      'yes)
        (check-equal? (switch (20 5)
-                             [(and-jux positive?
-                                       (or (> 10)
-                                           even?)) 'yes]
+                             [(and% positive?
+                                    (or (> 10)
+                                        even?)) 'yes]
                              [else 'no])
                      'no))
      (test-case
          "juxtaposed conjoin"
        (check-equal? (switch (5 "hi")
-                             [(and-jux positive? string?) 'yes]
+                             [(and% positive? string?) 'yes]
                              [else 'no])
                      'yes)
        (check-equal? (switch (5 5)
-                             [(and-jux positive? string?) 'yes]
+                             [(and% positive? string?) 'yes]
                              [else 'no])
-                     'no))
+                     'no)
+       (check-equal? (switch (5 "hi")
+                             [(and% positive? _) 'yes]
+                             [else 'no])
+                     'yes)
+       (check-equal? (switch (5 "hi")
+                             [(and% _ string?) 'yes]
+                             [else 'no])
+                     'yes))
      (test-case
          "juxtaposed disjoin"
        (check-equal? (switch (5 "hi")
-                             [(or-jux positive? string?) 'yes]
+                             [(or% positive? string?) 'yes]
                              [else 'no])
                      'yes)
        (check-equal? (switch (-5 "hi")
-                             [(or-jux positive? string?) 'yes]
+                             [(or% positive? string?) 'yes]
                              [else 'no])
                      'yes)
        (check-equal? (switch (-5 5)
-                             [(or-jux positive? string?) 'yes]
+                             [(or% positive? string?) 'yes]
+                             [else 'no])
+                     'no)
+       (check-equal? (switch (-5 "hi")
+                             [(or% positive? _) 'yes]
+                             [else 'no])
+                     'no)
+       (check-equal? (switch (5 "hi")
+                             [(or% positive? _) 'yes]
+                             [else 'no])
+                     'yes)
+       (check-equal? (switch (5 "hi")
+                             [(or% _ string?) 'yes]
+                             [else 'no])
+                     'yes)
+       (check-equal? (switch (5 5)
+                             [(or% _ string?) 'yes]
                              [else 'no])
                      'no))
      (test-case
@@ -453,12 +485,12 @@
          "heterogeneous clauses"
        (check-equal? (switch (-3 5)
                              [> (call +)]
-                             [(or-jux positive? integer?) 'yes]
+                             [(or% positive? integer?) 'yes]
                              [else 'no])
                      'yes)
        (check-equal? (switch (-3 5)
                              [> (call +)]
-                             [(and-jux positive? integer?) 'yes]
+                             [(and% positive? integer?) 'yes]
                              [else 'no])
                      'no))
      (test-case
