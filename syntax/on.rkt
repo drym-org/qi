@@ -90,6 +90,10 @@
   [(_ (arg:id ...) expr:expr ...)
    #'(lambda (arg ...)
        (on (arg ...)
+           expr ...))]
+  [(_ rest-args:id expr:expr ...)
+   #'(lambda rest-args
+       (on (rest-args)
            expr ...))])
 
 (define-alias predicate-lambda lambda/subject)
@@ -110,6 +114,10 @@
   [(_ (arg:id ...) expr:expr ...)
    #'(lambda (arg ...)
        (switch (arg ...)
+               expr ...))]
+  [(_ rest-args:id expr:expr ...)
+   #'(lambda rest-args
+       (switch (rest-args)
                expr ...))])
 
 (define-alias λ01 switch-lambda)
@@ -518,7 +526,10 @@
                      5 4))
        (check-true ((π (x) (and (> 5) (< 10))) 7))
        (check-false ((π (x) (and (> 5) (< 10))) 2))
-       (check-false ((π (x) (and (> 5) (< 10))) 12)))
+       (check-false ((π (x) (and (> 5) (< 10))) 12))
+       (check-true ((π args list?) 1 2 3) "packed args")
+       (check-false ((π args (.. (> 3) length)) 1 2 3) "packed args")
+       (check-true ((π args (.. (> 3) length)) 1 2 3 4) "packed args"))
      (test-case
          "switch lambda"
        (check-equal? ((switch-lambda (x)
@@ -547,7 +558,18 @@
                                      [(or < =) 'a]
                                      [else 'b])
                       5 4)
-                     'b))
+                     'b)
+       (check-equal? ((λ01 args [list? 'a]) 1 2 3) 'a)
+       (check-equal? ((λ01 args
+                           [(.. (> 3) length) 'a]
+                           [else 'b]) 1 2 3)
+                     'b
+                     "packed args")
+       (check-equal? ((λ01 args
+                           [(.. (> 3) length) 'a]
+                           [else 'b]) 1 2 3 4)
+                     'a
+                     "packed args"))
      (test-case
          "inline predicate"
        (check-true (on (6) (and (> 5) (< 10))))
