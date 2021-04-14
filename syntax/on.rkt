@@ -21,7 +21,8 @@
 
 (module+ test
   (require rackunit
-           rackunit/text-ui))
+           rackunit/text-ui
+           math))
 
 (define-syntax-parser conjux-predicate
   [(_ (~datum _)) #'true.]
@@ -57,7 +58,7 @@
 
 (define-syntax-parser on-consequent-call
   [(_ ((~datum ..) func ...)) #'(compose (on-consequent-call func) ...)]
-  [(_ ((~datum %) func)) #'(curry map-values func)]
+  [(_ ((~datum %) func)) #'(curry map-values (on-consequent-call func))]
   [(_ func) #'func])
 
 (define-syntax-parser on-consequent
@@ -453,6 +454,11 @@
                              [< (call (.. + (% add1)))]
                              [else 'no])
                      10
+                     ".. and % in call position")
+       (check-equal? (switch (3 5)
+                             [< (call (.. + (% (.. add1 sqr))))]
+                             [else 'no])
+                     36
                      ".. and % in call position"))
      (test-case
          "all"
