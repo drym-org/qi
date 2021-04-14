@@ -54,11 +54,13 @@
                                      (give (curry map f)))]
   [(_ ((~datum ..) func ...)) #'(compose (on-predicate func) ...)]
   [(_ ((~datum %) func)) #'(curry map-values (on-predicate func))]
+  [(_ ((~datum apply) func)) #'(curry apply (on-predicate func))]
   [(_ pred) #'pred])
 
 (define-syntax-parser on-consequent-call
   [(_ ((~datum ..) func ...)) #'(compose (on-consequent-call func) ...)]
   [(_ ((~datum %) func)) #'(curry map-values (on-consequent-call func))]
+  [(_ ((~datum apply) func)) #'(curry apply (on-consequent-call func))]
   [(_ func) #'func])
 
 (define-syntax-parser on-consequent
@@ -499,6 +501,23 @@
                              [else 'no])
                      'no))
      (test-case
+         "apply"
+       (check-equal? (switch ((list 1 2 3))
+                             [(apply >) 'yes]
+                             [else 'no])
+                     'no
+                     "apply in predicate")
+       (check-equal? (switch ((list 3 2 1))
+                             [(apply >) 'yes]
+                             [else 'no])
+                     'yes
+                     "apply in predicate")
+       (check-equal? (switch ((list 3 2 1))
+                             [(apply >) (call (apply +))]
+                             [else 'no])
+                     6
+                     "apply in consequent"))
+     (test-case
          "heterogeneous clauses"
        (check-equal? (switch (-3 5)
                              [> (call +)]
@@ -535,7 +554,9 @@
        (check-false ((π (x) (and (> 5) (< 10))) 12))
        (check-true ((π args list?) 1 2 3) "packed args")
        (check-false ((π args (.. (> 3) length)) 1 2 3) "packed args")
-       (check-true ((π args (.. (> 3) length)) 1 2 3 4) "packed args"))
+       (check-true ((π args (.. (> 3) length)) 1 2 3 4) "packed args")
+       (check-false ((π args (apply >)) 1 2 3) "apply with packed args")
+       (check-true ((π args (apply >)) 3 2 1) "apply with packed args"))
      (test-case
          "switch lambda"
        (check-equal? ((switch-lambda (x)
@@ -575,7 +596,17 @@
                            [(.. (> 3) length) 'a]
                            [else 'b]) 1 2 3 4)
                      'a
-                     "packed args"))
+                     "packed args")
+       (check-equal? ((λ01 args
+                           [(apply <) 'a]
+                           [else 'b]) 1 2 3)
+                     'a
+                     "apply with packed args")
+       (check-equal? ((λ01 args
+                           [(apply <) 'a]
+                           [else 'b]) 1 3 2)
+                     'b
+                     "apply with packed args"))
      (test-case
          "inline predicate"
        (check-true (on (6) (and (> 5) (< 10))))
