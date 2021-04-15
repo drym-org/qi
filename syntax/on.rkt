@@ -26,46 +26,46 @@
 
 (define-syntax-parser conjux-predicate
   [(_ (~datum _)) #'true.]
-  [(_ pred) #'(on-predicate pred)])
+  [(_ pred:expr) #'(on-predicate pred)])
 
 (define-syntax-parser disjux-predicate
   [(_ (~datum _)) #'false.]
-  [(_ pred) #'(on-predicate pred)])
+  [(_ pred:expr) #'(on-predicate pred)])
 
 (define-syntax-parser on-predicate
-  [(_ ((~datum eq?) v)) #'(curry eq? v)]
-  [(_ ((~datum equal?) v)) #'(curry equal? v)]
-  [(_ ((~datum one-of?) v ...)) #'(compose
-                                   ->boolean
-                                   (curryr member (list v ...)))]
-  [(_ ((~datum =) v)) #'(curry = v)]
-  [(_ ((~datum <) v)) #'(curryr < v)]
-  [(_ ((~datum >) v)) #'(curryr > v)]
-  [(_ ((~datum all) pred)) #'(give (curry andmap (on-predicate pred)))]
-  [(_ ((~datum any) pred)) #'(give (curry ormap (on-predicate pred)))]
-  [(_ ((~datum none) pred)) #'(on-predicate (not (any pred)))]
-  [(_ ((~datum and) pred ...)) #'(conjoin (on-predicate pred) ...)]
-  [(_ ((~datum or) pred ...)) #'(disjoin (on-predicate pred) ...)]
-  [(_ ((~datum not) pred)) #'(negate (on-predicate pred))]
-  [(_ ((~datum and%) pred ...)) #'(conjux (conjux-predicate pred) ...)]
-  [(_ ((~datum or%) pred ...)) #'(disjux (disjux-predicate pred) ...)]
-  [(_ ((~datum with-key) f pred)) #'(compose
-                                     (curry apply (on-predicate pred))
-                                     (give (curry map f)))]
-  [(_ ((~datum ..) func ...)) #'(compose (on-predicate func) ...)]
-  [(_ ((~datum %) func)) #'(curry map-values (on-predicate func))]
-  [(_ ((~datum apply) func)) #'(curry apply (on-predicate func))]
-  [(_ pred) #'pred])
+  [(_ ((~datum eq?) v:expr)) #'(curry eq? v)]
+  [(_ ((~datum equal?) v:expr)) #'(curry equal? v)]
+  [(_ ((~datum one-of?) v:expr ...)) #'(compose
+                                        ->boolean
+                                        (curryr member (list v ...)))]
+  [(_ ((~datum =) v:expr)) #'(curry = v)]
+  [(_ ((~datum <) v:expr)) #'(curryr < v)]
+  [(_ ((~datum >) v:expr)) #'(curryr > v)]
+  [(_ ((~datum all) pred:expr)) #'(give (curry andmap (on-predicate pred)))]
+  [(_ ((~datum any) pred:expr)) #'(give (curry ormap (on-predicate pred)))]
+  [(_ ((~datum none) pred:expr)) #'(on-predicate (not (any pred)))]
+  [(_ ((~datum and) pred:expr ...)) #'(conjoin (on-predicate pred) ...)]
+  [(_ ((~datum or) pred:expr ...)) #'(disjoin (on-predicate pred) ...)]
+  [(_ ((~datum not) pred:expr)) #'(negate (on-predicate pred))]
+  [(_ ((~datum and%) pred:expr ...)) #'(conjux (conjux-predicate pred) ...)]
+  [(_ ((~datum or%) pred:expr ...)) #'(disjux (disjux-predicate pred) ...)]
+  [(_ ((~datum with-key) f:expr pred:expr)) #'(compose
+                                               (curry apply (on-predicate pred))
+                                               (give (curry map f)))]
+  [(_ ((~datum ..) func:expr ...)) #'(compose (on-predicate func) ...)]
+  [(_ ((~datum %) func:expr)) #'(curry map-values (on-predicate func))]
+  [(_ ((~datum apply) func:expr)) #'(curry apply (on-predicate func))]
+  [(_ pred:expr) #'pred])
 
 (define-syntax-parser on-consequent-call
-  [(_ ((~datum ..) func ...)) #'(compose (on-consequent-call func) ...)]
-  [(_ ((~datum %) func)) #'(curry map-values (on-consequent-call func))]
-  [(_ ((~datum apply) func)) #'(curry apply (on-consequent-call func))]
-  [(_ func) #'func])
+  [(_ ((~datum ..) func:expr ...)) #'(compose (on-consequent-call func) ...)]
+  [(_ ((~datum %) func:expr)) #'(curry map-values (on-consequent-call func))]
+  [(_ ((~datum apply) func:expr)) #'(curry apply (on-consequent-call func))]
+  [(_ func:expr) #'func])
 
 (define-syntax-parser on-consequent
-  [(_ ((~datum call) func) arg ...) #'((on-consequent-call func) arg ...)]
-  [(_ consequent arg ...) #'consequent])
+  [(_ ((~datum call) func:expr) arg:expr ...) #'((on-consequent-call func) arg ...)]
+  [(_ consequent:expr arg:expr ...) #'consequent])
 
 (define-syntax-parser on
   [(_ (arg:expr ...)) #'(cond)]
