@@ -41,6 +41,8 @@
   [(_ ((~datum =) v:expr)) #'(curry = v)]
   [(_ ((~datum <) v:expr)) #'(curryr < v)]
   [(_ ((~datum >) v:expr)) #'(curryr > v)]
+  [(_ ((~or* (~datum <=) (~datum ≤)) v:expr)) #'(curryr <= v)]
+  [(_ ((~or* (~datum >=) (~datum ≥)) v:expr)) #'(curryr >= v)]
   [(_ ((~datum all) pred:expr)) #'(give (curry andmap (on-predicate pred)))]
   [(_ ((~datum any) pred:expr)) #'(give (curry ormap (on-predicate pred)))]
   [(_ ((~datum none) pred:expr)) #'(on-predicate (not (any pred)))]
@@ -263,7 +265,21 @@
                              [else 'no])
                      'yes)
        (check-equal? (switch (5)
-                             [(< 1) 'yes]
+                             [(< 5) 'yes]
+                             [else 'no])
+                     'no))
+     (test-case
+         "<="
+       (check-equal? (switch (5)
+                             [(<= 10) 'yes]
+                             [else 'no])
+                     'yes)
+       (check-equal? (switch (5)
+                             [(<= 5) 'yes]
+                             [else 'no])
+                     'yes)
+       (check-equal? (switch (5)
+                             [(<= 1) 'yes]
                              [else 'no])
                      'no))
      (test-case
@@ -273,7 +289,21 @@
                              [else 'no])
                      'yes)
        (check-equal? (switch (5)
-                             [(> 10) 'yes]
+                             [(> 5) 'yes]
+                             [else 'no])
+                     'no))
+     (test-case
+         ">="
+       (check-equal? (switch (5)
+                             [(>= 1) 'yes]
+                             [else 'no])
+                     'yes)
+       (check-equal? (switch (5)
+                             [(>= 5) 'yes]
+                             [else 'no])
+                     'yes)
+       (check-equal? (switch (5)
+                             [(>= 10) 'yes]
                              [else 'no])
                      'no))
      (test-case
