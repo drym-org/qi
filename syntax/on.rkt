@@ -59,6 +59,8 @@
   [(_ ((~datum apply) func:expr)) #'(curry apply (on-predicate func))]
   [(_ ((~datum map) func:expr)) #'(curry map (on-predicate func))]
   [(_ ((~datum filter) func:expr)) #'(curry filter (on-predicate func))]
+  [(_ ((~datum foldl) func:expr init:expr)) #'(curry foldl (on-predicate func) init)]
+  [(_ ((~datum foldr) func:expr init:expr)) #'(curry foldr (on-predicate func) init)]
   [(_ pred:expr) #'pred])
 
 (define-syntax-parser on-consequent-call
@@ -67,6 +69,8 @@
   [(_ ((~datum apply) func:expr)) #'(curry apply (on-consequent-call func))]
   [(_ ((~datum map) func:expr)) #'(curry map (on-consequent-call func))]
   [(_ ((~datum filter) func:expr)) #'(curry filter (on-consequent-call func))]
+  [(_ ((~datum foldl) func:expr init:expr)) #'(curry foldl (on-consequent-call func) init)]
+  [(_ ((~datum foldr) func:expr init:expr)) #'(curry foldr (on-consequent-call func) init)]
   [(_ func:expr) #'func])
 
 (define-syntax-parser on-consequent
@@ -573,6 +577,28 @@
                              [else 'no])
                      (list 2)
                      "filter in consequent"))
+     (test-case
+         "foldl"
+       (check-equal? (on ((list "a" "b" "c"))
+                         (foldl string-append ""))
+                     "cba"
+                     "foldl in predicate")
+       (check-equal? (switch ((list 3 2 1))
+                             [(apply >) (call (foldl + 1))]
+                             [else 'no])
+                     7
+                     "foldl in consequent"))
+     (test-case
+         "foldr"
+       (check-equal? (on ((list "a" "b" "c"))
+                         (foldr string-append ""))
+                     "abc"
+                     "foldr in predicate")
+       (check-equal? (switch ((list 3 2 1))
+                             [(apply >) (call (foldr + 1))]
+                             [else 'no])
+                     7
+                     "foldr in consequent"))
      (test-case
          "heterogeneous clauses"
        (check-equal? (switch (-3 5)

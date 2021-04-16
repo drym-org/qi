@@ -66,6 +66,8 @@ The core form that defines and uses the predicate language is @racket[on], which
                             (% predicate)
 							(map predicate)
 							(filter predicate)
+							(foldl predicate value-expr)
+							(foldr predicate value-expr)
                             (apply predicate)]
                  [consequent expr
                              (call call-expr)]
@@ -74,6 +76,8 @@ The core form that defines and uses the predicate language is @racket[on], which
                             (% call-expr)
 							(map call-expr)
 							(filter call-expr)
+							(foldl call-expr value-expr)
+							(foldr call-expr value-expr)
                             (apply call-expr)]
                  [procedure-expr (code:line any expression evaluating to a procedure)]
                  [value-expr (code:line any expression evaluating to a value)]
