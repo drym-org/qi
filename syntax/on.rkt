@@ -58,6 +58,7 @@
   [(_ ((~datum %) func:expr)) #'(curry map-values (on-predicate func))]
   [(_ ((~datum apply) func:expr)) #'(curry apply (on-predicate func))]
   [(_ ((~datum map) func:expr)) #'(curry map (on-predicate func))]
+  [(_ ((~datum filter) func:expr)) #'(curry filter (on-predicate func))]
   [(_ pred:expr) #'pred])
 
 (define-syntax-parser on-consequent-call
@@ -65,6 +66,7 @@
   [(_ ((~datum %) func:expr)) #'(curry map-values (on-consequent-call func))]
   [(_ ((~datum apply) func:expr)) #'(curry apply (on-consequent-call func))]
   [(_ ((~datum map) func:expr)) #'(curry map (on-consequent-call func))]
+  [(_ ((~datum filter) func:expr)) #'(curry filter (on-consequent-call func))]
   [(_ func:expr) #'func])
 
 (define-syntax-parser on-consequent
@@ -560,6 +562,17 @@
                              [else 'no])
                      (list 4 3 2)
                      "map in consequent"))
+     (test-case
+         "filter"
+       (check-equal? (on ((list 1 2 3))
+                         (filter odd?))
+                     (list 1 3)
+                     "filter in predicate")
+       (check-equal? (switch ((list 3 2 1))
+                             [(apply >) (call (filter even?))]
+                             [else 'no])
+                     (list 2)
+                     "filter in consequent"))
      (test-case
          "heterogeneous clauses"
        (check-equal? (switch (-3 5)
