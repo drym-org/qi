@@ -64,12 +64,14 @@ The core form that defines and uses the predicate language is @racket[on], which
                             (with-key procedure-expr predicate)
                             (.. predicate ...)
                             (% predicate)
+							(map predicate)
                             (apply predicate)]
                  [consequent expr
                              (call call-expr)]
                  [call-expr procedure-expr
                             (.. call-expr ...)
                             (% call-expr)
+							(map call-expr)
                             (apply call-expr)]
                  [procedure-expr (code:line any expression evaluating to a procedure)]
                  [value-expr (code:line any expression evaluating to a value)]
