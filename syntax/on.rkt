@@ -19,7 +19,7 @@
          lambdap
          π
          λ01
-         result)
+         <result>)
 
 (module+ test
   (require rackunit
@@ -79,7 +79,7 @@
   [(_ ((~datum call) func:expr) arg:expr ...) #'((on-consequent-call func) arg ...)]
   [(_ consequent:expr arg:expr ...) #'consequent])
 
-(define-syntax-parameter result
+(define-syntax-parameter <result>
   (lambda (stx)
     (raise-syntax-error (syntax-e stx) "can only be used inside `on`")))
 
@@ -91,7 +91,7 @@
    #'(cond [((on-predicate predicate) arg ...)
             =>
             (λ (x)
-              (syntax-parameterize ([result (make-rename-transformer #'x)])
+              (syntax-parameterize ([<result> (make-rename-transformer #'x)])
                 (on-consequent consequent arg ...)
                 ...))]
            ...
@@ -101,7 +101,7 @@
    #'(cond [((on-predicate predicate) arg ...)
             =>
             (λ (x)
-              (syntax-parameterize ([result (make-rename-transformer #'x)])
+              (syntax-parameterize ([<result> (make-rename-transformer #'x)])
                 (on-consequent consequent arg ...)
                 ...))]
            ...)]
@@ -711,23 +711,23 @@
      (test-case
          "result of predicate expression"
        (check-equal? (switch (6)
-                             [add1 (add1 result)]
+                             [add1 (add1 <result>)]
                              [else 'hi])
                      8)
        (check-equal? (switch (2)
-                             [(curryr member (list 1 5 4 2 6)) result]
+                             [(curryr member (list 1 5 4 2 6)) <result>]
                              [else 'hi])
                      (list 2 6))
        (check-equal? (switch (2)
-                             [(curryr member (list 1 5 4 2 6)) (length result)]
+                             [(curryr member (list 1 5 4 2 6)) (length <result>)]
                              [else 'hi])
                      2)
        (check-equal? (switch ((list add1 sub1))
-                             [(curry car) (result 5)]
+                             [(curry car) (<result> 5)]
                              [else 'hi])
                      6)
        (check-equal? (switch (2 3)
-                             [+ result]
+                             [+ <result>]
                              [else 'hi])
                      5)))))
 
