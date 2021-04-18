@@ -1,6 +1,7 @@
 #lang racket/base
 
 (require syntax/parse/define
+         racket/stxparam
          racket/function
          mischief/shorthand
          (for-syntax racket/base))
@@ -17,7 +18,8 @@
          define-predicate
          lambdap
          π
-         λ01)
+         λ01
+         result)
 
 (module+ test
   (require rackunit
@@ -77,19 +79,31 @@
   [(_ ((~datum call) func:expr) arg:expr ...) #'((on-consequent-call func) arg ...)]
   [(_ consequent:expr arg:expr ...) #'consequent])
 
+(define-syntax-parameter result
+  (lambda (stx)
+    (raise-syntax-error (syntax-e stx) "can only be used inside `on`")))
+
 (define-syntax-parser on
   [(_ (arg:expr ...)) #'(cond)]
   [(_ (arg:expr ...)
       ((~datum if) [predicate consequent ...] ...
                    [(~datum else) else-consequent ...]))
    #'(cond [((on-predicate predicate) arg ...)
-            (on-consequent consequent arg ...) ...]
+            =>
+            (λ (x)
+              (syntax-parameterize ([result (make-rename-transformer #'x)])
+                (on-consequent consequent arg ...)
+                ...))]
            ...
            [else (on-consequent else-consequent arg ...) ...])]
   [(_ (arg:expr ...)
       ((~datum if) [predicate consequent ...] ...))
    #'(cond [((on-predicate predicate) arg ...)
-            (on-consequent consequent arg ...) ...]
+            =>
+            (λ (x)
+              (syntax-parameterize ([result (make-rename-transformer #'x)])
+                (on-consequent consequent arg ...)
+                ...))]
            ...)]
   [(_ (arg:expr ...) predicate)
    #'((on-predicate predicate) arg ...)])
@@ -693,7 +707,29 @@
          "inline predicate"
        (check-true (on (6) (and (> 5) (< 10))))
        (check-false (on (4) (and (> 5) (< 10))))
-       (check-false (on (14) (and (> 5) (< 10))))))))
+       (check-false (on (14) (and (> 5) (< 10)))))
+     (test-case
+         "result of predicate expression"
+       (check-equal? (switch (6)
+                             [add1 (add1 result)]
+                             [else 'hi])
+                     8)
+       (check-equal? (switch (2)
+                             [(curryr member (list 1 5 4 2 6)) result]
+                             [else 'hi])
+                     (list 2 6))
+       (check-equal? (switch (2)
+                             [(curryr member (list 1 5 4 2 6)) (length result)]
+                             [else 'hi])
+                     2)
+       (check-equal? (switch ((list add1 sub1))
+                             [(curry car) (result 5)]
+                             [else 'hi])
+                     6)
+       (check-equal? (switch (2 3)
+                             [+ result]
+                             [else 'hi])
+                     5)))))
 
 (module+ test
   (run-tests tests))
