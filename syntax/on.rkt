@@ -58,7 +58,7 @@
                                                (give (curry map f)))]
   [(_ ((~datum ..) func:expr ...)) #'(compose (on-predicate func) ...)]
   [(_ ((~datum %) func:expr)) #'(curry map-values (on-predicate func))]
-  [(_ ((~datum apply) func:expr)) #'(curry apply (on-predicate func))]
+  [(_ ((~datum apply) func:expr args ...)) #'(curry apply (on-predicate func) args ...)]
   [(_ ((~datum map) func:expr)) #'(curry map (on-predicate func))]
   [(_ ((~datum filter) func:expr)) #'(curry filter (on-predicate func))]
   [(_ ((~datum foldl) func:expr init:expr)) #'(curry foldl (on-predicate func) init)]
@@ -68,7 +68,7 @@
 (define-syntax-parser on-consequent-call
   [(_ ((~datum ..) func:expr ...)) #'(compose (on-consequent-call func) ...)]
   [(_ ((~datum %) func:expr)) #'(curry map-values (on-consequent-call func))]
-  [(_ ((~datum apply) func:expr)) #'(curry apply (on-consequent-call func))]
+  [(_ ((~datum apply) func:expr args ...)) #'(curry apply (on-consequent-call func) args ...)]
   [(_ ((~datum map) func:expr)) #'(curry map (on-consequent-call func))]
   [(_ ((~datum filter) func:expr)) #'(curry filter (on-consequent-call func))]
   [(_ ((~datum foldl) func:expr init:expr)) #'(curry foldl (on-consequent-call func) init)]
@@ -568,7 +568,19 @@
                              [(apply >) (call (apply +))]
                              [else 'no])
                      6
-                     "apply in consequent"))
+                     "apply in consequent")
+       (let ((my-sort (λ (less-than? #:key key . vs)
+                        (sort (map key vs) less-than?))))
+         (check-equal? (switch ((list 2 1 3))
+                               [(apply my-sort < #:key identity) <result>]
+                               [else 'no])
+                       (list 1 2 3)
+                       "apply in predicate with non-tail arguments")
+         (check-equal? (switch ((list 2 1 3))
+                               [(.. (> 2) length) (call (apply my-sort < #:key identity))]
+                               [else 'no])
+                       (list 1 2 3)
+                       "apply in consequent with non-tail arguments")))
      (test-case
          "map"
        (check-equal? (on ((list 1 2 3))
