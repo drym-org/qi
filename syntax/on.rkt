@@ -55,7 +55,7 @@
   [(_ ((~datum or%) pred:expr ...)) #'(disjux (disjux-predicate pred) ...)]
   [(_ ((~datum with-key) f:expr pred:expr)) #'(compose
                                                (curry apply (on-predicate pred))
-                                               (give (curry map f)))]
+                                               (give (curry map (on-predicate f))))]
   [(_ ((~datum ..) func:expr ...)) #'(compose (on-predicate func) ...)]
   [(_ ((~datum %) func:expr)) #'(curry map-values (on-predicate func))]
   [(_ ((~datum apply) func:expr args ...)) #'(curry apply (on-predicate func) args ...)]
