@@ -3,7 +3,6 @@
          scribble-abbrevs/manual
          scribble/example
          racket/sandbox
-         pict/private/layout
          @for-label[syntax/on
                     racket]]
 
