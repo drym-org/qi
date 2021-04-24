@@ -1,6 +1,12 @@
+.. image:: https://travis-ci.com/countvajhula/on-macro.svg?branch=main
+    :target: https://travis-ci.com/countvajhula/on-macro
+
+.. image:: https://coveralls.io/repos/github/countvajhula/on-macro/badge.svg?branch=main
+    :target: https://coveralls.io/github/countvajhula/on-macro?branch=main
+
 on-macro
 ========
-A predicate-based dispatch form for Racket.
+Racket's missing predicate language.
 
 "License":
 ==========
