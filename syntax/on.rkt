@@ -2,6 +2,7 @@
 
 (require syntax/parse/define
          syntax/parse
+         fancy-app
          racket/stxparam
          racket/function
          mischief/shorthand
@@ -75,35 +76,16 @@
   (lambda (stx)
     (raise-syntax-error (syntax-e stx) "can only be used inside `on`")))
 
-;; having a template is ... neat.
-;; (define-syntax-parser on
-;;   [(_ (arg:expr ...)) #'(cond)]
-;;   [(_ (arg:expr ...) (pred pre-arg-before:expr ... (~datum _) pre-arg-after:expr ...)) #'(pred pre-arg-before ... arg ... pre-arg-after ...)]
-;;   [(_ (arg:expr ...) (pred pre-arg:expr ...)) #'(pred arg ... pre-arg ...)]
-;;   [(_ (arg:expr ...) pred) #'(pred arg ...)])
-
 (define-syntax-parser on-predicate
-  [(_ (pred prarg-pre ...
-            (~datum _)))
-   #'(curry (on-predicate pred) prarg-pre ...)]
-  [(_ (pred (~datum _)
-            prarg-post ...))
-   #'(curryr (on-predicate pred) prarg-post ...)]
-  [(_ (pred prarg-pre ...
-            (~datum _)
-            prarg-post ...))
-   #'(curry (curryr (on-predicate pred) prarg-post ...) prarg-pre ...)]
+  [(_ (pred prarg-pre ... (~datum _) prarg-post ...))
+   #'((on-predicate pred) prarg-pre ... _ prarg-post ...)]
   [(_ (pred prarg ...))
    #'(curryr (on-predicate pred) prarg ...)]
   [(_ pred:expr) #'pred])
 
-;; needs to decompose down via a single form
-;; the functions need to be fully prepped on their own with the prargs
-;; and the end result is simply to pass the subject args to them
-;; in whatever form they may be in
 (define-syntax-parser on-predicate-form
   [(_ ((~datum and) pred:expr ...) arg:expr ...)
-   #'(on-predicate-form (conjoin (on-predicate pred) ...) arg ...)]
+   #'((conjoin (on-predicate pred) ...) arg ...)]
   [(_ pred arg:expr ...)
    #'((on-predicate pred) arg ...)])
 
