@@ -40,6 +40,7 @@
 
 (define-syntax-parser on-consequent-call
   [(_ ((~datum ..) func:expr ...)) #'(compose (on-consequent-call func) ...)]
+  [(_ ((~datum ~>) func:expr ...)) #'(rcompose (on-consequent-call func) ...)]
   [(_ ((~datum %) func:expr)) #'(curry map-values (on-consequent-call func))]
   [(_ (func prarg-pre ... (~datum _) prarg-post ...))
    #'((on-consequent-call func) prarg-pre ... _ prarg-post ...)]
@@ -71,6 +72,7 @@
                                                (curry apply (on-predicate pred))
                                                (give (curry map (on-predicate f))))]
   [(_ ((~datum ..) func:expr ...)) #'(compose (on-predicate func) ...)]
+  [(_ ((~datum ~>) func:expr ...)) #'(rcompose (on-predicate func) ...)]
   [(_ ((~datum %) func:expr)) #'(curry map-values (on-predicate func))]
   [(_ (pred prarg-pre ... (~datum _) prarg-post ...))
    #'((on-predicate pred) prarg-pre ... _ prarg-post ...)]
@@ -552,6 +554,32 @@
                              [else 'no])
                      'no))
      (test-case
+         "~>"
+       (check-equal? (on (5)
+                         (~> add1
+                             (* 2)
+                             number->string
+                             (string-append "a" _ "b")))
+                     "a12b")
+       (check-equal? (on (5 6)
+                         (~> (% add1)
+                             (% number->string)
+                             (string-append _ "a" _ "b")))
+                     "6a7b")
+       (check-equal? (on (5 6)
+                         (~> (% add1)
+                             (% (* 2))
+                             +))
+                     26)
+       (check-equal? (on ("p" "q")
+                         (~> (% (string-append "a" _ "b"))
+                             string-append))
+                     "apbaqb")
+       (check-equal? (switch (3 5)
+                             [true. (call (~> (% add1) *))]
+                             [else 'no])
+                     24))
+     (test-case
          "template with single argument"
        (check-equal? (switch ((list 1 2 3))
                              [(apply > _) 'yes]
@@ -612,7 +640,7 @@
        (check-true (on (3 7) (< 1 _ 5 _ 10))
                    "template with multiple arguments")
        (check-false (on (3 5) (< 1 _ 5 _ 10))
-                   "template with multiple arguments")
+                    "template with multiple arguments")
        (check-equal? (switch (3 7)
                              [(< 1 _ 5 _ 10) 'yes]
                              [else 'no])
