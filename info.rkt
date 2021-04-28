@@ -1,7 +1,8 @@
 #lang info
 (define collection 'multi)
 (define deps '("base"
-               "mischief"))
+               "mischief"
+               "fancy-app"))
 (define build-deps '("scribble-lib"
                      "scribble-abbrevs"
                      "racket-doc"
