@@ -1,6 +1,8 @@
 #lang racket/base
 
 (require syntax/parse/define
+         syntax/parse
+         fancy-app
          racket/stxparam
          racket/function
          mischief/shorthand
@@ -34,17 +36,12 @@
   [(_ (~datum _)) #'false.]
   [(_ pred:expr) #'(on-predicate pred)])
 
+;; "prarg" = "pre-supplied argument"
+
 (define-syntax-parser on-predicate
-  [(_ ((~datum eq?) v:expr)) #'(curry eq? v)]
-  [(_ ((~datum equal?) v:expr)) #'(curry equal? v)]
   [(_ ((~datum one-of?) v:expr ...)) #'(compose
                                         ->boolean
                                         (curryr member (list v ...)))]
-  [(_ ((~datum =) v:expr)) #'(curry = v)]
-  [(_ ((~datum <) v:expr)) #'(curryr < v)]
-  [(_ ((~datum >) v:expr)) #'(curryr > v)]
-  [(_ ((~or* (~datum <=) (~datum ≤)) v:expr)) #'(curryr <= v)]
-  [(_ ((~or* (~datum >=) (~datum ≥)) v:expr)) #'(curryr >= v)]
   [(_ ((~datum all) pred:expr)) #'(give (curry andmap (on-predicate pred)))]
   [(_ ((~datum any) pred:expr)) #'(give (curry ormap (on-predicate pred)))]
   [(_ ((~datum none) pred:expr)) #'(on-predicate (not (any pred)))]
@@ -57,22 +54,26 @@
                                                (curry apply (on-predicate pred))
                                                (give (curry map (on-predicate f))))]
   [(_ ((~datum ..) func:expr ...)) #'(compose (on-predicate func) ...)]
+  [(_ ((~datum ~>) func:expr ...)) #'(rcompose (on-predicate func) ...)]
   [(_ ((~datum %) func:expr)) #'(curry map-values (on-predicate func))]
-  [(_ ((~datum apply) func:expr args ...)) #'(curry apply (on-predicate func) args ...)]
-  [(_ ((~datum map) func:expr)) #'(curry map (on-predicate func))]
-  [(_ ((~datum filter) func:expr)) #'(curry filter (on-predicate func))]
-  [(_ ((~datum foldl) func:expr init:expr)) #'(curry foldl (on-predicate func) init)]
-  [(_ ((~datum foldr) func:expr init:expr)) #'(curry foldr (on-predicate func) init)]
+  [(_ (pred prarg-pre ... (~datum _) prarg-post ...))
+   #'((on-predicate pred) prarg-pre ... _ prarg-post ...)]
+  [(_ (pred prarg ...))
+   #'(curryr (on-predicate pred) prarg ...)]
   [(_ pred:expr) #'pred])
+
+(define-syntax-parser on-predicate-form
+  [(_ pred arg:expr ...)
+   #'((on-predicate pred) arg ...)])
 
 (define-syntax-parser on-consequent-call
   [(_ ((~datum ..) func:expr ...)) #'(compose (on-consequent-call func) ...)]
+  [(_ ((~datum ~>) func:expr ...)) #'(rcompose (on-consequent-call func) ...)]
   [(_ ((~datum %) func:expr)) #'(curry map-values (on-consequent-call func))]
-  [(_ ((~datum apply) func:expr args ...)) #'(curry apply (on-consequent-call func) args ...)]
-  [(_ ((~datum map) func:expr)) #'(curry map (on-consequent-call func))]
-  [(_ ((~datum filter) func:expr)) #'(curry filter (on-consequent-call func))]
-  [(_ ((~datum foldl) func:expr init:expr)) #'(curry foldl (on-consequent-call func) init)]
-  [(_ ((~datum foldr) func:expr init:expr)) #'(curry foldr (on-consequent-call func) init)]
+  [(_ (func prarg-pre ... (~datum _) prarg-post ...))
+   #'((on-consequent-call func) prarg-pre ... _ prarg-post ...)]
+  [(_ (func prarg ...))
+   #'(curryr (on-consequent-call func) prarg ...)]
   [(_ func:expr) #'func])
 
 (define-syntax-parser on-consequent
@@ -88,7 +89,7 @@
   [(_ (arg:expr ...)
       ((~datum if) [predicate consequent ...] ...
                    [(~datum else) else-consequent ...]))
-   #'(cond [((on-predicate predicate) arg ...)
+   #'(cond [(on-predicate-form predicate arg ...)
             =>
             (λ (x)
               (syntax-parameterize ([<result> (make-rename-transformer #'x)])
@@ -98,7 +99,7 @@
            [else (on-consequent else-consequent arg ...) ...])]
   [(_ (arg:expr ...)
       ((~datum if) [predicate consequent ...] ...))
-   #'(cond [((on-predicate predicate) arg ...)
+   #'(cond [(on-predicate-form predicate arg ...)
             =>
             (λ (x)
               (syntax-parameterize ([<result> (make-rename-transformer #'x)])
@@ -106,7 +107,7 @@
                 ...))]
            ...)]
   [(_ (arg:expr ...) predicate)
-   #'((on-predicate predicate) arg ...)])
+   #'(on-predicate-form predicate arg ...)])
 
 (define-syntax-parser switch
   [(_ (arg:expr ...) expr:expr ...)
@@ -553,78 +554,98 @@
                              [else 'no])
                      'no))
      (test-case
-         "apply"
+         "~>"
+       (check-equal? (on (5)
+                         (~> add1
+                             (* 2)
+                             number->string
+                             (string-append "a" _ "b")))
+                     "a12b")
+       (check-equal? (on (5 6)
+                         (~> (% add1)
+                             (% number->string)
+                             (string-append _ "a" _ "b")))
+                     "6a7b")
+       (check-equal? (on (5 6)
+                         (~> (% add1)
+                             (% (* 2))
+                             +))
+                     26)
+       (check-equal? (on ("p" "q")
+                         (~> (% (string-append "a" _ "b"))
+                             string-append))
+                     "apbaqb")
+       (check-equal? (switch (3 5)
+                             [true. (call (~> (% add1) *))]
+                             [else 'no])
+                     24))
+     (test-case
+         "template with single argument"
        (check-equal? (switch ((list 1 2 3))
-                             [(apply >) 'yes]
+                             [(apply > _) 'yes]
                              [else 'no])
                      'no
                      "apply in predicate")
        (check-equal? (switch ((list 3 2 1))
-                             [(apply >) 'yes]
+                             [(apply > _) 'yes]
                              [else 'no])
                      'yes
                      "apply in predicate")
        (check-equal? (switch ((list 3 2 1))
-                             [(apply >) (call (apply +))]
+                             [(apply > _) (call (apply + _))]
                              [else 'no])
                      6
                      "apply in consequent")
        (let ((my-sort (λ (less-than? #:key key . vs)
                         (sort (map key vs) less-than?))))
          (check-equal? (switch ((list 2 1 3))
-                               [(apply my-sort < #:key identity) <result>]
+                               [(apply my-sort < _ #:key identity) <result>]
                                [else 'no])
                        (list 1 2 3)
                        "apply in predicate with non-tail arguments")
          (check-equal? (switch ((list 2 1 3))
-                               [(.. (> 2) length) (call (apply my-sort < #:key identity))]
+                               [(.. (> 2) length) (call (apply my-sort < _ #:key identity))]
                                [else 'no])
                        (list 1 2 3)
-                       "apply in consequent with non-tail arguments")))
-     (test-case
-         "map"
+                       "apply in consequent with non-tail arguments"))
        (check-equal? (on ((list 1 2 3))
-                         (map add1))
+                         (map add1 _))
                      (list 2 3 4)
                      "map in predicate")
        (check-equal? (switch ((list 3 2 1))
-                             [(apply >) (call (map add1))]
+                             [(apply > _) (call (map add1 _))]
                              [else 'no])
                      (list 4 3 2)
-                     "map in consequent"))
-     (test-case
-         "filter"
+                     "map in consequent")
        (check-equal? (on ((list 1 2 3))
-                         (filter odd?))
+                         (filter odd? _))
                      (list 1 3)
                      "filter in predicate")
        (check-equal? (switch ((list 3 2 1))
-                             [(apply >) (call (filter even?))]
+                             [(apply > _) (call (filter even? _))]
                              [else 'no])
                      (list 2)
-                     "filter in consequent"))
-     (test-case
-         "foldl"
+                     "filter in consequent")
        (check-equal? (on ((list "a" "b" "c"))
-                         (foldl string-append ""))
+                         (foldl string-append "" _))
                      "cba"
                      "foldl in predicate")
        (check-equal? (switch ((list 3 2 1))
-                             [(apply >) (call (foldl + 1))]
+                             [(apply > _) (call (foldl + 1 _))]
                              [else 'no])
                      7
                      "foldl in consequent"))
      (test-case
-         "foldr"
-       (check-equal? (on ((list "a" "b" "c"))
-                         (foldr string-append ""))
-                     "abc"
-                     "foldr in predicate")
-       (check-equal? (switch ((list 3 2 1))
-                             [(apply >) (call (foldr + 1))]
+         "template with multiple arguments"
+       (check-true (on (3 7) (< 1 _ 5 _ 10))
+                   "template with multiple arguments")
+       (check-false (on (3 5) (< 1 _ 5 _ 10))
+                    "template with multiple arguments")
+       (check-equal? (switch (3 7)
+                             [(< 1 _ 5 _ 10) 'yes]
                              [else 'no])
-                     7
-                     "foldr in consequent"))
+                     'yes
+                     "template with multiple arguments"))
      (test-case
          "heterogeneous clauses"
        (check-equal? (switch (-3 5)
@@ -663,8 +684,8 @@
        (check-true ((π args list?) 1 2 3) "packed args")
        (check-false ((π args (.. (> 3) length)) 1 2 3) "packed args")
        (check-true ((π args (.. (> 3) length)) 1 2 3 4) "packed args")
-       (check-false ((π args (apply >)) 1 2 3) "apply with packed args")
-       (check-true ((π args (apply >)) 3 2 1) "apply with packed args"))
+       (check-false ((π args (apply > _)) 1 2 3) "apply with packed args")
+       (check-true ((π args (apply > _)) 3 2 1) "apply with packed args"))
      (test-case
          "switch lambda"
        (check-equal? ((switch-lambda (x)
@@ -706,12 +727,12 @@
                      'a
                      "packed args")
        (check-equal? ((λ01 args
-                           [(apply <) 'a]
+                           [(apply < _) 'a]
                            [else 'b]) 1 2 3)
                      'a
                      "apply with packed args")
        (check-equal? ((λ01 args
-                           [(apply <) 'a]
+                           [(apply < _) 'a]
                            [else 'b]) 1 3 2)
                      'b
                      "apply with packed args"))
@@ -727,15 +748,15 @@
                              [else 'hi])
                      8)
        (check-equal? (switch (2)
-                             [(curryr member (list 1 5 4 2 6)) <result>]
+                             [(member _ (list 1 5 4 2 6)) <result>]
                              [else 'hi])
                      (list 2 6))
        (check-equal? (switch (2)
-                             [(curryr member (list 1 5 4 2 6)) (length <result>)]
+                             [(member _ (list 1 5 4 2 6)) (length <result>)]
                              [else 'hi])
                      2)
        (check-equal? (switch ((list add1 sub1))
-                             [(curry car) (<result> 5)]
+                             [car (<result> 5)]
                              [else 'hi])
                      6)
        (check-equal? (switch (2 3)
