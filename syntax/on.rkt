@@ -552,7 +552,7 @@
                              [else 'no])
                      'no))
      (test-case
-         "apply"
+         "template with single argument"
        (check-equal? (switch ((list 1 2 3))
                              [(apply > _) 'yes]
                              [else 'no])
@@ -579,9 +579,7 @@
                                [(.. (> 2) length) (call (apply my-sort < _ #:key identity))]
                                [else 'no])
                        (list 1 2 3)
-                       "apply in consequent with non-tail arguments")))
-     (test-case
-         "map"
+                       "apply in consequent with non-tail arguments"))
        (check-equal? (on ((list 1 2 3))
                          (map add1 _))
                      (list 2 3 4)
@@ -590,9 +588,7 @@
                              [(apply > _) (call (map add1 _))]
                              [else 'no])
                      (list 4 3 2)
-                     "map in consequent"))
-     (test-case
-         "filter"
+                     "map in consequent")
        (check-equal? (on ((list 1 2 3))
                          (filter odd? _))
                      (list 1 3)
@@ -601,9 +597,7 @@
                              [(apply > _) (call (filter even? _))]
                              [else 'no])
                      (list 2)
-                     "filter in consequent"))
-     (test-case
-         "foldl"
+                     "filter in consequent")
        (check-equal? (on ((list "a" "b" "c"))
                          (foldl string-append "" _))
                      "cba"
@@ -614,16 +608,16 @@
                      7
                      "foldl in consequent"))
      (test-case
-         "foldr"
-       (check-equal? (on ((list "a" "b" "c"))
-                         (foldr string-append "" _))
-                     "abc"
-                     "foldr in predicate")
-       (check-equal? (switch ((list 3 2 1))
-                             [(apply > _) (call (foldr + 1 _))]
+         "template with multiple arguments"
+       (check-true (on (3 7) (< 1 _ 5 _ 10))
+                   "template with multiple arguments")
+       (check-false (on (3 5) (< 1 _ 5 _ 10))
+                   "template with multiple arguments")
+       (check-equal? (switch (3 7)
+                             [(< 1 _ 5 _ 10) 'yes]
                              [else 'no])
-                     7
-                     "foldr in consequent"))
+                     'yes
+                     "template with multiple arguments"))
      (test-case
          "heterogeneous clauses"
        (check-equal? (switch (-3 5)
