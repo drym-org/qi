@@ -38,24 +38,6 @@
 
 ;; "prarg" = "pre-supplied argument"
 
-(define-syntax-parser on-consequent-call
-  [(_ ((~datum ..) func:expr ...)) #'(compose (on-consequent-call func) ...)]
-  [(_ ((~datum ~>) func:expr ...)) #'(rcompose (on-consequent-call func) ...)]
-  [(_ ((~datum %) func:expr)) #'(curry map-values (on-consequent-call func))]
-  [(_ (func prarg-pre ... (~datum _) prarg-post ...))
-   #'((on-consequent-call func) prarg-pre ... _ prarg-post ...)]
-  [(_ (func prarg ...))
-   #'(curryr (on-consequent-call func) prarg ...)]
-  [(_ func:expr) #'func])
-
-(define-syntax-parser on-consequent
-  [(_ ((~datum call) func:expr) arg:expr ...) #'((on-consequent-call func) arg ...)]
-  [(_ consequent:expr arg:expr ...) #'consequent])
-
-(define-syntax-parameter <result>
-  (lambda (stx)
-    (raise-syntax-error (syntax-e stx) "can only be used inside `on`")))
-
 (define-syntax-parser on-predicate
   [(_ ((~datum one-of?) v:expr ...)) #'(compose
                                         ->boolean
@@ -83,6 +65,24 @@
 (define-syntax-parser on-predicate-form
   [(_ pred arg:expr ...)
    #'((on-predicate pred) arg ...)])
+
+(define-syntax-parser on-consequent-call
+  [(_ ((~datum ..) func:expr ...)) #'(compose (on-consequent-call func) ...)]
+  [(_ ((~datum ~>) func:expr ...)) #'(rcompose (on-consequent-call func) ...)]
+  [(_ ((~datum %) func:expr)) #'(curry map-values (on-consequent-call func))]
+  [(_ (func prarg-pre ... (~datum _) prarg-post ...))
+   #'((on-consequent-call func) prarg-pre ... _ prarg-post ...)]
+  [(_ (func prarg ...))
+   #'(curryr (on-consequent-call func) prarg ...)]
+  [(_ func:expr) #'func])
+
+(define-syntax-parser on-consequent
+  [(_ ((~datum call) func:expr) arg:expr ...) #'((on-consequent-call func) arg ...)]
+  [(_ consequent:expr arg:expr ...) #'consequent])
+
+(define-syntax-parameter <result>
+  (lambda (stx)
+    (raise-syntax-error (syntax-e stx) "can only be used inside `on`")))
 
 (define-syntax-parser on
   [(_ (arg:expr ...)) #'(cond)]
