@@ -26,7 +26,8 @@
 (module+ test
   (require rackunit
            rackunit/text-ui
-           math))
+           (only-in math sqr)
+           racket/list))
 
 (define-syntax-parser conjux-predicate
   [(_ (~datum _)) #'true.]
@@ -56,6 +57,7 @@
   [(_ ((~datum ..) func:expr ...)) #'(compose (on-predicate func) ...)]
   [(_ ((~datum ~>) func:expr ...)) #'(rcompose (on-predicate func) ...)]
   [(_ ((~datum %) func:expr)) #'(curry map-values (on-predicate func))]
+  [(_ ((~datum -<) func:expr ...)) #'(λ args (values (apply (on-predicate func) args) ...))]
   [(_ (pred prarg-pre ... (~datum _) prarg-post ...))
    #'((on-predicate pred) prarg-pre ... _ prarg-post ...)]
   [(_ (pred prarg ...))
@@ -70,6 +72,7 @@
   [(_ ((~datum ..) func:expr ...)) #'(compose (on-consequent-call func) ...)]
   [(_ ((~datum ~>) func:expr ...)) #'(rcompose (on-consequent-call func) ...)]
   [(_ ((~datum %) func:expr)) #'(curry map-values (on-consequent-call func))]
+  [(_ ((~datum -<) func:expr ...)) #'(λ args (values (apply (on-consequent-call func) args) ...))]
   [(_ (func prarg-pre ... (~datum _) prarg-post ...))
    #'((on-consequent-call func) prarg-pre ... _ prarg-post ...)]
   [(_ (func prarg ...))
@@ -579,6 +582,22 @@
                              [true. (call (~> (% add1) *))]
                              [else 'no])
                      24))
+     (test-case
+         "-<"
+       (define (sum lst)
+         (apply + lst))
+
+       (check-equal? (on (5)
+                         (~> (-< sqr add1)
+                             +))
+                     31)
+       (check-equal? (on ((range 1 10))
+                         (~> (-< sum length) /))
+                     5)
+       (check-equal? (switch (3 5)
+                             [true. (call (~> (% add1) * (-< (/ 2) (/ 3)) +))]
+                             [else 'no])
+                     20))
      (test-case
          "template with single argument"
        (check-equal? (switch ((list 1 2 3))
