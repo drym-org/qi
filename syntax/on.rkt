@@ -55,10 +55,15 @@
                                                (curry apply (on-predicate pred))
                                                (give (curry map (on-predicate f))))]
   [(_ ((~datum ..) func:expr ...)) #'(compose (on-predicate func) ...)]
+  [(_ ((~datum compose) func:expr ...)) #'(compose (on-predicate func) ...)]
   [(_ ((~datum ~>) func:expr ...)) #'(rcompose (on-predicate func) ...)]
-  [(_ ((~datum %) func:expr)) #'(curry map-values (on-predicate func))]
-  [(_ ((~datum ==) func:expr ...)) #'(relay (on-predicate func) ...)]
+  [(_ ((~datum thread) func:expr ...)) #'(rcompose (on-predicate func) ...)]
+  [(_ ((~datum ><) func:expr)) #'(curry map-values (on-predicate func))]
+  [(_ ((~datum amp) func:expr)) #'(curry map-values (on-predicate func))]
+  [(_ ((~datum %) func:expr ...)) #'(relay (on-predicate func) ...)]
+  [(_ ((~datum relay) func:expr ...)) #'(relay (on-predicate func) ...)]
   [(_ ((~datum -<) func:expr ...)) #'(λ args (values (apply (on-predicate func) args) ...))]
+  [(_ ((~datum tee) func:expr ...)) #'(λ args (values (apply (on-predicate func) args) ...))]
   [(_ (pred prarg-pre ... (~datum _) prarg-post ...))
    #'((on-predicate pred) prarg-pre ... _ prarg-post ...)]
   [(_ (pred prarg ...))
@@ -71,10 +76,15 @@
 
 (define-syntax-parser on-consequent-call
   [(_ ((~datum ..) func:expr ...)) #'(compose (on-consequent-call func) ...)]
+  [(_ ((~datum compose) func:expr ...)) #'(compose (on-consequent-call func) ...)]
   [(_ ((~datum ~>) func:expr ...)) #'(rcompose (on-consequent-call func) ...)]
-  [(_ ((~datum %) func:expr)) #'(curry map-values (on-consequent-call func))]
-  [(_ ((~datum ==) func:expr ...)) #'(relay (on-consequent-call func) ...)]
+  [(_ ((~datum thread) func:expr ...)) #'(rcompose (on-consequent-call func) ...)]
+  [(_ ((~datum ><) func:expr)) #'(curry map-values (on-consequent-call func))]
+  [(_ ((~datum amp) func:expr)) #'(curry map-values (on-consequent-call func))]
+  [(_ ((~datum %) func:expr ...)) #'(relay (on-consequent-call func) ...)]
+  [(_ ((~datum relay) func:expr ...)) #'(relay (on-consequent-call func) ...)]
   [(_ ((~datum -<) func:expr ...)) #'(λ args (values (apply (on-consequent-call func) args) ...))]
+  [(_ ((~datum tee) func:expr ...)) #'(λ args (values (apply (on-consequent-call func) args) ...))]
   [(_ (func prarg-pre ... (~datum _) prarg-post ...))
    #'((on-consequent-call func) prarg-pre ... _ prarg-post ...)]
   [(_ (func prarg ...))
@@ -199,7 +209,7 @@
        (check-true (on ("5.0" "5")
                        (or eq?
                            equal?
-                           (.. = (% string->number)))))
+                           (.. = (>< string->number)))))
        (check-false (on ("5" "6")
                         (or eq?
                             equal?
@@ -207,7 +217,7 @@
        (check-false (on ("5" "6")
                         (or eq?
                             equal?
-                            (.. = (% string->number))))))
+                            (.. = (>< string->number))))))
      (test-case
          "unary predicate"
        (check-equal? (switch (5)
@@ -511,15 +521,15 @@
                      'no
                      "n-ary predicate")
        (check-equal? (switch (3 5)
-                             [< (call (.. + (% add1)))]
+                             [< (call (.. + (>< add1)))]
                              [else 'no])
                      10
-                     ".. and % in call position")
+                     ".. and >< in call position")
        (check-equal? (switch (3 5)
-                             [< (call (.. + (% (.. add1 sqr))))]
+                             [< (call (.. + (>< (.. add1 sqr))))]
                              [else 'no])
                      36
-                     ".. and % in call position"))
+                     ".. and >< in call position"))
      (test-case
          "all"
        (check-equal? (switch (3 5)
@@ -567,21 +577,21 @@
                              (string-append "a" _ "b")))
                      "a12b")
        (check-equal? (on (5 6)
-                         (~> (% add1)
-                             (% number->string)
+                         (~> (>< add1)
+                             (>< number->string)
                              (string-append _ "a" _ "b")))
                      "6a7b")
        (check-equal? (on (5 6)
-                         (~> (% add1)
-                             (% (* 2))
+                         (~> (>< add1)
+                             (>< (* 2))
                              +))
                      26)
        (check-equal? (on ("p" "q")
-                         (~> (% (string-append "a" _ "b"))
+                         (~> (>< (string-append "a" _ "b"))
                              string-append))
                      "apbaqb")
        (check-equal? (switch (3 5)
-                             [true. (call (~> (% add1) *))]
+                             [true. (call (~> (>< add1) *))]
                              [else 'no])
                      24))
      (test-case
@@ -597,25 +607,25 @@
                          (~> (-< sum length) /))
                      5)
        (check-equal? (switch (3 5)
-                             [true. (call (~> (% add1) * (-< (/ 2) (/ 3)) +))]
+                             [true. (call (~> (>< add1) * (-< (/ 2) (/ 3)) +))]
                              [else 'no])
                      20))
      (test-case
-         "=="
+         "%"
        (define (sum lst)
          (apply + lst))
 
        (check-equal? (on (5 7)
-                         (~> (== sqr add1)
+                         (~> (% sqr add1)
                              +))
                      33)
        (check-equal? (on ((range 1 10))
                          (~> (-< sum length)
-                             (== add1 sub1)
+                             (% add1 sub1)
                              +))
                      54)
        (check-equal? (switch (10 12)
-                             [true. (call (~> (== (/ 2) (/ 3)) +))]
+                             [true. (call (~> (% (/ 2) (/ 3)) +))]
                              [else 'no])
                      9))
      (test-case
