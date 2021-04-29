@@ -1,7 +1,8 @@
 #lang racket/base
 
 (require racket/match
-         (only-in racket/function const))
+         (only-in racket/function const)
+         (only-in mischief/function call))
 
 (provide give
          ->boolean
@@ -10,7 +11,8 @@
          rcompose
          conjux
          disjux
-         map-values)
+         map-values
+         relay)
 
 ;; give a (list-)lifted function available arguments
 ;; directly instead of wrapping them with a list
@@ -63,3 +65,10 @@
                     'disjux
                     (length preds)
                     args)])))
+
+(define (zip-with f . vs)
+  (apply map f vs))
+
+(define (relay . fs)
+  (λ args
+    (apply values (zip-with call fs args))))
