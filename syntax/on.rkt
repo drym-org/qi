@@ -60,7 +60,7 @@
   [(_ ((~datum thread) func:expr ...)) #'(rcompose (on-predicate func) ...)]
   [(_ ((~datum ><) func:expr)) #'(curry map-values (on-predicate func))]
   [(_ ((~datum amp) func:expr)) #'(curry map-values (on-predicate func))]
-  [(_ ((~datum %) func:expr ...)) #'(relay (on-predicate func) ...)]
+  [(_ ((~datum ==) func:expr ...)) #'(relay (on-predicate func) ...)]
   [(_ ((~datum relay) func:expr ...)) #'(relay (on-predicate func) ...)]
   [(_ ((~datum -<) func:expr ...)) #'(λ args (values (apply (on-predicate func) args) ...))]
   [(_ ((~datum tee) func:expr ...)) #'(λ args (values (apply (on-predicate func) args) ...))]
@@ -81,7 +81,7 @@
   [(_ ((~datum thread) func:expr ...)) #'(rcompose (on-consequent-call func) ...)]
   [(_ ((~datum ><) func:expr)) #'(curry map-values (on-consequent-call func))]
   [(_ ((~datum amp) func:expr)) #'(curry map-values (on-consequent-call func))]
-  [(_ ((~datum %) func:expr ...)) #'(relay (on-consequent-call func) ...)]
+  [(_ ((~datum ==) func:expr ...)) #'(relay (on-consequent-call func) ...)]
   [(_ ((~datum relay) func:expr ...)) #'(relay (on-consequent-call func) ...)]
   [(_ ((~datum -<) func:expr ...)) #'(λ args (values (apply (on-consequent-call func) args) ...))]
   [(_ ((~datum tee) func:expr ...)) #'(λ args (values (apply (on-consequent-call func) args) ...))]
@@ -611,21 +611,21 @@
                              [else 'no])
                      20))
      (test-case
-         "%"
+         "=="
        (define (sum lst)
          (apply + lst))
 
        (check-equal? (on (5 7)
-                         (~> (% sqr add1)
+                         (~> (== sqr add1)
                              +))
                      33)
        (check-equal? (on ((range 1 10))
                          (~> (-< sum length)
-                             (% add1 sub1)
+                             (== add1 sub1)
                              +))
                      54)
        (check-equal? (switch (10 12)
-                             [true. (call (~> (% (/ 2) (/ 3)) +))]
+                             [true. (call (~> (== (/ 2) (/ 3)) +))]
                              [else 'no])
                      9))
      (test-case
