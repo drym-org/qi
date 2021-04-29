@@ -39,6 +39,14 @@
 
 ;; "prarg" = "pre-supplied argument"
 
+(begin-for-syntax
+  (require (only-in racket/function identity))
+
+  (define (repeat n v)
+    (if (= 0 n)
+        null
+        (cons v (repeat (sub1 n) v)))))
+
 (define-syntax-parser on-predicate
   [(_ ((~datum one-of?) v:expr ...)) #'(compose
                                         ->boolean
@@ -64,6 +72,9 @@
   [(_ ((~datum relay) func:expr ...)) #'(relay (on-predicate func) ...)]
   [(_ ((~datum -<) func:expr ...)) #'(λ args (values (apply (on-predicate func) args) ...))]
   [(_ ((~datum tee) func:expr ...)) #'(λ args (values (apply (on-predicate func) args) ...))]
+  [(_ ((~datum splitter) n:number))
+   (datum->syntax this-syntax
+                  (cons 'on-predicate (list (cons '-< (repeat (syntax->datum #'n) identity)))))]
   [(_ (pred prarg-pre ... (~datum _) prarg-post ...))
    #'((on-predicate pred) prarg-pre ... _ prarg-post ...)]
   [(_ (pred prarg ...))
@@ -85,6 +96,9 @@
   [(_ ((~datum relay) func:expr ...)) #'(relay (on-consequent-call func) ...)]
   [(_ ((~datum -<) func:expr ...)) #'(λ args (values (apply (on-consequent-call func) args) ...))]
   [(_ ((~datum tee) func:expr ...)) #'(λ args (values (apply (on-consequent-call func) args) ...))]
+  [(_ ((~datum splitter) n:number))
+   (datum->syntax this-syntax
+                  (cons 'on-consequent-call (list (cons '-< (repeat (syntax->datum #'n) identity)))))]
   [(_ (func prarg-pre ... (~datum _) prarg-post ...))
    #'((on-consequent-call func) prarg-pre ... _ prarg-post ...)]
   [(_ (func prarg ...))
@@ -628,6 +642,18 @@
                              [true. (call (~> (== (/ 2) (/ 3)) +))]
                              [else 'no])
                      9))
+     (test-case
+         "high-level circuit elements"
+       (test-case
+           "splitter"
+         (check-equal? (on (5)
+                           (~> (splitter 3)
+                               +))
+                       15)
+         (check-equal? (switch (5)
+                               [true. (call (~> (splitter 3) +))]
+                               [else 'no])
+                       15)))
      (test-case
          "template with single argument"
        (check-equal? (switch ((list 1 2 3))
