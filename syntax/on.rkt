@@ -29,16 +29,6 @@
            (only-in math sqr)
            racket/list))
 
-(define-syntax-parser conjux-predicate
-  [(_ (~datum _)) #'true.]
-  [(_ pred:expr) #'(on-predicate pred)])
-
-(define-syntax-parser disjux-predicate
-  [(_ (~datum _)) #'false.]
-  [(_ pred:expr) #'(on-predicate pred)])
-
-;; "prarg" = "pre-supplied argument"
-
 (begin-for-syntax
   (require (only-in racket/function identity))
 
@@ -47,66 +37,55 @@
         null
         (cons v (repeat (sub1 n) v)))))
 
-(define-syntax-parser on-predicate
+(define-syntax-parser conjux-clause
+  [(_ (~datum _)) #'true.]
+  [(_ onex:expr) #'(on-clause onex)])
+
+(define-syntax-parser disjux-clause
+  [(_ (~datum _)) #'false.]
+  [(_ onex:expr) #'(on-clause onex)])
+
+;; "prarg" = "pre-supplied argument"
+
+(define-syntax-parser on-clause
   [(_ ((~datum one-of?) v:expr ...)) #'(compose
                                         ->boolean
                                         (curryr member (list v ...)))]
-  [(_ ((~datum all) pred:expr)) #'(give (curry andmap (on-predicate pred)))]
-  [(_ ((~datum any) pred:expr)) #'(give (curry ormap (on-predicate pred)))]
-  [(_ ((~datum none) pred:expr)) #'(on-predicate (not (any pred)))]
-  [(_ ((~datum and) pred:expr ...)) #'(conjoin (on-predicate pred) ...)]
-  [(_ ((~datum or) pred:expr ...)) #'(disjoin (on-predicate pred) ...)]
-  [(_ ((~datum not) pred:expr)) #'(negate (on-predicate pred))]
-  [(_ ((~datum and%) pred:expr ...)) #'(conjux (conjux-predicate pred) ...)]
-  [(_ ((~datum or%) pred:expr ...)) #'(disjux (disjux-predicate pred) ...)]
-  [(_ ((~datum with-key) f:expr pred:expr)) #'(compose
-                                               (curry apply (on-predicate pred))
-                                               (give (curry map (on-predicate f))))]
-  [(_ ((~datum ..) func:expr ...)) #'(compose (on-predicate func) ...)]
-  [(_ ((~datum compose) func:expr ...)) #'(compose (on-predicate func) ...)]
-  [(_ ((~datum ~>) func:expr ...)) #'(rcompose (on-predicate func) ...)]
-  [(_ ((~datum thread) func:expr ...)) #'(rcompose (on-predicate func) ...)]
-  [(_ ((~datum ><) func:expr)) #'(curry map-values (on-predicate func))]
-  [(_ ((~datum amp) func:expr)) #'(curry map-values (on-predicate func))]
-  [(_ ((~datum ==) func:expr ...)) #'(relay (on-predicate func) ...)]
-  [(_ ((~datum relay) func:expr ...)) #'(relay (on-predicate func) ...)]
-  [(_ ((~datum -<) func:expr ...)) #'(λ args (values (apply (on-predicate func) args) ...))]
-  [(_ ((~datum tee) func:expr ...)) #'(λ args (values (apply (on-predicate func) args) ...))]
+  [(_ ((~datum all) onex:expr)) #'(give (curry andmap (on-clause onex)))]
+  [(_ ((~datum any) onex:expr)) #'(give (curry ormap (on-clause onex)))]
+  [(_ ((~datum none) onex:expr)) #'(on-clause (not (any onex)))]
+  [(_ ((~datum and) onex:expr ...)) #'(conjoin (on-clause onex) ...)]
+  [(_ ((~datum or) onex:expr ...)) #'(disjoin (on-clause onex) ...)]
+  [(_ ((~datum not) onex:expr)) #'(negate (on-clause onex))]
+  [(_ ((~datum and%) onex:expr ...)) #'(conjux (conjux-clause onex) ...)]
+  [(_ ((~datum or%) onex:expr ...)) #'(disjux (disjux-clause onex) ...)]
+  [(_ ((~datum with-key) f:expr onex:expr)) #'(compose
+                                               (curry apply (on-clause onex))
+                                               (give (curry map (on-clause f))))]
+  [(_ ((~datum ..) func:expr ...)) #'(compose (on-clause func) ...)]
+  [(_ ((~datum compose) func:expr ...)) #'(compose (on-clause func) ...)]
+  [(_ ((~datum ~>) func:expr ...)) #'(rcompose (on-clause func) ...)]
+  [(_ ((~datum thread) func:expr ...)) #'(rcompose (on-clause func) ...)]
+  [(_ ((~datum ><) func:expr)) #'(curry map-values (on-clause func))]
+  [(_ ((~datum amp) func:expr)) #'(curry map-values (on-clause func))]
+  [(_ ((~datum ==) func:expr ...)) #'(relay (on-clause func) ...)]
+  [(_ ((~datum relay) func:expr ...)) #'(relay (on-clause func) ...)]
+  [(_ ((~datum -<) func:expr ...)) #'(λ args (values (apply (on-clause func) args) ...))]
+  [(_ ((~datum tee) func:expr ...)) #'(λ args (values (apply (on-clause func) args) ...))]
   [(_ ((~datum splitter) n:number))
    (datum->syntax this-syntax
-                  (cons 'on-predicate (list (cons '-< (repeat (syntax->datum #'n) identity)))))]
-  [(_ (pred prarg-pre ... (~datum _) prarg-post ...))
-   #'((on-predicate pred) prarg-pre ... _ prarg-post ...)]
-  [(_ (pred prarg ...))
-   #'(curryr (on-predicate pred) prarg ...)]
-  [(_ pred:expr) #'pred])
+                  (cons 'on-clause
+                        (list (cons '-<
+                                    (repeat (syntax->datum #'n)
+                                            identity)))))]
+  [(_ (onex prarg-pre ... (~datum _) prarg-post ...))
+   #'((on-clause onex) prarg-pre ... _ prarg-post ...)]
+  [(_ (onex prarg ...))
+   #'(curryr (on-clause onex) prarg ...)]
+  [(_ onex:expr) #'onex])
 
-(define-syntax-parser on-predicate-form
-  [(_ pred arg:expr ...)
-   #'((on-predicate pred) arg ...)])
-
-(define-syntax-parser on-consequent-call
-  [(_ ((~datum ..) func:expr ...)) #'(compose (on-consequent-call func) ...)]
-  [(_ ((~datum compose) func:expr ...)) #'(compose (on-consequent-call func) ...)]
-  [(_ ((~datum ~>) func:expr ...)) #'(rcompose (on-consequent-call func) ...)]
-  [(_ ((~datum thread) func:expr ...)) #'(rcompose (on-consequent-call func) ...)]
-  [(_ ((~datum ><) func:expr)) #'(curry map-values (on-consequent-call func))]
-  [(_ ((~datum amp) func:expr)) #'(curry map-values (on-consequent-call func))]
-  [(_ ((~datum ==) func:expr ...)) #'(relay (on-consequent-call func) ...)]
-  [(_ ((~datum relay) func:expr ...)) #'(relay (on-consequent-call func) ...)]
-  [(_ ((~datum -<) func:expr ...)) #'(λ args (values (apply (on-consequent-call func) args) ...))]
-  [(_ ((~datum tee) func:expr ...)) #'(λ args (values (apply (on-consequent-call func) args) ...))]
-  [(_ ((~datum splitter) n:number))
-   (datum->syntax this-syntax
-                  (cons 'on-consequent-call (list (cons '-< (repeat (syntax->datum #'n) identity)))))]
-  [(_ (func prarg-pre ... (~datum _) prarg-post ...))
-   #'((on-consequent-call func) prarg-pre ... _ prarg-post ...)]
-  [(_ (func prarg ...))
-   #'(curryr (on-consequent-call func) prarg ...)]
-  [(_ func:expr) #'func])
-
-(define-syntax-parser on-consequent
-  [(_ ((~datum call) func:expr) arg:expr ...) #'((on-consequent-call func) arg ...)]
+(define-syntax-parser switch-consequent
+  [(_ ((~datum call) func:expr) arg:expr ...) #'((on-clause func) arg ...)]
   [(_ consequent:expr arg:expr ...) #'consequent])
 
 (define-syntax-parameter <result>
@@ -114,34 +93,33 @@
     (raise-syntax-error (syntax-e stx) "can only be used inside `on`")))
 
 (define-syntax-parser on
-  [(_ (arg:expr ...)) #'(cond)]
-  [(_ (arg:expr ...)
-      ((~datum if) [predicate consequent ...] ...
-                   [(~datum else) else-consequent ...]))
-   #'(cond [(on-predicate-form predicate arg ...)
-            =>
-            (λ (x)
-              (syntax-parameterize ([<result> (make-rename-transformer #'x)])
-                (on-consequent consequent arg ...)
-                ...))]
-           ...
-           [else (on-consequent else-consequent arg ...) ...])]
-  [(_ (arg:expr ...)
-      ((~datum if) [predicate consequent ...] ...))
-   #'(cond [(on-predicate-form predicate arg ...)
-            =>
-            (λ (x)
-              (syntax-parameterize ([<result> (make-rename-transformer #'x)])
-                (on-consequent consequent arg ...)
-                ...))]
-           ...)]
-  [(_ (arg:expr ...) predicate)
-   #'(on-predicate-form predicate arg ...)])
+  [(_ (arg:expr ...)) #'(void)]
+  [(_ (arg:expr ...) clause)
+   #'((on-clause clause) arg ...)])
 
 (define-syntax-parser switch
-  [(_ (arg:expr ...) expr:expr ...)
-   #'(on (arg ...)
-         (if expr ...))])
+  [(_ (arg:expr ...)
+      [predicate consequent ...]
+      ...
+      [(~datum else) else-consequent ...])
+   #'(cond [((on-clause predicate) arg ...)
+            =>
+            (λ (x)
+              (syntax-parameterize ([<result> (make-rename-transformer #'x)])
+                (switch-consequent consequent arg ...)
+                ...))]
+           ...
+           [else (switch-consequent else-consequent arg ...) ...])]
+  [(_ (arg:expr ...)
+      [predicate consequent ...]
+      ...)
+   #'(cond [((on-clause predicate) arg ...)
+            =>
+            (λ (x)
+              (syntax-parameterize ([<result> (make-rename-transformer #'x)])
+                (switch-consequent consequent arg ...)
+                ...))]
+           ...)])
 
 (define-syntax-parser lambda/subject
   [(_ (arg:id ...) expr:expr ...)
