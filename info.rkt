@@ -16,7 +16,9 @@
 ;; the package rather than the collection
 (define test-omit-paths '("dev" "coverage"))
 ;; TODO: these paths aren't getting cleaned
-(define clean '("data/compiled" "data/private/compiled"))
+(define clean '("syntax/compiled"
+                "syntax/on/compiled"
+                "syntax/on/private/compiled"))
 (define pkg-desc "Predicate-based dispatch form.")
 (define version "1.1")
 (define pkg-authors '(countvajhula))
