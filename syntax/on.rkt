@@ -84,42 +84,10 @@
    #'(curryr (on-clause onex) prarg ...)]
   [(_ onex:expr) #'onex])
 
-(define-syntax-parser switch-consequent
-  [(_ ((~datum call) func:expr) arg:expr ...) #'((on-clause func) arg ...)]
-  [(_ consequent:expr arg:expr ...) #'consequent])
-
-(define-syntax-parameter <result>
-  (lambda (stx)
-    (raise-syntax-error (syntax-e stx) "can only be used inside `on`")))
-
 (define-syntax-parser on
   [(_ (arg:expr ...)) #'(void)]
   [(_ (arg:expr ...) clause)
    #'((on-clause clause) arg ...)])
-
-(define-syntax-parser switch
-  [(_ (arg:expr ...)
-      [predicate consequent ...]
-      ...
-      [(~datum else) else-consequent ...])
-   #'(cond [((on-clause predicate) arg ...)
-            =>
-            (λ (x)
-              (syntax-parameterize ([<result> (make-rename-transformer #'x)])
-                (switch-consequent consequent arg ...)
-                ...))]
-           ...
-           [else (switch-consequent else-consequent arg ...) ...])]
-  [(_ (arg:expr ...)
-      [predicate consequent ...]
-      ...)
-   #'(cond [((on-clause predicate) arg ...)
-            =>
-            (λ (x)
-              (syntax-parameterize ([<result> (make-rename-transformer #'x)])
-                (switch-consequent consequent arg ...)
-                ...))]
-           ...)])
 
 (define-syntax-parser lambda/subject
   [(_ (arg:id ...) expr:expr ...)
@@ -144,6 +112,38 @@
          expr ...))])
 
 (define-alias define-predicate define/subject)
+
+(define-syntax-parser switch-consequent
+  [(_ ((~datum call) func:expr) arg:expr ...) #'((on-clause func) arg ...)]
+  [(_ consequent:expr arg:expr ...) #'consequent])
+
+(define-syntax-parameter <result>
+  (lambda (stx)
+    (raise-syntax-error (syntax-e stx) "can only be used inside `on`")))
+
+(define-syntax-parser switch
+  [(_ (arg:expr ...)
+      [predicate consequent ...]
+      ...
+      [(~datum else) else-consequent ...])
+   #'(cond [((on-clause predicate) arg ...)
+            =>
+            (λ (x)
+              (syntax-parameterize ([<result> (make-rename-transformer #'x)])
+                (switch-consequent consequent arg ...)
+                ...))]
+           ...
+           [else (switch-consequent else-consequent arg ...) ...])]
+  [(_ (arg:expr ...)
+      [predicate consequent ...]
+      ...)
+   #'(cond [((on-clause predicate) arg ...)
+            =>
+            (λ (x)
+              (syntax-parameterize ([<result> (make-rename-transformer #'x)])
+                (switch-consequent consequent arg ...)
+                ...))]
+           ...)])
 
 (define-syntax-parser switch-lambda
   [(_ (arg:id ...) expr:expr ...)
