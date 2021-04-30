@@ -30,7 +30,6 @@
            racket/list))
 
 (begin-for-syntax
-  (require (only-in racket/function identity))
 
   (define (repeat n v)
     (if (= 0 n)
@@ -77,7 +76,7 @@
                   (cons 'on-clause
                         (list (cons '-<
                                     (repeat (syntax->datum #'n)
-                                            identity)))))]
+                                            #'identity)))))]
   [(_ (onex prarg-pre ... (~datum _) prarg-post ...))
    #'((on-clause onex) prarg-pre ... _ prarg-post ...)]
   [(_ (onex prarg ...))

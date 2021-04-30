@@ -1,8 +1,7 @@
 #lang racket/base
 
 (require racket/match
-         (only-in racket/function const)
-         (only-in mischief/function call))
+         (only-in racket/function const))
 
 (provide give
          ->boolean
@@ -68,6 +67,14 @@
 
 (define (zip-with f . vs)
   (apply map f vs))
+
+;; from mischief/function - requiring it runs aground
+;; of some "name is protected" error while building docs, not sure why;
+;; so including the implementation directly here for now
+(define call
+  (make-keyword-procedure
+   (lambda (ks vs f . xs)
+     (keyword-apply f ks vs xs))))
 
 (define (relay . fs)
   (λ args
