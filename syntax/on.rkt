@@ -62,16 +62,16 @@
   [(_ ((~datum with-key) f:expr onex:expr)) #'(compose
                                                (curry apply (on-clause onex))
                                                (give (curry map (on-clause f))))]
-  [(_ ((~datum ..) func:expr ...)) #'(compose (on-clause func) ...)]
-  [(_ ((~datum compose) func:expr ...)) #'(compose (on-clause func) ...)]
-  [(_ ((~datum ~>) func:expr ...)) #'(rcompose (on-clause func) ...)]
-  [(_ ((~datum thread) func:expr ...)) #'(rcompose (on-clause func) ...)]
-  [(_ ((~datum ><) func:expr)) #'(curry map-values (on-clause func))]
-  [(_ ((~datum amp) func:expr)) #'(curry map-values (on-clause func))]
-  [(_ ((~datum ==) func:expr ...)) #'(relay (on-clause func) ...)]
-  [(_ ((~datum relay) func:expr ...)) #'(relay (on-clause func) ...)]
-  [(_ ((~datum -<) func:expr ...)) #'(λ args (values (apply (on-clause func) args) ...))]
-  [(_ ((~datum tee) func:expr ...)) #'(λ args (values (apply (on-clause func) args) ...))]
+  [(_ ((~datum ..) onex:expr ...)) #'(compose (on-clause onex) ...)]
+  [(_ ((~datum compose) onex:expr ...)) #'(compose (on-clause onex) ...)]
+  [(_ ((~datum ~>) onex:expr ...)) #'(rcompose (on-clause onex) ...)]
+  [(_ ((~datum thread) onex:expr ...)) #'(rcompose (on-clause onex) ...)]
+  [(_ ((~datum ><) onex:expr)) #'(curry map-values (on-clause onex))]
+  [(_ ((~datum amp) onex:expr)) #'(curry map-values (on-clause onex))]
+  [(_ ((~datum ==) onex:expr ...)) #'(relay (on-clause onex) ...)]
+  [(_ ((~datum relay) onex:expr ...)) #'(relay (on-clause onex) ...)]
+  [(_ ((~datum -<) onex:expr ...)) #'(λ args (values (apply (on-clause onex) args) ...))]
+  [(_ ((~datum tee) onex:expr ...)) #'(λ args (values (apply (on-clause onex) args) ...))]
   [(_ ((~datum splitter) n:number))
    (datum->syntax this-syntax
                   (cons 'on-clause
@@ -114,7 +114,8 @@
 (define-alias define-predicate define/subject)
 
 (define-syntax-parser switch-consequent
-  [(_ ((~datum call) func:expr) arg:expr ...) #'((on-clause func) arg ...)]
+  [(_ ((~datum call) expr:expr) arg:expr ...) #'(on (arg ...) expr)]
+  [(_ ((~datum connect) expr:expr ...) arg:expr ...) #'(switch (arg ...) expr ...)]
   [(_ consequent:expr arg:expr ...) #'consequent])
 
 (define-syntax-parameter <result>
@@ -522,6 +523,40 @@
                              [else 'no])
                      36
                      ".. and >< in call position"))
+     (test-case
+         "switch-connect"
+       (check-equal? (switch (5)
+                             [positive? (connect [(and integer? odd?) (call add1)]
+                                                 [else 'positive])]
+                             [else 'no])
+                     6)
+       (check-equal? (switch (6)
+                             [positive? (connect [(and integer? odd?) (call add1)]
+                                                 [else 'positive])]
+                             [else 'no])
+                     'positive)
+       (check-equal? (switch (-5)
+                             [positive? (connect [(and integer? odd?) (call add1)]
+                                                 [else 'positive])]
+                             [else 'no])
+                     'no)
+       (check-equal? (switch (3 5)
+                             [< (connect [(~> - abs (< 3)) (call +)])]
+                             [else 'no])
+                     8
+                     "n-ary predicate")
+       (check-equal? (switch (3 8)
+                             [< (connect [(~> - abs (< 3)) (call +)]
+                                         [else 'less])]
+                             [else 'no])
+                     'less
+                     "n-ary predicate")
+       (check-equal? (switch (5 3)
+                             [< (connect [(~> - abs (< 3)) (call +)]
+                                         [else 'less])]
+                             [else 'no])
+                     'no
+                     "n-ary predicate"))
      (test-case
          "all"
        (check-equal? (switch (3 5)
