@@ -14,35 +14,40 @@
          <result>)
 
 (define-syntax-parser switch-consequent
-  [(_ ((~datum call) expr:expr) arg:expr ...) #'(on (arg ...) expr)]
-  [(_ ((~datum connect) expr:expr ...) arg:expr ...) #'(switch (arg ...) expr ...)]
-  [(_ consequent:expr arg:expr ...) #'consequent])
+  [(_ ((~datum call) expr:expr) arg:expr ...)
+   #'(on (arg ...) expr)]
+  [(_ ((~datum connect) expr:expr ...) arg:expr ...)
+   #'(switch (arg ...) expr ...)]
+  [(_ consequent:expr arg:expr ...)
+   #'consequent])
 
 (define-syntax-parameter <result>
   (lambda (stx)
     (raise-syntax-error (syntax-e stx) "can only be used inside `on`")))
 
 (define-syntax-parser switch
-  [(_ (arg:expr ...)
+  [(_ args:subject
       [predicate consequent ...]
       ...
       [(~datum else) else-consequent ...])
-   #'(cond [((on-clause predicate) arg ...)
+   #:do [(define arity (attribute args.arity))]
+   #`(cond [((on-clause predicate #,arity) #,@(syntax->list (attribute args.args)))
             =>
             (λ (x)
               (syntax-parameterize ([<result> (make-rename-transformer #'x)])
-                (switch-consequent consequent arg ...)
+                (switch-consequent consequent #,@(syntax->list (attribute args.args)))
                 ...))]
            ...
-           [else (switch-consequent else-consequent arg ...) ...])]
-  [(_ (arg:expr ...)
+           [else (switch-consequent else-consequent #,@(syntax->list (attribute args.args))) ...])]
+  [(_ args:subject
       [predicate consequent ...]
       ...)
-   #'(cond [((on-clause predicate) arg ...)
+   #:do [(define arity (attribute args.arity))]
+   #`(cond [((on-clause predicate #,arity) #,@(syntax->list (attribute args.args)))
             =>
             (λ (x)
               (syntax-parameterize ([<result> (make-rename-transformer #'x)])
-                (switch-consequent consequent arg ...)
+                (switch-consequent consequent #,@(syntax->list (attribute args.args)))
                 ...))]
            ...)])
 

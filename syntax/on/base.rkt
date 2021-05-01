@@ -3,60 +3,92 @@
 (require syntax/parse/define
          fancy-app
          racket/function
-         (for-syntax racket/base))
+         (for-syntax racket/base
+                     syntax/parse))
 
 (require "private/util.rkt")
 
-(provide on-clause)
+(provide on-clause
+         (for-syntax subject))
 
 (begin-for-syntax
   (define (repeat n v)
     (if (= 0 n)
         null
-        (cons v (repeat (sub1 n) v)))))
+        (cons v (repeat (sub1 n) v))))
+
+  (define-syntax-class subject
+    #:attributes (args arity)
+    (pattern
+     (arg:expr ...)
+     #:with args #'(arg ...)
+     #:attr arity (length (syntax->list #'args)))))
 
 (define-syntax-parser conjux-clause
-  [(_ (~datum _)) #'true.]
-  [(_ onex:expr) #'(on-clause onex)])
+  [(_ (~datum _) arity:number) #'true.]
+  [(_ onex:expr arity:number) #`(on-clause onex arity)])
 
 (define-syntax-parser disjux-clause
-  [(_ (~datum _)) #'false.]
-  [(_ onex:expr) #'(on-clause onex)])
+  [(_ (~datum _) arity:number) #'false.]
+  [(_ onex:expr arity:number) #`(on-clause onex arity)])
 
 (define-syntax-parser on-clause
-  [(_ ((~datum one-of?) v:expr ...)) #'(compose
-                                        ->boolean
-                                        (curryr member (list v ...)))]
-  [(_ ((~datum all) onex:expr)) #'(give (curry andmap (on-clause onex)))]
-  [(_ ((~datum any) onex:expr)) #'(give (curry ormap (on-clause onex)))]
-  [(_ ((~datum none) onex:expr)) #'(on-clause (not (any onex)))]
-  [(_ ((~datum and) onex:expr ...)) #'(conjoin (on-clause onex) ...)]
-  [(_ ((~datum or) onex:expr ...)) #'(disjoin (on-clause onex) ...)]
-  [(_ ((~datum not) onex:expr)) #'(negate (on-clause onex))]
-  [(_ ((~datum and%) onex:expr ...)) #'(conjux (conjux-clause onex) ...)]
-  [(_ ((~datum or%) onex:expr ...)) #'(disjux (disjux-clause onex) ...)]
-  [(_ ((~datum with-key) f:expr onex:expr)) #'(compose
-                                               (curry apply (on-clause onex))
-                                               (give (curry map (on-clause f))))]
-  [(_ ((~datum ..) onex:expr ...)) #'(compose (on-clause onex) ...)]
-  [(_ ((~datum compose) onex:expr ...)) #'(compose (on-clause onex) ...)]
-  [(_ ((~datum ~>) onex:expr ...)) #'(rcompose (on-clause onex) ...)]
-  [(_ ((~datum thread) onex:expr ...)) #'(rcompose (on-clause onex) ...)]
-  [(_ ((~datum ><) onex:expr)) #'(curry map-values (on-clause onex))]
-  [(_ ((~datum amp) onex:expr)) #'(curry map-values (on-clause onex))]
-  [(_ ((~datum ==) onex:expr ...)) #'(relay (on-clause onex) ...)]
-  [(_ ((~datum relay) onex:expr ...)) #'(relay (on-clause onex) ...)]
-  [(_ ((~datum -<) onex:expr ...)) #'(λ args (values (apply (on-clause onex) args) ...))]
-  [(_ ((~datum tee) onex:expr ...)) #'(λ args (values (apply (on-clause onex) args) ...))]
-  [(_ ((~datum splitter) n:number))
+  [(_ ((~datum one-of?) v:expr ...) arity:number)
+   #'(compose
+      ->boolean
+      (curryr member (list v ...)))]
+  [(_ ((~datum all) onex:expr) arity:number)
+   #'(give (curry andmap (on-clause onex arity)))]
+  [(_ ((~datum any) onex:expr) arity:number)
+   #'(give (curry ormap (on-clause onex arity)))]
+  [(_ ((~datum none) onex:expr) arity:number)
+   #'(on-clause (not (any onex)) arity)]
+  [(_ ((~datum and) onex:expr ...) arity:number)
+   #'(conjoin (on-clause onex arity) ...)]
+  [(_ ((~datum or) onex:expr ...) arity:number)
+   #'(disjoin (on-clause onex arity) ...)]
+  [(_ ((~datum not) onex:expr) arity:number)
+   #'(negate (on-clause onex arity))]
+  [(_ ((~datum and%) onex:expr ...) arity:number)
+   #'(conjux (conjux-clause onex arity) ...)]
+  [(_ ((~datum or%) onex:expr ...) arity:number)
+   #'(disjux (disjux-clause onex arity) ...)]
+  [(_ ((~datum with-key) f:expr onex:expr) arity:number)
+   #'(compose
+      (curry apply (on-clause onex arity))
+      (give (curry map (on-clause f arity))))]
+  [(_ ((~datum ..) onex:expr ...) arity:number)
+   #'(compose (on-clause onex arity) ...)]
+  [(_ ((~datum compose) onex:expr ...) arity:number)
+   #'(compose (on-clause onex arity) ...)]
+  [(_ ((~datum ~>) onex:expr ...) arity:number)
+   #'(rcompose (on-clause onex arity) ...)]
+  [(_ ((~datum thread) onex:expr ...) arity:number)
+   #'(rcompose (on-clause onex arity) ...)]
+  [(_ ((~datum ><) onex:expr) arity:number)
+   #'(curry map-values (on-clause onex arity))]
+  [(_ ((~datum amp) onex:expr) arity:number)
+   #'(curry map-values (on-clause onex arity))]
+  [(_ ((~datum ==) onex:expr ...) arity:number)
+   #'(relay (on-clause onex arity) ...)]
+  [(_ ((~datum relay) onex:expr ...) arity:number)
+   #'(relay (on-clause onex arity) ...)]
+  [(_ ((~datum -<) onex:expr ...) arity:number)
+   #'(λ args (values (apply (on-clause onex arity) args) ...))]
+  [(_ ((~datum tee) onex:expr ...) arity:number)
+   #'(λ args (values (apply (on-clause onex arity) args) ...))]
+  [(_ ((~datum splitter) n:number) arity:number)
    (datum->syntax this-syntax
                   (cons 'on-clause
                         (list (cons '-<
                                     (repeat (syntax->datum #'n)
-                                            #'identity)))))]
+                                            #'identity))
+                              #'arity)))]
   ;; "prarg" = "pre-supplied argument"
-  [(_ (onex prarg-pre ... (~datum _) prarg-post ...))
-   #'((on-clause onex) prarg-pre ... _ prarg-post ...)]
-  [(_ (onex prarg ...))
-   #'(curryr (on-clause onex) prarg ...)]
-  [(_ onex:expr) #'onex])
+  [(_ (onex prarg-pre ... (~datum __) prarg-post ...) arity:number)
+   #`((on-clause onex arity) prarg-pre ... #,@(repeat (syntax->datum #'arity) #'_) prarg-post ...)]
+  [(_ (onex prarg-pre ... (~datum _) prarg-post ...) arity:number)
+   #'((on-clause onex arity) prarg-pre ... _ prarg-post ...)]
+  [(_ (onex prarg ...) arity:number)
+   #'(curryr (on-clause onex arity) prarg ...)]
+  [(_ onex:expr arity:number) #'onex])

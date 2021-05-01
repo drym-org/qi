@@ -3,7 +3,8 @@
 (require syntax/parse/define
          mischief/shorthand
          (for-syntax racket/base)
-         "base.rkt")
+         "base.rkt"
+         (for-syntax "base.rkt"))
 
 (provide on
          lambda/subject
@@ -14,9 +15,12 @@
          π)
 
 (define-syntax-parser on
-  [(_ (arg:expr ...)) #'(void)]
-  [(_ (arg:expr ...) clause)
-   #'((on-clause clause) arg ...)])
+  [(_ args:subject) #'(void)]
+  [(_ args:subject clause)
+   ;; forward the subject arity in case it's necessary to
+   ;; the compilation of the clause
+   #:do [(define arity (attribute args.arity))]
+   #`((on-clause clause #,arity) #,@(syntax->list (attribute args.args)))])
 
 (define-syntax-parser lambda/subject
   [(_ (arg:id ...) expr:expr ...)
