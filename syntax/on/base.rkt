@@ -62,9 +62,13 @@
   [(_ ((~datum compose) onex:expr ...) arity:number)
    #'(compose (on-clause onex arity) ...)]
   [(_ ((~datum ~>) onex:expr ...) arity:number)
-   #'(rcompose (on-clause onex arity) ...)]
+   (datum->syntax this-syntax
+                  (cons 'on-clause
+                        (list (cons '..
+                                    (reverse (syntax->list #'(onex ...))))
+                              #'arity)))]
   [(_ ((~datum thread) onex:expr ...) arity:number)
-   #'(rcompose (on-clause onex arity) ...)]
+   #'(on-clause (~> onex ...) arity)]
   [(_ ((~datum ><) onex:expr) arity:number)
    #'(curry map-values (on-clause onex arity))]
   [(_ ((~datum amp) onex:expr) arity:number)

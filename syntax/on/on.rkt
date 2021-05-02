@@ -2,9 +2,9 @@
 
 (require syntax/parse/define
          mischief/shorthand
-         (for-syntax racket/base)
-         "base.rkt"
-         (for-syntax "base.rkt"))
+         (for-syntax racket/base
+                     "base.rkt")
+         "base.rkt")
 
 (provide on
          lambda/subject

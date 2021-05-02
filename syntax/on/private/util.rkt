@@ -7,7 +7,6 @@
          ->boolean
          true.
          false.
-         rcompose
          conjux
          disjux
          map-values
@@ -33,9 +32,6 @@
 (define false.
   (procedure-rename (const #f)
                     'false.))
-
-(define (rcompose . fs)
-  (apply compose (reverse fs)))
 
 ;; "juxtaposed conjoin"
 (define (conjux . preds)
