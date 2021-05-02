@@ -60,34 +60,36 @@
   [(_ ((~datum ..) onex:expr ...) arity:number)
    #'(compose (on-clause onex arity) ...)]
   [(_ ((~datum compose) onex:expr ...) arity:number)
-   #'(compose (on-clause onex arity) ...)]
+   #'(on-clause (.. onex ...) arity)]
   [(_ ((~datum ~>) onex:expr ...) arity:number)
-   (datum->syntax this-syntax
-                  (cons 'on-clause
-                        (list (cons '..
-                                    (reverse (syntax->list #'(onex ...))))
-                              #'arity)))]
+   (datum->syntax
+    this-syntax
+    (cons 'on-clause
+          (list (cons '..
+                      (reverse (syntax->list #'(onex ...))))
+                #'arity)))]
   [(_ ((~datum thread) onex:expr ...) arity:number)
    #'(on-clause (~> onex ...) arity)]
   [(_ ((~datum ><) onex:expr) arity:number)
    #'(curry map-values (on-clause onex arity))]
   [(_ ((~datum amp) onex:expr) arity:number)
-   #'(curry map-values (on-clause onex arity))]
+   #'(on-clause (>< onex) arity)]
   [(_ ((~datum ==) onex:expr ...) arity:number)
    #'(relay (on-clause onex arity) ...)]
   [(_ ((~datum relay) onex:expr ...) arity:number)
-   #'(relay (on-clause onex arity) ...)]
+   #'(on-clause (== onex ...) arity)]
   [(_ ((~datum -<) onex:expr ...) arity:number)
    #'(λ args (values (apply (on-clause onex arity) args) ...))]
   [(_ ((~datum tee) onex:expr ...) arity:number)
-   #'(λ args (values (apply (on-clause onex arity) args) ...))]
+   #'(on-clause (-< onex ...) arity)]
   [(_ ((~datum splitter) n:number) arity:number)
-   (datum->syntax this-syntax
-                  (cons 'on-clause
-                        (list (cons '-<
-                                    (repeat (syntax->datum #'n)
-                                            #'identity))
-                              #'arity)))]
+   (datum->syntax
+    this-syntax
+    (cons 'on-clause
+          (list (cons '-<
+                      (repeat (syntax->datum #'n)
+                              #'identity))
+                #'arity)))]
   ;; "prarg" = "pre-supplied argument"
   [(_ (onex prarg-pre ... (~datum __) prarg-post ...) arity:number)
    #`((on-clause onex arity) prarg-pre ... #,@(repeat (syntax->datum #'arity) #'_) prarg-post ...)]
