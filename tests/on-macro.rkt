@@ -439,6 +439,39 @@
                            [else 'no])
                    'no))
    (test-case
+       ".."
+     (check-equal? (on (5)
+                       (.. (string-append "a" _ "b")
+                           number->string
+                           (* 2)
+                           add1))
+                   "a12b")
+     (check-equal? (on (5 6)
+                       (.. (string-append _ "a" _ "b")
+                           (>< number->string)
+                           (>< add1)))
+                   "6a7b")
+     (check-equal? (on (5 6)
+                       (.. +
+                           (>< (* 2))
+                           (>< add1)))
+                   26)
+     (check-equal? (on ("p" "q")
+                       (.. string-append
+                           (>< (string-append "a" _ "b"))))
+                   "apbaqb")
+     (check-equal? (switch (3 5)
+                           [true. (call (.. * (>< add1)))]
+                           [else 'no])
+                   24)
+     (check-equal? (on (5)
+                       (compose (string-append "a" _ "b")
+                                number->string
+                                (* 2)
+                                add1))
+                   "a12b"
+                   "named composition form"))
+   (test-case
        "~>"
      (check-equal? (on (5)
                        (~> add1
@@ -463,7 +496,29 @@
      (check-equal? (switch (3 5)
                            [true. (call (~> (>< add1) *))]
                            [else 'no])
-                   24))
+                   24)
+     (check-equal? (on (5)
+                       (thread add1
+                               (* 2)
+                               number->string
+                               (string-append "a" _ "b")))
+                   "a12b"
+                   "named threading form"))
+   (test-case
+       "><"
+     (check-equal? (on (3 5)
+                       (~> (>< sqr)
+                           +))
+                   34)
+     (check-equal? (switch (3 5)
+                           [true. (call (~> (>< sqr) +))]
+                           [else 'no])
+                   34)
+     (check-equal? (on (3 5)
+                       (~> (amp sqr)
+                           +))
+                   34
+                   "named amplification form"))
    (test-case
        "-<"
      (define (sum lst)
@@ -479,7 +534,11 @@
      (check-equal? (switch (3 5)
                            [true. (call (~> (>< add1) * (-< (/ 2) (/ 3)) +))]
                            [else 'no])
-                   20))
+                   20)
+     (check-equal? (on (5)
+                       (~> (tee sqr add1)
+                           +))
+                   31))
    (test-case
        "=="
      (define (sum lst)
@@ -497,7 +556,12 @@
      (check-equal? (switch (10 12)
                            [true. (call (~> (== (/ 2) (/ 3)) +))]
                            [else 'no])
-                   9))
+                   9)
+     (check-equal? (on (5 7)
+                       (~> (relay sqr add1)
+                           +))
+                   33
+                   "named relay form"))
    (test-case
        "high-level circuit elements"
      (test-case
