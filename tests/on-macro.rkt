@@ -196,6 +196,28 @@
        (check-false (on (3 5)
                         (none positive?))))
      (test-case
+         "all?"
+       (check-true (on (3) all?))
+       (check-false (on (#f) all?))
+       (check-true (on (3 5 7) all?))
+       (check-false (on (3 #f 5) all?)))
+     (test-case
+         "any?"
+       (check-true (on (3) any?))
+       (check-false (on (#f) any?))
+       (check-true (on (3 5 7) any?))
+       (check-true (on (3 #f 5) any?))
+       (check-true (on (#f #f 5) any?))
+       (check-false (on (#f #f #f) any?)))
+     (test-case
+         "none?"
+       (check-false (on (3) none?))
+       (check-true (on (#f) none?))
+       (check-false (on (3 5 7) none?))
+       (check-false (on (3 #f 5) none?))
+       (check-false (on (#f #f 5) none?))
+       (check-true (on (#f #f #f) none?)))
+     (test-case
          ".."
        (check-equal? (on (5)
                          (.. (string-append "a" _ "b")

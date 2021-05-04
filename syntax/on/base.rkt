@@ -97,4 +97,7 @@
    #'((on-clause onex arity) prarg-pre ... _ prarg-post ...)]
   [(_ (onex prarg ...) arity:number)
    #'(curryr (on-clause onex arity) prarg ...)]
+  [(_ (~datum any?) arity:number) #'any?]
+  [(_ (~datum all?) arity:number) #'all?]
+  [(_ (~datum none?) arity:number) #'none?]
   [(_ onex:expr arity:number) #'onex])

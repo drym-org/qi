@@ -7,6 +7,9 @@
          ->boolean
          true.
          false.
+         any?
+         all?
+         none?
          conjux
          disjux
          map-values
@@ -75,3 +78,28 @@
 (define (relay . fs)
   (λ args
     (apply values (zip-with call fs args))))
+
+(define (~all? . args)
+  (match args
+    ['() #t]
+    [(cons v vs)
+     (match vs
+       ['() v]
+       [_ (and v (apply all? vs))])]))
+
+(define all? (compose not not ~all?))
+
+(define (~any? . args)
+  (match args
+    ['() #f]
+    [(cons v vs)
+     (match vs
+       ['() v]
+       [_ (or v (apply any? vs))])]))
+
+(define any? (compose not not ~any?))
+
+(define (~none? . args)
+  (not (apply any? args)))
+
+(define none? (compose not not ~none?))
