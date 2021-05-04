@@ -3,6 +3,8 @@
 (require syntax/parse/define
          racket/stxparam
          mischief/shorthand
+         (only-in racket/function
+                  const)
          (for-syntax racket/base)
          "base.rkt"
          "on.rkt")
@@ -12,6 +14,12 @@
          define-switch
          λ01
          <result>)
+
+(define-syntax-parser switch-predicate
+  [(_ (~datum else) arity:number)
+   #'(const (void))]
+  [(_ predicate:expr arity:number)
+   #'(on-clause predicate arity)])
 
 (define-syntax-parser switch-consequent
   [(_ ((~datum call) expr:expr) arg:expr ...)
@@ -28,22 +36,9 @@
 (define-syntax-parser switch
   [(_ args:subject
       [predicate consequent ...]
-      ...
-      [(~datum else) else-consequent ...])
-   #:do [(define arity (attribute args.arity))]
-   #`(cond [((on-clause predicate #,arity) #,@(syntax->list (attribute args.args)))
-            =>
-            (λ (x)
-              (syntax-parameterize ([<result> (make-rename-transformer #'x)])
-                (switch-consequent consequent #,@(syntax->list (attribute args.args)))
-                ...))]
-           ...
-           [else (switch-consequent else-consequent #,@(syntax->list (attribute args.args))) ...])]
-  [(_ args:subject
-      [predicate consequent ...]
       ...)
    #:do [(define arity (attribute args.arity))]
-   #`(cond [((on-clause predicate #,arity) #,@(syntax->list (attribute args.args)))
+   #`(cond [((switch-predicate predicate #,arity) #,@(syntax->list (attribute args.args)))
             =>
             (λ (x)
               (syntax-parameterize ([<result> (make-rename-transformer #'x)])
