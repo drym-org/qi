@@ -24,13 +24,13 @@
      #:with args #'(arg ...)
      #:attr arity (length (syntax->list #'args)))))
 
-(define-syntax-parser conjux-clause
+(define-syntax-parser conjux-clause  ; "juxtaposed" conjoin
   [(_ (~datum _) arity:number) #'true.]
-  [(_ onex:expr arity:number) #`(on-clause onex arity)])
+  [(_ onex:expr arity:number) #'(on-clause onex arity)])
 
-(define-syntax-parser disjux-clause
+(define-syntax-parser disjux-clause  ; "juxtaposed" disjoin
   [(_ (~datum _) arity:number) #'false.]
-  [(_ onex:expr arity:number) #`(on-clause onex arity)])
+  [(_ onex:expr arity:number) #'(on-clause onex arity)])
 
 (define-syntax-parser on-clause
   [(_ ((~datum one-of?) v:expr ...) arity:number)
@@ -50,9 +50,9 @@
   [(_ ((~datum not) onex:expr) arity:number)
    #'(negate (on-clause onex arity))]
   [(_ ((~datum and%) onex:expr ...) arity:number)
-   #'(conjux (conjux-clause onex arity) ...)]
+   #'(on-clause (~> (== (conjux-clause onex arity) ...) all?) arity)]
   [(_ ((~datum or%) onex:expr ...) arity:number)
-   #'(disjux (disjux-clause onex arity) ...)]
+   #'(on-clause (~> (== (disjux-clause onex arity) ...) any?) arity)]
   [(_ ((~datum with-key) f:expr onex:expr) arity:number)
    #'(compose
       (curry apply (on-clause onex arity))
@@ -90,6 +90,11 @@
                       (repeat (syntax->datum #'n)
                               #'identity))
                 #'arity)))]
+  ;; internal, "pass through"
+  [(_ ((~datum conjux-clause) onex:expr arity-i:number) arity-o:number)
+   #'(conjux-clause onex arity-i)]
+  [(_ ((~datum disjux-clause) onex:expr arity-i:number) arity-o:number)
+   #'(disjux-clause onex arity-i)]
   ;; "prarg" = "pre-supplied argument"
   [(_ (onex prarg-pre ... (~datum __) prarg-post ...) arity:number)
    #`((on-clause onex arity) prarg-pre ... #,@(repeat (syntax->datum #'arity) #'_) prarg-post ...)]
