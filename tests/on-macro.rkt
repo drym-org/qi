@@ -339,7 +339,15 @@
        (check-true (on (3 7) (< 1 _ 5 _ 10))
                    "template with multiple arguments")
        (check-false (on (3 5) (< 1 _ 5 _ 10))
-                    "template with multiple arguments")))
+                    "template with multiple arguments"))
+     (test-case
+         "escape hatch"
+       (check-equal? (on (3 7) (expr (first (list + *))))
+                     10
+                     "normal racket expressions")
+       (check-equal? (on (3 7) (expr + (second (list + *))))
+                     21
+                     "normal racket expressions")))
 
     (test-suite
      "high-level circuit elements"

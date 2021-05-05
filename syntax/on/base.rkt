@@ -50,9 +50,9 @@
   [(_ ((~datum not) onex:expr) arity:number)
    #'(negate (on-clause onex arity))]
   [(_ ((~datum and%) onex:expr ...) arity:number)
-   #'(on-clause (~> (== (conjux-clause onex arity) ...) all?) arity)]
+   #'(on-clause (~> (== (expr (conjux-clause onex arity)) ...) all?) arity)]
   [(_ ((~datum or%) onex:expr ...) arity:number)
-   #'(on-clause (~> (== (disjux-clause onex arity) ...) any?) arity)]
+   #'(on-clause (~> (== (expr (disjux-clause onex arity)) ...) any?) arity)]
   [(_ ((~datum with-key) f:expr onex:expr) arity:number)
    #'(compose
       (curry apply (on-clause onex arity))
@@ -90,11 +90,10 @@
                       (repeat (syntax->datum #'n)
                               #'identity))
                 #'arity)))]
-  ;; internal, "pass through"
-  [(_ ((~datum conjux-clause) onex:expr arity-i:number) arity-o:number)
-   #'(conjux-clause onex arity-i)]
-  [(_ ((~datum disjux-clause) onex:expr arity-i:number) arity-o:number)
-   #'(disjux-clause onex arity-i)]
+  ;; escape hatch for racket expressions or anything
+  ;; to be "passed through"
+  [(_ ((~datum expr) onex:expr ...) arity:number)
+   #'(begin onex ...)]
   ;; "prarg" = "pre-supplied argument"
   [(_ (onex prarg-pre ... (~datum __) prarg-post ...) arity:number)
    #`((on-clause onex arity) prarg-pre ... #,@(repeat (syntax->datum #'arity) #'_) prarg-post ...)]
