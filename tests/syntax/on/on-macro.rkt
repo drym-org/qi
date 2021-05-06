@@ -409,7 +409,23 @@
                            AND)))
       (check-true (on (#f #t)
                       (~> inverter
-                          OR))))))
+                          OR))))
+     (test-suite
+      "feedback"
+      (check-equal? (on (5)
+                        (feedback sqr 2))
+                    625)
+      (check-equal? (on (5 6)
+                        (~> + (feedback add1 5)))
+                    16)
+      (check-equal? (on (2 3)
+                        (~> (feedback (>< add1) 3)
+                            +))
+                    11)
+      (check-equal? (on (2 3)
+                        (~> (feedback (== add1 sub1) 3)
+                            +))
+                    5))))
 
    (test-suite
     "switch tests"

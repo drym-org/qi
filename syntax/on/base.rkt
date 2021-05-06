@@ -104,6 +104,14 @@
                       (repeat (syntax->datum #'n)
                               #'identity))
                 #'arity)))]
+  [(_ ((~datum feedback) onex:expr n:number) arity:number)
+   (datum->syntax
+    this-syntax
+    (cons 'on-clause
+          (list (cons '~>
+                      (repeat (syntax->datum #'n)
+                              #'onex))
+                #'arity)))]
   [(_ (~datum inverter) arity:number)
    #'(on-clause (>< NOT) arity)]
   ;; escape hatch for racket expressions or anything
