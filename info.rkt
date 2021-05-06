@@ -2,7 +2,8 @@
 (define collection 'multi)
 (define deps '("base"
                "mischief"
-               "fancy-app"))
+               "fancy-app"
+               "adjutor"))
 (define build-deps '("scribble-lib"
                      "scribble-abbrevs"
                      "racket-doc"
