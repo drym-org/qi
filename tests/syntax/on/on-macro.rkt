@@ -346,7 +346,7 @@
                      "normal racket expressions")
        (check-equal? (on (3 7) (expr + (second (list + *))))
                      21
-                     "normal racket expressions")))
+                     "multiple expressions in escape clause")))
 
     (test-suite
      "high-level circuit elements"
@@ -355,7 +355,15 @@
       (check-equal? (on (5)
                         (~> (splitter 3)
                             +))
-                    15))))
+                    15))
+     (test-suite
+      "inverter"
+      (check-false (on (5 6)
+                       (~> inverter
+                           AND)))
+      (check-true (on (#f #t)
+                      (~> inverter
+                          OR))))))
 
    (test-suite
     "switch tests"

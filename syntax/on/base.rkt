@@ -90,6 +90,8 @@
                       (repeat (syntax->datum #'n)
                               #'identity))
                 #'arity)))]
+  [(_ (~datum inverter) arity:number)
+   #'(on-clause (>< NOT) arity)]
   ;; escape hatch for racket expressions or anything
   ;; to be "passed through"
   [(_ ((~datum expr) onex:expr ...) arity:number)
