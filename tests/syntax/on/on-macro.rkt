@@ -425,7 +425,24 @@
       (check-equal? (on (2 3)
                         (~> (feedback (== add1 sub1) 3)
                             +))
-                    5))))
+                    5))
+     (test-suite
+      "select"
+      (check-equal? (on (1 2)
+                        (~> (select 0 (const 5) +) +))
+                    8)
+      (check-equal? (on (1 2)
+                        (~> (select 1 add1 sub1) +))
+                    3)
+      (check-equal? (on (1 2 3 4)
+                        (~> (select 3 * add1) +))
+                    11)
+      (check-equal? (on (4 5 6)
+                        (~> (select 2
+                                    (~> (>< add1) +)
+                                    add1)
+                            +))
+                    18))))
 
    (test-suite
     "switch tests"

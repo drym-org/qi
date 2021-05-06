@@ -3,6 +3,8 @@
 (require syntax/parse/define
          fancy-app
          racket/function
+         racket/list
+         (only-in adjutor values->list)
          (for-syntax racket/base
                      syntax/parse))
 
@@ -35,6 +37,15 @@
 (define-syntax-parser relay-clause
   [(_ (~datum _) arity:number) #'identity]
   [(_ onex:expr arity:number) #'(on-clause onex arity)])
+
+;; we use a lambda to capture the arguments at runtime
+;; since they aren't available at compile time
+(define (loom-compose f g [n #f])
+  (let ([n (or n (procedure-arity f))])
+    (λ args
+      (apply values
+             (append (values->list (apply f (take args n)))
+                     (values->list (apply g (drop args n))))))))
 
 (define-syntax-parser on-clause
   ;; special words
@@ -106,6 +117,10 @@
    #'(λ args (values (apply (on-clause onex arity) args) ...))]
   [(_ ((~datum tee) onex:expr ...) arity:number)
    #'(on-clause (-< onex ...) arity)]
+  [(_ ((~datum select) n:number selection-onex:expr remainder-onex:expr) arity:number)
+   #'(loom-compose (on-clause selection-onex arity)
+                   (on-clause remainder-onex arity)
+                   n)]
 
   ;; high level circuit elements
   [(_ ((~datum splitter) n:number) arity:number)
