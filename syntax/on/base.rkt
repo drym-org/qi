@@ -32,6 +32,10 @@
   [(_ (~datum _) arity:number) #'false.]
   [(_ onex:expr arity:number) #'(on-clause onex arity)])
 
+(define-syntax-parser relay-clause
+  [(_ (~datum _) arity:number) #'identity]
+  [(_ onex:expr arity:number) #'(on-clause onex arity)])
+
 (define-syntax-parser on-clause
   [(_ ((~datum one-of?) v:expr ...) arity:number)
    #'(compose
@@ -81,7 +85,7 @@
   [(_ ((~datum amp) onex:expr) arity:number)
    #'(on-clause (>< onex) arity)]
   [(_ ((~datum ==) onex:expr ...) arity:number)
-   #'(relay (on-clause onex arity) ...)]
+   #'(relay (relay-clause onex arity) ...)]
   [(_ ((~datum relay) onex:expr ...) arity:number)
    #'(on-clause (== onex ...) arity)]
   [(_ ((~datum -<) onex:expr ...) arity:number)

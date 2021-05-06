@@ -331,6 +331,16 @@
                              +))
                      54)
        (check-equal? (on (5 7)
+                         (~> (== _ add1)
+                             +))
+                     13
+                     "relay with don't-care")
+       (check-equal? (on (5 7)
+                         (~> (== _ _)
+                             +))
+                     12
+                     "relay with don't-care")
+       (check-equal? (on (5 7)
                          (~> (relay sqr add1)
                              +))
                      33
