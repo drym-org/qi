@@ -59,6 +59,10 @@
    #'all?]
   [(_ (~or (~datum OR) (~datum ||)) arity:number)
    #'any?]
+  [(_ (~datum NOR) arity:number)
+   #'(on-clause (~> OR NOT) arity)]
+  [(_ (~datum NAND) arity:number)
+   #'(on-clause (~> AND NOT) arity)]
   [(_ ((~datum and%) onex:expr ...) arity:number)
    #'(on-clause (~> (== (expr (conjux-clause onex arity)) ...) all?) arity)]
   [(_ ((~datum or%) onex:expr ...) arity:number)

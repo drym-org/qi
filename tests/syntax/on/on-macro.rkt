@@ -237,6 +237,22 @@
        (check-false (on (3) NOT))
        (check-true (on (#f) NOT)))
      (test-case
+         "NAND"
+       (check-true (on (#f) NAND))
+       (check-false (on (3) NAND))
+       (check-false (on (3 5 7) NAND))
+       (check-true (on (3 #f 5) NAND))
+       (check-true (on (#f #f 5) NAND))
+       (check-true (on (#f #f #f) NAND)))
+     (test-case
+         "NOR"
+       (check-true (on (#f) NOR))
+       (check-false (on (3) NOR))
+       (check-false (on (3 5 7) NOR))
+       (check-false (on (3 #f 5) NOR))
+       (check-false (on (#f #f 5) NOR))
+       (check-true (on (#f #f #f) NOR)))
+     (test-case
          ".."
        (check-equal? (on (5)
                          (.. (string-append "a" _ "b")
