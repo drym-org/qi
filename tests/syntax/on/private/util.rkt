@@ -5,7 +5,8 @@
 (provide do-with-value
          just-do
          sum
-         sort)
+         sort
+         true.)
 
 (define-syntax-rule (do-with-value value code ...)
   (let ()
@@ -22,3 +23,7 @@
 
 (define (sort less-than? #:key key . vs)
   (b:sort (map key vs) less-than?))
+
+(define true.
+  (procedure-rename (const #t)
+                    'true.))

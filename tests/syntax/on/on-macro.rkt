@@ -6,8 +6,7 @@
          (only-in math sqr)
          racket/list
          racket/function
-         "private/util.rkt"
-         "../syntax/on/private/util.rkt")
+         "private/util.rkt")
 
 (define tests
   (test-suite
