@@ -37,6 +37,7 @@
   [(_ onex:expr arity:number) #'(on-clause onex arity)])
 
 (define-syntax-parser on-clause
+  ;; special words
   [(_ ((~datum one-of?) v:expr ...) arity:number)
    #'(compose
       ->boolean
@@ -64,9 +65,13 @@
   [(_ (~datum NAND) arity:number)
    #'(on-clause (~> AND NOT) arity)]
   [(_ ((~datum and%) onex:expr ...) arity:number)
-   #'(on-clause (~> (== (expr (conjux-clause onex arity)) ...) all?) arity)]
+   #'(on-clause (~> (== (expr (conjux-clause onex arity)) ...)
+                    all?)
+                arity)]
   [(_ ((~datum or%) onex:expr ...) arity:number)
-   #'(on-clause (~> (== (expr (disjux-clause onex arity)) ...) any?) arity)]
+   #'(on-clause (~> (== (expr (disjux-clause onex arity)) ...)
+                    any?)
+                arity)]
   [(_ ((~datum with-key) f:expr onex:expr) arity:number)
    #'(compose
       (curry apply (on-clause onex arity))
@@ -84,6 +89,11 @@
                 #'arity)))]
   [(_ ((~datum thread) onex:expr ...) arity:number)
    #'(on-clause (~> onex ...) arity)]
+  [(_ (~datum any?) arity:number) #'any?]
+  [(_ (~datum all?) arity:number) #'all?]
+  [(_ (~datum none?) arity:number) #'none?]
+
+  ;; routing elements
   [(_ ((~datum ><) onex:expr) arity:number)
    #'(curry map-values (on-clause onex arity))]
   [(_ ((~datum amp) onex:expr) arity:number)
@@ -96,6 +106,8 @@
    #'(λ args (values (apply (on-clause onex arity) args) ...))]
   [(_ ((~datum tee) onex:expr ...) arity:number)
    #'(on-clause (-< onex ...) arity)]
+
+  ;; high level circuit elements
   [(_ ((~datum splitter) n:number) arity:number)
    (datum->syntax
     this-syntax
@@ -114,18 +126,24 @@
                 #'arity)))]
   [(_ (~datum inverter) arity:number)
    #'(on-clause (>< NOT) arity)]
+
   ;; escape hatch for racket expressions or anything
   ;; to be "passed through"
   [(_ ((~datum expr) onex:expr ...) arity:number)
    #'(begin onex ...)]
+
+  ;; templates and default to partial application
   ;; "prarg" = "pre-supplied argument"
   [(_ (onex prarg-pre ... (~datum __) prarg-post ...) arity:number)
-   #`((on-clause onex arity) prarg-pre ... #,@(repeat (syntax->datum #'arity) #'_) prarg-post ...)]
+   #`((on-clause onex arity) prarg-pre ...
+                             #,@(repeat (syntax->datum #'arity) #'_)
+                             prarg-post ...)]
   [(_ (onex prarg-pre ... (~datum _) prarg-post ...) arity:number)
-   #'((on-clause onex arity) prarg-pre ... _ prarg-post ...)]
+   #'((on-clause onex arity) prarg-pre ...
+                             _
+                             prarg-post ...)]
   [(_ (onex prarg ...) arity:number)
    #'(curryr (on-clause onex arity) prarg ...)]
-  [(_ (~datum any?) arity:number) #'any?]
-  [(_ (~datum all?) arity:number) #'all?]
-  [(_ (~datum none?) arity:number) #'none?]
+
+  ;; literally indicated function identifier
   [(_ onex:expr arity:number) #'onex])
