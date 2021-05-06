@@ -49,6 +49,12 @@
    #'(disjoin (on-clause onex arity) ...)]
   [(_ ((~datum not) onex:expr) arity:number)
    #'(negate (on-clause onex arity))]
+  [(_ (~or (~datum NOT) (~datum !)) arity:number)
+   #'not]
+  [(_ (~or (~datum AND) (~datum &)) arity:number)
+   #'all?]
+  [(_ (~or (~datum OR) (~datum ||)) arity:number)
+   #'any?]
   [(_ ((~datum and%) onex:expr ...) arity:number)
    #'(on-clause (~> (== (expr (conjux-clause onex arity)) ...) all?) arity)]
   [(_ ((~datum or%) onex:expr ...) arity:number)

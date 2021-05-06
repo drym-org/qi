@@ -217,6 +217,26 @@
        (check-false (on (#f #f 5) none?))
        (check-true (on (#f #f #f) none?)))
      (test-case
+         "AND"
+       (check-false (on (#f) AND))
+       (check-true (on (3) AND))
+       (check-true (on (3 5 7) AND))
+       (check-false (on (3 #f 5) AND))
+       (check-false (on (#f #f 5) AND))
+       (check-false (on (#f #f #f) AND)))
+     (test-case
+         "OR"
+       (check-false (on (#f) OR))
+       (check-true (on (3) OR))
+       (check-true (on (3 5 7) OR))
+       (check-true (on (3 #f 5) OR))
+       (check-true (on (#f #f 5) OR))
+       (check-false (on (#f #f #f) OR)))
+     (test-case
+         "NOT"
+       (check-false (on (3) NOT))
+       (check-true (on (#f) NOT)))
+     (test-case
          ".."
        (check-equal? (on (5)
                          (.. (string-append "a" _ "b")
