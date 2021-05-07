@@ -22,5 +22,5 @@
                 "syntax/on/compiled"
                 "syntax/on/private/compiled"))
 (define pkg-desc "Predicate-based dispatch form.")
-(define version "1.1")
+(define version "0.0")
 (define pkg-authors '(countvajhula))
