@@ -4,29 +4,58 @@
          scribble/example
          racket/sandbox
          @for-label[syntax/on
-                    racket]]
+                    racket
+					(only-in relation ->number ->string)]]
 
 @(define eval-for-docs
   (parameterize ([sandbox-output 'string]
                  [sandbox-error-output 'string]
                  [sandbox-memory-limit #f])
                  (make-evaluator 'racket/base
-                                 '(require syntax/on))))
+                                 '(require syntax/on
+                                           (only-in racket/list range)
+                                           (only-in math sqr)
+                                           relation))))
 
-@title{Lisp's Missing Predicate Language}
+@title{Racket's Missing Predicate Language}
 @author{Siddhartha Kasivajhula}
 
 @defmodule[syntax/on]
 
 An embedded predicate language to allow convenient framing of programming logic in terms of predicates.
 
-Every relation corresponds to a predicate, relations are the basis of logic, and logic is the soul of language. Predicates in a general sense are everywhere in human languages as well as in programming languages. They are essential in the way that we understand and express ideas, in the way that we think about and write programs. But in the absence of syntax that allows us to express ideas in terms of their @emph{subject-predicate} structure, such structure must be unraveled and expressed in terms of lower-level syntactic abstractions, abstractions which much be parsed by those reading the code into the higher level @emph{subject-predicate} structure you had in mind while writing it. This is an unnecessary toll on the conveyance of ideas, one that is eliminated by the present module.
+Logic is the soul of language, relations are the basis of logic, and every relation corresponds to a predicate. Predicates in a general sense are everywhere in human languages as well as in programming languages. They are essential in the way that we understand and express ideas, in the way that we think about and write programs. But in the absence of syntax that allows us to express ideas in terms of their @emph{subject-predicate} structure, such structure must be unraveled and expressed in terms of lower-level syntactic abstractions, abstractions which much be parsed by those reading the code into the higher level @emph{subject-predicate} structure you had in mind while writing it. This is an unnecessary toll on the conveyance of ideas, one that is eliminated by the present module.
 
 @;{TODO:teaser examples}
 
+@examples[
+    #:eval eval-for-docs
+    (on (5) (and positive? odd?))
+    (on ("5" "5.0") (with-key ->number =))
+    (on (5 7) (~> (>< ->string) string-append))
+	(define-predicate (positive-odd? n)
+	  (and positive? odd?))
+	(define-predicate (approximately-equal? m n)
+	  (~> - abs (< 1)))
+	(approximately-equal? 5 7)
+	(approximately-equal? 5 5.4)
+	(define/subject (root-mean-square vs)
+	  (~> (map sqr _) (-< sum length) / sqrt))
+	(root-mean-square (range 10))
+	(define-predicate (between-0-and-10? n)
+	  (<= 0 _ 10))
+	(between-0-and-10? 4)
+	(between-0-and-10? 12)
+    (define-switch (abs n)
+      [negative? (call (* -1))]
+      [else n])
+    (abs -5)
+    (abs 5)
+  ]
+
 @section{Syntax}
 
-This section provides a specification of the basic syntax recognizable to all the predicate forms provided in this module.
+This section provides a specification of the basic syntax recognizable to all of the predicate forms provided in this module.
 
 @;{TODO: describe syntax - and, or, %, not, apply, with-key, .., and%, or%, ...}
 
