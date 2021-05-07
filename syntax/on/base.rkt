@@ -106,7 +106,7 @@
 
   ;; routing elements
   [(_ ((~datum ><) onex:expr) arity:number)
-   #'(curry map-values (on-clause onex arity))]
+   #'(curry map-values (channel-clause onex arity))]
   [(_ ((~datum amp) onex:expr) arity:number)
    #'(on-clause (>< onex) arity)]
   [(_ ((~datum ==) onex:expr ...) arity:number)

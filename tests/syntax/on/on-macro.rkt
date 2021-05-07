@@ -342,6 +342,11 @@
                              +))
                      34)
        (check-equal? (on (3 5)
+                         (~> (>< _)
+                             +))
+                     8
+                     "amp with don't-care")
+       (check-equal? (on (3 5)
                          (~> (amp sqr)
                              +))
                      34
@@ -355,6 +360,11 @@
        (check-equal? (on ((range 1 10))
                          (~> (-< sum length) /))
                      5)
+       (check-equal? (on (5)
+                         (~> (-< _ add1)
+                             +))
+                     11
+                     "tee with don't-care")
        (check-equal? (on (5)
                          (~> (tee sqr add1)
                              +))
