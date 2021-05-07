@@ -278,6 +278,16 @@
        (check-true (on (#f #f) XNOR))
        (check-true (on (#f #f #f) XNOR)))
      (test-case
+         "gen"
+       (check-equal? (on () (gen 5))
+                     5)
+       (check-equal? (on (3) (gen 5))
+                     5)
+       (check-equal? (on (3 7) (gen 5))
+                     5)
+       (check-equal? (on (3 4) (~> (>< (gen 5)) +))
+                     10))
+     (test-case
          ".."
        (check-equal? (on (5)
                          (.. (string-append "a" _ "b")

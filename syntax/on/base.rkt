@@ -61,6 +61,8 @@
    #'(disjoin (on-clause onex arity) ...)]
   [(_ ((~datum not) onex:expr) arity:number)
    #'(negate (on-clause onex arity))]
+  [(_ ((~datum gen) ex:expr) arity:number)
+   #'(const ex)]
   [(_ (~or (~datum NOT) (~datum !)) arity:number)
    #'not]
   [(_ (~or (~datum AND) (~datum &)) arity:number)
