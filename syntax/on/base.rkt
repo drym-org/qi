@@ -38,6 +38,13 @@
   [(_ (~datum _) arity:number) #'identity]
   [(_ onex:expr arity:number) #'(on-clause onex arity)])
 
+(define-syntax-parser pass-clause
+  [(_ onex:expr return:expr arity:number)
+   #`(λ args
+       (if (apply (on-clause onex arity) args)
+           (apply values args)
+           (values #,@(repeat (syntax->datum #'arity) #'return))))])
+
 ;; we use a lambda to capture the arguments at runtime
 ;; since they aren't available at compile time
 (define (loom-compose f g [n #f])
@@ -117,10 +124,18 @@
    #'(λ args (values (apply (channel-clause onex arity) args) ...))]
   [(_ ((~datum tee) onex:expr ...) arity:number)
    #'(on-clause (-< onex ...) arity)]
-  [(_ ((~datum select) n:number selection-onex:expr remainder-onex:expr) arity:number)
+  [(_ ((~datum select) n:number
+                       selection-onex:expr
+                       remainder-onex:expr)
+      arity:number)
    #'(loom-compose (on-clause selection-onex arity)
                    (on-clause remainder-onex arity)
                    n)]
+  [(_ ((~datum pass) onex:expr
+                     (~optional return:expr
+                                #:defaults ([return #'#f])))
+      arity:number)
+   #'(pass-clause onex return arity)]
 
   ;; high level circuit elements
   [(_ ((~datum splitter) n:number) arity:number)

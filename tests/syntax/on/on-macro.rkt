@@ -442,7 +442,29 @@
                                     (~> (>< add1) +)
                                     add1)
                             +))
-                    18))))
+                    18))
+     (test-suite
+      "pass"
+      (check-equal? (on (5)
+                        (pass positive?))
+                    5)
+      (check-equal? (on (5)
+                        (pass negative?))
+                    #f)
+      (check-equal? (on (5)
+                        (pass negative? 0))
+                    0)
+      (check-equal? (on (5)
+                        (pass (< 10) 0))
+                    5)
+      (check-equal? (on (5 6)
+                        (~> (pass <)
+                            +))
+                    11)
+      (check-equal? (on (5 6)
+                        (~> (pass > 0)
+                            +))
+                    0))))
 
    (test-suite
     "switch tests"
