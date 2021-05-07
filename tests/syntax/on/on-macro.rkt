@@ -488,7 +488,15 @@
                     2)
       (check-equal? (on (1 2 3)
                         (select 2))
-                    3))
+                    3)
+      (check-equal? (on ("1" "2" "3")
+                        (~> (select 0 2)
+                            string-append))
+                    "13")
+      (check-equal? (on ("1" "2" "3")
+                        (~> (select 2 0)
+                            string-append))
+                    "31"))
      (test-suite
       "pass"
       (check-equal? (on (5)
