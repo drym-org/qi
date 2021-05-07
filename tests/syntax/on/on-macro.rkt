@@ -452,18 +452,18 @@
                             +))
                     5))
      (test-suite
-      "select"
+      "group"
       (check-equal? (on (1 2)
-                        (~> (select 0 (const 5) +) +))
+                        (~> (group 0 (const 5) +) +))
                     8)
       (check-equal? (on (1 2)
-                        (~> (select 1 add1 sub1) +))
+                        (~> (group 1 add1 sub1) +))
                     3)
       (check-equal? (on (1 2 3 4)
-                        (~> (select 3 * add1) +))
+                        (~> (group 3 * add1) +))
                     11)
       (check-equal? (on (4 5 6)
-                        (~> (select 2
+                        (~> (group 2
                                     (~> (>< add1) +)
                                     add1)
                             +))
