@@ -1,7 +1,10 @@
 #lang racket/base
 
 (require racket/match
-         (only-in racket/function const))
+         (only-in racket/function const)
+         racket/bool
+         racket/list
+         (only-in adjutor values->list))
 
 (provide give
          ->boolean
@@ -11,7 +14,25 @@
          all?
          none?
          map-values
-         relay)
+         relay
+         loom-compose
+         parity-xor)
+
+;; we use a lambda to capture the arguments at runtime
+;; since they aren't available at compile time
+(define (loom-compose f g [n #f])
+  (let ([n (or n (procedure-arity f))])
+    (λ args
+      (apply values
+             (append (values->list (apply f (take args n)))
+                     (values->list (apply g (drop args n))))))))
+
+(define (parity-xor . args)
+  (not
+   (not
+    (foldl xor
+           #f
+           args))))
 
 ;; give a (list-)lifted function available arguments
 ;; directly instead of wrapping them with a list

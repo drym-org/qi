@@ -3,8 +3,6 @@
 (require syntax/parse/define
          fancy-app
          racket/function
-         racket/list
-         (only-in adjutor values->list)
          (for-syntax racket/base
                      syntax/parse))
 
@@ -45,15 +43,6 @@
            (apply values args)
            (values #,@(repeat (syntax->datum #'arity) #'return))))])
 
-;; we use a lambda to capture the arguments at runtime
-;; since they aren't available at compile time
-(define (loom-compose f g [n #f])
-  (let ([n (or n (procedure-arity f))])
-    (λ args
-      (apply values
-             (append (values->list (apply f (take args n)))
-                     (values->list (apply g (drop args n))))))))
-
 (define-syntax-parser on-clause
   ;; special words
   [(_ ((~datum one-of?) v:expr ...) arity:number)
@@ -82,6 +71,10 @@
    #'(on-clause (~> OR NOT) arity)]
   [(_ (~datum NAND) arity:number)
    #'(on-clause (~> AND NOT) arity)]
+  [(_ (~datum XOR) arity:number)
+   #'parity-xor]
+  [(_ (~datum XNOR) arity:number)
+   #'(on-clause (~> XOR NOT) arity)]
   [(_ ((~datum and%) onex:expr ...) arity:number)
    #'(on-clause (~> (== (expr (conjux-clause onex arity)) ...)
                     all?)

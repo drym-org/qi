@@ -253,6 +253,31 @@
        (check-false (on (#f #f 5) NOR))
        (check-true (on (#f #f #f) NOR)))
      (test-case
+         "XOR"
+       (check-false (on (#f) XOR))
+       (check-true (on (3) XOR))
+       (check-true (on (#f 3) XOR))
+       (check-true (on (3 #f) XOR))
+       (check-false (on (3 5) XOR))
+       (check-false (on (#f #f) XOR))
+       (check-false (on (#f #f #f) XOR))
+       (check-true (on (#f #f 3) XOR))
+       (check-true (on (#f 3 #f) XOR))
+       (check-false (on (#f 3 5) XOR))
+       (check-true (on (3 #f #f) XOR))
+       (check-false (on (3 #f 5) XOR))
+       (check-false (on (3 5 #f) XOR))
+       (check-true (on (3 5 7) XOR)))
+     (test-case
+         "XNOR"
+       (check-true (on (#f) XNOR))
+       (check-false (on (3) XNOR))
+       (check-false (on (#f 3) XNOR))
+       (check-false (on (3 #f) XNOR))
+       (check-true (on (3 5) XNOR))
+       (check-true (on (#f #f) XNOR))
+       (check-true (on (#f #f #f) XNOR)))
+     (test-case
          ".."
        (check-equal? (on (5)
                          (.. (string-append "a" _ "b")
