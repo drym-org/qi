@@ -11,7 +11,8 @@
                      "cover"
                      "cover-coveralls"
                      "sandbox-lib"
-                     "math-lib"))
+                     "math-lib"
+                     "relation"))
 ;; at the moment, this flag needs to be at the package level in order
 ;; for it to take effect, possibly because the tests are run against
 ;; the package rather than the collection
