@@ -469,6 +469,17 @@
                             +))
                     18))
      (test-suite
+      "select"
+      (check-equal? (on (1)
+                        (select 0))
+                    1)
+      (check-equal? (on (1 2 3)
+                        (select 1))
+                    2)
+      (check-equal? (on (1 2 3)
+                        (select 2))
+                    3))
+     (test-suite
       "pass"
       (check-equal? (on (5)
                         (pass positive?))

@@ -117,6 +117,8 @@
    #'(λ args (values (apply (channel-clause onex arity) args) ...))]
   [(_ ((~datum tee) onex:expr ...) arity:number)
    #'(on-clause (-< onex ...) arity)]
+  [(_ ((~datum select) n:number) arity:number)
+   #'(arg n)]
   [(_ ((~datum group) n:number
                       selection-onex:expr
                       remainder-onex:expr)

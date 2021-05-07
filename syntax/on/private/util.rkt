@@ -16,7 +16,8 @@
          map-values
          relay
          loom-compose
-         parity-xor)
+         parity-xor
+         arg)
 
 ;; we use a lambda to capture the arguments at runtime
 ;; since they aren't available at compile time
@@ -33,6 +34,10 @@
     (foldl xor
            #f
            args))))
+
+(define (arg n)
+  (λ args
+    (list-ref args n)))
 
 ;; give a (list-)lifted function available arguments
 ;; directly instead of wrapping them with a list
