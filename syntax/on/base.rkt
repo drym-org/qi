@@ -33,6 +33,13 @@
                              (or (member '_ (syntax->datum #'expr))
                                  (member '__ (syntax->datum #'expr)))))))
 
+(define-syntax-parser right-threading-clause
+  [(_ onex:clause arity:number)
+   (datum->syntax this-syntax
+                  (list 'on-clause #'onex #'arity)
+                  #f
+                  (syntax-property this-syntax 'threading-side 'right))])
+
 (define-syntax-parser conjux-clause  ; "juxtaposed" conjoin
   [(_ (~datum _) arity:number) #'true.]
   [(_ onex:clause arity:number) #'(on-clause onex arity)])
@@ -111,6 +118,10 @@
                 #'arity)))]
   [(_ ((~datum thread) onex:clause ...) arity:number)
    #'(on-clause (~> onex ...) arity)]
+  [(_ ((~datum ~>>) onex:clause ...) arity:number)
+   #'(on-clause (~> (expr (right-threading-clause onex arity)) ...) arity)]
+  [(_ ((~datum thread-right) onex:clause ...) arity:number)
+   #'(on-clause (~>> onex ...) arity)]
   [(_ (~datum any?) arity:number) #'any?]
   [(_ (~datum all?) arity:number) #'all?]
   [(_ (~datum none?) arity:number) #'none?]
@@ -180,7 +191,15 @@
                              _
                              prarg-post ...)]
   [(_ (onex prarg ...) arity:number)
-   #'(curryr (on-clause onex arity) prarg ...)]
+   ;; we use currying instead of templates when a template hasn't
+   ;; explicitly been indicated since in such cases, we cannot
+   ;; always infer the appropriate arity for a template (e.g. it
+   ;; may change under composition within the form), while a
+   ;; curried function will accept any number of arguments
+   #:do [(define threading-side (syntax-property this-syntax 'threading-side))]
+   (if (and threading-side (eq? threading-side 'right))
+       #'(curry (on-clause onex arity) prarg ...)
+       #'(curryr (on-clause onex arity) prarg ...))]
 
   ;; literally indicated function identifier
   [(_ ex:expr arity:number) #'ex])

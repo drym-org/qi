@@ -338,11 +338,59 @@
                          (~> (>< (string-append "a" _ "b"))
                              string-append))
                      "apbaqb")
+       (check-equal? (on ("p" "q")
+                         (~> (string-append "a" "b")))
+                     "pqab"
+                     "threading without template")
+       (check-equal? (on ("p" "q")
+                         (~> (>< (string-append "a" "b"))
+                             string-append))
+                     "pabqab"
+                     "threading without template")
        (check-equal? (on (5)
                          (thread add1
                                  (* 2)
                                  number->string
                                  (string-append "a" _ "b")))
+                     "a12b"
+                     "named threading form"))
+     (test-case
+         "~>>"
+       (check-equal? (on (5)
+                         (~>> add1
+                              (* 2)
+                              number->string
+                              (string-append "a" _ "b")))
+                     "a12b")
+       (check-equal? (on (5 6)
+                         (~>> (>< add1)
+                              (>< number->string)
+                              (string-append _ "a" _ "b")))
+                     "6a7b")
+       (check-equal? (on (5 6)
+                         (~>> (>< add1)
+                              (>< (* 2))
+                              +))
+                     26)
+       (check-equal? (on ("p" "q")
+                         (~>> (>< (string-append "a" _ "b"))
+                              string-append))
+                     "apbaqb")
+       (check-equal? (on ("p" "q")
+                         (~>> (string-append "a" "b")))
+                     "abpq"
+                     "right-threading without template")
+       ;; TODO: propagate threading side to nested clauses
+       ;; (check-equal? (on ("p" "q")
+       ;;                   (~>> (>< (string-append "a" "b"))
+       ;;                        string-append))
+       ;;               "abpabq"
+       ;;               "right-threading without template")
+       (check-equal? (on (5)
+                         (thread-right add1
+                                       (* 2)
+                                       number->string
+                                       (string-append "a" _ "b")))
                      "a12b"
                      "named threading form"))
      (test-case
