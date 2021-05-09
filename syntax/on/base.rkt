@@ -166,8 +166,8 @@
 
   ;; escape hatch for racket expressions or anything
   ;; to be "passed through"
-  [(_ ((~datum expr) onex:expr ...) arity:number)
-   #'(begin onex ...)]
+  [(_ ((~datum expr) ex:expr ...) arity:number)
+   #'(begin ex ...)]
 
   ;; templates and default to partial application
   ;; "prarg" = "pre-supplied argument"
@@ -183,4 +183,4 @@
    #'(curryr (on-clause onex arity) prarg ...)]
 
   ;; literally indicated function identifier
-  [(_ onex:expr arity:number) #'onex])
+  [(_ ex:expr arity:number) #'ex])
