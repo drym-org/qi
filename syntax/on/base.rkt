@@ -26,12 +26,8 @@
      #:attr arity (length (syntax->list #'args))))
 
   (define-syntax-class clause
-    #:attributes (is-template)
     (pattern
-     expr:expr
-     #:attr is-template (and (syntax->list #'expr)
-                             (or (member '_ (syntax->datum #'expr))
-                                 (member '__ (syntax->datum #'expr)))))))
+     expr:expr)))
 
 (define-syntax-parser right-threading-clause
   [(_ onex:clause arity:number)
