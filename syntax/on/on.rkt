@@ -16,7 +16,7 @@
 
 (define-syntax-parser on
   [(_ args:subject) #'(void)]
-  [(_ args:subject clause)
+  [(_ args:subject clause:clause)
    ;; forward the subject arity in case it's necessary to
    ;; the compilation of the clause
    #:do [(define arity (attribute args.arity))]

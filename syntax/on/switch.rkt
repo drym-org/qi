@@ -22,7 +22,7 @@
    #'(on-clause predicate arity)])
 
 (define-syntax-parser switch-consequent
-  [(_ ((~datum call) expr:expr) arg:expr ...)
+  [(_ ((~datum call) expr:clause) arg:expr ...)
    #'(on (arg ...) expr)]
   [(_ ((~datum connect) expr:expr ...) arg:expr ...)
    #'(switch (arg ...) expr ...)]
@@ -35,7 +35,7 @@
 
 (define-syntax-parser switch
   [(_ args:subject
-      [predicate consequent ...]
+      [predicate:clause consequent ...]
       ...)
    #:do [(define arity (attribute args.arity))]
    #`(cond [((switch-predicate predicate #,arity) #,@(syntax->list (attribute args.args)))

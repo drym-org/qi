@@ -9,7 +9,8 @@
 (require "private/util.rkt")
 
 (provide on-clause
-         (for-syntax subject))
+         (for-syntax subject
+                     clause))
 
 (begin-for-syntax
   (define (repeat n v)
@@ -22,7 +23,15 @@
     (pattern
      (arg:expr ...)
      #:with args #'(arg ...)
-     #:attr arity (length (syntax->list #'args)))))
+     #:attr arity (length (syntax->list #'args))))
+
+  (define-syntax-class clause
+    #:attributes (is-template)
+    (pattern
+     expr:expr
+     #:attr is-template (and (syntax->list #'expr)
+                             (or (member '_ (syntax->datum #'expr))
+                                 (member '__ (syntax->datum #'expr)))))))
 
 (define-syntax-parser conjux-clause  ; "juxtaposed" conjoin
   [(_ (~datum _) arity:number) #'true.]
