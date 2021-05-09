@@ -19,8 +19,9 @@
   [(_ args:subject clause:clause)
    ;; forward the subject arity in case it's necessary to
    ;; the compilation of the clause
-   #:do [(define arity (attribute args.arity))]
-   #`((on-clause clause #,arity) #,@(syntax->list (attribute args.args)))])
+   #:with arity (attribute args.arity)
+   #:with ags (attribute args.args)
+   #`((on-clause clause arity) #,@(syntax->list #'ags))])
 
 (define-syntax-parser lambda/subject
   [(_ (arg:id ...) expr:expr ...)
