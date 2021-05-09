@@ -86,12 +86,12 @@
    #'parity-xor]
   [(_ (~datum XNOR) arity:number)
    #'(on-clause (~> XOR NOT) arity)]
-  [(_ ((~datum and%) onex:expr ...) arity:number)
-   #'(on-clause (~> (== (expr (conjux-clause onex arity)) ...)
+  [(_ ((~datum and%) onex:clause ...) arity:number)
+   #'(on-clause (~> (== (expr (conjux-clause onex 1)) ...)
                     all?)
                 arity)]
-  [(_ ((~datum or%) onex:expr ...) arity:number)
-   #'(on-clause (~> (== (expr (disjux-clause onex arity)) ...)
+  [(_ ((~datum or%) onex:clause ...) arity:number)
+   #'(on-clause (~> (== (expr (disjux-clause onex 1)) ...)
                     any?)
                 arity)]
   [(_ ((~datum with-key) f:expr onex:expr) arity:number)
@@ -116,13 +116,13 @@
   [(_ (~datum none?) arity:number) #'none?]
 
   ;; routing elements
-  [(_ ((~datum ><) onex:expr) arity:number)
-   #'(curry map-values (channel-clause onex arity))]
-  [(_ ((~datum amp) onex:expr) arity:number)
+  [(_ ((~datum ><) onex:clause) arity:number)
+   #'(curry map-values (channel-clause onex 1))]
+  [(_ ((~datum amp) onex:clause) arity:number)
    #'(on-clause (>< onex) arity)]
-  [(_ ((~datum ==) onex:expr ...) arity:number)
-   #'(relay (channel-clause onex arity) ...)]
-  [(_ ((~datum relay) onex:expr ...) arity:number)
+  [(_ ((~datum ==) onex:clause ...) arity:number)
+   #'(relay (channel-clause onex 1) ...)]
+  [(_ ((~datum relay) onex:clause ...) arity:number)
    #'(on-clause (== onex ...) arity)]
   [(_ ((~datum -<) onex:expr ...) arity:number)
    #'(λ args (values (apply (channel-clause onex arity) args) ...))]
@@ -134,8 +134,9 @@
                       selection-onex:expr
                       remainder-onex:expr)
       arity:number)
-   #'(loom-compose (on-clause selection-onex arity)
-                   (on-clause remainder-onex arity)
+   #`(loom-compose (on-clause selection-onex n)
+                   (on-clause remainder-onex #,(- (syntax->datum #'arity)
+                                                  (syntax->datum #'n)))
                    n)]
   [(_ ((~datum pass) onex:expr
                      (~optional return:expr
