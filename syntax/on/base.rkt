@@ -35,18 +35,18 @@
 
 (define-syntax-parser conjux-clause  ; "juxtaposed" conjoin
   [(_ (~datum _) arity:number) #'true.]
-  [(_ onex:expr arity:number) #'(on-clause onex arity)])
+  [(_ onex:clause arity:number) #'(on-clause onex arity)])
 
 (define-syntax-parser disjux-clause  ; "juxtaposed" disjoin
   [(_ (~datum _) arity:number) #'false.]
-  [(_ onex:expr arity:number) #'(on-clause onex arity)])
+  [(_ onex:clause arity:number) #'(on-clause onex arity)])
 
 (define-syntax-parser channel-clause
   [(_ (~datum _) arity:number) #'identity]
-  [(_ onex:expr arity:number) #'(on-clause onex arity)])
+  [(_ onex:clause arity:number) #'(on-clause onex arity)])
 
 (define-syntax-parser pass-clause
-  [(_ onex:expr return:expr arity:number)
+  [(_ onex:clause return:expr arity:number)
    #`(λ args
        (if (apply (on-clause onex arity) args)
            (apply values args)
@@ -58,17 +58,17 @@
    #'(compose
       ->boolean
       (curryr member (list v ...)))]
-  [(_ ((~datum all) onex:expr) arity:number)
+  [(_ ((~datum all) onex:clause) arity:number)
    #'(give (curry andmap (on-clause onex arity)))]
-  [(_ ((~datum any) onex:expr) arity:number)
+  [(_ ((~datum any) onex:clause) arity:number)
    #'(give (curry ormap (on-clause onex arity)))]
-  [(_ ((~datum none) onex:expr) arity:number)
+  [(_ ((~datum none) onex:clause) arity:number)
    #'(on-clause (not (any onex)) arity)]
-  [(_ ((~datum and) onex:expr ...) arity:number)
+  [(_ ((~datum and) onex:clause ...) arity:number)
    #'(conjoin (on-clause onex arity) ...)]
-  [(_ ((~datum or) onex:expr ...) arity:number)
+  [(_ ((~datum or) onex:clause ...) arity:number)
    #'(disjoin (on-clause onex arity) ...)]
-  [(_ ((~datum not) onex:expr) arity:number)
+  [(_ ((~datum not) onex:clause) arity:number)
    #'(negate (on-clause onex arity))]
   [(_ ((~datum gen) ex:expr) arity:number)
    #'(const ex)]
@@ -94,22 +94,22 @@
    #'(on-clause (~> (== (expr (disjux-clause onex 1)) ...)
                     any?)
                 arity)]
-  [(_ ((~datum with-key) f:expr onex:expr) arity:number)
+  [(_ ((~datum with-key) f:clause onex:clause) arity:number)
    #'(compose
       (curry apply (on-clause onex arity))
       (give (curry map (on-clause f arity))))]
-  [(_ ((~datum ..) onex:expr ...) arity:number)
+  [(_ ((~datum ..) onex:clause ...) arity:number)
    #'(compose (on-clause onex arity) ...)]
-  [(_ ((~datum compose) onex:expr ...) arity:number)
+  [(_ ((~datum compose) onex:clause ...) arity:number)
    #'(on-clause (.. onex ...) arity)]
-  [(_ ((~datum ~>) onex:expr ...) arity:number)
+  [(_ ((~datum ~>) onex:clause ...) arity:number)
    (datum->syntax
     this-syntax
     (cons 'on-clause
           (list (cons '..
                       (reverse (syntax->list #'(onex ...))))
                 #'arity)))]
-  [(_ ((~datum thread) onex:expr ...) arity:number)
+  [(_ ((~datum thread) onex:clause ...) arity:number)
    #'(on-clause (~> onex ...) arity)]
   [(_ (~datum any?) arity:number) #'any?]
   [(_ (~datum all?) arity:number) #'all?]
@@ -124,21 +124,21 @@
    #'(relay (channel-clause onex 1) ...)]
   [(_ ((~datum relay) onex:clause ...) arity:number)
    #'(on-clause (== onex ...) arity)]
-  [(_ ((~datum -<) onex:expr ...) arity:number)
+  [(_ ((~datum -<) onex:clause ...) arity:number)
    #'(λ args (values (apply (channel-clause onex arity) args) ...))]
-  [(_ ((~datum tee) onex:expr ...) arity:number)
+  [(_ ((~datum tee) onex:clause ...) arity:number)
    #'(on-clause (-< onex ...) arity)]
   [(_ ((~datum select) n:number ...) arity:number)
    #'(on-clause (-< (expr (arg n)) ...) arity)]
   [(_ ((~datum group) n:number
-                      selection-onex:expr
-                      remainder-onex:expr)
+                      selection-onex:clause
+                      remainder-onex:clause)
       arity:number)
    #`(loom-compose (on-clause selection-onex n)
                    (on-clause remainder-onex #,(- (syntax->datum #'arity)
                                                   (syntax->datum #'n)))
                    n)]
-  [(_ ((~datum pass) onex:expr
+  [(_ ((~datum pass) onex:clause
                      (~optional return:expr
                                 #:defaults ([return #'#f])))
       arity:number)
@@ -153,7 +153,7 @@
                       (repeat (syntax->datum #'n)
                               '_))
                 #'arity)))]
-  [(_ ((~datum feedback) onex:expr n:number) arity:number)
+  [(_ ((~datum feedback) onex:clause n:number) arity:number)
    (datum->syntax
     this-syntax
     (cons 'on-clause
