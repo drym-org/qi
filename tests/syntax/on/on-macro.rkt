@@ -43,39 +43,9 @@
        (check-false (on (5 5 6 7) <))
        (check-true (on (5 5 6 7) <=)))
      (test-case
-         "eq?"
-       (check-false (on (6) (eq? 5)))
-       (check-true (on (5) (eq? 5))))
-     (test-case
-         "equal?"
-       (check-false (on ("bye") (equal? "hello")))
-       (check-true (on ("hello") (equal? "hello"))))
-     (test-case
          "one-of?"
        (check-false (on ("hello") (one-of? "hi" "ola")))
        (check-true (on ("hello") (one-of? "hi" "hello"))))
-     (test-case
-         "<"
-       (check-false (on (5) (< 5)))
-       (check-true (on (5) (< 10))))
-     (test-case
-         "<="
-       (check-false (on (5) (<= 1)))
-       (check-true (on (5) (<= 10)))
-       (check-true (on (5) (<= 5))))
-     (test-case
-         ">"
-       (check-false (on (5) (> 5)))
-       (check-true (on (5) (> 1))))
-     (test-case
-         ">="
-       (check-false (on (5) (>= 10)))
-       (check-true (on (5) (>= 1)))
-       (check-true (on (5) (>= 5))))
-     (test-case
-         "="
-       (check-true (on (5) (= 5)))
-       (check-false (on (5) (= 10))))
      (test-case
          "predicate under a mapping"
        (check-true (on ("5") (with-key string->number (< 10))))
@@ -217,67 +187,6 @@
        (check-false (on (#f #f 5) none?))
        (check-true (on (#f #f #f) none?)))
      (test-case
-         "AND"
-       (check-false (on (#f) AND))
-       (check-true (on (3) AND))
-       (check-true (on (3 5 7) AND))
-       (check-false (on (3 #f 5) AND))
-       (check-false (on (#f #f 5) AND))
-       (check-false (on (#f #f #f) AND)))
-     (test-case
-         "OR"
-       (check-false (on (#f) OR))
-       (check-true (on (3) OR))
-       (check-true (on (3 5 7) OR))
-       (check-true (on (3 #f 5) OR))
-       (check-true (on (#f #f 5) OR))
-       (check-false (on (#f #f #f) OR)))
-     (test-case
-         "NOT"
-       (check-false (on (3) NOT))
-       (check-true (on (#f) NOT)))
-     (test-case
-         "NAND"
-       (check-true (on (#f) NAND))
-       (check-false (on (3) NAND))
-       (check-false (on (3 5 7) NAND))
-       (check-true (on (3 #f 5) NAND))
-       (check-true (on (#f #f 5) NAND))
-       (check-true (on (#f #f #f) NAND)))
-     (test-case
-         "NOR"
-       (check-true (on (#f) NOR))
-       (check-false (on (3) NOR))
-       (check-false (on (3 5 7) NOR))
-       (check-false (on (3 #f 5) NOR))
-       (check-false (on (#f #f 5) NOR))
-       (check-true (on (#f #f #f) NOR)))
-     (test-case
-         "XOR"
-       (check-false (on (#f) XOR))
-       (check-true (on (3) XOR))
-       (check-true (on (#f 3) XOR))
-       (check-true (on (3 #f) XOR))
-       (check-false (on (3 5) XOR))
-       (check-false (on (#f #f) XOR))
-       (check-false (on (#f #f #f) XOR))
-       (check-true (on (#f #f 3) XOR))
-       (check-true (on (#f 3 #f) XOR))
-       (check-false (on (#f 3 5) XOR))
-       (check-true (on (3 #f #f) XOR))
-       (check-false (on (3 #f 5) XOR))
-       (check-false (on (3 5 #f) XOR))
-       (check-true (on (3 5 7) XOR)))
-     (test-case
-         "XNOR"
-       (check-true (on (#f) XNOR))
-       (check-false (on (3) XNOR))
-       (check-false (on (#f 3) XNOR))
-       (check-false (on (3 #f) XNOR))
-       (check-true (on (3 5) XNOR))
-       (check-true (on (#f #f) XNOR))
-       (check-true (on (#f #f #f) XNOR)))
-     (test-case
          "gen"
        (check-equal? (on () (gen 5))
                      5)
@@ -287,6 +196,80 @@
                      5)
        (check-equal? (on (3 4) (~> (>< (gen 5)) +))
                      10))
+     (test-case
+         "escape hatch"
+       (check-equal? (on (3 7) (expr (first (list + *))))
+                     10
+                     "normal racket expressions")
+       (check-equal? (on (3 7) (expr + (second (list + *))))
+                     21
+                     "multiple expressions in escape clause"))
+     (test-suite
+      "elementary boolean gates"
+      (test-case
+          "AND"
+        (check-false (on (#f) AND))
+        (check-true (on (3) AND))
+        (check-true (on (3 5 7) AND))
+        (check-false (on (3 #f 5) AND))
+        (check-false (on (#f #f 5) AND))
+        (check-false (on (#f #f #f) AND)))
+      (test-case
+          "OR"
+        (check-false (on (#f) OR))
+        (check-true (on (3) OR))
+        (check-true (on (3 5 7) OR))
+        (check-true (on (3 #f 5) OR))
+        (check-true (on (#f #f 5) OR))
+        (check-false (on (#f #f #f) OR)))
+      (test-case
+          "NOT"
+        (check-false (on (3) NOT))
+        (check-true (on (#f) NOT)))
+      (test-case
+          "NAND"
+        (check-true (on (#f) NAND))
+        (check-false (on (3) NAND))
+        (check-false (on (3 5 7) NAND))
+        (check-true (on (3 #f 5) NAND))
+        (check-true (on (#f #f 5) NAND))
+        (check-true (on (#f #f #f) NAND)))
+      (test-case
+          "NOR"
+        (check-true (on (#f) NOR))
+        (check-false (on (3) NOR))
+        (check-false (on (3 5 7) NOR))
+        (check-false (on (3 #f 5) NOR))
+        (check-false (on (#f #f 5) NOR))
+        (check-true (on (#f #f #f) NOR)))
+      (test-case
+          "XOR"
+        (check-false (on (#f) XOR))
+        (check-true (on (3) XOR))
+        (check-true (on (#f 3) XOR))
+        (check-true (on (3 #f) XOR))
+        (check-false (on (3 5) XOR))
+        (check-false (on (#f #f) XOR))
+        (check-false (on (#f #f #f) XOR))
+        (check-true (on (#f #f 3) XOR))
+        (check-true (on (#f 3 #f) XOR))
+        (check-false (on (#f 3 5) XOR))
+        (check-true (on (3 #f #f) XOR))
+        (check-false (on (3 #f 5) XOR))
+        (check-false (on (3 5 #f) XOR))
+        (check-true (on (3 5 7) XOR)))
+      (test-case
+          "XNOR"
+        (check-true (on (#f) XNOR))
+        (check-false (on (3) XNOR))
+        (check-false (on (#f 3) XNOR))
+        (check-false (on (3 #f) XNOR))
+        (check-true (on (3 5) XNOR))
+        (check-true (on (#f #f) XNOR))
+        (check-true (on (#f #f #f) XNOR)))))
+
+    (test-suite
+     "routing forms"
      (test-case
          ".."
        (check-equal? (on (5)
@@ -453,7 +436,60 @@
                          (~> (relay sqr add1)
                              +))
                      33
-                     "named relay form"))
+                     "named relay form")))
+
+    (test-suite
+     "partial application"
+     (test-case
+         "implicitly curried forms"
+       (test-case
+           "eq?"
+         (check-false (on (6) (eq? 5)))
+         (check-true (on (5) (eq? 5))))
+       (test-case
+           "equal?"
+         (check-false (on ("bye") (equal? "hello")))
+         (check-true (on ("hello") (equal? "hello"))))
+       (test-case
+           "<"
+         (check-false (on (5) (< 5)))
+         (check-true (on (5) (< 10))))
+       (test-case
+           "<="
+         (check-false (on (5) (<= 1)))
+         (check-true (on (5) (<= 10)))
+         (check-true (on (5) (<= 5))))
+       (test-case
+           ">"
+         (check-false (on (5) (> 5)))
+         (check-true (on (5) (> 1))))
+       (test-case
+           ">="
+         (check-false (on (5) (>= 10)))
+         (check-true (on (5) (>= 1)))
+         (check-true (on (5) (>= 5))))
+       (test-case
+           "="
+         (check-true (on (5) (= 5)))
+         (check-false (on (5) (= 10))))
+       (check-equal? (on ("a")
+                         (string-append "b"))
+                     "ab")
+       (check-equal? (on ("a" "b")
+                         (string-append "c" "d"))
+                     "abcd")
+       (check-equal? (on ((list 1 2 3))
+                         (~>> (map add1)))
+                     (list 2 3 4)
+                     "curried map")
+       (check-equal? (on ((list 1 2 3))
+                         (~>> (filter odd?)))
+                     (list 1 3)
+                     "curried filter")
+       (check-equal? (on ((list "a" "b" "c"))
+                         (~>> (foldl string-append "")))
+                     "cba"
+                     "curried foldl"))
      (test-case
          "template with single argument"
        (check-false (on ((list 1 2 3))
@@ -477,15 +513,7 @@
        (check-true (on (3 7) (< 1 _ 5 _ 10))
                    "template with multiple arguments")
        (check-false (on (3 5) (< 1 _ 5 _ 10))
-                    "template with multiple arguments"))
-     (test-case
-         "escape hatch"
-       (check-equal? (on (3 7) (expr (first (list + *))))
-                     10
-                     "normal racket expressions")
-       (check-equal? (on (3 7) (expr + (second (list + *))))
-                     21
-                     "multiple expressions in escape clause")))
+                    "template with multiple arguments")))
 
     (test-suite
      "high-level circuit elements"
