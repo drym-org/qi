@@ -604,7 +604,31 @@
       (check-equal? (on (5 6)
                         (~> (pass > 0)
                             +))
-                    0))))
+                    0)))
+    (test-suite
+     "arity modulating forms"
+     (check-true (on (5 6)
+                     (and% (positive? __) (even? __)))
+                 "and% arity propagation")
+     (check-true (on (5 6)
+                     (or% (positive? __) (even? __)))
+                 "or% arity propagation")
+     (check-equal? (on (5 6)
+                       (~> (>< (add1 __))
+                           +))
+                   13
+                   ">< arity propagation")
+     (check-equal? (on (5 6)
+                       (~> (== (add1 __) (add1 __))
+                           +))
+                   13
+                   "== arity propagation")
+     (let ([add-two (procedure-reduce-arity + 2)])
+       (check-equal? (on (5 6 7)
+                         (~> (group 2 (add-two __) (add1 __))
+                             *))
+                     88
+                     "group arity propagation"))))
 
    (test-suite
     "switch tests"
