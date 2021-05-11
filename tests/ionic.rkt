@@ -416,6 +416,16 @@
                              +))
                      11
                      "tee with don't-care")
+       (check-equal? (on (5 7)
+                         (~> (-< (select))
+                             +))
+                     0
+                     "tee with arity-nullifying clause")
+       (check-equal? (on (5)
+                         (~> (-< (-< _ _) _)
+                             +))
+                     15
+                     "tee with arity-increasing clause")
        (check-equal? (on (5)
                          (~> (tee sqr add1)
                              +))
@@ -588,7 +598,17 @@
                                     (~> (>< add1) +)
                                     add1)
                             +))
-                    18))
+                    18)
+      (check-equal? (on (1 3 5 7 9)
+                        (~> (group 2 (select) (select))
+                            +))
+                    0
+                    "group with arity-nullifying clause")
+      (check-equal? (on (1 3 5 7 9)
+                        (~> (group 2 (>< (-< _ _)) (>< _))
+                            +))
+                    29
+                    "group with arity-increasing clause"))
      (test-suite
       "select"
       (check-equal? (on (1)

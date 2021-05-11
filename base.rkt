@@ -2,6 +2,7 @@
 
 (require syntax/parse/define
          fancy-app
+         adjutor
          racket/function
          (for-syntax racket/base
                      syntax/parse))
@@ -132,7 +133,11 @@
   [(_ ((~datum relay) onex:clause ...) arity:number)
    #'(on-clause (== onex ...) arity)]
   [(_ ((~datum -<) onex:clause ...) arity:number)
-   #'(λ args (values (apply (channel-clause onex arity) args) ...))]
+   #'(λ args
+       (apply values
+              (append (values->list
+                       (apply (channel-clause onex arity) args))
+                      ...)))]
   [(_ ((~datum tee) onex:clause ...) arity:number)
    #'(on-clause (-< onex ...) arity)]
   [(_ ((~datum select) n:number ...) arity:number)
