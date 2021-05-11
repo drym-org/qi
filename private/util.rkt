@@ -48,8 +48,14 @@
   (λ args
     (f args)))
 
+(define (~map f vs)
+  (match vs
+    ['() null]
+    [(cons v vs) (append (values->list (f v))
+                         (~map f vs))]))
+
 (define (map-values f . args)
-  (apply values (map f args)))
+  (apply values (~map f args)))
 
 (define (->boolean v)
   (not (not v)))

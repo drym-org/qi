@@ -387,6 +387,16 @@
                              +))
                      8
                      "amp with don't-care")
+       (check-equal? (on (5 7)
+                         (~> (>< (select))
+                             +))
+                     0
+                     "amp with arity-nullifying clause")
+       (check-equal? (on (5)
+                         (~> (>< (-< _ _))
+                             +))
+                     10
+                     "amp with arity-increasing clause")
        (check-equal? (on (3 5)
                          (~> (amp sqr)
                              +))
