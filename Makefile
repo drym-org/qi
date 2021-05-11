@@ -1,6 +1,5 @@
 # Adapted from: http://www.greghendershott.com/2017/04/racket-makefiles.html
-PACKAGE-NAME=on-macro
-COLLECTION-NAME=syntax/on
+PACKAGE-NAME=ionic
 
 DEPS-FLAGS=--check-pkg-deps --unused-pkg-deps
 
@@ -31,42 +30,42 @@ remove:
 # Primarily for day-to-day dev.
 # Build libraries from source.
 build:
-	raco setup --no-docs --tidy $(COLLECTION-NAME)
+	raco setup --no-docs --tidy --pkgs $(PACKAGE-NAME)
 
 # Primarily for day-to-day dev.
 # Build docs (if any).
 build-docs:
 	raco setup --no-launcher --no-foreign-libs --no-info-domain --no-pkg-deps \
-	--no-install --no-post-install --tidy $(COLLECTION-NAME)
+	--no-install --no-post-install --tidy --pkgs $(PACKAGE-NAME)
 
 # Primarily for day-to-day dev.
 # Build libraries from source, build docs (if any), and check dependencies.
 build-all:
-	raco setup --tidy $(DEPS-FLAGS) $(COLLECTION-NAME)
+	raco setup --tidy $(DEPS-FLAGS) --pkgs $(PACKAGE-NAME)
 
 # Note: Each collection's info.rkt can say what to clean, for example
 # (define clean '("compiled" "doc" "doc/<collect>")) to clean
 # generated docs, too.
 clean:
-	raco setup --fast-clean $(COLLECTION-NAME)
+	raco setup --fast-clean --pkgs $(PACKAGE-NAME)
 
 # Primarily for use by CI, after make install -- since that already
 # does the equivalent of make setup, this tries to do as little as
 # possible except checking deps.
 check-deps:
-	raco setup --no-docs $(DEPS-FLAGS) $(COLLECTION-NAME)
+	raco setup --no-docs $(DEPS-FLAGS) $(PACKAGE-NAME)
 
 # Suitable for both day-to-day dev and CI
 test:
 	raco test -x -p $(PACKAGE-NAME)
 
 test-with-errortrace:
-	racket -l errortrace -l racket -e '(require (submod "syntax/on.rkt" test))'
+	racket -l errortrace -l racket -e '(require (submod "tests/ionic.rkt" test))'
 
 errortrace: test-with-errortrace
 
 docs:
-	raco docs $(COLLECTION-NAME)
+	raco docs $(PACKAGE-NAME)
 
 coverage-check:
 	raco cover -b -n dev -p $(PACKAGE-NAME)

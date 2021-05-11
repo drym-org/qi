@@ -4,9 +4,9 @@
 .. image:: https://coveralls.io/repos/github/countvajhula/on-macro/badge.svg?branch=main
     :target: https://coveralls.io/github/countvajhula/on-macro?branch=main
 
-on-macro
-========
-Racket's missing predicate language.
+ionic
+=====
+Another way to structure computations.
 
 Install it from the `Racket Package Index <https://pkgs.racket-lang.org/package/on-macro>`_.
 Read `the documentation <https://docs.racket-lang.org/on-macro/index.html>`_ to learn more.

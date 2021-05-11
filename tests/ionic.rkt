@@ -1,6 +1,6 @@
 #lang racket/base
 
-(require syntax/on
+(require ionic
          rackunit
          rackunit/text-ui
          (only-in math sqr)

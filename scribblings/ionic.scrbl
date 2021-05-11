@@ -3,7 +3,7 @@
          scribble-abbrevs/manual
          scribble/example
          racket/sandbox
-         @for-label[syntax/on
+         @for-label[ionic
                     racket
 					(only-in relation ->number ->string)]]
 
@@ -12,7 +12,7 @@
                  [sandbox-error-output 'string]
                  [sandbox-memory-limit #f])
                  (make-evaluator 'racket/base
-                                 '(require syntax/on
+                                 '(require ionic
                                            (only-in racket/list range)
                                            (only-in math sqr)
                                            relation))))
@@ -20,7 +20,7 @@
 @title{Racket's Missing Predicate Language}
 @author{Siddhartha Kasivajhula}
 
-@defmodule[syntax/on]
+@defmodule[ionic]
 
 An embedded predicate language to allow convenient framing of programming logic in terms of predicates.
 
