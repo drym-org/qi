@@ -433,6 +433,21 @@
                      12
                      "relay with don't-care")
        (check-equal? (on (5 7)
+                         (~> (== (select) add1)
+                             +))
+                     8
+                     "relay with arity-nullifying clause")
+       (check-equal? (on (5 7)
+                         (~> (== (-< _ _) add1)
+                             +))
+                     18
+                     "relay with arity-increasing clause")
+       (check-exn exn:fail?
+                  (thunk (on (5 7 8)
+                             (~> (== (select) add1)
+                                 +)))
+                  "relay elements must be in one-to-one correspondence with input")
+       (check-equal? (on (5 7)
                          (~> (relay sqr add1)
                              +))
                      33

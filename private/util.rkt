@@ -1,7 +1,9 @@
 #lang racket/base
 
 (require racket/match
-         (only-in racket/function const)
+         (only-in racket/function
+                  const
+                  negate)
          racket/bool
          racket/list
          (only-in adjutor values->list))
@@ -60,8 +62,21 @@
   (procedure-rename (const #f)
                     'false.))
 
-(define (zip-with f . vs)
-  (apply map f vs))
+(define exists ormap)
+
+(define for-all andmap)
+
+(define (zip-with op . seqs)
+  (if (exists empty? seqs)
+      (if (for-all empty? seqs)
+          null
+          (apply raise-arity-error
+                 'zip-with
+                 0
+                 (first (filter (negate empty?) seqs))))
+      (let ([vs (map first seqs)])
+        (append (values->list (apply op vs))
+                (apply zip-with op (map rest seqs))))))
 
 ;; from mischief/function - requiring it runs aground
 ;; of some "name is protected" error while building docs, not sure why;
