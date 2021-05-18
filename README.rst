@@ -1,15 +1,15 @@
-.. image:: https://travis-ci.com/countvajhula/on-macro.svg?branch=main
-    :target: https://travis-ci.com/countvajhula/on-macro
+.. image:: https://travis-ci.com/countvajhula/ionic.svg?branch=main
+    :target: https://travis-ci.com/countvajhula/ionic
 
-.. image:: https://coveralls.io/repos/github/countvajhula/on-macro/badge.svg?branch=main
-    :target: https://coveralls.io/github/countvajhula/on-macro?branch=main
+.. image:: https://coveralls.io/repos/github/countvajhula/ionic/badge.svg?branch=main
+    :target: https://coveralls.io/github/countvajhula/ionic?branch=main
 
-on-macro
+ionic
 ========
 Racket's missing predicate language.
 
-Install it from the `Racket Package Index <https://pkgs.racket-lang.org/package/on-macro>`_.
-Read `the documentation <https://docs.racket-lang.org/on-macro/index.html>`_ to learn more.
+Install it from the `Racket Package Index <https://pkgs.racket-lang.org/package/ionic>`_.
+Read `the documentation <https://docs.racket-lang.org/ionic/index.html>`_ to learn more.
 
 "License":
 ==========

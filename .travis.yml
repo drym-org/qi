@@ -54,4 +54,4 @@ script:
   - make test
 
 after_success:
-  - raco cover -n dev -bf coveralls -d $TRAVIS_BUILD_DIR/coverage -p on-macro
+  - raco cover -n dev -bf coveralls -d $TRAVIS_BUILD_DIR/coverage -p ionic

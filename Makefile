@@ -1,5 +1,5 @@
 # Adapted from: http://www.greghendershott.com/2017/04/racket-makefiles.html
-PACKAGE-NAME=on-macro
+PACKAGE-NAME=ionic
 COLLECTION-NAME=syntax/on
 
 DEPS-FLAGS=--check-pkg-deps --unused-pkg-deps
