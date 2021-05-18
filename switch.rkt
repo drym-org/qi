@@ -16,10 +16,10 @@
          <result>)
 
 (define-syntax-parser switch-predicate
-  [(_ (~datum else) arity:number)
+  [(_ (~datum else))
    #'(const (void))]
-  [(_ predicate:expr arity:number)
-   #'(on-clause predicate arity)])
+  [(_ predicate:expr)
+   #'(on-clause predicate)])
 
 (define-syntax-parser switch-consequent
   [(_ ((~datum call) expr:clause) arg:expr ...)
@@ -37,8 +37,7 @@
   [(_ args:subject
       [predicate:clause consequent ...]
       ...)
-   #:do [(define arity (attribute args.arity))]
-   #`(cond [((switch-predicate predicate #,arity) #,@(syntax->list (attribute args.args)))
+   #`(cond [((switch-predicate predicate) #,@(syntax->list (attribute args.args)))
             =>
             (λ (x)
               (syntax-parameterize ([<result> (make-rename-transformer #'x)])

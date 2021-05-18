@@ -17,11 +17,8 @@
 (define-syntax-parser on
   [(_ args:subject) #'(void)]
   [(_ args:subject clause:clause)
-   ;; forward the subject arity in case it's necessary to
-   ;; the compilation of the clause
-   #:with arity (attribute args.arity)
    #:with ags (attribute args.args)
-   #`((on-clause clause arity) #,@(syntax->list #'ags))])
+   #`((on-clause clause) #,@(syntax->list #'ags))])
 
 (define-syntax-parser lambda/subject
   [(_ (arg:id ...) expr:expr ...)
