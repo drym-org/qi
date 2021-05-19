@@ -673,7 +673,35 @@
                          (~> (group 2 (add-two __) (add1 __))
                              *))
                      88
-                     "group arity propagation"))))
+                     "group arity propagation")))
+    (test-suite
+     "runtime arity changes"
+     (check-equal? (on (1 3 5)
+                       (~>> list (findf even?) (pass number? 0) sqr))
+                   0
+                   "runtime arity changes in threading form")
+     (check-equal? (on (1 4 5)
+                       (~>> list (findf even?) (pass number? 0) sqr))
+                   16
+                   "runtime arity changes in threading form")
+     (check-false (on (-1 3 5)
+                      (~>> list (-< (findf positive? _) (gen 0)) (and% even? number?)))
+                 "runtime arity changes in threading form")
+     (check-true (on (-1 3 5)
+                     (~>> list (-< (findf positive? _) (gen 0)) (or% even? number?)))
+                  "runtime arity changes in threading form")
+     (check-equal? (on (1 4 5)
+                       (~>> list (findf even?) (>< add1)))
+                   5
+                   "runtime arity changes in threading form")
+     (check-equal? (on (1 4 5)
+                       (~>> list (findf even?) (== add1)))
+                   5
+                   "runtime arity changes in threading form")
+     (check-equal? (on (1 4 5)
+                       (~>> list (findf even?) number->string (string-append "a" __ "b")))
+                   "a4b"
+                   "runtime arity changes in threading form")))
 
    (test-suite
     "switch tests"
