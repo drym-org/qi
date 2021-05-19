@@ -471,7 +471,12 @@
                          (~> (relay sqr add1)
                              +))
                      33
-                     "named relay form")))
+                     "named relay form"))
+     (test-case
+         "ground"
+       (check-equal? (on (5)
+                         (-< ground add1))
+                     6)))
 
     (test-suite
      "partial application"

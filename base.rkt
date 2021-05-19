@@ -149,6 +149,8 @@
                      (~optional return:expr
                                 #:defaults ([return #'#f]))))
    #'(pass-clause onex return)]
+  [(_ (~datum ground))
+   #'(on-clause (select))]
 
   ;; high level circuit elements
   [(_ ((~datum splitter) n:number))
