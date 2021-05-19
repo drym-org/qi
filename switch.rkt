@@ -17,7 +17,7 @@
 
 (define-syntax-parser switch-predicate
   [(_ (~datum else))
-   #'(const (void))]
+   #'(const (void))] ; the return value may be used in the consequent expression
   [(_ predicate:expr)
    #'(flow predicate)])
 

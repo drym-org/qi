@@ -46,15 +46,8 @@
   [(_ onex:clause) #'(flow onex)])
 
 (define-syntax-parser channel-clause
-  [(_ (~datum _)) #'identity]
+  [(_ (~datum _)) #'values]
   [(_ onex:clause) #'(flow onex)])
-
-(define-syntax-parser pass-clause
-  [(_ onex:clause return:expr)
-   #'(λ args
-       (if (apply (flow onex) args)
-           (apply values args)
-           ((flow (>< (gen return))) args)))])
 
 (define-syntax-parser flow
   ;; special words
@@ -145,10 +138,15 @@
    #`(loom-compose (flow selection-onex)
                    (flow remainder-onex)
                    n)]
-  [(_ ((~datum pass) onex:clause
-                     (~optional return:expr
-                                #:defaults ([return #'#f]))))
-   #'(pass-clause onex return)]
+  [(_ ((~datum if) condition:clause
+                   consequent:clause
+                   alternative:clause))
+   #'(λ args
+       (if (apply (flow condition) args)
+           (apply (channel-clause consequent) args)
+           (apply (channel-clause alternative) args)))]
+  [(_ ((~datum pass) onex:clause))
+   #'(flow (if onex _ ground))]
   [(_ (~datum ground))
    #'(flow (select))]
 
