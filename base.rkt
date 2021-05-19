@@ -169,6 +169,9 @@
                         #'onex))))]
   [(_ (~datum inverter))
    #'(on-clause (>< NOT))]
+  [(_ ((~or (~datum effect) (~datum ε)) sidex:clause onex:clause))
+   #'(on-clause (-< (~> sidex ground)
+                    onex))]
 
   ;; escape hatch for racket expressions or anything
   ;; to be "passed through"

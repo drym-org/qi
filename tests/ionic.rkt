@@ -654,7 +654,19 @@
       (check-equal? (on (5 6)
                         (~> (pass > 0)
                             +))
-                    0)))
+                    0))
+     (test-suite
+      "effect"
+      (check-equal? (on (5)
+                        (ε sub1 add1))
+                    6)
+      (let ([a 10])
+        (check-equal? (on (5)
+                          (ε (expr (λ (_)
+                                     (set! a (add1 a))))
+                             add1))
+                      6)
+        (check-equal? a 11))))
     (test-suite
      "arity modulating forms"
      (check-true (on (5 6)
