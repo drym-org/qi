@@ -9,7 +9,7 @@
 
 (require "private/util.rkt")
 
-(provide on-clause
+(provide flow
          (for-syntax subject
                      clause))
 
@@ -33,47 +33,47 @@
 (define-syntax-parser right-threading-clause
   [(_ onex:clause)
    (datum->syntax this-syntax
-                  (list 'on-clause #'onex)
+                  (list 'flow #'onex)
                   #f
                   (syntax-property this-syntax 'threading-side 'right))])
 
 (define-syntax-parser conjux-clause  ; "juxtaposed" conjoin
   [(_ (~datum _)) #'true.]
-  [(_ onex:clause) #'(on-clause onex)])
+  [(_ onex:clause) #'(flow onex)])
 
 (define-syntax-parser disjux-clause  ; "juxtaposed" disjoin
   [(_ (~datum _)) #'false.]
-  [(_ onex:clause) #'(on-clause onex)])
+  [(_ onex:clause) #'(flow onex)])
 
 (define-syntax-parser channel-clause
   [(_ (~datum _)) #'identity]
-  [(_ onex:clause) #'(on-clause onex)])
+  [(_ onex:clause) #'(flow onex)])
 
 (define-syntax-parser pass-clause
   [(_ onex:clause return:expr)
    #'(λ args
-       (if (apply (on-clause onex) args)
+       (if (apply (flow onex) args)
            (apply values args)
-           ((on-clause (>< (gen return))) args)))])
+           ((flow (>< (gen return))) args)))])
 
-(define-syntax-parser on-clause
+(define-syntax-parser flow
   ;; special words
   [(_ ((~datum one-of?) v:expr ...))
    #'(compose
       ->boolean
       (curryr member (list v ...)))]
   [(_ ((~datum all) onex:clause))
-   #'(give (curry andmap (on-clause onex)))]
+   #'(give (curry andmap (flow onex)))]
   [(_ ((~datum any) onex:clause))
-   #'(give (curry ormap (on-clause onex)))]
+   #'(give (curry ormap (flow onex)))]
   [(_ ((~datum none) onex:clause))
-   #'(on-clause (not (any onex)))]
+   #'(flow (not (any onex)))]
   [(_ ((~datum and) onex:clause ...))
-   #'(conjoin (on-clause onex) ...)]
+   #'(conjoin (flow onex) ...)]
   [(_ ((~datum or) onex:clause ...))
-   #'(disjoin (on-clause onex) ...)]
+   #'(disjoin (flow onex) ...)]
   [(_ ((~datum not) onex:clause))
-   #'(negate (on-clause onex))]
+   #'(negate (flow onex))]
   [(_ ((~datum gen) ex:expr))
    #'(const ex)]
   [(_ (~or (~datum NOT) (~datum !)))
@@ -83,39 +83,39 @@
   [(_ (~or (~datum OR) (~datum ||)))
    #'any?]
   [(_ (~datum NOR))
-   #'(on-clause (~> OR NOT))]
+   #'(flow (~> OR NOT))]
   [(_ (~datum NAND))
-   #'(on-clause (~> AND NOT))]
+   #'(flow (~> AND NOT))]
   [(_ (~datum XOR))
    #'parity-xor]
   [(_ (~datum XNOR))
-   #'(on-clause (~> XOR NOT))]
+   #'(flow (~> XOR NOT))]
   [(_ ((~datum and%) onex:clause ...))
-   #'(on-clause (~> (== (expr (conjux-clause onex)) ...)
+   #'(flow (~> (== (expr (conjux-clause onex)) ...)
                     all?))]
   [(_ ((~datum or%) onex:clause ...))
-   #'(on-clause (~> (== (expr (disjux-clause onex)) ...)
+   #'(flow (~> (== (expr (disjux-clause onex)) ...)
                     any?))]
   [(_ ((~datum with-key) f:clause onex:clause))
    #'(compose
-      (curry apply (on-clause onex))
-      (give (curry map (on-clause f))))]
+      (curry apply (flow onex))
+      (give (curry map (flow f))))]
   [(_ ((~datum ..) onex:clause ...))
-   #'(compose (on-clause onex) ...)]
+   #'(compose (flow onex) ...)]
   [(_ ((~datum compose) onex:clause ...))
-   #'(on-clause (.. onex ...))]
+   #'(flow (.. onex ...))]
   [(_ ((~datum ~>) onex:clause ...))
    (datum->syntax
     this-syntax
-    (list 'on-clause
+    (list 'flow
           (cons '..
                 (reverse (syntax->list #'(onex ...))))))]
   [(_ ((~datum thread) onex:clause ...))
-   #'(on-clause (~> onex ...))]
+   #'(flow (~> onex ...))]
   [(_ ((~datum ~>>) onex:clause ...))
-   #'(on-clause (~> (expr (right-threading-clause onex)) ...))]
+   #'(flow (~> (expr (right-threading-clause onex)) ...))]
   [(_ ((~datum thread-right) onex:clause ...))
-   #'(on-clause (~>> onex ...))]
+   #'(flow (~>> onex ...))]
   [(_ (~datum any?)) #'any?]
   [(_ (~datum all?)) #'all?]
   [(_ (~datum none?)) #'none?]
@@ -124,11 +124,11 @@
   [(_ ((~datum ><) onex:clause))
    #'(curry map-values (channel-clause onex))]
   [(_ ((~datum amp) onex:clause))
-   #'(on-clause (>< onex))]
+   #'(flow (>< onex))]
   [(_ ((~datum ==) onex:clause ...))
    #'(relay (channel-clause onex) ...)]
   [(_ ((~datum relay) onex:clause ...))
-   #'(on-clause (== onex ...))]
+   #'(flow (== onex ...))]
   [(_ ((~datum -<) onex:clause ...))
    #'(λ args
        (apply values
@@ -136,41 +136,41 @@
                        (apply (channel-clause onex) args))
                       ...)))]
   [(_ ((~datum tee) onex:clause ...))
-   #'(on-clause (-< onex ...))]
+   #'(flow (-< onex ...))]
   [(_ ((~datum select) n:number ...))
-   #'(on-clause (-< (expr (arg n)) ...))]
+   #'(flow (-< (expr (arg n)) ...))]
   [(_ ((~datum group) n:number
                       selection-onex:clause
                       remainder-onex:clause))
-   #`(loom-compose (on-clause selection-onex)
-                   (on-clause remainder-onex)
+   #`(loom-compose (flow selection-onex)
+                   (flow remainder-onex)
                    n)]
   [(_ ((~datum pass) onex:clause
                      (~optional return:expr
                                 #:defaults ([return #'#f]))))
    #'(pass-clause onex return)]
   [(_ (~datum ground))
-   #'(on-clause (select))]
+   #'(flow (select))]
 
   ;; high level circuit elements
   [(_ ((~datum splitter) n:number))
    (datum->syntax
     this-syntax
-    (list 'on-clause
+    (list 'flow
           (cons '-<
                 (repeat (syntax->datum #'n)
                         '_))))]
   [(_ ((~datum feedback) onex:clause n:number))
    (datum->syntax
     this-syntax
-    (list 'on-clause
+    (list 'flow
           (cons '~>
                 (repeat (syntax->datum #'n)
                         #'onex))))]
   [(_ (~datum inverter))
-   #'(on-clause (>< NOT))]
+   #'(flow (>< NOT))]
   [(_ ((~or (~datum effect) (~datum ε)) sidex:clause onex:clause))
-   #'(on-clause (-< (~> sidex ground)
+   #'(flow (-< (~> sidex ground)
                     onex))]
 
   ;; escape hatch for racket expressions or anything
@@ -181,11 +181,11 @@
   ;; templates and partial application
   ;; "prarg" = "pre-supplied argument"
   [(_ (onex prarg-pre ... (~datum __) prarg-post ...))
-   #'(curry (curryr (on-clause onex)
+   #'(curry (curryr (flow onex)
                     prarg-post ...)
             prarg-pre ...)]
   [(_ (onex prarg-pre ... (~datum _) prarg-post ...))
-   #'((on-clause onex) prarg-pre ...
+   #'((flow onex) prarg-pre ...
                        _
                        prarg-post ...)]
   [(_ (onex prarg ...))
@@ -196,8 +196,8 @@
    ;; curried function will accept any number of arguments
    #:do [(define threading-side (syntax-property this-syntax 'threading-side))]
    (if (and threading-side (eq? threading-side 'right))
-       #'(curry (on-clause onex) prarg ...)
-       #'(curryr (on-clause onex) prarg ...))]
+       #'(curry (flow onex) prarg ...)
+       #'(curryr (flow onex) prarg ...))]
 
   ;; literally indicated function identifier
   [(_ ex:expr) #'ex])

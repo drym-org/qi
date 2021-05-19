@@ -19,7 +19,7 @@
   [(_ (~datum else))
    #'(const (void))]
   [(_ predicate:expr)
-   #'(on-clause predicate)])
+   #'(flow predicate)])
 
 (define-syntax-parser switch-consequent
   [(_ ((~datum call) expr:clause) arg:expr ...)

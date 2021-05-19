@@ -18,7 +18,7 @@
   [(_ args:subject) #'(void)]
   [(_ args:subject clause:clause)
    #:with ags (attribute args.args)
-   #`((on-clause clause) #,@(syntax->list #'ags))])
+   #`((flow clause) #,@(syntax->list #'ags))])
 
 (define-syntax-parser lambda/subject
   [(_ (arg:id ...) expr:expr ...)
