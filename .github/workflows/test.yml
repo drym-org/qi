@@ -12,7 +12,7 @@ jobs:
         include:
           - racket-version: '9.0'
             racket-variant: 'CS'
-            experimental: true
+            experimental: false
     name: Test on Racket ${{ matrix.racket-variant }} ${{ matrix.racket-version }}
     steps:
       - name: Checkout
