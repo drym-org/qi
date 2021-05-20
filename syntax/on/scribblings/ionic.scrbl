@@ -12,7 +12,10 @@
                  [sandbox-error-output 'string]
                  [sandbox-memory-limit #f])
                  (make-evaluator 'racket/base
-                                 '(require syntax/on))))
+                                 '(require syntax/on
+                                           (only-in racket/list range)
+                                           (only-in math sqr)
+                                           relation))))
 
 @title{Racket's Missing Predicate Language}
 @author{Siddhartha Kasivajhula}
