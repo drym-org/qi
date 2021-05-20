@@ -12,10 +12,7 @@
                  [sandbox-error-output 'string]
                  [sandbox-memory-limit #f])
                  (make-evaluator 'racket/base
-                                 '(require syntax/on
-                                           (only-in racket/list range)
-                                           (only-in math sqr)
-                                           relation))))
+                                 '(require syntax/on))))
 
 @title{Racket's Missing Predicate Language}
 @author{Siddhartha Kasivajhula}
@@ -28,6 +25,7 @@ Logic is the soul of language, relations are the basis of logic, and every relat
 
 @;{TODO:teaser examples}
 
+@;{
 @examples[
     #:eval eval-for-docs
     (on (5) (and positive? odd?))
@@ -52,6 +50,7 @@ Logic is the soul of language, relations are the basis of logic, and every relat
     (abs -5)
     (abs 5)
   ]
+}
 
 @section{Syntax}
 
