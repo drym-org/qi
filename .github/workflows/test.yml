@@ -33,6 +33,7 @@ jobs:
   coverage:
     needs: test
     runs-on: ubuntu-latest
+    environment: test-env
     name: Report Coverage
     steps:
       - name: Checkout
