@@ -30,5 +30,21 @@ jobs:
         run: make check-deps
       - name: Run tests
         run: make test
+  coverage:
+    needs: test
+    runs-on: ubuntu-latest
+    name: Report Coverage
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Install Racket
+        uses: Bogdanp/setup-racket@v1.3.1
+        with:
+          architecture: 'x64'
+          distribution: 'full'
+          variant: ${{ matrix.racket-variant }}
+          version: ${{ matrix.racket-version }}
+      - name: Install package and its dependencies
+        run: make install
       - name: Report coverage
         run: make cover-coveralls
