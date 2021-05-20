@@ -42,8 +42,8 @@ jobs:
         with:
           architecture: 'x64'
           distribution: 'full'
-          variant: ${{ matrix.racket-variant }}
-          version: ${{ matrix.racket-version }}
+          variant: 'CS'
+          version: 'stable'
       - name: Install package and its dependencies
         run: make install
       - name: Report coverage
