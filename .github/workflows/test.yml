@@ -47,5 +47,7 @@ jobs:
           version: 'stable'
       - name: Install package and its dependencies
         run: make install
+      - name: Test environment variables
+        run: echo $MY_TEST_TOKEN
       - name: Report coverage
         run: make cover-coveralls
