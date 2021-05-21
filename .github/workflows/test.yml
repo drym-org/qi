@@ -54,6 +54,7 @@ jobs:
       - name: Test environment variables
         run: |
           echo "Before"
+          echo "repo is $GITHUB_REPOSITORY"
           echo $MY_TEST_TOKEN
           echo "After"
       - name: Report coverage
