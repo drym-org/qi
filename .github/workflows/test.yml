@@ -41,6 +41,7 @@ jobs:
     environment: test-env
     env:
       COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+      BLAH_BLAH: Hello there
     steps:
       - name: Checkout
         uses: actions/checkout@master
@@ -53,5 +54,12 @@ jobs:
           version: 'stable'
       - name: Install package and its dependencies
         run: make install
+      - name: Test environment variables
+        run: |
+          echo "Before"
+          echo "repo is $GITHUB_REPOSITORY"
+          echo $MY_TEST_TOKEN
+          echo $BLAH_BLAH
+          echo "After"
       - name: Report coverage
         run: make cover-coveralls
