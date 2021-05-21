@@ -37,8 +37,10 @@ jobs:
   coverage:
     needs: test
     runs-on: ubuntu-latest
-    environment: test-env
     name: Report Coverage
+    environment: test-env
+    env:
+      MY_TEST_TOKEN: ${{ secrets.MY_TEST_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@master
