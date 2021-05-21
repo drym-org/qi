@@ -28,11 +28,11 @@ jobs:
           distribution: 'full'
           variant: ${{ matrix.racket-variant }}
           version: ${{ matrix.racket-version }}
-      - name: Install package and its dependencies
+      - name: Install Package and its Dependencies
         run: make install
-      - name: Check dependencies
+      - name: Check Dependencies
         run: make check-deps
-      - name: Run tests
+      - name: Run Tests
         run: make test
   coverage:
     needs: test
@@ -51,7 +51,7 @@ jobs:
           distribution: 'full'
           variant: 'CS'
           version: 'stable'
-      - name: Install package and its dependencies
+      - name: Install Package and its Dependencies
         run: make install
-      - name: Report coverage
+      - name: Report Coverage
         run: make cover-coveralls
