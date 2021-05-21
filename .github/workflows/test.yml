@@ -1,5 +1,9 @@
 on: [push, pull_request]
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -48,6 +52,9 @@ jobs:
       - name: Install package and its dependencies
         run: make install
       - name: Test environment variables
-        run: echo $MY_TEST_TOKEN
+        run: |
+          echo "Before"
+          echo $MY_TEST_TOKEN
+          echo "After"
       - name: Report coverage
         run: make cover-coveralls
