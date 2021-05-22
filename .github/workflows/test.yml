@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: ${{ matrix.experimental }}
     strategy:
+      fail-fast: true
       matrix:
         racket-variant: ['BC', 'CS']
         racket-version: ['9.0', 'stable']
