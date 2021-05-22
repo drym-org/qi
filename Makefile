@@ -15,6 +15,7 @@ help:
 	@echo "test-with-errortrace - run tests with error tracing"
 	@echo "errortrace - alias for test-with-errortrace"
 	@echo "cover - Run test coverage checker and view report"
+	@echo "cover-coveralls - Run test coverage and upload to Coveralls"
 	@echo "coverage-check - Run test coverage checker"
 	@echo "coverage-report - View test coverage report"
 	@echo "docs - view docs in a browser"
@@ -75,4 +76,7 @@ coverage-report:
 
 cover: coverage-check coverage-report
 
-.PHONY:	help install remove build build-docs build-all clean check-deps test test-with-errortrace errortrace docs cover coverage-check coverage-report
+cover-coveralls:
+	raco cover -b -n dev -f coveralls -p $(PACKAGE-NAME)
+
+.PHONY:	help install remove build build-docs build-all clean check-deps test test-with-errortrace errortrace docs cover coverage-check coverage-report cover-coveralls

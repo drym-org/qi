@@ -1,5 +1,5 @@
-.. image:: https://travis-ci.com/countvajhula/ionic.svg?branch=main
-    :target: https://travis-ci.com/countvajhula/ionic
+.. image:: https://github.com/countvajhula/ionic/actions/workflows/test.yml/badge.svg
+    :target: https://github.com/countvajhula/ionic/actions/workflows/test.yml
 
 .. image:: https://coveralls.io/repos/github/countvajhula/ionic/badge.svg?branch=main
     :target: https://coveralls.io/github/countvajhula/ionic?branch=main

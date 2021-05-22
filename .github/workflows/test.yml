@@ -1,0 +1,60 @@
+name: build
+
+on: [push, pull_request]
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      fail-fast: true
+      matrix:
+        racket-variant: ['BC', 'CS']
+        racket-version: ['7.8', 'stable']
+        experimental: [false]
+        include:
+          - racket-version: 'current'
+            racket-variant: 'CS'
+            experimental: true
+    name: Test on Racket ${{ matrix.racket-variant }} ${{ matrix.racket-version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Install Racket
+        uses: Bogdanp/setup-racket@v1.3.1
+        with:
+          architecture: 'x64'
+          distribution: 'full'
+          variant: ${{ matrix.racket-variant }}
+          version: ${{ matrix.racket-version }}
+      - name: Install Package and its Dependencies
+        run: make install
+      - name: Check Dependencies
+        run: make check-deps
+      - name: Run Tests
+        run: make test
+  coverage:
+    needs: test
+    runs-on: ubuntu-latest
+    name: Report Coverage
+    environment: test-env
+    env:
+      COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Install Racket
+        uses: Bogdanp/setup-racket@v1.3.1
+        with:
+          architecture: 'x64'
+          distribution: 'full'
+          variant: 'CS'
+          version: 'stable'
+      - name: Install Package and its Dependencies
+        run: make install
+      - name: Report Coverage
+        run: make cover-coveralls
