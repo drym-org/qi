@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         racket-variant: ['BC', 'CS']
-        racket-version: ['7.8', 'stable']
+        racket-version: ['9.0', 'stable']
         experimental: [false]
         include:
           - racket-version: 'current'
