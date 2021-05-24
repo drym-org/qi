@@ -13,8 +13,7 @@
                  [sandbox-memory-limit #f])
                  (make-evaluator 'racket/base
                                  '(require syntax/on
-                                           (only-in racket/list range)
-										   (only-in math sqr)))))
+                                           (only-in racket/list range)))))
 
 @title{Racket's Missing Predicate Language}
 @author{Siddhartha Kasivajhula}
