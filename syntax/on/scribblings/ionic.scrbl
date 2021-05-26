@@ -5,7 +5,8 @@
          racket/sandbox
          @for-label[syntax/on
                     racket
-					(only-in relation ->number ->string)]]
+                    (only-in math sqr)
+                    (only-in relation ->number ->string)]]
 
 @(define eval-for-docs
   (parameterize ([sandbox-output 'string]
@@ -13,7 +14,9 @@
                  [sandbox-memory-limit #f])
                  (make-evaluator 'racket/base
                                  '(require syntax/on
-                                           (only-in racket/list range)))))
+                                           (only-in racket/list range))
+                                 (define (sqr x)
+                                    (* x x)))))
 
 @title{Racket's Missing Predicate Language}
 @author{Siddhartha Kasivajhula}
