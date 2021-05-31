@@ -15,7 +15,7 @@
                  (make-evaluator 'racket/base
                                  '(require syntax/on
                                            (only-in racket/list range))
-                                 (define (sqr x)
+                                 '(define (sqr x)
                                     (* x x)))))
 
 @title{Racket's Missing Predicate Language}
