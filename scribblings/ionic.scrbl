@@ -14,8 +14,9 @@
                  (make-evaluator 'racket/base
                                  '(require ionic
                                            (only-in racket/list range)
-                                           (only-in math sqr)
-                                           relation))))
+                                           relation)
+                                 '(define (sqr x)
+                                    (* x x)))))
 
 @title{Racket's Missing Predicate Language}
 @author{Siddhartha Kasivajhula}
