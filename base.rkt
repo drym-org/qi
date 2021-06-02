@@ -2,14 +2,17 @@
 
 (require syntax/parse/define
          fancy-app
-         adjutor
+         (only-in adjutor
+                  values->list)
          racket/function
+         mischief/shorthand
          (for-syntax racket/base
                      syntax/parse))
 
 (require "private/util.rkt")
 
 (provide flow
+         ☯
          (for-syntax subject
                      clause))
 
@@ -29,6 +32,8 @@
   (define-syntax-class clause
     (pattern
      expr:expr)))
+
+(define-alias ☯ flow)
 
 (define-syntax-parser right-threading-clause
   [(_ onex:clause)
