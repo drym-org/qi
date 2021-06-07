@@ -198,10 +198,10 @@
                      10))
      (test-case
          "escape hatch"
-       (check-equal? (on (3 7) (expr (first (list + *))))
+       (check-equal? (on (3 7) (esc (first (list + *))))
                      10
                      "normal racket expressions")
-       (check-equal? (on (3 7) (expr + (second (list + *))))
+       (check-equal? (on (3 7) (esc + (second (list + *))))
                      21
                      "multiple expressions in escape clause"))
      (test-suite
@@ -675,8 +675,8 @@
                     6)
       (let ([a 10])
         (check-equal? (on (5)
-                          (ε (expr (λ (_)
-                                     (set! a (add1 a))))
+                          (ε (esc (λ (_)
+                                    (set! a (add1 a))))
                              add1))
                       6)
         (check-equal? a 11))))

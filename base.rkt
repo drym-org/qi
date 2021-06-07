@@ -89,10 +89,10 @@
   [(_ (~datum XNOR))
    #'(flow (~> XOR NOT))]
   [(_ ((~datum and%) onex:clause ...))
-   #'(flow (~> (== (expr (conjux-clause onex)) ...)
+   #'(flow (~> (== (esc (conjux-clause onex)) ...)
                     all?))]
   [(_ ((~datum or%) onex:clause ...))
-   #'(flow (~> (== (expr (disjux-clause onex)) ...)
+   #'(flow (~> (== (esc (disjux-clause onex)) ...)
                     any?))]
   [(_ ((~datum with-key) f:clause onex:clause))
    #'(compose
@@ -111,7 +111,7 @@
   [(_ ((~datum thread) onex:clause ...))
    #'(flow (~> onex ...))]
   [(_ ((~datum ~>>) onex:clause ...))
-   #'(flow (~> (expr (right-threading-clause onex)) ...))]
+   #'(flow (~> (esc (right-threading-clause onex)) ...))]
   [(_ ((~datum thread-right) onex:clause ...))
    #'(flow (~>> onex ...))]
   [(_ (~datum any?)) #'any?]
@@ -136,7 +136,7 @@
   [(_ ((~datum tee) onex:clause ...))
    #'(flow (-< onex ...))]
   [(_ ((~datum select) n:number ...))
-   #'(flow (-< (expr (arg n)) ...))]
+   #'(flow (-< (esc (arg n)) ...))]
   [(_ ((~datum group) n:number
                       selection-onex:clause
                       remainder-onex:clause))
@@ -178,7 +178,7 @@
 
   ;; escape hatch for racket expressions or anything
   ;; to be "passed through"
-  [(_ ((~datum expr) ex:expr ...))
+  [(_ ((~datum esc) ex:expr ...))
    #'(begin ex ...)]
 
   ;; templates and partial application
