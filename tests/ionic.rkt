@@ -56,7 +56,8 @@
        (check-false (on (5.4) (and positive? integer?)))
        (check-true (on (6) (and (> 5) (< 10))))
        (check-false (on (4) (and (> 5) (< 10))))
-       (check-false (on (14) (and (> 5) (< 10)))))
+       (check-false (on (14) (and (> 5) (< 10))))
+       (check-false (on (#f) (and _ positive?)) "_ in and"))
      (test-case
          "or (disjoin)"
        (check-true (on (6) (or positive? odd?)))
@@ -77,11 +78,13 @@
        (check-false (on ("5" "6")
                         (or eq?
                             equal?
-                            (.. = (>< string->number))))))
+                            (.. = (>< string->number)))))
+       (check-true (on (#f) (or _ NOT)) "_ in or"))
      (test-case
          "not (predicate negation)"
        (check-true (on (-5) (not positive?)))
-       (check-false (on (5) (not positive?))))
+       (check-false (on (5) (not positive?)))
+       (check-true (on (#f) (not _)) "_ in not"))
      (test-case
          "boolean combinators"
        (check-true (on (5)

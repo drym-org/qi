@@ -67,11 +67,11 @@
   [(_ ((~datum none) onex:clause))
    #'(flow (not (any onex)))]
   [(_ ((~datum and) onex:clause ...))
-   #'(conjoin (flow onex) ...)]
+   #'(conjoin (channel-clause onex) ...)]
   [(_ ((~datum or) onex:clause ...))
-   #'(disjoin (flow onex) ...)]
+   #'(disjoin (channel-clause onex) ...)]
   [(_ ((~datum not) onex:clause))
-   #'(negate (flow onex))]
+   #'(negate (channel-clause onex))]
   [(_ ((~datum gen) ex:expr))
    #'(const ex)]
   [(_ (~or (~datum NOT) (~datum !)))
