@@ -16,6 +16,7 @@
          all?
          none?
          map-values
+         filter-values
          relay
          loom-compose
          parity-xor
@@ -56,6 +57,9 @@
 
 (define (map-values f . args)
   (apply values (~map f args)))
+
+(define (filter-values f . args)
+  (apply values (filter f args)))
 
 (define (->boolean v)
   (not (not v)))

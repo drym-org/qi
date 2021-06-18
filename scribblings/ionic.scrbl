@@ -11,12 +11,12 @@
   (parameterize ([sandbox-output 'string]
                  [sandbox-error-output 'string]
                  [sandbox-memory-limit #f])
-                 (make-evaluator 'racket/base
-                                 '(require ionic
-                                           (only-in racket/list range)
-                                           relation)
-                                 '(define (sqr x)
-                                    (* x x)))))
+    (make-evaluator 'racket/base
+                    '(require ionic
+                              (only-in racket/list range)
+                              relation)
+                    '(define (sqr x)
+                       (* x x)))))
 
 @title{Racket's Missing Predicate Language}
 @author{Siddhartha Kasivajhula}

@@ -406,6 +406,17 @@
                      34
                      "named amplification form"))
      (test-case
+         "allow"
+       (check-equal? (on (-3 5)
+                         (~> (allow positive?)
+                             +))
+                     5)
+       (check-equal? (on (-5 -7)
+                         (~> (allow positive?)
+                             +))
+                     0
+                     "allow with arity-nullifying clause"))
+     (test-case
          "-<"
        (check-equal? (on (5)
                          (~> (-< sqr add1)
@@ -734,6 +745,10 @@
      (check-equal? (on (1 4 5)
                        (~>> list (findf even?) number->string (string-append "a" __ "b")))
                    "a4b"
+                   "runtime arity changes in threading form")
+     (check-equal? (on (1 -3 5)
+                       (~> (allow positive?) +))
+                   6
                    "runtime arity changes in threading form")))
 
    (test-suite
