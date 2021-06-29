@@ -31,7 +31,7 @@
 
 (define-syntax-parameter <result>
   (lambda (stx)
-    (raise-syntax-error (syntax-e stx) "can only be used inside `on`")))
+    (raise-syntax-error (syntax-e stx) "can only be used inside `switch`")))
 
 (define-syntax-parser switch
   [(_ args:subject
