@@ -144,9 +144,22 @@
   [(_ ((~datum group) n:number
                       selection-onex:clause
                       remainder-onex:clause))
-   #`(loom-compose (flow selection-onex)
+   #'(loom-compose (flow selection-onex)
                    (flow remainder-onex)
                    n)]
+  [(_ ((~datum sieve) condition:clause
+                      selection-onex:clause
+                      remainder-onex:clause))
+   ;; this is equivalent to "channel-clause", but done via with-syntax
+   ;; so it's usable in the syntax (expansion) phase
+   (with-syntax ([sonex (if (eq? '_ (syntax->datum #'selection-onex))
+                            (datum->syntax #'selection-onex #'values)
+                            #'selection-onex)]
+                 [ronex (if (eq? '_ (syntax->datum #'remainder-onex))
+                            (datum->syntax #'remainder-onex #'values)
+                            #'remainder-onex)])
+     #'(flow (-< (~> (allow condition) sonex)
+                (~> (exclude condition) ronex))))]
   [(_ ((~datum if) condition:clause
                    consequent:clause
                    alternative:clause))

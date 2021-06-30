@@ -640,6 +640,27 @@
                     29
                     "group with arity-increasing clause"))
      (test-suite
+      "sieve"
+      (check-equal? (on (1 -2)
+                        (~> (sieve positive? add1 (const -1)) +))
+                    1)
+      (check-equal? (on (1 2 -3 4)
+                        (~> (sieve positive? + (+ 2)) +))
+                    6)
+      (check-equal? (on (1 2 3 4)
+                        (~> (sieve positive? + (const 0)) +))
+                    10)
+      (check-equal? (on (1 3 5 7)
+                        (~> (sieve negative? (select) (select))
+                            +))
+                    0
+                    "sieve with arity-nullifying clause")
+      (check-equal? (on (1 -3 5)
+                        (~> (sieve positive? (>< (-< _ _)) (>< _))
+                            +))
+                    9
+                    "sieve with arity-increasing clause"))
+     (test-suite
       "select"
       (check-equal? (on (1)
                         (select 0))
