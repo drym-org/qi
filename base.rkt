@@ -125,6 +125,8 @@
    #'(flow (>< onex))]
   [(_ ((~datum allow) onex:clause)) ; review name
    #'(curry filter-values (channel-clause onex))]
+  [(_ ((~datum exclude) onex:clause)) ; review name
+   #'(flow (allow (not onex)))]
   [(_ ((~datum ==) onex:clause ...))
    #'(relay (channel-clause onex) ...)]
   [(_ ((~datum relay) onex:clause ...))

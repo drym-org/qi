@@ -417,6 +417,17 @@
                      0
                      "allow with arity-nullifying clause"))
      (test-case
+         "exclude"
+       (check-equal? (on (-3 -1 5)
+                         (~> (exclude positive?)
+                             +))
+                     -4)
+       (check-equal? (on (-5 -7)
+                         (~> (exclude negative?)
+                             +))
+                     0
+                     "exclude with arity-nullifying clause"))
+     (test-case
          "-<"
        (check-equal? (on (5)
                          (~> (-< sqr add1)
