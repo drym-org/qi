@@ -6,7 +6,7 @@
          (only-in racket/function
                   const)
          (for-syntax racket/base)
-         "base.rkt"
+         "flow.rkt"
          "on.rkt")
 
 (provide switch

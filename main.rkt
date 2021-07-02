@@ -1,12 +1,12 @@
 #lang racket/base
 
-(require ionic/base
+(require ionic/flow
          ionic/on
          ionic/switch
          ionic/threading)
 
 (provide (all-from-out
-          ionic/base
+          ionic/flow
           ionic/on
           ionic/switch
           ionic/threading))
