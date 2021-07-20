@@ -13,6 +13,18 @@
    "ionic tests"
 
    (test-suite
+    "flow tests"
+    (test-case
+        "basic (smoke tests - see `on tests` for full tests)"
+      (check-equal? ((flow add1) 2) 3)
+      (check-equal? ((☯ add1) 2) 3)
+      (check-equal? ((☯ (~> sqr add1)) 2) 5)
+      (check-equal? ((☯ (~> (>< sqr) +)) 2 3) 13)
+      (check-true ((☯ (eq? 2)) 2))
+      (check-true ((☯ (and% positive? negative?)) 2 -3))
+      (check-equal? ((☯ (if positive? add1 sub1)) 2) 3)))
+
+   (test-suite
     "on tests"
 
     (test-suite
@@ -726,6 +738,7 @@
                              add1))
                       6)
         (check-equal? a 11))))
+
     (test-suite
      "arity modulating forms"
      (check-true (on (5 6)
@@ -750,6 +763,7 @@
                              *))
                      88
                      "group arity propagation")))
+
     (test-suite
      "runtime arity changes"
      (check-equal? (on (1 3 5)
@@ -762,10 +776,10 @@
                    "runtime arity changes in threading form")
      (check-false (on (-1 3 5)
                       (~>> list (-< (findf positive? _) (gen 0)) (and% even? number?)))
-                 "runtime arity changes in threading form")
+                  "runtime arity changes in threading form")
      (check-true (on (-1 3 5)
                      (~>> list (-< (findf positive? _) (gen 0)) (or% even? number?)))
-                  "runtime arity changes in threading form")
+                 "runtime arity changes in threading form")
      (check-equal? (on (1 4 5)
                        (~>> list (findf even?) (>< add1)))
                    5
