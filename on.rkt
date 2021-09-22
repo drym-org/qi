@@ -7,11 +7,8 @@
          "flow.rkt")
 
 (provide on
-         lambda/subject
-         define/subject
-         predicate-lambda
-         define-predicate
-         lambdap
+         flow-lambda
+         define-flow
          π)
 
 (define-syntax-parser on
@@ -20,7 +17,7 @@
    #:with ags (attribute args.args)
    #`((flow clause) #,@(syntax->list #'ags))])
 
-(define-syntax-parser lambda/subject
+(define-syntax-parser flow-lambda
   [(_ (arg:id ...) expr:expr ...)
    #'(lambda (arg ...)
        (on (arg ...)
@@ -30,16 +27,13 @@
        (on (rest-args)
            expr ...))])
 
-(define-alias predicate-lambda lambda/subject)
+(define-alias π flow-lambda)
 
-(define-alias lambdap predicate-lambda)
-
-(define-alias π predicate-lambda)
-
-(define-syntax-parser define/subject
-  [(_ (name:id arg:id ...) expr:expr ...)
+(define-syntax-parser define-flow
+  [(_ (name:id arg:id ...) expr:expr)
    #'(define name
-       (lambda/subject (arg ...)
-         expr ...))])
-
-(define-alias define-predicate define/subject)
+       (flow-lambda (arg ...)
+         expr))]
+  [(_ name:id expr:expr)
+   #'(define name
+       (flow expr))])

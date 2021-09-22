@@ -34,16 +34,16 @@ Logic is the soul of language, relations are the basis of logic, and every relat
     (on (5) (and positive? odd?))
     (on ("5" "5.0") (with-key ->number =))
     (on (5 7) (~> (>< ->string) string-append))
-	(define-predicate (positive-odd? n)
+	(define-flow (positive-odd? n)
 	  (and positive? odd?))
-	(define-predicate (approximately-equal? m n)
+	(define-flow (approximately-equal? m n)
 	  (~> - abs (< 1)))
 	(approximately-equal? 5 7)
 	(approximately-equal? 5 5.4)
-	(define/subject (root-mean-square vs)
+	(define-flow (root-mean-square vs)
 	  (~> (map sqr _) (-< sum length) / sqrt))
 	(root-mean-square (range 10))
-	(define-predicate (between-0-and-10? n)
+	(define-flow (between-0-and-10? n)
 	  (<= 0 _ 10))
 	(between-0-and-10? 4)
 	(between-0-and-10? 12)
@@ -62,7 +62,7 @@ This section provides a specification of the basic syntax recognizable to all of
 
 @section{Forms}
 
-The core form that defines and uses the predicate language is @racket[on], which can be used to describe arbitrary computations involving predicates, while another form, @racket[switch], leverages the former to provide a conditional dispatch form analogous to @racket[cond]. In addition, other forms like @racket[define-predicate] and @racket[define-switch] are provided that leverage these to create functions constrained to the predicate language -- for use in defining predicate functions, and dispatch functions, respectively. The advantage of using these forms over the usual general-purpose @racket[define] form is that constraints provide clarity, minimize redundancy, and provide guardrails against programmer error.
+The core form that defines and uses the predicate language is @racket[on], which can be used to describe arbitrary computations involving predicates, while another form, @racket[switch], leverages the former to provide a conditional dispatch form analogous to @racket[cond]. In addition, other forms like @racket[define-flow] and @racket[define-switch] are provided that leverage these to create functions constrained to the predicate language -- for use in defining predicate functions, and dispatch functions, respectively. The advantage of using these forms over the usual general-purpose @racket[define] form is that constraints provide clarity, minimize redundancy, and provide guardrails against programmer error.
 
 @defform*/subs[[(on (args) procedure-expr)
                 (on (args)
@@ -135,12 +135,10 @@ The core form that defines and uses the predicate language is @racket[on], which
 }
 
 @deftogether[(
-  @defform[(lambda/subject args body ...)]
-  @defform[(predicate-lambda args body ...)]
-  @defform[(lambdap args body ...)]
+  @defform[(flow-lambda args body ...)]
   @defform[(π args body ...)]
 )]{
-  Similiar to @racket[lambda] but constrained to the predicate language. This is exactly equivalent to @racket[(lambda args (on (args) body ...))]. @racket[predicate-lambda], @racket[lambdap] and @racket[π] are aliases for @racket[lambda/subject].
+  Similiar to @racket[lambda] but constrained to the predicate language. This is exactly equivalent to @racket[(lambda args (on (args) body ...))]. @racket[π] is an alias for @racket[flow-lambda].
 }
 
 @deftogether[(
@@ -164,10 +162,9 @@ The core form that defines and uses the predicate language is @racket[on], which
 }
 
 @deftogether[(
-  @defform[(define/subject (name args) body ...)]
-  @defform[(define-predicate (name args) body ...)]
+  @defform[(define-flow (name args) body ...)]
 )]{
-  Similiar to the function form of @racket[define] but constrained to the predicate language. This is exactly equivalent to @racket[(define name (lambda/subject args body ...))]. @racket[define-predicate] is an alias for @racket[define/subject].
+  Similiar to the function form of @racket[define] but constrained to the predicate language. This is exactly equivalent to @racket[(define name (lambda/subject args body ...))].
 }
 
 @defform[(define-switch (args ...)
