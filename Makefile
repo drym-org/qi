@@ -79,4 +79,9 @@ cover: coverage-check coverage-report
 cover-coveralls:
 	raco cover -b -n dev -f coveralls -p $(PACKAGE-NAME)
 
-.PHONY:	help install remove build build-docs build-all clean check-deps test test-with-errortrace errortrace docs cover coverage-check coverage-report cover-coveralls
+profile:
+	echo "Profiling..."
+	raco profile dev/profile/builtin.rkt | grep "Total cpu time"
+	raco profile dev/profile/ionic.rkt | grep "Total cpu time"
+
+.PHONY:	help install remove build build-docs build-all clean check-deps test test-with-errortrace errortrace docs cover coverage-check coverage-report cover-coveralls profile
