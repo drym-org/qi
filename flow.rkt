@@ -173,7 +173,7 @@
    #'(flow (select))]
 
   ;; high level circuit elements
-  [(_ ((~datum splitter) n:number))
+  [(_ ((~datum fanout) n:number))
    (datum->syntax
     this-syntax
     (list 'flow

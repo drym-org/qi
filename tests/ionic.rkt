@@ -595,9 +595,9 @@
     (test-suite
      "high-level circuit elements"
      (test-suite
-      "splitter"
+      "fanout"
       (check-equal? (on (5)
-                        (~> (splitter 3)
+                        (~> (fanout 3)
                             +))
                     15))
      (test-suite
@@ -925,7 +925,7 @@
                             [else 'no])
                     9)
       (check-equal? (switch (5)
-                            [true. (call (~> (splitter 3) +))]
+                            [true. (call (~> (fanout 3) +))]
                             [else 'no])
                     15)
       (check-equal? (switch ((list 1 2 3))
