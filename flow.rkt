@@ -220,4 +220,7 @@
        #'(curryr (flow onex) prarg ...))]
 
   ;; literally indicated function identifier
-  [(_ ex:expr) #'ex])
+  [(_ ex:expr) #'ex]
+
+  ;; a non-flow
+  [(_) #'void])

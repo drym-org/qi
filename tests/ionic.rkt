@@ -22,7 +22,13 @@
       (check-equal? ((☯ (~> (>< sqr) +)) 2 3) 13)
       (check-true ((☯ (eq? 2)) 2))
       (check-true ((☯ (and% positive? negative?)) 2 -3))
-      (check-equal? ((☯ (if positive? add1 sub1)) 2) 3)))
+      (check-equal? ((☯ (if positive? add1 sub1)) 2) 3))
+    (test-case
+        "Edge/base cases"
+      (check-equal? ((☯)) (void) "non-flow")
+      (check-equal? ((☯) 0) (void) "non-flow")
+      (check-equal? ((☯) 1 2) (void) "non-flow")
+      (check-equal? ((☯ (const 3))) 3 "no arguments")))
 
    (test-suite
     "on tests"
