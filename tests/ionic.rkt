@@ -14,374 +14,351 @@
 
    (test-suite
     "flow tests"
-    (test-case
-        "basic (smoke tests - see `on tests` for full tests)"
-      (check-equal? ((flow add1) 2) 3)
-      (check-equal? ((☯ add1) 2) 3)
-      (check-equal? ((☯ (~> sqr add1)) 2) 5)
-      (check-equal? ((☯ (~> (>< sqr) +)) 2 3) 13)
-      (check-true ((☯ (eq? 2)) 2))
-      (check-true ((☯ (and% positive? negative?)) 2 -3))
-      (check-equal? ((☯ (if positive? add1 sub1)) 2) 3))
-    (test-case
-        "Edge/base cases"
-      (check-equal? ((☯)) (void) "non-flow")
-      (check-equal? ((☯) 0) (void) "non-flow")
-      (check-equal? ((☯) 1 2) (void) "non-flow")
-      (check-equal? ((☯ (const 3))) 3 "no arguments")))
-
-   (test-suite
-    "on tests"
 
     (test-suite
      "core language"
      (test-case
          "Edge/base cases"
-       (check-equal? (on (0))
-                     (void)
-                     "no clauses, unary")
-       (check-equal? (on (5 5))
-                     (void)
-                     "no clauses, binary")
-       (check-equal? (on ()
-                         (const 3))
-                     3
-                     "no arguments"))
+       (check-equal? ((☯)) (void) "non-flow")
+       (check-equal? ((☯) 0) (void) "non-flow")
+       (check-equal? ((☯) 1 2) (void) "non-flow")
+       (check-equal? ((☯ (const 3))) 3 "no arguments")
+       (check-equal? ((flow add1) 2) 3))
      (test-case
          "unary predicate"
-       (check-false (on (5) negative?))
-       (check-true (on (5) positive?)))
+       (check-false ((☯ negative?) 5))
+       (check-true ((☯ positive?) 5)))
      (test-case
          "binary predicate"
-       (check-false (on (5 6) >))
-       (check-true (on (5 6) <)))
+       (check-false ((☯ >) 5 6))
+       (check-true ((☯ <) 5 6)))
      (test-case
          "n-ary predicate"
-       (check-false (on (5 5 6 7) >))
-       (check-false (on (5 5 6 7) <))
-       (check-true (on (5 5 6 7) <=)))
+       (check-false ((☯ >) 5 5 6 7))
+       (check-false ((☯ <) 5 5 6 7))
+       (check-true ((☯ <=) 5 5 6 7)))
      (test-case
          "one-of?"
-       (check-false (on ("hello") (one-of? "hi" "ola")))
-       (check-true (on ("hello") (one-of? "hi" "hello"))))
+       (check-false ((☯ (one-of? "hi" "ola")) "hello"))
+       (check-true ((☯ (one-of? "hi" "hello")) "hello")))
      (test-case
          "predicate under a mapping"
-       (check-true (on ("5") (with-key string->number (< 10))))
-       (check-false (on ("5") (with-key string->number (> 10)))))
+       (check-true ((☯ (with-key string->number (< 10))) "5"))
+       (check-false ((☯ (with-key string->number (> 10))) "5")))
      (test-case
          "and (conjoin)"
-       (check-true (on (5) (and positive? integer?)))
-       (check-false (on (5.4) (and positive? integer?)))
-       (check-true (on (6) (and (> 5) (< 10))))
-       (check-false (on (4) (and (> 5) (< 10))))
-       (check-false (on (14) (and (> 5) (< 10))))
-       (check-false (on (#f) (and _ positive?)) "_ in and"))
+       (check-true ((☯ (and positive? integer?)) 5))
+       (check-false ((☯ (and positive? integer?)) 5.4))
+       (check-true ((☯ (and (> 5) (< 10))) 6))
+       (check-false ((☯ (and (> 5) (< 10))) 4))
+       (check-false ((☯ (and (> 5) (< 10))) 14))
+       (check-false ((☯ (and _ positive?)) #f) "_ in and"))
      (test-case
          "or (disjoin)"
-       (check-true (on (6) (or positive? odd?)))
-       (check-true (on (-5) (or positive? odd?)))
-       (check-false (on (-6) (or positive? odd?)))
-       (check-true (on ("5.0" "5")
-                       (or eq?
+       (check-true ((☯ (or positive? odd?)) 6))
+       (check-true ((☯ (or positive? odd?)) -5))
+       (check-false ((☯ (or positive? odd?)) -6))
+       (check-true ((☯ (or eq?
                            equal?
-                           (with-key string->number =))))
-       (check-true (on ("5.0" "5")
-                       (or eq?
+                           (with-key string->number =)))
+                    "5.0" "5"))
+       (check-true ((☯ (or eq?
                            equal?
-                           (.. = (>< string->number)))))
-       (check-false (on ("5" "6")
-                        (or eq?
+                           (.. = (>< string->number))))
+                    "5.0" "5"))
+       (check-false ((☯ (or eq?
                             equal?
-                            (with-key string->number =))))
-       (check-false (on ("5" "6")
-                        (or eq?
+                            (with-key string->number =)))
+                     "5" "6"))
+       (check-false ((☯ (or eq?
                             equal?
-                            (.. = (>< string->number)))))
-       (check-true (on (#f) (or _ NOT)) "_ in or"))
+                            (.. = (>< string->number))))
+                     "5" "6"))
+       (check-true ((☯ (or _ NOT)) #f) "_ in or"))
      (test-case
          "not (predicate negation)"
-       (check-true (on (-5) (not positive?)))
-       (check-false (on (5) (not positive?)))
-       (check-true (on (#f) (not _)) "_ in not"))
+       (check-true ((☯ (not positive?)) -5))
+       (check-false ((☯ (not positive?)) 5))
+       (check-true ((☯ (not _)) #f) "_ in not"))
      (test-case
          "boolean combinators"
-       (check-true (on (5)
-                       (and positive?
-                            (not even?))))
-       (check-false (on (5)
-                        (and positive?
-                             (not odd?))))
-       (check-true (on (5)
-                       (and positive?
+       (check-true ((☯ (and positive?
+                            (not even?)))
+                    5))
+       (check-false ((☯ (and positive?
+                             (not odd?)))
+                     5))
+       (check-true ((☯ (and positive?
                             (or integer?
-                                odd?))))
-       (check-false (on (5)
-                        (and positive?
+                                odd?)))
+                    5))
+       (check-false ((☯ (and positive?
                              (or (> 6)
-                                 even?))))
-       (check-true (on (5)
-                       (and positive?
+                                 even?)))
+                     5))
+       (check-true ((☯ (and positive?
                             (or (eq? 3)
-                                (eq? 5)))))
-       (check-false (on (5)
-                        (and positive?
+                                (eq? 5))))
+                    5))
+       (check-false ((☯ (and positive?
                              (or (eq? 3)
-                                 (eq? 6))))))
+                                 (eq? 6))))
+                     5)))
      (test-case
          "juxtaposed boolean combinators"
-       (check-true (on (20 5)
-                       (and% positive?
+       (check-true ((☯ (and% positive?
                              (or (> 10)
-                                 odd?))))
-       (check-false (on (20 5)
-                        (and% positive?
+                                 odd?)))
+                    20 5))
+       (check-false ((☯ (and% positive?
                               (or (> 10)
-                                  even?)))))
+                                  even?)))
+                     20 5)))
      (test-case
          "juxtaposed conjoin"
-       (check-true (on (5 "hi")
-                       (and% positive? string?)))
-       (check-false (on (5 5)
-                        (and% positive? string?)))
-       (check-true (on (5 "hi")
-                       (and% positive? _)))
-       (check-true (on (5 "hi")
-                       (and% _ string?))))
+       (check-true ((☯ (and% positive? string?))
+                    5 "hi"))
+       (check-false ((☯ (and% positive? string?))
+                     5 5))
+       (check-true ((☯ (and% positive? _))
+                    5 "hi"))
+       (check-true ((☯ (and% _ string?))
+                    5 "hi")))
      (test-case
          "juxtaposed disjoin"
-       (check-true (on (5 "hi")
-                       (or% positive? string?)))
-       (check-true (on (-5 "hi")
-                       (or% positive? string?)))
-       (check-false (on (-5 5)
-                        (or% positive? string?)))
-       (check-false (on (-5 "hi")
-                        (or% positive? _)))
-       (check-true (on (5 "hi")
-                       (or% positive? _)))
-       (check-true (on (5 "hi")
-                       (or% _ string?)))
-       (check-false (on (5 5)
-                        (or% _ string?))))
+       (check-true ((☯ (or% positive? string?))
+                    5 "hi"))
+       (check-true ((☯ (or% positive? string?))
+                    -5 "hi"))
+       (check-false ((☯ (or% positive? string?))
+                     -5 5))
+       (check-false ((☯ (or% positive? _))
+                     -5 "hi"))
+       (check-true ((☯ (or% positive? _))
+                    5 "hi"))
+       (check-true ((☯ (or% _ string?))
+                    5 "hi"))
+       (check-false ((☯ (or% _ string?))
+                     5 5)))
      (test-case
          "all"
-       (check-true (on (3 5)
-                       (all positive?)))
-       (check-false (on (3 -5)
-                        (all positive?))))
+       (check-true ((☯ (all positive?))
+                    3 5))
+       (check-false ((☯ (all positive?))
+                     3 -5)))
      (test-case
          "any"
-       (check-true (on (3 5)
-                       (any positive?)))
-       (check-true (on (3 -5)
-                       (any positive?)))
-       (check-false (on (-3 -5)
-                        (any positive?))))
+       (check-true ((☯ (any positive?))
+                    3 5))
+       (check-true ((☯ (any positive?))
+                    3 -5))
+       (check-false ((☯ (any positive?))
+                     -3 -5)))
      (test-case
          "none"
-       (check-true (on (-3 -5)
-                       (none positive?)))
-       (check-false (on (3 -5)
-                        (none positive?)))
-       (check-false (on (3 5)
-                        (none positive?))))
+       (check-true ((☯ (none positive?))
+                    -3 -5))
+       (check-false ((☯ (none positive?))
+                     3 -5))
+       (check-false ((☯ (none positive?))
+                     3 5)))
      (test-case
          "all?"
-       (check-true (on (3) all?))
-       (check-false (on (#f) all?))
-       (check-true (on (3 5 7) all?))
-       (check-false (on (3 #f 5) all?)))
+       (check-true ((☯ all?) 3))
+       (check-false ((☯ all?) #f))
+       (check-true ((☯ all?) 3 5 7))
+       (check-false ((☯ all?) 3 #f 5)))
      (test-case
          "any?"
-       (check-true (on (3) any?))
-       (check-false (on (#f) any?))
-       (check-true (on (3 5 7) any?))
-       (check-true (on (3 #f 5) any?))
-       (check-true (on (#f #f 5) any?))
-       (check-false (on (#f #f #f) any?)))
+       (check-true ((☯ any?) 3))
+       (check-false ((☯ any?) #f))
+       (check-true ((☯ any?) 3 5 7))
+       (check-true ((☯ any?) 3 #f 5))
+       (check-true ((☯ any?) #f #f 5))
+       (check-false ((☯ any?) #f #f #f)))
      (test-case
          "none?"
-       (check-false (on (3) none?))
-       (check-true (on (#f) none?))
-       (check-false (on (3 5 7) none?))
-       (check-false (on (3 #f 5) none?))
-       (check-false (on (#f #f 5) none?))
-       (check-true (on (#f #f #f) none?)))
+       (check-false ((☯ none?) 3))
+       (check-true ((☯ none?) #f))
+       (check-false ((☯ none?) 3 5 7))
+       (check-false ((☯ none?) 3 #f 5))
+       (check-false ((☯ none?) #f #f 5))
+       (check-true ((☯ none?) #f #f #f)))
      (test-case
          "gen"
-       (check-equal? (on () (gen 5))
+       (check-equal? ((☯ (gen 5)))
                      5)
-       (check-equal? (on (3) (gen 5))
+       (check-equal? ((☯ (gen 5)) 3)
                      5)
-       (check-equal? (on (3 7) (gen 5))
+       (check-equal? ((☯ (gen 5)) 3 7)
                      5)
-       (check-equal? (on (3 4) (~> (>< (gen 5)) +))
+       (check-equal? ((☯ (~> (>< (gen 5)) +)) 3 4)
                      10))
      (test-case
          "escape hatch"
-       (check-equal? (on (3 7) (esc (first (list + *))))
+       (check-equal? ((☯ (esc (first (list + *)))) 3 7)
                      10
                      "normal racket expressions")
-       (check-equal? (on (3 7) (esc + (second (list + *))))
+       (check-equal? ((☯ (esc + (second (list + *)))) 3 7)
                      21
                      "multiple expressions in escape clause"))
      (test-suite
       "elementary boolean gates"
       (test-case
           "AND"
-        (check-false (on (#f) AND))
-        (check-true (on (3) AND))
-        (check-true (on (3 5 7) AND))
-        (check-false (on (3 #f 5) AND))
-        (check-false (on (#f #f 5) AND))
-        (check-false (on (#f #f #f) AND)))
+        (check-false ((☯ AND) #f))
+        (check-true ((☯ AND) 3))
+        (check-true ((☯ AND) 3 5 7))
+        (check-false ((☯ AND) 3 #f 5))
+        (check-false ((☯ AND) #f #f 5))
+        (check-false ((☯ AND) #f #f #f)))
       (test-case
           "OR"
-        (check-false (on (#f) OR))
-        (check-true (on (3) OR))
-        (check-true (on (3 5 7) OR))
-        (check-true (on (3 #f 5) OR))
-        (check-true (on (#f #f 5) OR))
-        (check-false (on (#f #f #f) OR)))
+        (check-false ((☯ OR) #f))
+        (check-true ((☯ OR) 3))
+        (check-true ((☯ OR) 3 5 7))
+        (check-true ((☯ OR) 3 #f 5))
+        (check-true ((☯ OR) #f #f 5))
+        (check-false ((☯ OR) #f #f #f)))
       (test-case
           "NOT"
-        (check-false (on (3) NOT))
-        (check-true (on (#f) NOT)))
+        (check-false ((☯ NOT) 3))
+        (check-true ((☯ NOT) #f)))
       (test-case
           "NAND"
-        (check-true (on (#f) NAND))
-        (check-false (on (3) NAND))
-        (check-false (on (3 5 7) NAND))
-        (check-true (on (3 #f 5) NAND))
-        (check-true (on (#f #f 5) NAND))
-        (check-true (on (#f #f #f) NAND)))
+        (check-true ((☯ NAND) #f))
+        (check-false ((☯ NAND) 3))
+        (check-false ((☯ NAND) 3 5 7))
+        (check-true ((☯ NAND) 3 #f 5))
+        (check-true ((☯ NAND) #f #f 5))
+        (check-true ((☯ NAND) #f #f #f)))
       (test-case
           "NOR"
-        (check-true (on (#f) NOR))
-        (check-false (on (3) NOR))
-        (check-false (on (3 5 7) NOR))
-        (check-false (on (3 #f 5) NOR))
-        (check-false (on (#f #f 5) NOR))
-        (check-true (on (#f #f #f) NOR)))
+        (check-true ((☯ NOR) #f))
+        (check-false ((☯ NOR) 3))
+        (check-false ((☯ NOR) 3 5 7))
+        (check-false ((☯ NOR) 3 #f 5))
+        (check-false ((☯ NOR) #f #f 5))
+        (check-true ((☯ NOR) #f #f #f)))
       (test-case
           "XOR"
-        (check-false (on (#f) XOR))
-        (check-true (on (3) XOR))
-        (check-true (on (#f 3) XOR))
-        (check-true (on (3 #f) XOR))
-        (check-false (on (3 5) XOR))
-        (check-false (on (#f #f) XOR))
-        (check-false (on (#f #f #f) XOR))
-        (check-true (on (#f #f 3) XOR))
-        (check-true (on (#f 3 #f) XOR))
-        (check-false (on (#f 3 5) XOR))
-        (check-true (on (3 #f #f) XOR))
-        (check-false (on (3 #f 5) XOR))
-        (check-false (on (3 5 #f) XOR))
-        (check-true (on (3 5 7) XOR)))
+        (check-false ((☯ XOR) #f))
+        (check-true ((☯ XOR) 3))
+        (check-true ((☯ XOR) #f 3))
+        (check-true ((☯ XOR) 3 #f))
+        (check-false ((☯ XOR) 3 5))
+        (check-false ((☯ XOR) #f #f))
+        (check-false ((☯ XOR) #f #f #f))
+        (check-true ((☯ XOR) #f #f 3))
+        (check-true ((☯ XOR) #f 3 #f))
+        (check-false ((☯ XOR) #f 3 5))
+        (check-true ((☯ XOR) 3 #f #f))
+        (check-false ((☯ XOR) 3 #f 5))
+        (check-false ((☯ XOR) 3 5 #f))
+        (check-true ((☯ XOR) 3 5 7)))
       (test-case
           "XNOR"
-        (check-true (on (#f) XNOR))
-        (check-false (on (3) XNOR))
-        (check-false (on (#f 3) XNOR))
-        (check-false (on (3 #f) XNOR))
-        (check-true (on (3 5) XNOR))
-        (check-true (on (#f #f) XNOR))
-        (check-true (on (#f #f #f) XNOR)))))
+        (check-true ((☯ XNOR) #f))
+        (check-false ((☯ XNOR) 3))
+        (check-false ((☯ XNOR) #f 3))
+        (check-false ((☯ XNOR) 3 #f))
+        (check-true ((☯ XNOR) 3 5))
+        (check-true ((☯ XNOR) #f #f))
+        (check-true ((☯ XNOR) #f #f #f)))))
 
     (test-suite
      "routing forms"
      (test-case
          ".."
-       (check-equal? (on (5)
-                         (.. (string-append "a" _ "b")
+       (check-equal? ((☯ (.. (string-append "a" _ "b")
                              number->string
                              (* 2)
                              add1))
+                      5)
                      "a12b")
-       (check-equal? (on (5 6)
-                         (.. (string-append _ "a" _ "b")
+       (check-equal? ((☯ (.. (string-append _ "a" _ "b")
                              (>< number->string)
                              (>< add1)))
+                      5 6)
                      "6a7b")
-       (check-equal? (on (5 6)
-                         (.. +
+       (check-equal? ((☯ (.. +
                              (>< (* 2))
                              (>< add1)))
+                      5 6)
                      26)
-       (check-equal? (on ("p" "q")
-                         (.. string-append
+       (check-equal? ((☯ (.. string-append
                              (>< (string-append "a" _ "b"))))
+                      "p" "q")
                      "apbaqb")
-       (check-equal? (on (5)
-                         (compose (string-append "a" _ "b")
+       (check-equal? ((☯ (compose (string-append "a" _ "b")
                                   number->string
                                   (* 2)
                                   add1))
+                      5)
                      "a12b"
                      "named composition form"))
      (test-case
          "~>"
-       (check-equal? (on (5)
-                         (~> add1
+       (check-equal? ((☯ (~> add1
                              (* 2)
                              number->string
                              (string-append "a" _ "b")))
+                      5)
                      "a12b")
-       (check-equal? (on (5 6)
-                         (~> (>< add1)
+       (check-equal? ((☯ (~> (>< add1)
                              (>< number->string)
                              (string-append _ "a" _ "b")))
+                      5 6)
                      "6a7b")
-       (check-equal? (on (5 6)
-                         (~> (>< add1)
+       (check-equal? ((☯ (~> (>< add1)
                              (>< (* 2))
                              +))
+                      5 6)
                      26)
-       (check-equal? (on ("p" "q")
-                         (~> (>< (string-append "a" _ "b"))
+       (check-equal? ((☯ (~> (>< (string-append "a" _ "b"))
                              string-append))
+                      "p" "q")
                      "apbaqb")
-       (check-equal? (on ("p" "q")
-                         (~> (string-append "a" "b")))
+       (check-equal? ((☯ (~> (string-append "a" "b")))
+                      "p" "q")
                      "pqab"
                      "threading without template")
-       (check-equal? (on ("p" "q")
-                         (~> (>< (string-append "a" "b"))
+       (check-equal? ((☯ (~> (>< (string-append "a" "b"))
                              string-append))
+                      "p" "q")
                      "pabqab"
                      "threading without template")
-       (check-equal? (on (5)
-                         (thread add1
+       (check-equal? ((☯ (thread add1
                                  (* 2)
                                  number->string
                                  (string-append "a" _ "b")))
+                      5)
                      "a12b"
                      "named threading form"))
      (test-case
          "~>>"
-       (check-equal? (on (5)
-                         (~>> add1
+       (check-equal? ((☯ (~>> add1
                               (* 2)
                               number->string
                               (string-append "a" _ "b")))
+                      5)
                      "a12b")
-       (check-equal? (on (5 6)
-                         (~>> (>< add1)
+       (check-equal? ((☯ (~>> (>< add1)
                               (>< number->string)
                               (string-append _ "a" _ "b")))
+                      5 6)
                      "6a7b")
-       (check-equal? (on (5 6)
-                         (~>> (>< add1)
+       (check-equal? ((☯ (~>> (>< add1)
                               (>< (* 2))
                               +))
+                      5 6)
                      26)
-       (check-equal? (on ("p" "q")
-                         (~>> (>< (string-append "a" _ "b"))
+       (check-equal? ((☯ (~>> (>< (string-append "a" _ "b"))
                               string-append))
+                      "p" "q")
                      "apbaqb")
-       (check-equal? (on ("p" "q")
-                         (~>> (string-append "a" "b")))
+       (check-equal? ((☯ (~>> (string-append "a" "b")))
+                      "p" "q")
                      "abpq"
                      "right-threading without template")
        ;; TODO: propagate threading side to nested clauses
@@ -390,135 +367,135 @@
        ;;                        string-append))
        ;;               "abpabq"
        ;;               "right-threading without template")
-       (check-equal? (on (5)
-                         (thread-right add1
+       (check-equal? ((☯ (thread-right add1
                                        (* 2)
                                        number->string
                                        (string-append "a" _ "b")))
+                      5)
                      "a12b"
                      "named threading form"))
      (test-case
          "><"
-       (check-equal? (on (3 5)
-                         (~> (>< sqr)
+       (check-equal? ((☯ (~> (>< sqr)
                              +))
+                      3 5)
                      34)
-       (check-equal? (on (3 5)
-                         (~> (>< _)
+       (check-equal? ((☯ (~> (>< _)
                              +))
+                      3 5)
                      8
                      "amp with don't-care")
-       (check-equal? (on (5 7)
-                         (~> (>< (select))
+       (check-equal? ((☯ (~> (>< (select))
                              +))
+                      5 7)
                      0
                      "amp with arity-nullifying clause")
-       (check-equal? (on (5)
-                         (~> (>< (-< _ _))
+       (check-equal? ((☯ (~> (>< (-< _ _))
                              +))
+                      5)
                      10
                      "amp with arity-increasing clause")
-       (check-equal? (on (3 5)
-                         (~> (amp sqr)
+       (check-equal? ((☯ (~> (amp sqr)
                              +))
+                      3 5)
                      34
                      "named amplification form"))
      (test-case
          "allow"
-       (check-equal? (on (-3 5)
-                         (~> (allow positive?)
+       (check-equal? ((☯ (~> (allow positive?)
                              +))
+                      -3 5)
                      5)
-       (check-equal? (on (-5 -7)
-                         (~> (allow positive?)
+       (check-equal? ((☯ (~> (allow positive?)
                              +))
+                      -5 -7)
                      0
                      "allow with arity-nullifying clause"))
      (test-case
          "exclude"
-       (check-equal? (on (-3 -1 5)
-                         (~> (exclude positive?)
+       (check-equal? ((☯ (~> (exclude positive?)
                              +))
+                      -3 -1 5)
                      -4)
-       (check-equal? (on (-5 -7)
-                         (~> (exclude negative?)
+       (check-equal? ((☯ (~> (exclude negative?)
                              +))
+                      -5 -7)
                      0
                      "exclude with arity-nullifying clause"))
      (test-case
          "-<"
-       (check-equal? (on (5)
-                         (~> (-< sqr add1)
+       (check-equal? ((☯ (~> (-< sqr add1)
                              +))
+                      5)
                      31)
-       (check-equal? (on ((range 1 10))
-                         (~> (-< sum length) /))
+       (check-equal? ((☯ (~> (-< sum length) /))
+                      (range 1 10))
                      5)
-       (check-equal? (on (5)
-                         (~> (-< _ add1)
+       (check-equal? ((☯ (~> (-< _ add1)
                              +))
+                      5)
                      11
                      "tee with don't-care")
-       (check-equal? (on (5 7)
-                         (~> (-< (select))
+       (check-equal? ((☯ (~> (-< (select))
                              +))
+                      5 7)
                      0
                      "tee with arity-nullifying clause")
-       (check-equal? (on (5)
-                         (~> (-< (-< _ _) _)
+       (check-equal? ((☯ (~> (-< (-< _ _) _)
                              +))
+                      5)
                      15
                      "tee with arity-increasing clause")
-       (check-equal? (on (5)
-                         (~> (tee sqr add1)
+       (check-equal? ((☯ (~> (tee sqr add1)
                              +))
+                      5)
                      31
                      "named tee junction form"))
      (test-case
          "=="
-       (check-equal? (on (5 7)
-                         (~> (== sqr add1)
+       (check-equal? ((☯ (~> (== sqr add1)
                              +))
+                      5 7)
                      33)
-       (check-equal? (on ((range 1 10))
-                         (~> (-< sum length)
+       (check-equal? ((☯ (~> (-< sum length)
                              (== add1 sub1)
                              +))
+                      (range 1 10))
                      54)
-       (check-equal? (on (5 7)
-                         (~> (== _ add1)
+       (check-equal? ((☯ (~> (== _ add1)
                              +))
+                      5 7)
                      13
                      "relay with don't-care")
-       (check-equal? (on (5 7)
-                         (~> (== _ _)
+       (check-equal? ((☯ (~> (== _ _)
                              +))
+                      5 7)
                      12
                      "relay with don't-care")
-       (check-equal? (on (5 7)
-                         (~> (== (select) add1)
+       (check-equal? ((☯ (~> (== (select) add1)
                              +))
+                      5 7)
                      8
                      "relay with arity-nullifying clause")
-       (check-equal? (on (5 7)
-                         (~> (== (-< _ _) add1)
+       (check-equal? ((☯ (~> (== (-< _ _) add1)
                              +))
+                      5 7)
                      18
                      "relay with arity-increasing clause")
        (check-exn exn:fail?
-                  (thunk (on (5 7 8)
-                             (~> (== (select) add1)
-                                 +)))
+                  (thunk ((☯ (~> (== (select) add1)
+                                 +))
+                          5 7 8))
                   "relay elements must be in one-to-one correspondence with input")
-       (check-equal? (on (5 7)
-                         (~> (relay sqr add1)
+       (check-equal? ((☯ (~> (relay sqr add1)
                              +))
+                      5 7)
                      33
                      "named relay form"))
      (test-case
          "ground"
-       (check-equal? (on (5)
-                         (-< ground add1))
+       (check-equal? ((☯ (-< ground add1))
+                      5)
                      6)))
 
     (test-suite
@@ -527,281 +504,304 @@
          "implicitly curried forms"
        (test-case
            "eq?"
-         (check-false (on (6) (eq? 5)))
-         (check-true (on (5) (eq? 5))))
+         (check-false ((☯ (eq? 5)) 6))
+         (check-true ((☯ (eq? 5)) 5)))
        (test-case
            "equal?"
-         (check-false (on ("bye") (equal? "hello")))
-         (check-true (on ("hello") (equal? "hello"))))
+         (check-false ((☯ (equal? "hello")) "bye"))
+         (check-true ((☯ (equal? "hello")) "hello")))
        (test-case
            "<"
-         (check-false (on (5) (< 5)))
-         (check-true (on (5) (< 10))))
+         (check-false ((☯ (< 5)) 5))
+         (check-true ((☯ (< 10)) 5)))
        (test-case
            "<="
-         (check-false (on (5) (<= 1)))
-         (check-true (on (5) (<= 10)))
-         (check-true (on (5) (<= 5))))
+         (check-false ((☯ (<= 1)) 5))
+         (check-true ((☯ (<= 10)) 5))
+         (check-true ((☯ (<= 5)) 5)))
        (test-case
            ">"
-         (check-false (on (5) (> 5)))
-         (check-true (on (5) (> 1))))
+         (check-false ((☯ (> 5)) 5))
+         (check-true ((☯ (> 1)) 5)))
        (test-case
            ">="
-         (check-false (on (5) (>= 10)))
-         (check-true (on (5) (>= 1)))
-         (check-true (on (5) (>= 5))))
+         (check-false ((☯ (>= 10)) 5))
+         (check-true ((☯ (>= 1)) 5))
+         (check-true ((☯ (>= 5)) 5)))
        (test-case
            "="
-         (check-true (on (5) (= 5)))
-         (check-false (on (5) (= 10))))
-       (check-equal? (on ("a")
-                         (string-append "b"))
+         (check-true ((☯ (= 5)) 5))
+         (check-false ((☯ (= 10)) 5)))
+       (check-equal? ((☯ (string-append "b"))
+                      "a")
                      "ab")
-       (check-equal? (on ("a" "b")
-                         (string-append "c" "d"))
+       (check-equal? ((☯ (string-append "c" "d"))
+                      "a" "b")
                      "abcd")
-       (check-equal? (on ((list 1 2 3))
-                         (~>> (map add1)))
+       (check-equal? ((☯ (~>> (map add1)))
+                      (list 1 2 3))
                      (list 2 3 4)
                      "curried map")
-       (check-equal? (on ((list 1 2 3))
-                         (~>> (filter odd?)))
+       (check-equal? ((☯ (~>> (filter odd?)))
+                      (list 1 2 3))
                      (list 1 3)
                      "curried filter")
-       (check-equal? (on ((list "a" "b" "c"))
-                         (~>> (foldl string-append "")))
+       (check-equal? ((☯ (~>> (foldl string-append "")))
+                      (list "a" "b" "c"))
                      "cba"
                      "curried foldl"))
      (test-case
          "template with single argument"
-       (check-false (on ((list 1 2 3))
-                        (apply > _)))
-       (check-true (on ((list 3 2 1))
-                       (apply > _)))
-       (check-equal? (on ((list 1 2 3))
-                         (map add1 _))
+       (check-false ((☯ (apply > _))
+                     (list 1 2 3)))
+       (check-true ((☯ (apply > _))
+                    (list 3 2 1)))
+       (check-equal? ((☯ (map add1 _))
+                      (list 1 2 3))
                      (list 2 3 4)
                      "map in predicate")
-       (check-equal? (on ((list 1 2 3))
-                         (filter odd? _))
+       (check-equal? ((☯ (filter odd? _))
+                      (list 1 2 3))
                      (list 1 3)
                      "filter in predicate")
-       (check-equal? (on ((list "a" "b" "c"))
-                         (foldl string-append "" _))
+       (check-equal? ((☯ (foldl string-append "" _))
+                      (list "a" "b" "c"))
                      "cba"
                      "foldl in predicate"))
      (test-case
          "template with multiple arguments"
-       (check-true (on (3 7) (< 1 _ 5 _ 10))
+       (check-true ((☯ (< 1 _ 5 _ 10)) 3 7)
                    "template with multiple arguments")
-       (check-false (on (3 5) (< 1 _ 5 _ 10))
+       (check-false ((☯ (< 1 _ 5 _ 10)) 3 5)
                     "template with multiple arguments")))
 
     (test-suite
      "high-level circuit elements"
      (test-suite
       "fanout"
-      (check-equal? (on (5)
-                        (~> (fanout 3)
+      (check-equal? ((☯ (~> (fanout 3)
                             +))
+                     5)
                     15))
      (test-suite
       "inverter"
-      (check-false (on (5 6)
-                       (~> inverter
-                           AND)))
-      (check-true (on (#f #t)
-                      (~> inverter
-                          OR))))
+      (check-false ((☯ (~> inverter
+                           AND))
+                    5 6))
+      (check-true ((☯ (~> inverter
+                          OR))
+                   #f #t)))
      (test-suite
       "feedback"
-      (check-equal? (on (5)
-                        (feedback sqr 2))
+      (check-equal? ((☯ (feedback sqr 2))
+                     5)
                     625)
-      (check-equal? (on (5 6)
-                        (~> + (feedback add1 5)))
+      (check-equal? ((☯ (~> + (feedback add1 5)))
+                     5 6)
                     16)
-      (check-equal? (on (2 3)
-                        (~> (feedback (>< add1) 3)
+      (check-equal? ((☯ (~> (feedback (>< add1) 3)
                             +))
+                     2 3)
                     11)
-      (check-equal? (on (2 3)
-                        (~> (feedback (== add1 sub1) 3)
+      (check-equal? ((☯ (~> (feedback (== add1 sub1) 3)
                             +))
+                     2 3)
                     5))
      (test-suite
       "group"
-      (check-equal? (on (1 2)
-                        (~> (group 0 (const 5) +) +))
+      (check-equal? ((☯ (~> (group 0 (const 5) +) +))
+                     1 2)
                     8)
-      (check-equal? (on (1 2)
-                        (~> (group 1 add1 sub1) +))
+      (check-equal? ((☯ (~> (group 1 add1 sub1) +))
+                     1 2)
                     3)
-      (check-equal? (on (1 2 3 4)
-                        (~> (group 3 * add1) +))
+      (check-equal? ((☯ (~> (group 3 * add1) +))
+                     1 2 3 4)
                     11)
-      (check-equal? (on (4 5 6)
-                        (~> (group 2
-                                    (~> (>< add1) +)
-                                    add1)
+      (check-equal? ((☯ (~> (group 2
+                                   (~> (>< add1) +)
+                                   add1)
                             +))
+                     4 5 6)
                     18)
-      (check-equal? (on (1 3 5 7 9)
-                        (~> (group 2 (select) (select))
+      (check-equal? ((☯ (~> (group 2 (select) (select))
                             +))
+                     1 3 5 7 9)
                     0
                     "group with arity-nullifying clause")
-      (check-equal? (on (1 3 5 7 9)
-                        (~> (group 2 (>< (-< _ _)) (>< _))
+      (check-equal? ((☯ (~> (group 2 (>< (-< _ _)) (>< _))
                             +))
+                     1 3 5 7 9)
                     29
                     "group with arity-increasing clause"))
      (test-suite
       "sieve"
-      (check-equal? (on (1 -2)
-                        (~> (sieve positive? add1 (const -1)) +))
+      (check-equal? ((☯ (~> (sieve positive? add1 (const -1)) +))
+                     1 -2)
                     1)
-      (check-equal? (on (1 2 -3 4)
-                        (~> (sieve positive? + (+ 2)) +))
+      (check-equal? ((☯ (~> (sieve positive? + (+ 2)) +))
+                     1 2 -3 4)
                     6)
-      (check-equal? (on (1 2 3 4)
-                        (~> (sieve positive? + (const 0)) +))
+      (check-equal? ((☯ (~> (sieve positive? + (const 0)) +))
+                     1 2 3 4)
                     10)
-      (check-equal? (on (1 3 5 7)
-                        (~> (sieve negative? (select) (select))
+      (check-equal? ((☯ (~> (sieve negative? (select) (select))
                             +))
+                     1 3 5 7)
                     0
                     "sieve with arity-nullifying clause")
-      (check-equal? (on (1 -3 5)
-                        (~> (sieve positive? (>< (-< _ _)) (>< _))
+      (check-equal? ((☯ (~> (sieve positive? (>< (-< _ _)) (>< _))
                             +))
+                     1 -3 5)
                     9
                     "sieve with arity-increasing clause"))
      (test-suite
       "select"
-      (check-equal? (on (1)
-                        (select 0))
+      (check-equal? ((☯ (select 0))
+                     1)
                     1)
-      (check-equal? (on (1 2 3)
-                        (select 1))
+      (check-equal? ((☯ (select 1))
+                     1 2 3)
                     2)
-      (check-equal? (on (1 2 3)
-                        (select 2))
+      (check-equal? ((☯ (select 2))
+                     1 2 3)
                     3)
-      (check-equal? (on ("1" "2" "3")
-                        (~> (select 0 2)
+      (check-equal? ((☯ (~> (select 0 2)
                             string-append))
+                     "1" "2" "3")
                     "13")
-      (check-equal? (on ("1" "2" "3")
-                        (~> (select 2 0)
+      (check-equal? ((☯ (~> (select 2 0)
                             string-append))
+                     "1" "2" "3")
                     "31"))
      (test-suite
       "pass"
-      (check-equal? (on (5)
-                        (pass positive?))
+      (check-equal? ((☯ (pass positive?))
+                     5)
                     5)
-      (check-equal? (on (5)
-                        (-< (pass negative?) (gen 0)))
+      (check-equal? ((☯ (-< (pass negative?) (gen 0)))
+                     5)
                     0)
-      (check-equal? (on (5 6)
-                        (~> (pass <)
+      (check-equal? ((☯ (~> (pass <)
                             +))
+                     5 6)
                     11))
      (test-suite
       "if"
-      (check-equal? (on (5)
-                        (if negative? sub1 add1))
+      (check-equal? ((☯ (if negative? sub1 add1))
+                     5)
                     6)
-      (check-equal? (on (-5)
-                        (if negative? sub1 add1))
+      (check-equal? ((☯ (if negative? sub1 add1))
+                     -5)
                     -6)
-      (check-equal? (on (5)
-                        (if negative? sub1 _))
+      (check-equal? ((☯ (if negative? sub1 _))
+                     5)
                     5)
-      (check-equal? (on (5 6)
-                        (if < + -))
+      (check-equal? ((☯ (if < + -))
+                     5 6)
                     11)
-      (check-equal? (on (6 5)
-                        (if < + -))
+      (check-equal? ((☯ (if < + -))
+                     6 5)
                     1)
-      (check-equal? (on (5)
-                        (if (< 10) _ (gen 0)))
+      (check-equal? ((☯ (if (< 10) _ (gen 0)))
+                     5)
                     5)
-      (check-equal? (on (15)
-                        (if (< 10) _ (gen 0)))
+      (check-equal? ((☯ (if (< 10) _ (gen 0)))
+                     15)
                     0))
      (test-suite
       "effect"
-      (check-equal? (on (5)
-                        (ε sub1 add1))
+      (check-equal? ((☯ (ε sub1 add1))
+                     5)
                     6)
       (let ([a 10])
-        (check-equal? (on (5)
-                          (ε (esc (λ (_)
+        (check-equal? ((☯ (ε (esc (λ (_)
                                     (set! a (add1 a))))
                              add1))
+                       5)
                       6)
         (check-equal? a 11))))
 
     (test-suite
      "arity modulating forms"
-     (check-true (on (5 6)
-                     (and% (positive? __) (even? __)))
+     (check-true ((☯ (and% (positive? __) (even? __)))
+                  5 6)
                  "and% arity propagation")
-     (check-true (on (5 6)
-                     (or% (positive? __) (even? __)))
+     (check-true ((☯ (or% (positive? __) (even? __)))
+                  5 6)
                  "or% arity propagation")
-     (check-equal? (on (5 6)
-                       (~> (>< (add1 __))
+     (check-equal? ((☯ (~> (>< (add1 __))
                            +))
+                    5 6)
                    13
                    ">< arity propagation")
-     (check-equal? (on (5 6)
-                       (~> (== (add1 __) (add1 __))
+     (check-equal? ((☯ (~> (== (add1 __) (add1 __))
                            +))
+                    5 6)
                    13
                    "== arity propagation")
      (let ([add-two (procedure-reduce-arity + 2)])
-       (check-equal? (on (5 6 7)
-                         (~> (group 2 (add-two __) (add1 __))
+       (check-equal? ((☯ (~> (group 2 (add-two __) (add1 __))
                              *))
+                      5 6 7)
                      88
                      "group arity propagation")))
 
     (test-suite
      "runtime arity changes"
-     (check-equal? (on (1 3 5)
-                       (~>> list (findf even?) (if number? _ (gen 0)) sqr))
+     (check-equal? ((☯ (~>> list (findf even?) (if number? _ (gen 0)) sqr))
+                    1 3 5)
                    0
                    "runtime arity changes in threading form")
-     (check-equal? (on (1 4 5)
-                       (~>> list (findf even?) (if number? _ (gen 0)) sqr))
+     (check-equal? ((☯ (~>> list (findf even?) (if number? _ (gen 0)) sqr))
+                    1 4 5)
                    16
                    "runtime arity changes in threading form")
-     (check-false (on (-1 3 5)
-                      (~>> list (-< (findf positive? _) (gen 0)) (and% even? number?)))
+     (check-false ((☯ (~>> list (-< (findf positive? _) (gen 0)) (and% even? number?)))
+                   -1 3 5)
                   "runtime arity changes in threading form")
-     (check-true (on (-1 3 5)
-                     (~>> list (-< (findf positive? _) (gen 0)) (or% even? number?)))
+     (check-true ((☯ (~>> list (-< (findf positive? _) (gen 0)) (or% even? number?)))
+                  -1 3 5)
                  "runtime arity changes in threading form")
-     (check-equal? (on (1 4 5)
-                       (~>> list (findf even?) (>< add1)))
+     (check-equal? ((☯ (~>> list (findf even?) (>< add1)))
+                    1 4 5)
                    5
                    "runtime arity changes in threading form")
-     (check-equal? (on (1 4 5)
-                       (~>> list (findf even?) (== add1)))
+     (check-equal? ((☯ (~>> list (findf even?) (== add1)))
+                    1 4 5)
                    5
                    "runtime arity changes in threading form")
-     (check-equal? (on (1 4 5)
-                       (~>> list (findf even?) number->string (string-append "a" __ "b")))
+     (check-equal? ((☯ (~>> list (findf even?) number->string (string-append "a" __ "b")))
+                    1 4 5)
                    "a4b"
                    "runtime arity changes in threading form")
-     (check-equal? (on (1 -3 5)
-                       (~> (allow positive?) +))
+     (check-equal? ((☯ (~> (allow positive?) +))
+                    1 -3 5)
                    6
                    "runtime arity changes in threading form")))
+
+   (test-suite
+    "on tests"
+    (test-case
+        "Edge/base cases"
+      (check-equal? (on (0))
+                    (void)
+                    "no clauses, unary")
+      (check-equal? (on (5 5))
+                    (void)
+                    "no clauses, binary")
+      (check-equal? (on ()
+                        (const 3))
+                    3
+                    "no arguments"))
+    (test-case
+        "smoke tests"
+      (check-equal? (on (2) add1) 3)
+      (check-equal? (on (2) (~> sqr add1)) 5)
+      (check-equal? (on (2 3) (~> (>< sqr) +)) 13)
+      (check-true (on (2) (eq? 2)))
+      (check-true (on (2 -3) (and% positive? negative?)))
+      (check-equal? (on (2) (if positive? add1 sub1)) 3)))
 
    (test-suite
     "switch tests"
