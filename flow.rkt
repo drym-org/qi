@@ -90,10 +90,10 @@
    #'(flow (~> XOR NOT))]
   [(_ ((~datum and%) onex:clause ...))
    #'(flow (~> (== (esc (conjux-clause onex)) ...)
-                    all?))]
+               all?))]
   [(_ ((~datum or%) onex:clause ...))
    #'(flow (~> (== (esc (disjux-clause onex)) ...)
-                    any?))]
+               any?))]
   [(_ ((~datum with-key) f:clause onex:clause))
    #'(compose
       (curry apply (flow onex))
@@ -159,7 +159,7 @@
                             (datum->syntax #'remainder-onex #'values)
                             #'remainder-onex)])
      #'(flow (-< (~> (allow condition) sonex)
-                (~> (exclude condition) ronex))))]
+                 (~> (exclude condition) ronex))))]
   [(_ ((~datum if) condition:clause
                    consequent:clause
                    alternative:clause))
@@ -191,7 +191,7 @@
    #'(flow (>< NOT))]
   [(_ ((~or (~datum effect) (~datum ε)) sidex:clause onex:clause))
    #'(flow (-< (~> sidex ground)
-                    onex))]
+               onex))]
 
   ;; escape hatch for racket expressions or anything
   ;; to be "passed through"
@@ -206,8 +206,8 @@
             prarg-pre ...)]
   [(_ (onex prarg-pre ... (~datum _) prarg-post ...))
    #'((flow onex) prarg-pre ...
-                       _
-                       prarg-post ...)]
+                  _
+                  prarg-post ...)]
   [(_ (onex prarg ...))
    ;; we use currying instead of templates when a template hasn't
    ;; explicitly been indicated since in such cases, we cannot
