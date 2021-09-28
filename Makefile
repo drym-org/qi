@@ -81,7 +81,10 @@ cover-coveralls:
 
 profile:
 	echo "Profiling..."
+	echo "Base smoke profilers..."
 	raco profile dev/profile/builtin.rkt | grep "Total cpu time"
 	raco profile dev/profile/ionic.rkt | grep "Total cpu time"
+	echo "Forms..."
+	racket dev/profile/forms.rkt
 
 .PHONY:	help install remove build build-docs build-all clean check-deps test test-with-errortrace errortrace docs cover coverage-check coverage-report cover-coveralls profile

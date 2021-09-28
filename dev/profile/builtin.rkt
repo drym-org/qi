@@ -27,5 +27,5 @@
     (match-let ([(list f g) fns])
       (compose-fn f g))))
 
-(check-cond 100000)
-(check-compose 100000)
+(check-cond 300000)
+(check-compose 300000)
