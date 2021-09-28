@@ -6,6 +6,7 @@
                   negate)
          racket/bool
          racket/list
+         racket/format
          (only-in adjutor values->list))
 
 (provide give
@@ -27,9 +28,16 @@
 (define (loom-compose f g [n #f])
   (let ([n (or n (procedure-arity f))])
     (λ args
-      (apply values
-             (append (values->list (apply f (take args n)))
-                     (values->list (apply g (drop args n))))))))
+      (if (< (length args) n)
+          (error 'group (~a "Can't select "
+                            n
+                            " arguments from "
+                            args))
+          (let ([sargs (take args n)]
+                [rargs (drop args n)])
+            (apply values
+                   (append (values->list (apply f sargs))
+                           (values->list (apply g rargs)))))))))
 
 (define (parity-xor . args)
   (not
