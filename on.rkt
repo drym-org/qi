@@ -12,7 +12,9 @@
          π)
 
 (define-syntax-parser on
-  [(_ args:subject) #'(void)]
+  [(_ args:subject)
+   #:with ags (attribute args.args)
+   #`((flow) #,@(syntax->list #'ags))]
   [(_ args:subject clause:clause)
    #:with ags (attribute args.args)
    #`((flow clause) #,@(syntax->list #'ags))])
