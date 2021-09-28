@@ -89,7 +89,7 @@
       (if (for-all empty? seqs)
           null
           (apply raise-arity-error
-                 'zip-with
+                 'relay
                  0
                  (first (filter (negate empty?) seqs))))
       (let ([vs (map first seqs)])
