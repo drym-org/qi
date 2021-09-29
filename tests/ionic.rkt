@@ -633,7 +633,11 @@
                             +))
                      1 3 5 7 9)
                     29
-                    "group with arity-increasing clause"))
+                    "group with arity-increasing clause")
+      (check-equal? ((☯ (~> (group 2 (>< sqr) _) +))
+                     1 2 3)
+                    8
+                    "group with don't-care"))
      (test-suite
       "sieve"
       (check-equal? ((☯ (~> (sieve positive? add1 (const -1)) +))

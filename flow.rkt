@@ -144,8 +144,8 @@
   [(_ ((~datum group) n:number
                       selection-onex:clause
                       remainder-onex:clause))
-   #'(loom-compose (flow selection-onex)
-                   (flow remainder-onex)
+   #'(loom-compose (channel-clause selection-onex)
+                   (channel-clause remainder-onex)
                    n)]
   [(_ ((~datum sieve) condition:clause
                       selection-onex:clause
