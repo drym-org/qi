@@ -494,6 +494,9 @@
                      "named relay form"))
      (test-case
          "ground"
+       (check-equal? ((☯ (-< ⏚ add1))
+                      5)
+                     6)
        (check-equal? ((☯ (-< ground add1))
                       5)
                      6)))

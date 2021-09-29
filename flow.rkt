@@ -169,7 +169,7 @@
            (apply (channel-clause alternative) args)))]
   [(_ ((~datum pass) onex:clause))
    #'(flow (if onex _ ground))]
-  [(_ (~datum ground))
+  [(_ (~or (~datum ground) (~datum ⏚)))
    #'(flow (select))]
 
   ;; high level circuit elements
