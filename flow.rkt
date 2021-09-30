@@ -184,6 +184,13 @@ provide appropriate error messages at the level of the DSL.
                             #'remainder-onex)])
      #'(flow (-< (~> (allow condition) sonex)
                  (~> (exclude condition) ronex))))]
+  [(_ ((~datum sieve) arg ...))  ; error handling catch-all
+   #'(error 'sieve
+            (~a "Syntax error in "
+                (list 'sieve 'arg ...)
+                "\n"
+                "Usage:\n"
+                "  (sieve <predicate flow> <selection flow> <remainder flow>)"))]
   [(_ ((~datum if) condition:clause
                    consequent:clause
                    alternative:clause))
