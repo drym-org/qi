@@ -158,6 +158,13 @@ provide appropriate error messages at the level of the DSL.
    #'(flow (-< onex ...))]
   [(_ ((~datum select) n:number ...))
    #'(flow (-< (esc (arg n)) ...))]
+  [(_ ((~datum select) arg ...))  ; error handling catch-all
+   #'(error 'select
+            (~a "Syntax error in "
+                (list 'select 'arg ...)
+                "\n"
+                "Usage:\n"
+                "  (select <number> ...)"))]
   [(_ ((~datum group) n:number
                       selection-onex:clause
                       remainder-onex:clause))

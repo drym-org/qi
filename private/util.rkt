@@ -48,7 +48,12 @@
 
 (define (arg n)
   (λ args
-    (list-ref args n)))
+    (if (>= n (length args))
+        (error 'select (~a "Can't select argument at index "
+                           n
+                           " in "
+                           args))
+        (list-ref args n))))
 
 ;; give a (list-)lifted function available arguments
 ;; directly instead of wrapping them with a list
