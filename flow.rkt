@@ -89,8 +89,8 @@ provide appropriate error messages at the level of the DSL.
    #'(disjoin (channel-clause onex) ...)]
   [(_ ((~datum not) onex:clause))
    #'(negate (channel-clause onex))]
-  [(_ ((~datum gen) ex:expr))
-   #'(const ex)]
+  [(_ ((~datum gen) ex:expr ...))
+   #'(λ _ (values ex ...))]
   [(_ (~or (~datum NOT) (~datum !)))
    #'not]
   [(_ (~or (~datum AND) (~datum &)))

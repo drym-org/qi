@@ -194,7 +194,9 @@
        (check-equal? ((☯ (gen 5)) 3 7)
                      5)
        (check-equal? ((☯ (~> (>< (gen 5)) +)) 3 4)
-                     10))
+                     10)
+       (check-equal? ((☯ (~> (gen 3 4 5) +)))
+                     12))
      (test-case
          "escape hatch"
        (check-equal? ((☯ (esc (first (list + *)))) 3 7)
