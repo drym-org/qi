@@ -192,6 +192,8 @@
   [(_ ((~or (~datum effect) (~datum ε)) sidex:clause onex:clause))
    #'(flow (-< (~> sidex ground)
                onex))]
+  [(_ ((~datum collect) onex:clause))
+   #'(flow (~> list onex))]
 
   ;; escape hatch for racket expressions or anything
   ;; to be "passed through"

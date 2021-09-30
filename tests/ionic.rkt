@@ -5,6 +5,7 @@
          rackunit/text-ui
          (only-in math sqr)
          racket/list
+         racket/string
          racket/function
          "private/util.rkt")
 
@@ -727,7 +728,17 @@
                              add1))
                        5)
                       6)
-        (check-equal? a 11))))
+        (check-equal? a 11)))
+     (test-suite
+      "collect"
+      (check-equal? ((☯ (collect (string-join "")))
+                     "a" "b" "c")
+                    "abc")
+      (check-equal? ((☯ (collect (string-join "")))
+                     "a")
+                    "a")
+      (check-equal? ((☯ (collect (string-join ""))))
+                    "")))
 
     (test-suite
      "arity modulating forms"
