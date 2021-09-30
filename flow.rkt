@@ -5,6 +5,7 @@
          (only-in adjutor
                   values->list)
          racket/function
+         racket/format
          mischief/shorthand
          (for-syntax racket/base
                      syntax/parse))
@@ -53,6 +54,22 @@
 (define-syntax-parser channel-clause
   [(_ (~datum _)) #'values]
   [(_ onex:clause) #'(flow onex)])
+
+#|
+A note on error handling:
+
+The `flow` macro specifies the forms of the DSL. Some forms, in
+addition to handling legitimate syntax, also have catch-all versions
+that exist purely to provide a helpful message indicating a syntax
+error. We do this since a priori the macro would ignore syntax that
+doesn't match the pattern. Yet, for all of these named forms, we know
+that (or at least, it is prudent to assume that) the user intended to
+employ that particular form of the DSL. So instead of allowing it to
+fall through for interpretation as Racket code, which would yield
+potentially inscrutable errors, the catch-all forms allow us to
+provide appropriate error messages at the level of the DSL.
+
+|#
 
 (define-syntax-parser flow
   ;; special words
@@ -147,6 +164,13 @@
    #'(loom-compose (channel-clause selection-onex)
                    (channel-clause remainder-onex)
                    n)]
+  [(_ ((~datum group) arg ...))  ; error handling catch-all
+   #'(error 'group
+            (~a "Syntax error in "
+                (list 'group 'arg ...)
+                "\n"
+                "Usage:\n"
+                "  (group <number> <selection flow> <remainder flow>)"))]
   [(_ ((~datum sieve) condition:clause
                       selection-onex:clause
                       remainder-onex:clause))
