@@ -71,6 +71,14 @@ provide appropriate error messages at the level of the DSL.
 
 |#
 
+(define (report-syntax-error name args msg)
+  (raise-syntax-error name
+                      (~a "Syntax error in "
+                          (list* name args)
+                          "\n"
+                          "Usage:\n"
+                          "  " msg)))
+
 (define-syntax-parser flow
   ;; special words
   [(_ ((~datum one-of?) v:expr ...))
@@ -157,12 +165,9 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~datum select) n:number ...))
    #'(flow (-< (esc (arg n)) ...))]
   [(_ ((~datum select) arg ...))  ; error handling catch-all
-   #'(raise-syntax-error 'select
-                         (~a "Syntax error in "
-                             (list 'select 'arg ...)
-                             "\n"
-                             "Usage:\n"
-                             "  (select <number> ...)"))]
+   #'(report-syntax-error 'select
+                          (list 'arg ...)
+                          "(select <number> ...)")]
   [(_ ((~datum group) n:number
                       selection-onex:clause
                       remainder-onex:clause))
@@ -170,12 +175,9 @@ provide appropriate error messages at the level of the DSL.
                    (channel-clause remainder-onex)
                    n)]
   [(_ ((~datum group) arg ...))  ; error handling catch-all
-   #'(raise-syntax-error 'group
-                         (~a "Syntax error in "
-                             (list 'group 'arg ...)
-                             "\n"
-                             "Usage:\n"
-                             "  (group <number> <selection flow> <remainder flow>)"))]
+   #'(report-syntax-error 'group
+                          (list 'arg ...)
+                          "(group <number> <selection flow> <remainder flow>)")]
   [(_ ((~datum sieve) condition:clause
                       selection-onex:clause
                       remainder-onex:clause))
@@ -190,12 +192,9 @@ provide appropriate error messages at the level of the DSL.
      #'(flow (-< (~> (pass condition) sonex)
                  (~> (pass (not condition)) ronex))))]
   [(_ ((~datum sieve) arg ...))  ; error handling catch-all
-   #'(raise-syntax-error 'sieve
-                         (~a "Syntax error in "
-                             (list 'sieve 'arg ...)
-                             "\n"
-                             "Usage:\n"
-                             "  (sieve <predicate flow> <selection flow> <remainder flow>)"))]
+   #'(report-syntax-error 'sieve
+                          (list 'arg ...)
+                          "(sieve <predicate flow> <selection flow> <remainder flow>)")]
   [(_ ((~datum if) condition:clause
                    consequent:clause
                    alternative:clause))
