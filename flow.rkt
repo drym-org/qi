@@ -1,5 +1,10 @@
 #lang racket/base
 
+(provide flow
+         ☯
+         (for-syntax subject
+                     clause))
+
 (require syntax/parse/define
          fancy-app
          (only-in adjutor
@@ -11,11 +16,6 @@
                      syntax/parse))
 
 (require "private/util.rkt")
-
-(provide flow
-         ☯
-         (for-syntax subject
-                     clause))
 
 (begin-for-syntax
   (define (repeat n v)
@@ -140,10 +140,8 @@ provide appropriate error messages at the level of the DSL.
    #'(curry map-values (channel-clause onex))]
   [(_ ((~datum amp) onex:clause))
    #'(flow (>< onex))]
-  [(_ ((~datum allow) onex:clause)) ; review name
+  [(_ ((~datum pass) onex:clause))
    #'(curry filter-values (channel-clause onex))]
-  [(_ ((~datum exclude) onex:clause)) ; review name
-   #'(flow (allow (not onex)))]
   [(_ ((~datum ==) onex:clause ...))
    #'(relay (channel-clause onex) ...)]
   [(_ ((~datum relay) onex:clause ...))
@@ -189,8 +187,8 @@ provide appropriate error messages at the level of the DSL.
                  [ronex (if (eq? '_ (syntax->datum #'remainder-onex))
                             (datum->syntax #'remainder-onex #'values)
                             #'remainder-onex)])
-     #'(flow (-< (~> (allow condition) sonex)
-                 (~> (exclude condition) ronex))))]
+     #'(flow (-< (~> (pass condition) sonex)
+                 (~> (pass (not condition)) ronex))))]
   [(_ ((~datum sieve) arg ...))  ; error handling catch-all
    #'(error 'sieve
             (~a "Syntax error in "
@@ -205,7 +203,7 @@ provide appropriate error messages at the level of the DSL.
        (if (apply (flow condition) args)
            (apply (channel-clause consequent) args)
            (apply (channel-clause alternative) args)))]
-  [(_ ((~datum pass) onex:clause))
+  [(_ ((~datum gate) onex:clause))
    #'(flow (if onex _ ground))]
   [(_ (~or (~datum ground) (~datum ⏚)))
    #'(flow (select))]

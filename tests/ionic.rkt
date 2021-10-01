@@ -404,27 +404,16 @@
                      34
                      "named amplification form"))
      (test-case
-         "allow"
-       (check-equal? ((☯ (~> (allow positive?)
+         "pass"
+       (check-equal? ((☯ (~> (pass positive?)
                              +))
                       -3 5)
                      5)
-       (check-equal? ((☯ (~> (allow positive?)
+       (check-equal? ((☯ (~> (pass positive?)
                              +))
                       -5 -7)
                      0
-                     "allow with arity-nullifying clause"))
-     (test-case
-         "exclude"
-       (check-equal? ((☯ (~> (exclude positive?)
-                             +))
-                      -3 -1 5)
-                     -4)
-       (check-equal? ((☯ (~> (exclude negative?)
-                             +))
-                      -5 -7)
-                     0
-                     "exclude with arity-nullifying clause"))
+                     "pass with arity-nullifying clause"))
      (test-case
          "-<"
        (check-equal? ((☯ (~> (-< sqr add1)
@@ -685,14 +674,14 @@
                      "1" "2" "3")
                     "31"))
      (test-suite
-      "pass"
-      (check-equal? ((☯ (pass positive?))
+      "gate"
+      (check-equal? ((☯ (gate positive?))
                      5)
                     5)
-      (check-equal? ((☯ (-< (pass negative?) (gen 0)))
+      (check-equal? ((☯ (-< (gate negative?) (gen 0)))
                      5)
                     0)
-      (check-equal? ((☯ (~> (pass <)
+      (check-equal? ((☯ (~> (gate <)
                             +))
                      5 6)
                     11))
@@ -795,7 +784,7 @@
                     1 4 5)
                    "a4b"
                    "runtime arity changes in threading form")
-     (check-equal? ((☯ (~> (allow positive?) +))
+     (check-equal? ((☯ (~> (pass positive?) +))
                     1 -3 5)
                    6
                    "runtime arity changes in threading form")))
