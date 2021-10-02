@@ -61,10 +61,6 @@
   [(_ (~datum _)) #'false.]
   [(_ onex:clause) #'(flow onex)])
 
-(define-syntax-parser channel-clause
-  [(_ (~datum _)) #'values]
-  [(_ onex:clause) #'(flow onex)])
-
 #|
 A note on error handling:
 
@@ -102,11 +98,11 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~datum none) onex:clause))
    #'(flow (not (any onex)))]
   [(_ ((~datum and) onex:clause ...))
-   #'(conjoin (channel-clause onex) ...)]
+   #'(conjoin (flow onex) ...)]
   [(_ ((~datum or) onex:clause ...))
-   #'(disjoin (channel-clause onex) ...)]
+   #'(disjoin (flow onex) ...)]
   [(_ ((~datum not) onex:clause))
-   #'(negate (channel-clause onex))]
+   #'(negate (flow onex))]
   [(_ ((~datum gen) ex:expr ...))
    #'(λ _ (values ex ...))]
   [(_ (~or (~datum NOT) (~datum !)))
@@ -155,20 +151,20 @@ provide appropriate error messages at the level of the DSL.
 
   ;; routing elements
   [(_ ((~datum ><) onex:clause))
-   #'(curry map-values (channel-clause onex))]
+   #'(curry map-values (flow onex))]
   [(_ ((~datum amp) onex:clause))
    #'(flow (>< onex))]
   [(_ ((~datum pass) onex:clause))
-   #'(curry filter-values (channel-clause onex))]
+   #'(curry filter-values (flow onex))]
   [(_ ((~datum ==) onex:clause ...))
-   #'(relay (channel-clause onex) ...)]
+   #'(relay (flow onex) ...)]
   [(_ ((~datum relay) onex:clause ...))
    #'(flow (== onex ...))]
   [(_ ((~datum -<) onex:clause ...))
    #'(λ args
        (apply values
               (append (values->list
-                       (apply (channel-clause onex) args))
+                       (apply (flow onex) args))
                       ...)))]
   [(_ ((~datum tee) onex:clause ...))
    #'(flow (-< onex ...))]
@@ -181,8 +177,8 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~datum group) n:number
                       selection-onex:clause
                       remainder-onex:clause))
-   #'(loom-compose (channel-clause selection-onex)
-                   (channel-clause remainder-onex)
+   #'(loom-compose (flow selection-onex)
+                   (flow remainder-onex)
                    n)]
   [(_ ((~datum group) arg ...))  ; error handling catch-all
    #'(report-syntax-error 'group
@@ -210,8 +206,8 @@ provide appropriate error messages at the level of the DSL.
                    alternative:clause))
    #'(λ args
        (if (apply (flow condition) args)
-           (apply (channel-clause consequent) args)
-           (apply (channel-clause alternative) args)))]
+           (apply (flow consequent) args)
+           (apply (flow alternative) args)))]
   [(_ ((~datum gate) onex:clause))
    #'(flow (if onex _ ground))]
   [(_ (~or (~datum ground) (~datum ⏚)))
