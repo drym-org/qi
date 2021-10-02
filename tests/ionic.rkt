@@ -24,7 +24,9 @@
        (check-equal? ((☯) 0) (void) "non-flow")
        (check-equal? ((☯) 1 2) (void) "non-flow")
        (check-equal? ((☯ (const 3))) 3 "no arguments")
-       (check-equal? ((flow add1) 2) 3))
+       (check-equal? ((flow add1) 2) 3 "simple function")
+       (check-equal? ((flow 0) 2) 0 "literal (number)")
+       (check-equal? ((flow "hi") 5) "hi" "literal (string)"))
      (test-case
          "unary predicate"
        (check-false ((☯ negative?) 5))

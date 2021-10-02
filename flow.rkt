@@ -23,6 +23,16 @@
         null
         (cons v (repeat (sub1 n) v))))
 
+  (define-syntax-class literal
+    (pattern
+     (~or expr:boolean
+          expr:char
+          expr:string
+          expr:bytes
+          expr:number
+          expr:regexp
+          expr:byte-regexp)))
+
   (define-syntax-class subject
     #:attributes (args arity)
     (pattern
@@ -255,6 +265,9 @@ provide appropriate error messages at the level of the DSL.
    (if (and threading-side (eq? threading-side 'right))
        #'(curry (flow onex) prarg ...)
        #'(curryr (flow onex) prarg ...))]
+
+  ;; a literal should be interpreted as a flow generating it
+  [(_ val:literal) #'(flow (gen val))]
 
   ;; literally indicated function identifier
   [(_ ex:expr) #'ex]
