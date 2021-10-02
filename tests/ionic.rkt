@@ -26,7 +26,9 @@
        (check-equal? ((☯ (const 3))) 3 "no arguments")
        (check-equal? ((flow add1) 2) 3 "simple function")
        (check-equal? ((flow 0) 2) 0 "literal (number)")
-       (check-equal? ((flow "hi") 5) "hi" "literal (string)"))
+       (check-equal? ((flow "hi") 5) "hi" "literal (string)")
+       (check-equal? ((flow _) 5) 5 "identity flow")
+       (check-equal? ((flow (~> _ +)) 5 6) 11 "identity flow"))
      (test-case
          "unary predicate"
        (check-false ((☯ negative?) 5))

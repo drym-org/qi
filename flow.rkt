@@ -269,6 +269,9 @@ provide appropriate error messages at the level of the DSL.
   ;; a literal should be interpreted as a flow generating it
   [(_ val:literal) #'(flow (gen val))]
 
+  ;; pass-through (identity flow)
+  [(_ (~datum _)) #'values]
+
   ;; literally indicated function identifier
   [(_ ex:expr) #'ex]
 
