@@ -208,6 +208,19 @@ provide appropriate error messages at the level of the DSL.
        (if (apply (flow condition) args)
            (apply (flow consequent) args)
            (apply (flow alternative) args)))]
+  [(_ ((~datum switch)))
+   #'(flow ground)]
+  [(_ ((~datum switch) [(~datum else) alternative:clause]))
+   #'(flow (if #t
+               alternative
+               ground))]
+  [(_ ((~datum switch) [condition0:clause consequent0:clause]
+                       [condition:clause consequent:clause]
+                       ...))
+   #'(flow (if condition0
+               consequent0
+               (switch [condition consequent]
+                 ...)))]
   [(_ ((~datum gate) onex:clause))
    #'(flow (if onex _ ground))]
   [(_ (~or (~datum ground) (~datum ⏚)))
