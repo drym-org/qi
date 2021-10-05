@@ -863,240 +863,247 @@
     (test-case
         "Edge/base cases"
       (check-equal? (switch (6 5)
-                            [< 'yo])
+                      [< 'yo])
                     (void)
                     "no matching clause")
       (check-equal? (switch (5)
-                            [positive? 1 2 3])
+                      [positive? 1 2 3])
                     3
                     "more than one body form"))
     (test-case
         "common"
       (check-equal? (switch (0)
-                            [negative? 'bye]
-                            [positive? 'hi]
-                            [zero? 'later])
+                      [negative? 'bye]
+                      [positive? 'hi]
+                      [zero? 'later])
                     'later)
       (check-equal? (switch (5 6)
-                            [> 'bye]
-                            [< 'hi]
-                            [else 'yo])
+                      [> 'bye]
+                      [< 'hi]
+                      [else 'yo])
                     'hi)
       (check-equal? (switch (5 5)
-                            [> 'bye]
-                            [< 'hi]
-                            [else 'yo])
+                      [> 'bye]
+                      [< 'hi]
+                      [else 'yo])
                     'yo)
       (check-equal? (switch (5 5 6 7)
-                            [> 'bye]
-                            [< 'hi]
-                            [else 'yo])
+                      [> 'bye]
+                      [< 'hi]
+                      [else 'yo])
                     'yo)
       (check-equal? (switch (5 5 6 7)
-                            [>= 'bye]
-                            [<= 'hi]
-                            [else 'yo])
+                      [>= 'bye]
+                      [<= 'hi]
+                      [else 'yo])
                     'hi)
       (check-equal? (switch (5.3)
-                            [(or positive? integer?) 'yes]
-                            [else 'no])
+                      [(or positive? integer?) 'yes]
+                      [else 'no])
                     'yes)
       (check-equal? (switch (-5.4)
-                            [(or positive? integer?) 'yes]
-                            [else 'no])
+                      [(or positive? integer?) 'yes]
+                      [else 'no])
                     'no)
       (check-equal? (switch (1 1)
-                            [(or < >) 'a]
-                            [else 'b])
+                      [(or < >) 'a]
+                      [else 'b])
                     'b)
       (check-equal? (switch ('a 'a)
-                            [(or eq? equal?) 'a]
-                            [else 'b])
+                      [(or eq? equal?) 'a]
+                      [else 'b])
                     'a)
       (check-equal? (switch ("abc" (symbol->string 'abc))
-                            [(or eq? equal?) 'a]
-                            [else 'b])
+                      [(or eq? equal?) 'a]
+                      [else 'b])
                     'a)
       (check-equal? (switch ('a 'b)
-                            [(or eq? equal?) 'a]
-                            [else 'b])
+                      [(or eq? equal?) 'a]
+                      [else 'b])
                     'b)
       (check-equal? (switch (3 7)
-                            [(< 1 _ 5 _ 10) 'yes]
-                            [else 'no])
+                      [(< 1 _ 5 _ 10) 'yes]
+                      [else 'no])
                     'yes
                     "template with multiple arguments"))
     (test-case
         "else"
       (check-equal? (switch (0)
-                            [negative? 'bye]
-                            [positive? 'hi]
-                            [else 'later])
+                      [negative? 'bye]
+                      [positive? 'hi]
+                      [else 'later])
                     'later)
       (check-equal? (switch (0)
-                            [else 'later])
+                      [else 'later])
                     'later)
       (check-equal? (switch (5 5)
-                            [else 'yo])
+                      [else 'yo])
                     'yo))
     (test-case
-        "call"
+        "consequent flows"
       (check-equal? (switch (5)
-                            [positive? (call add1)]
-                            [else 'no])
+                      [positive? add1]
+                      [else 'no])
                     6)
       (check-equal? (switch (-5)
-                            [positive? (call add1)]
-                            [else 'no])
+                      [positive? add1]
+                      [else 'no])
                     'no)
       (check-equal? (switch (3 5)
-                            [< (call +)]
-                            [else 'no])
+                      [< +]
+                      [else 'no])
                     8
                     "n-ary predicate")
       (check-equal? (switch (3 5)
-                            [> (call +)]
-                            [else 'no])
+                      [> +]
+                      [else 'no])
                     'no
                     "n-ary predicate")
       (check-equal? (switch (3 5)
-                            [< (call (.. + (>< add1)))]
-                            [else 'no])
+                      [< (.. + (>< add1))]
+                      [else 'no])
                     10
                     ".. and >< in call position")
       (check-equal? (switch (3 5)
-                            [< (call (.. + (>< (.. add1 sqr))))]
-                            [else 'no])
+                      [< (.. + (>< (.. add1 sqr)))]
+                      [else 'no])
                     36
                     ".. and >< in call position")
       (check-equal? (switch (3 5)
-                            [true. (call (~> (>< add1) *))]
-                            [else 'no])
+                      [true. (~> (>< add1) *)]
+                      [else 'no])
                     24)
       (check-equal? (switch (3 5)
-                            [true. (call (~> (>< sqr) +))]
-                            [else 'no])
+                      [true. (~> (>< sqr) +)]
+                      [else 'no])
                     34)
       (check-equal? (switch (3 5)
-                            [true. (call (~> (>< add1) * (-< (/ 2) (/ 3)) +))]
-                            [else 'no])
+                      [true. (~> (>< add1) * (-< (/ 2) (/ 3)) +)]
+                      [else 'no])
                     20)
       (check-equal? (switch (10 12)
-                            [true. (call (~> (== (/ 2) (/ 3)) +))]
-                            [else 'no])
+                      [true. (~> (== (/ 2) (/ 3)) +)]
+                      [else 'no])
                     9)
       (check-equal? (switch (5)
-                            [true. (call (~> (fanout 3) +))]
-                            [else 'no])
+                      [true. (~> (fanout 3) +)]
+                      [else 'no])
                     15)
       (check-equal? (switch ((list 1 2 3))
-                            [(apply > _) 'yes]
-                            [else 'no])
+                      [(apply > _) 'yes]
+                      [else 'no])
                     'no
                     "apply in predicate")
       (check-equal? (switch ((list 3 2 1))
-                            [(apply > _) 'yes]
-                            [else 'no])
+                      [(apply > _) 'yes]
+                      [else 'no])
                     'yes
                     "apply in predicate")
       (check-equal? (switch ((list 3 2 1))
-                            [(apply > _) (call (apply + _))]
-                            [else 'no])
+                      [(apply > _) (apply + _)]
+                      [else 'no])
                     6
                     "apply in consequent")
       (check-equal? (switch ((list 2 1 3))
-                            [(.. (> 2) length) (call (apply sort < _ #:key identity))]
-                            [else 'no])
+                      [(.. (> 2) length) (apply sort < _ #:key identity)]
+                      [else 'no])
                     (list 1 2 3)
                     "apply in consequent with non-tail arguments")
       (check-equal? (switch ((list 3 2 1))
-                            [(apply > _) (call (map add1 _))]
-                            [else 'no])
+                      [(apply > _) (map add1 _)]
+                      [else 'no])
                     (list 4 3 2)
                     "map in consequent")
       (check-equal? (switch ((list 3 2 1))
-                            [(apply > _) (call (filter even? _))]
-                            [else 'no])
+                      [(apply > _) (filter even? _)]
+                      [else 'no])
                     (list 2)
                     "filter in consequent")
       (check-equal? (switch ((list 3 2 1))
-                            [(apply > _) (call (foldl + 1 _))]
-                            [else 'no])
+                      [(apply > _) (foldl + 1 _)]
+                      [else 'no])
                     7
                     "foldl in consequent"))
     (test-case
         "connect"
       (check-equal? (switch (5)
-                            [positive? (connect [(and integer? odd?) (call add1)]
-                                                [else 'positive])]
-                            [else 'no])
+                      [positive? (connect [(and integer? odd?) add1]
+                                          [else 'positive])]
+                      [else 'no])
                     6)
       (check-equal? (switch (6)
-                            [positive? (connect [(and integer? odd?) (call add1)]
-                                                [else 'positive])]
-                            [else 'no])
+                      [positive? (connect [(and integer? odd?) add1]
+                                          [else 'positive])]
+                      [else 'no])
                     'positive)
       (check-equal? (switch (-5)
-                            [positive? (connect [(and integer? odd?) (call add1)]
-                                                [else 'positive])]
-                            [else 'no])
+                      [positive? (connect [(and integer? odd?) add1]
+                                          [else 'positive])]
+                      [else 'no])
                     'no)
       (check-equal? (switch (3 5)
-                            [< (connect [(~> - abs (< 3)) (call +)])]
-                            [else 'no])
+                      [< (connect [(~> - abs (< 3)) +])]
+                      [else 'no])
                     8
                     "n-ary predicate")
       (check-equal? (switch (3 8)
-                            [< (connect [(~> - abs (< 3)) (call +)]
-                                        [else 'less])]
-                            [else 'no])
+                      [< (connect [(~> - abs (< 3)) +]
+                                  [else 'less])]
+                      [else 'no])
                     'less
                     "n-ary predicate")
       (check-equal? (switch (5 3)
-                            [< (connect [(~> - abs (< 3)) (call +)]
-                                        [else 'less])]
-                            [else 'no])
+                      [< (connect [(~> - abs (< 3)) +]
+                                  [else 'less])]
+                      [else 'no])
                     'no
                     "n-ary predicate"))
     (test-case
         "result of predicate expression"
       (check-equal? (switch (6)
-                            [add1 (add1 <result>)]
-                            [else 'hi])
+                      [add1 (~> <result> add1)]
+                      [else 'hi])
                     8)
       (check-equal? (switch (2)
-                            [(member _ (list 1 5 4 2 6)) <result>]
-                            [else 'hi])
+                      [(member _ (list 1 5 4 2 6)) <result>]
+                      [else 'hi])
                     (list 2 6))
       (check-equal? (switch (2)
-                            [(member _ (list 1 5 4 2 6)) (length <result>)]
-                            [else 'hi])
+                      [(member _ (list 1 5 4 2 6)) (~> <result> length)]
+                      [else 'hi])
                     2)
       (check-equal? (switch ((list add1 sub1))
-                            [car (<result> 5)]
-                            [else 'hi])
+                      [car (~> (-< <result> (~> 5 list)) (apply _ _))]
+                      [else 'hi])
                     6)
       (check-equal? (switch (2 3)
-                            [+ <result>]
-                            [else 'hi])
+                      [+ <result>]
+                      [else 'hi])
                     5)
       (check-equal? (switch ((list 2 1 3))
-                            [(apply sort < _ #:key identity) <result>]
-                            [else 'no])
+                      [(apply sort < _ #:key identity) <result>]
+                      [else 'no])
                     (list 1 2 3)
                     "apply in predicate with non-tail arguments"))
     (test-case
         "heterogeneous clauses"
       (check-equal? (switch (-3 5)
-                            [> (call +)]
-                            [(or% positive? integer?) 'yes]
-                            [else 'no])
+                      [> +]
+                      [(or% positive? integer?) 'yes]
+                      [else 'no])
                     'yes)
       (check-equal? (switch (-3 5)
-                            [> (call +)]
-                            [(and% positive? integer?) 'yes]
-                            [else 'no])
-                    'no)))
+                      [> +]
+                      [(and% positive? integer?) 'yes]
+                      [else 'no])
+                    'no))
+    (test-case
+        "non-flow consequent expressions"
+      (check-equal? (switch (0)
+                      [negative? (gen (+ 1 2))]
+                      [positive? (gen (- 1 2))]
+                      [zero? (gen (* 2 3))])
+                    6)))
 
    (test-suite
     "threading tests"

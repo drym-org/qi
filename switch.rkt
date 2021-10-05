@@ -22,12 +22,10 @@
    #'(flow predicate)])
 
 (define-syntax-parser switch-consequent
-  [(_ ((~datum call) expr:clause) arg:expr ...)
-   #'(on (arg ...) expr)]
   [(_ ((~datum connect) expr:expr ...) arg:expr ...)
    #'(switch (arg ...) expr ...)]
-  [(_ consequent:expr arg:expr ...)
-   #'consequent])
+  [(_ expr:clause arg:expr ...)
+   #'(on (arg ...) expr)])
 
 (define-syntax-parameter <result>
   (lambda (stx)
@@ -40,9 +38,10 @@
    #`(cond [((switch-predicate predicate) #,@(syntax->list (attribute args.args)))
             =>
             (λ (x)
-              (syntax-parameterize ([<result> (make-rename-transformer #'x)])
-                (switch-consequent consequent #,@(syntax->list (attribute args.args)))
-                ...))]
+              (let ([predicate-result (flow (gen x))])
+                (syntax-parameterize ([<result> (make-rename-transformer #'predicate-result)])
+                  (switch-consequent consequent #,@(syntax->list (attribute args.args)))))
+              ...)]
            ...)])
 
 (define-syntax-parser switch-lambda
