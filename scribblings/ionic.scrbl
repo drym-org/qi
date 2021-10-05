@@ -5,7 +5,7 @@
          racket/sandbox
          @for-label[ionic
                     racket
-					(only-in relation ->number ->string)]]
+                    (only-in relation ->number ->string sum)]]
 
 @(define eval-for-docs
   (parameterize ([sandbox-output 'string]
@@ -18,105 +18,147 @@
                     '(define (sqr x)
                        (* x x)))))
 
-@title{Racket's Missing Predicate Language}
+@title{Qi: A Functional, Flow-Oriented DSL}
 @author{Siddhartha Kasivajhula}
 
 @defmodule[ionic]
 
-An embedded predicate language to allow convenient framing of programming logic in terms of predicates.
+An embedded, general-purpose language to allow convenient framing of programming logic in terms of functional @emph{flows}.
 
-Logic is the soul of language, relations are the basis of logic, and every relation corresponds to a predicate. Predicates in a general sense are everywhere in human languages as well as in programming languages. They are essential in the way that we understand and express ideas, in the way that we think about and write programs. But in the absence of syntax that allows us to express ideas in terms of their @emph{subject-predicate} structure, such structure must be unraveled and expressed in terms of lower-level syntactic abstractions, abstractions which much be parsed by those reading the code into the higher level @emph{subject-predicate} structure you had in mind while writing it. This is an unnecessary toll on the conveyance of ideas, one that is eliminated by the present module.
-
-@;{TODO:teaser examples}
+One way to structure computations is as a flowchart, with arrows representing logical transitions where the next step need not have anything to do with the preceding one -- their sequence is all that's entailed in the arrow. This is the standard model we implicitly employ when writing functions in Racket or another programming language. The present module provides another way, where computations are structured as a flow like a flow of energy, electricity passing through a circuit, rivers flowing through channels. In this model, arrows represent that the outputs of one flow feed into another. This higher-level constraint allows us to compose simple functions to derive complex and robust functional pipelines with a minimum of repetition and boilerplate, engendering @hyperlink["https://www.theschooloflife.com/thebookoflife/wu-wei-doing-nothing/"]{effortless clarity}.
 
 @examples[
     #:eval eval-for-docs
-    (on (5) (and positive? odd?))
-    (on ("5" "5.0") (with-key ->number =))
-    (on (5 7) (~> (>< ->string) string-append))
-	(define-flow (positive-odd? n)
-	  (and positive? odd?))
-	(define-flow (approximately-equal? m n)
-	  (~> - abs (< 1)))
-	(approximately-equal? 5 7)
-	(approximately-equal? 5 5.4)
-	(define-flow (root-mean-square vs)
-	  (~> (map sqr _) (-< sum length) / sqrt))
-	(root-mean-square (range 10))
-	(define-flow (between-0-and-10? n)
-	  (<= 0 _ 10))
-	(between-0-and-10? 4)
-	(between-0-and-10? 12)
+    ((☯ (and positive? odd?)) 5)
+    ((☯ (<= 5 _ 10)) 6)
+    ((☯ (<= 5 _ 10)) 12)
+    ((☯ (~> (>< ->string) string-append)) 5 7)
     (define-switch (abs n)
-      [negative? (call (* -1))]
-      [else n])
+      [negative? (* -1)]
+      [else _])
     (abs -5)
     (abs 5)
+    (define-flow (≈ m n)
+      (~> - abs (< 1)))
+    (≈ 5 7)
+    (≈ 5 5.4)
+    (define-flow (root-mean-square vs)
+      (~>> (map sqr) (-< sum length) / sqrt))
+    (root-mean-square (range 10))
   ]
+
+@section{Introduction}
+
+ A @deftech{flow} is either made up of flows, or is a native (e.g. Racket) function. Flows may be composed using a number of combinators that could yield either linear or nonlinear composite flows.
+
+ The flow @racket[gen] allows an ordinary value to be "lifted" into a flow -- thus, any value can be incorporated into flows.
+
+ The semantics of a flow is function invocation -- simply invoke a flow with inputs (i.e. ordinary arguments) to obtain the outputs. A flow in general is @code{n × m}, i.e. it accepts @code{n} inputs and yields @code{m} outputs, for arbitrary non-negative integers @code{m} and @code{n}.
 
 @section{Syntax}
 
-This section provides a specification of the basic syntax recognizable to all of the predicate forms provided in this module.
+This section provides a specification of the basic syntax recognizable to all of the forms provided in this module.
 
 @;{TODO: describe syntax - and, or, %, not, apply, with-key, .., and%, or%, ...}
 
 @section{Forms}
 
-The core form that defines and uses the predicate language is @racket[on], which can be used to describe arbitrary computations involving predicates, while another form, @racket[switch], leverages the former to provide a conditional dispatch form analogous to @racket[cond]. In addition, other forms like @racket[define-flow] and @racket[define-switch] are provided that leverage these to create functions constrained to the predicate language -- for use in defining predicate functions, and dispatch functions, respectively. The advantage of using these forms over the usual general-purpose @racket[define] form is that constraints provide clarity, minimize redundancy, and provide guardrails against programmer error.
+The core form that defines and uses the flow language is @racket[☯], while other forms such as @racket[on], @racket[switch], and @racket[~>] leverage the former to provide convenient syntax in specialized cases. @racket[on] provides a way to declare the arguments to the flow up front. @racket[~>] is similar to @racket[on] but implicitly threads the arguments through a sequence of flows. @racket[switch] is a conditional dispatch form analogous to @racket[cond] whose predicate and consequent expressions are all flows. In addition, other forms like @racket[define-flow] and @racket[define-switch] are provided that leverage these to create functions constrained to the flow language, for use in defining predicates, dispatchers, or arbitrary transformations. The advantage of using these forms over the usual general-purpose @racket[define] form is that they are more clear and more robust, as the constraints they impose minimize boilerplate by narrowing scope, while also providing guardrails against programmer error.
 
-@defform*/subs[[(on (args) procedure-expr)
-                (on (args)
-                  (if [predicate consequent ...]
-                      ...
-                      [else consequent ...]))]
-                ([args (code:line arg ...)]
-                 [arg expr]
-                 [predicate procedure-expr
-                            (eq? value-expr)
-                            (equal? value-expr)
-                            (one-of? value-expr ...)
-                            (= value-expr)
-                            (< value-expr)
-                            (> value-expr)
-                            (<= value-expr)
-                            (≤ value-expr)
-                            (>= value-expr)
-                            (≥ value-expr)
-                            (all predicate)
-                            (any predicate)
-                            (none predicate)
-                            (and predicate ...)
-                            (or predicate ...)
-                            (not predicate)
-                            (and% predicate)
-                            (or% predicate)
-                            (with-key procedure-expr predicate)
-                            (.. predicate ...)
-                            (% predicate)
-							(map predicate)
-							(filter predicate)
-							(foldl predicate value-expr)
-							(foldr predicate value-expr)
-                            (apply predicate)]
-                 [consequent expr
-                             (call call-expr)]
-                 [call-expr procedure-expr
-                            (.. call-expr ...)
-                            (% call-expr)
-							(map call-expr)
-							(filter call-expr)
-							(foldl call-expr value-expr)
-							(foldr call-expr value-expr)
-                            (apply call-expr)]
-                 [procedure-expr (code:line any expression evaluating to a procedure)]
-                 [value-expr (code:line any expression evaluating to a value)]
-                 [expr (code:line any expression)]
-                            )]{
-  A form for defining predicates. Typically, @racket[on] should only be used for the general case of evaluating an expression in the context of a pre-defined subject (such as while defining a predicate). For the more specific case of predicate-based dispatch, use @racket[switch].
+@deftogether[(
+@defform*/subs[[(☯ flow-expr)]
+               ([flow-expr _
+                           (one-of? flow-expr)
+                           (all flow-expr)
+                           (any flow-expr)
+                           (none flow-expr)
+                           (and flow-expr)
+                           (or flow-expr)
+                           (not flow-expr)
+                           (gen flow-expr)
+                           (NOT flow-expr)
+                           (AND flow-expr)
+                           (OR flow-expr)
+                           (NOR flow-expr)
+                           (NAND flow-expr)
+                           (XOR flow-expr)
+                           (XNOR flow-expr)
+                           (and% flow-expr)
+                           (or% flow-expr)
+                           (with-key flow-expr)
+                           (.. flow-expr)
+                           (compose flow-expr)
+                           (~> flow-expr)
+                           (thread flow-expr)
+                           (~>> flow-expr)
+                           (thread-right flow-expr)
+                           (any? flow-expr)
+                           (all? flow-expr)
+                           (none? flow-expr)
+                           (>< flow-expr)
+                           (amp flow-expr)
+                           (pass flow-expr)
+                           (== flow-expr)
+                           (relay flow-expr)
+                           (-< flow-expr)
+                           (tee flow-expr)
+                           (select flow-expr)
+                           (group flow-expr)
+                           (sieve flow-expr)
+                           (if flow-expr)
+                           (switch flow-expr)
+                           (gate flow-expr)
+                           (ground flow-expr)
+                           (fanout flow-expr)
+                           (feedback flow-expr)
+                           (inverter flow-expr)
+                           (effect flow-expr)
+                           (collect flow-expr)
+                           (apply flow-expr)
+                           (esc flow-expr)
+                           (val:literal flow-expr)
+                           (quote flow-expr)
+                           ((__) flow-expr)
+                           ((_) flow-expr)
+                           (() flow-expr)
+                           (ex flow-expr)
+                           (_ flow-expr)
+    ])]
+  @defform[(flow ...)]
+  )]{
+  Define a @tech{flow}.
 
 @examples[
     #:eval eval-for-docs
+	((☯ (and positive? odd?)) 5)
+  ]
+}
+
+@defform[(on (args ...) flow-expr)]{
+  Define a @tech{flow} with the inputs named in advance.
+
+  Typically, @racket[on] should only be used for the general case of evaluating an expression in the context of a pre-defined subject (such as while defining a predicate). For the more specific case of predicate-based dispatch, use @racket[switch].
+@examples[
+    #:eval eval-for-docs
 	(on (5) (and positive? odd?))
+  ]
+}
+
+@deftogether[(
+@defform[(~> (args ...) flow-expr ...)]
+@defform[(~>> (args ...) flow-expr ...)]
+)]{
+  Thread inputs through a sequence of flows. @racket[~>] threads arguments in the first position by default, while @racket[~>>] uses the last position, but in either case the positions can instead be explicitly indicated by using @racket[_].
+
+  As flows themselves can be nonlinear, these threading forms too support arbitrary arity changes along the way to generating the result.
+
+@examples[
+    #:eval eval-for-docs
+	(~> (3) sqr add1)
+	(~> (3) (-< sqr add1) +)
+	(~> ("a" "b") (string-append "c"))
+	(~>> ("b" "c") (string-append "a"))
+	(~> ("a" "b") (string-append _ "-" _))
   ]
 }
 
@@ -129,8 +171,11 @@ The core form that defines and uses the predicate language is @racket[on], which
 @examples[
     #:eval eval-for-docs
 	(switch (5)
-	  [(and positive? odd?) 'yes]
-	  [else 'no])
+	  [(and positive? odd?) (~> sqr add1)]
+	  [else _])
+	(switch (2 3)
+	  [< +]
+	  [else min])
   ]
 }
 
@@ -138,7 +183,7 @@ The core form that defines and uses the predicate language is @racket[on], which
   @defform[(flow-lambda args body ...)]
   @defform[(π args body ...)]
 )]{
-  Similiar to @racket[lambda] but constrained to the predicate language. This is exactly equivalent to @racket[(lambda args (on (args) body ...))]. @racket[π] is an alias for @racket[flow-lambda].
+  Similiar to @racket[lambda] but constrained to the flow language. This is exactly equivalent to @racket[(lambda args (on (args) body ...))]. @racket[π] is an alias for @racket[flow-lambda].
 }
 
 @deftogether[(
@@ -156,15 +201,15 @@ The core form that defines and uses the predicate language is @racket[on], which
 @examples[
     #:eval eval-for-docs
 	((switch-lambda (x)
-	   [(and positive? odd?) 'yes]
-	   [else 'no]) 5)
+	   [(and positive? odd?) (~> sqr add1)]
+	   [else _]) 5)
   ]
 }
 
 @deftogether[(
   @defform[(define-flow (name args) body ...)]
 )]{
-  Similiar to the function form of @racket[define] but constrained to the predicate language. This is exactly equivalent to @racket[(define name (lambda/subject args body ...))].
+  Similiar to the function form of @racket[define] but constrained to the flow language. This is exactly equivalent to @racket[(define name (lambda/subject args body ...))].
 }
 
 @defform[(define-switch (args ...)
