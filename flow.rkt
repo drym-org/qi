@@ -254,6 +254,13 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~datum esc) ex:expr ...))
    #'(begin ex ...)]
 
+  ;; a literal is interpreted as a flow generating it
+  [(_ val:literal) #'(flow (gen val))]
+
+  ;; We'd like to treat a (quoted) symbol as a literal as well.
+  ;; Since it is read as (quote ...), we match against that form
+  [(_ ((~datum quote) val:id)) #'(flow (gen 'val))]
+
   ;; templates and partial application
   ;; "prarg" = "pre-supplied argument"
   [(_ (onex prarg-pre ... (~datum __) prarg-post ...))
@@ -274,9 +281,6 @@ provide appropriate error messages at the level of the DSL.
    (if (and threading-side (eq? threading-side 'right))
        #'(curry (flow onex) prarg ...)
        #'(curryr (flow onex) prarg ...))]
-
-  ;; a literal should be interpreted as a flow generating it
-  [(_ val:literal) #'(flow (gen val))]
 
   ;; pass-through (identity flow)
   [(_ (~datum _)) #'values]
