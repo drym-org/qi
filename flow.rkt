@@ -143,6 +143,8 @@ provide appropriate error messages at the level of the DSL.
   [(_ (~datum none?)) #'none?]
 
   ;; routing elements
+  [(_ (~or (~datum ground) (~datum ⏚)))
+   #'(flow (select))]
   [(_ ((~datum ><) onex:clause))
    #'(curry map-values (flow onex))]
   [(_ ((~datum amp) onex:clause))
@@ -181,23 +183,8 @@ provide appropriate error messages at the level of the DSL.
    #'(report-syntax-error 'group
                           (list 'arg ...)
                           "(group <number> <selection flow> <remainder flow>)")]
-  [(_ ((~datum sieve) condition:clause
-                      selection-onex:clause
-                      remainder-onex:clause))
-   ;; this is equivalent to "channel-clause", but done via with-syntax
-   ;; so it's usable in the syntax (expansion) phase
-   (with-syntax ([sonex (if (eq? '_ (syntax->datum #'selection-onex))
-                            (datum->syntax #'selection-onex #'values)
-                            #'selection-onex)]
-                 [ronex (if (eq? '_ (syntax->datum #'remainder-onex))
-                            (datum->syntax #'remainder-onex #'values)
-                            #'remainder-onex)])
-     #'(flow (-< (~> (pass condition) sonex)
-                 (~> (pass (not condition)) ronex))))]
-  [(_ ((~datum sieve) arg ...))  ; error handling catch-all
-   #'(report-syntax-error 'sieve
-                          (list 'arg ...)
-                          "(sieve <predicate flow> <selection flow> <remainder flow>)")]
+
+  ;; Conditionals
   [(_ ((~datum if) condition:clause
                    consequent:clause
                    alternative:clause))
@@ -228,10 +215,25 @@ provide appropriate error messages at the level of the DSL.
                consequent0
                (switch [condition consequent]
                  ...)))]
+  [(_ ((~datum sieve) condition:clause
+                      selection-onex:clause
+                      remainder-onex:clause))
+   ;; this is equivalent to "channel-clause", but done via with-syntax
+   ;; so it's usable in the syntax (expansion) phase
+   (with-syntax ([sonex (if (eq? '_ (syntax->datum #'selection-onex))
+                            (datum->syntax #'selection-onex #'values)
+                            #'selection-onex)]
+                 [ronex (if (eq? '_ (syntax->datum #'remainder-onex))
+                            (datum->syntax #'remainder-onex #'values)
+                            #'remainder-onex)])
+     #'(flow (-< (~> (pass condition) sonex)
+                 (~> (pass (not condition)) ronex))))]
+  [(_ ((~datum sieve) arg ...))  ; error handling catch-all
+   #'(report-syntax-error 'sieve
+                          (list 'arg ...)
+                          "(sieve <predicate flow> <selection flow> <remainder flow>)")]
   [(_ ((~datum gate) onex:clause))
    #'(flow (if onex _ ground))]
-  [(_ (~or (~datum ground) (~datum ⏚)))
-   #'(flow (select))]
 
   ;; high level circuit elements
   [(_ ((~datum fanout) n:number))

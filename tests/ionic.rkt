@@ -570,39 +570,6 @@
     (test-suite
      "conditionals"
      (test-suite
-      "sieve"
-      (check-equal? ((☯ (~> (sieve positive? add1 (const -1)) +))
-                     1 -2)
-                    1)
-      (check-equal? ((☯ (~> (sieve positive? + (+ 2)) +))
-                     1 2 -3 4)
-                    6)
-      (check-equal? ((☯ (~> (sieve positive? + (const 0)) +))
-                     1 2 3 4)
-                    10)
-      (check-equal? ((☯ (~> (sieve negative? (select) (select))
-                            +))
-                     1 3 5 7)
-                    0
-                    "sieve with arity-nullifying clause")
-      (check-equal? ((☯ (~> (sieve positive? (>< (-< _ _)) (>< _))
-                            +))
-                     1 -3 5)
-                    9
-                    "sieve with arity-increasing clause"))
-     (test-suite
-      "gate"
-      (check-equal? ((☯ (gate positive?))
-                     5)
-                    5)
-      (check-equal? ((☯ (-< (gate negative?) (gen 0)))
-                     5)
-                    0)
-      (check-equal? ((☯ (~> (gate <)
-                            +))
-                     5 6)
-                    11))
-     (test-suite
       "if"
       (check-equal? ((☯ (if negative? sub1 add1))
                      5)
@@ -698,7 +665,40 @@
                             [else 'no]))
                        (list 2 1 3))
                       (list 1 2 3)
-                      "apply in predicate with non-tail arguments"))))
+                      "apply in predicate with non-tail arguments")))
+     (test-suite
+      "sieve"
+      (check-equal? ((☯ (~> (sieve positive? add1 (const -1)) +))
+                     1 -2)
+                    1)
+      (check-equal? ((☯ (~> (sieve positive? + (+ 2)) +))
+                     1 2 -3 4)
+                    6)
+      (check-equal? ((☯ (~> (sieve positive? + (const 0)) +))
+                     1 2 3 4)
+                    10)
+      (check-equal? ((☯ (~> (sieve negative? (select) (select))
+                            +))
+                     1 3 5 7)
+                    0
+                    "sieve with arity-nullifying clause")
+      (check-equal? ((☯ (~> (sieve positive? (>< (-< _ _)) (>< _))
+                            +))
+                     1 -3 5)
+                    9
+                    "sieve with arity-increasing clause"))
+     (test-suite
+      "gate"
+      (check-equal? ((☯ (gate positive?))
+                     5)
+                    5)
+      (check-equal? ((☯ (-< (gate negative?) (gen 0)))
+                     5)
+                    0)
+      (check-equal? ((☯ (~> (gate <)
+                            +))
+                     5 6)
+                    11)))
     (test-suite
      "high-level circuit elements"
      (test-suite
