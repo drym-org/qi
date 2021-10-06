@@ -249,6 +249,10 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~datum collect) onex:clause))
    #'(flow (~> list onex))]
 
+  ;; towards universality
+  [(_ (~datum apply))
+   #'(flow (~> (group 1 _ list) (esc (apply _ _))))]
+
   ;; escape hatch for racket expressions or anything
   ;; to be "passed through"
   [(_ ((~datum esc) ex:expr ...))

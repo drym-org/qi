@@ -794,6 +794,11 @@
                     "")))
 
     (test-suite
+     "universality"
+     (check-equal? ((☯ (~> (-< (gen +) 2 3)
+                           apply)))
+                   5))
+    (test-suite
      "arity modulating forms"
      (check-true ((☯ (and% positive? even?))
                   5 6)
@@ -1089,7 +1094,7 @@
                       [else 'hi])
                     2)
       (check-equal? (switch ((list add1 sub1))
-                      [car (~> (-< <result> (~> 5 list)) (apply _ _))]
+                      [car (~> (-< <result> 5) apply)]
                       [else 'hi])
                     6)
       (check-equal? (switch (2 3)
