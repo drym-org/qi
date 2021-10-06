@@ -1,5 +1,11 @@
 #lang racket/base
 
+(provide switch
+         switch-lambda
+         define-switch
+         λ01
+         <result>)
+
 (require syntax/parse/define
          racket/stxparam
          mischief/shorthand
@@ -8,12 +14,6 @@
          (for-syntax racket/base)
          "flow.rkt"
          "on.rkt")
-
-(provide switch
-         switch-lambda
-         define-switch
-         λ01
-         <result>)
 
 (define-syntax-parser switch-predicate
   [(_ (~datum else))

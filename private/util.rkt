@@ -1,14 +1,5 @@
 #lang racket/base
 
-(require racket/match
-         (only-in racket/function
-                  const
-                  negate)
-         racket/bool
-         racket/list
-         racket/format
-         (only-in adjutor values->list))
-
 (provide give
          ->boolean
          true.
@@ -22,6 +13,15 @@
          loom-compose
          parity-xor
          arg)
+
+(require racket/match
+         (only-in racket/function
+                  const
+                  negate)
+         racket/bool
+         racket/list
+         racket/format
+         (only-in adjutor values->list))
 
 ;; we use a lambda to capture the arguments at runtime
 ;; since they aren't available at compile time

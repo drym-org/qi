@@ -1,12 +1,12 @@
 #lang racket
 
-(require (prefix-in b: racket/base))
-
 (provide do-with-value
          just-do
          sum
          sort
          true.)
+
+(require (prefix-in b: racket/base))
 
 (define-syntax-rule (do-with-value value code ...)
   (let ()

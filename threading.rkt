@@ -1,13 +1,13 @@
 #lang racket/base
 
+(provide ~>
+         ~>>)
+
 (require syntax/parse/define
          (for-syntax racket/base
                      "flow.rkt")
          "flow.rkt"
          "on.rkt")
-
-(provide ~>
-         ~>>)
 
 (define-syntax-parser ~>
   [(_ args:subject) #'(void)]
