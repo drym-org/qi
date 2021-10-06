@@ -261,9 +261,15 @@ provide appropriate error messages at the level of the DSL.
   ;; a literal is interpreted as a flow generating it
   [(_ val:literal) #'(flow (gen val))]
 
-  ;; We'd like to treat a (quoted) symbol as a literal as well.
-  ;; Since it is read as (quote ...), we match against that form
-  [(_ ((~datum quote) val:id)) #'(flow (gen 'val))]
+  ;; We'd like to treat quoted forms as literals as well.
+  ;; This includes symbols, and would also include, for instance, syntactic
+  ;; specifications of flows, since flows are syntactically lists as
+  ;; they inherit the elementary syntax of the underlying language (Racket).
+  ;; Quoted forms are read as (quote ...), so we match against this
+  [(_ ((~datum quote) val)) #'(flow (gen 'val))]
+  [(_ ((~datum quasiquote) val)) #'(flow (gen `val))]
+  [(_ ((~datum quote-syntax) val)) #'(flow (gen (quote-syntax val)))]
+  [(_ ((~datum syntax) val)) #'(flow (gen (syntax val)))]
 
   ;; Partial application with syntactically pre-supplied arguments
   ;; in a simple template

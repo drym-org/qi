@@ -28,6 +28,9 @@
        (check-equal? ((flow 0) 2) 0 "literal (number)")
        (check-equal? ((flow "hi") 5) "hi" "literal (string)")
        (check-equal? ((flow 'hi) 5) 'hi "literal (symbol)")
+       (check-equal? ((flow '(+ 1 2)) 5) '(+ 1 2) "literal (quoted list)")
+       (check-equal? ((flow `(+ 1 ,(* 2 3))) 5) '(+ 1 6) "literal (quasiquoted list)")
+       (check-equal? (syntax->datum ((flow #'(+ 1 2)) 5)) '(+ 1 2) "syntax quoted list")
        (check-equal? ((flow _) 5) 5 "identity flow")
        (check-equal? ((flow (~> _ +)) 5 6) 11 "identity flow"))
      (test-case
@@ -797,7 +800,16 @@
      "universality"
      (check-equal? ((☯ (~> (-< (gen +) 2 3)
                            apply)))
-                   5))
+                   5)
+     (check-equal? (parameterize ([current-namespace (make-base-empty-namespace)])
+                     (namespace-require 'racket/base)
+                     (namespace-require 'math)
+                     (namespace-require 'ionic)
+                     ((☯ (~> (-< (~> '(☯ (~> sqr add1))
+                                     (eval (current-namespace)))
+                                 3)
+                             apply))))
+                   10))
     (test-suite
      "arity modulating forms"
      (check-true ((☯ (and% positive? even?))
