@@ -206,8 +206,9 @@ provide appropriate error messages at the level of the DSL.
    #'(flow (~> (-< condition0 _)
                (if (select 0)
                    (~> consequent0 ...)
-                   (switch [condition consequent]
-                     ...))))]
+                   (group 1 ⏚
+                          (switch [condition consequent]
+                            ...)))))]
   [(_ ((~datum switch) [condition0:clause consequent0:clause]
                        [condition:clause consequent:clause]
                        ...))
