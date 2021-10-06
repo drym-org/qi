@@ -125,10 +125,6 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~datum or%) onex:clause ...))
    #'(flow (~> (== (esc (disjux-clause onex)) ...)
                any?))]
-  [(_ ((~datum with-key) f:clause onex:clause))
-   #'(compose
-      (curry apply (flow onex))
-      (give (curry map (flow f))))]
   [(_ ((~datum ~>) onex:clause ...))
    (datum->syntax
     this-syntax

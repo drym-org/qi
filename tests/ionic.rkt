@@ -52,8 +52,8 @@
        (check-true ((☯ (one-of? "hi" "hello")) "hello")))
      (test-case
          "predicate under a mapping"
-       (check-true ((☯ (with-key string->number (< 10))) "5"))
-       (check-false ((☯ (with-key string->number (> 10))) "5")))
+       (check-true ((☯ (~> string->number (< 10))) "5"))
+       (check-false ((☯ (~> string->number (> 10))) "5")))
      (test-case
          "and (conjoin)"
        (check-true ((☯ (and positive? integer?)) 5))
@@ -69,16 +69,8 @@
        (check-false ((☯ (or positive? odd?)) -6))
        (check-true ((☯ (or eq?
                            equal?
-                           (with-key string->number =)))
-                    "5.0" "5"))
-       (check-true ((☯ (or eq?
-                           equal?
                            (~> (>< string->number) =)))
                     "5.0" "5"))
-       (check-false ((☯ (or eq?
-                            equal?
-                            (with-key string->number =)))
-                     "5" "6"))
        (check-false ((☯ (or eq?
                             equal?
                             (~> (>< string->number) =)))
