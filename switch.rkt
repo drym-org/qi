@@ -3,8 +3,7 @@
 (provide switch
          switch-lambda
          define-switch
-         λ01
-         <result>)
+         λ01)
 
 (require syntax/parse/define
          racket/stxparam
@@ -15,46 +14,22 @@
          "flow.rkt"
          "on.rkt")
 
-(define-syntax-parser switch-predicate
-  [(_ (~datum else))
-   #'(const (void))] ; the return value may be used in the consequent expression
-  [(_ predicate:expr)
-   #'(flow predicate)])
-
-(define-syntax-parser switch-consequent
-  [(_ ((~datum connect) expr:expr ...) arg:expr ...)
-   #'(switch (arg ...) expr ...)]
-  [(_ ((~datum =>) expr:clause ...) arg:expr ...)
-   #'(on (arg ...) (~> (-< <result> _) expr ...))]
-  [(_ expr:clause arg:expr ...)
-   #'(on (arg ...) expr)])
-
-(define-syntax-parameter <result>
-  (lambda (stx)
-    (raise-syntax-error (syntax-e stx) "can only be used inside `switch`")))
-
 (define-syntax-parser switch
   [(_ args:subject
-      [predicate:clause consequent ...]
+      [predicate:clause consequent]
       ...)
-   #`(cond [((switch-predicate predicate) #,@(syntax->list (attribute args.args)))
-            =>
-            (λ (x)
-              (let ([predicate-result (flow (gen x))])
-                (syntax-parameterize ([<result> (make-rename-transformer #'predicate-result)])
-                  (switch-consequent consequent #,@(syntax->list (attribute args.args)))))
-              ...)]
-           ...)])
+   #`(on args
+       (switch [predicate consequent] ...))])
 
 (define-syntax-parser switch-lambda
   [(_ (arg:id ...) expr:expr ...)
    #'(lambda (arg ...)
        (switch (arg ...)
-               expr ...))]
+         expr ...))]
   [(_ rest-args:id expr:expr ...)
    #'(lambda rest-args
        (switch (rest-args)
-               expr ...))])
+         expr ...))])
 
 (define-alias λ01 switch-lambda)
 
@@ -62,4 +37,4 @@
   [(_ (name:id arg:id ...) expr:expr ...)
    #'(define name
        (switch-lambda (arg ...)
-                      expr ...))])
+         expr ...))])

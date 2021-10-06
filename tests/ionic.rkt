@@ -904,13 +904,15 @@
     (test-case
         "Edge/base cases"
       (check-equal? (switch (6 5)
-                      [< 'yo])
+                      [< 'yo]
+                      [else void])
                     (void)
-                    "no matching clause")
-      (check-equal? (switch (5)
-                      [positive? 1 2 3])
-                    3
-                    "more than one body form"))
+                    "no matching clause returns no values - must be explicit about e.g. void")
+      (check-equal? (switch (5 3)
+                      [< (=> (group 1 ⏚ +))]
+                      [else -])
+                    2
+                    "else with preceding =>"))
     (test-case
         "common"
       (check-equal? (switch (0)
@@ -1068,34 +1070,34 @@
     (test-case
         "connect"
       (check-equal? (switch (5)
-                      [positive? (connect [(and integer? odd?) add1]
-                                          [else 'positive])]
+                      [positive? (switch [(and integer? odd?) add1]
+                                         [else 'positive])]
                       [else 'no])
                     6)
       (check-equal? (switch (6)
-                      [positive? (connect [(and integer? odd?) add1]
-                                          [else 'positive])]
+                      [positive? (switch [(and integer? odd?) add1]
+                                         [else 'positive])]
                       [else 'no])
                     'positive)
       (check-equal? (switch (-5)
-                      [positive? (connect [(and integer? odd?) add1]
-                                          [else 'positive])]
+                      [positive? (switch [(and integer? odd?) add1]
+                                         [else 'positive])]
                       [else 'no])
                     'no)
       (check-equal? (switch (3 5)
-                      [< (connect [(~> - abs (< 3)) +])]
+                      [< (switch [(~> - abs (< 3)) +])]
                       [else 'no])
                     8
                     "n-ary predicate")
       (check-equal? (switch (3 8)
-                      [< (connect [(~> - abs (< 3)) +]
-                                  [else 'less])]
+                      [< (switch [(~> - abs (< 3)) +]
+                                 [else 'less])]
                       [else 'no])
                     'less
                     "n-ary predicate")
       (check-equal? (switch (5 3)
-                      [< (connect [(~> - abs (< 3)) +]
-                                  [else 'less])]
+                      [< (switch [(~> - abs (< 3)) +]
+                                 [else 'less])]
                       [else 'no])
                     'no
                     "n-ary predicate"))
@@ -1121,6 +1123,18 @@
                       [+ (=> (select 0))]
                       [else 'hi])
                     5)
+      (check-equal? (switch (2 3)
+                      [#f (select 0)]
+                      [+ (=> (select 0))]
+                      [else 'hi])
+                    5
+                    "=> in the middle somewhere")
+      (check-equal? (switch (2 3)
+                      [#f (=> (select 0))]
+                      [+ (=> (select 0))]
+                      [else 'hi])
+                    5
+                    "more than one =>")
       (check-equal? (switch ((list 2 1 3))
                       [(apply sort < _ #:key identity) (=> (select 0))]
                       [else 'no])
