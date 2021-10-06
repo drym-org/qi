@@ -271,7 +271,9 @@ provide appropriate error messages at the level of the DSL.
    #'((flow onex) prarg-pre ...
                   _
                   prarg-post ...)]
-  [(_ (onex prarg ...))
+
+  ;; Pre-supplied arguments without a template
+  [(_ (onex prarg ...+))
    ;; we use currying instead of templates when a template hasn't
    ;; explicitly been indicated since in such cases, we cannot
    ;; always infer the appropriate arity for a template (e.g. it

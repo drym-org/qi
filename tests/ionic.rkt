@@ -549,7 +549,11 @@
        (check-equal? ((☯ (~>> (foldl string-append "")))
                       (list "a" "b" "c"))
                      "cba"
-                     "curried foldl"))
+                     "curried foldl")
+       (check-exn exn:fail?
+                  (thunk ((☯ (+))
+                          5 7 8))
+                  "function isn't curried when no arguments are provided"))
      (test-case
          "template with single argument"
        (check-false ((☯ (apply > _))
