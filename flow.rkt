@@ -211,6 +211,16 @@ provide appropriate error messages at the level of the DSL.
    #'(flow (if #t
                alternative
                ground))]
+  [(_ ((~datum switch) [condition0:clause ((~datum =>) consequent0:clause ...)]
+                       [condition:clause consequent:clause]
+                       ...))
+   ;; we split the flow ahead of time to avoid evaluating
+   ;; the condition more than once
+   #'(flow (~> (-< condition0 _)
+               (if (select 0)
+                   (~> consequent0 ...)
+                   (switch [condition consequent]
+                     ...))))]
   [(_ ((~datum switch) [condition0:clause consequent0:clause]
                        [condition:clause consequent:clause]
                        ...))

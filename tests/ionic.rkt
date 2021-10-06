@@ -665,7 +665,40 @@
                     5)
       (check-equal? ((☯ (switch [(< 10) _] [else (gen 0)]))
                      15)
-                    0)))
+                    0)
+      (test-case
+          "result of predicate expression"
+        (check-equal? ((☯ (switch
+                            [add1 (=> (select 0) add1)]
+                            [else 'hi]))
+                       6)
+                      8)
+        (check-equal? ((☯ (switch
+                            [(member _ (list 1 5 4 2 6)) (=> (select 0))]
+                            [else 'hi]))
+                       2)
+                      (list 2 6))
+        (check-equal? ((☯ (switch
+                            [(member _ (list 1 5 4 2 6)) (=> (select 0) length)]
+                            [else 'hi]))
+                       2)
+                      2)
+        (check-equal? ((☯ (switch
+                            [car (=> (== _ 5) apply)]
+                            [else 'hi]))
+                       (list add1 sub1))
+                      6)
+        (check-equal? ((☯ (switch
+                              [+ (=> (select 0))]
+                            [else 'hi]))
+                       2 3)
+                      5)
+        (check-equal? ((☯ (switch
+                            [(apply sort < _ #:key identity) (=> (select 0))]
+                            [else 'no]))
+                       (list 2 1 3))
+                      (list 1 2 3)
+                      "apply in predicate with non-tail arguments"))))
     (test-suite
      "high-level circuit elements"
      (test-suite
