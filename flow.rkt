@@ -261,12 +261,26 @@ provide appropriate error messages at the level of the DSL.
   ;; Since it is read as (quote ...), we match against that form
   [(_ ((~datum quote) val:id)) #'(flow (gen 'val))]
 
-  ;; templates and partial application
+  ;; Partial application with syntactically pre-supplied arguments
+  ;; in a simple template
   ;; "prarg" = "pre-supplied argument"
-  [(_ (onex prarg-pre ... (~datum __) prarg-post ...))
+  [(_ (onex prarg-pre ...+ (~datum __) prarg-post ...+))
    #'(curry (curryr (flow onex)
                     prarg-post ...)
             prarg-pre ...)]
+  [(_ (onex prarg-pre ...+ (~datum __)))
+   #'(curry (flow onex) prarg-pre ...)]
+  [(_ (onex (~datum __) prarg-post ...+))
+   #'(curryr (flow onex) prarg-post ...)]
+  [(_ (onex (~datum __)))
+   #'(flow onex)]
+
+  ;; Fine-grained template-based application
+  ;; This handles templates that indicate a specific number of template
+  ;; variables (i.e. expected arguments). The semantics of template-based
+  ;; application here is fulfilled by the fancy-app module and we don't
+  ;; need to do anything special to handle it, since the #%app macro
+  ;; in the present module's scope is the one provided by fancy-app
   [(_ (onex prarg-pre ... (~datum _) prarg-post ...))
    #'((flow onex) prarg-pre ...
                   _

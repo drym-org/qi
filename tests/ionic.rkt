@@ -555,6 +555,18 @@
                           5 7 8))
                   "function isn't curried when no arguments are provided"))
      (test-case
+         "simple template"
+       (check-equal? ((☯ (+ __))) 0)
+       (check-equal? ((☯ (string-append __))
+                      "a" "b")
+                     "ab")
+       (check-equal? ((☯ (string-append "a" __))
+                      "b" "c")
+                     "abc")
+       (check-equal? ((☯ (string-append __ "c"))
+                      "a" "b")
+                     "abc"))
+     (test-case
          "template with single argument"
        (check-false ((☯ (apply > _))
                      (list 1 2 3)))
@@ -783,24 +795,24 @@
 
     (test-suite
      "arity modulating forms"
-     (check-true ((☯ (and% (positive? __) (even? __)))
+     (check-true ((☯ (and% positive? even?))
                   5 6)
                  "and% arity propagation")
-     (check-true ((☯ (or% (positive? __) (even? __)))
+     (check-true ((☯ (or% positive? even?))
                   5 6)
                  "or% arity propagation")
-     (check-equal? ((☯ (~> (>< (add1 __))
+     (check-equal? ((☯ (~> (>< add1)
                            +))
                     5 6)
                    13
                    ">< arity propagation")
-     (check-equal? ((☯ (~> (== (add1 __) (add1 __))
+     (check-equal? ((☯ (~> (== add1 add1)
                            +))
                     5 6)
                    13
                    "== arity propagation")
      (let ([add-two (procedure-reduce-arity + 2)])
-       (check-equal? ((☯ (~> (group 2 (add-two __) (add1 __))
+       (check-equal? ((☯ (~> (group 2 add-two add1)
                              *))
                       5 6 7)
                      88
