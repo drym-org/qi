@@ -349,6 +349,16 @@
                      "a12b"
                      "named threading form"))
      (test-case
+         "crossover"
+       (check-equal? ((☯ (~> X string-append))
+                      "a" "b")
+                     "ba")
+       (check-equal? ((☯ (~> crossover string-append))
+                      "a" "b")
+                     "ba")
+       (check-equal? ((☯ X) "a")
+                     "a"))
+     (test-case
          "><"
        (check-equal? ((☯ (~> (>< sqr)
                              +))

@@ -147,6 +147,10 @@ provide appropriate error messages at the level of the DSL.
    #'(curry map-values (flow onex))]
   [(_ ((~datum amp) onex:clause))
    #'(flow (>< onex))]
+  [(_ (~datum X))
+   #'(λ args (apply values (reverse args)))]
+  [(_ (~datum crossover))
+   #'(flow X)]
   [(_ ((~datum pass) onex:clause))
    #'(curry filter-values (flow onex))]
   [(_ ((~datum ==) onex:clause ...))
