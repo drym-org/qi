@@ -1067,27 +1067,27 @@
     (test-case
         "result of predicate expression"
       (check-equal? (switch (6)
-                      [add1 (=> (select 1) add1)]
+                      [add1 (=> (select 0) add1)]
                       [else 'hi])
                     8)
       (check-equal? (switch (2)
-                      [(member _ (list 1 5 4 2 6)) (=> (select 1))]
+                      [(member _ (list 1 5 4 2 6)) (=> (select 0))]
                       [else 'hi])
                     (list 2 6))
       (check-equal? (switch (2)
-                      [(member _ (list 1 5 4 2 6)) (=> (select 1) length)]
+                      [(member _ (list 1 5 4 2 6)) (=> (select 0) length)]
                       [else 'hi])
                     2)
       (check-equal? (switch ((list add1 sub1))
-                      [car (=> X (== _ 5) apply)]
+                      [car (=> (== _ 5) apply)]
                       [else 'hi])
                     6)
       (check-equal? (switch (2 3)
-                      [+ (=> X (select 0))]
+                      [+ (=> (select 0))]
                       [else 'hi])
                     5)
       (check-equal? (switch ((list 2 1 3))
-                      [(apply sort < _ #:key identity) (=> (select 1))]
+                      [(apply sort < _ #:key identity) (=> (select 0))]
                       [else 'no])
                     (list 1 2 3)
                     "apply in predicate with non-tail arguments"))

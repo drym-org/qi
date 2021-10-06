@@ -25,7 +25,7 @@
   [(_ ((~datum connect) expr:expr ...) arg:expr ...)
    #'(switch (arg ...) expr ...)]
   [(_ ((~datum =>) expr:clause ...) arg:expr ...)
-   #'(on (arg ...) (~> (-< _ <result>) expr ...))]
+   #'(on (arg ...) (~> (-< <result> _) expr ...))]
   [(_ expr:clause arg:expr ...)
    #'(on (arg ...) expr)])
 
