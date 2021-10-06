@@ -24,6 +24,8 @@
 (define-syntax-parser switch-consequent
   [(_ ((~datum connect) expr:expr ...) arg:expr ...)
    #'(switch (arg ...) expr ...)]
+  [(_ ((~datum =>) expr:clause ...) arg:expr ...)
+   #'(on (arg ...) (~> (-< _ <result>) expr ...))]
   [(_ expr:clause arg:expr ...)
    #'(on (arg ...) expr)])
 
