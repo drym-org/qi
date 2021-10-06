@@ -264,16 +264,16 @@ provide appropriate error messages at the level of the DSL.
   ;; Partial application with syntactically pre-supplied arguments
   ;; in a simple template
   ;; "prarg" = "pre-supplied argument"
-  [(_ (onex prarg-pre ...+ (~datum __) prarg-post ...+))
-   #'(curry (curryr (flow onex)
+  [(_ (natex prarg-pre ...+ (~datum __) prarg-post ...+))
+   #'(curry (curryr natex
                     prarg-post ...)
             prarg-pre ...)]
-  [(_ (onex prarg-pre ...+ (~datum __)))
-   #'(curry (flow onex) prarg-pre ...)]
-  [(_ (onex (~datum __) prarg-post ...+))
-   #'(curryr (flow onex) prarg-post ...)]
-  [(_ (onex (~datum __)))
-   #'(flow onex)]
+  [(_ (natex prarg-pre ...+ (~datum __)))
+   #'(curry natex prarg-pre ...)]
+  [(_ (natex (~datum __) prarg-post ...+))
+   #'(curryr natex prarg-post ...)]
+  [(_ (natex (~datum __)))
+   #'natex]
 
   ;; Fine-grained template-based application
   ;; This handles templates that indicate a specific number of template
@@ -281,13 +281,13 @@ provide appropriate error messages at the level of the DSL.
   ;; application here is fulfilled by the fancy-app module and we don't
   ;; need to do anything special to handle it, since the #%app macro
   ;; in the present module's scope is the one provided by fancy-app
-  [(_ (onex prarg-pre ... (~datum _) prarg-post ...))
-   #'((flow onex) prarg-pre ...
-                  _
-                  prarg-post ...)]
+  [(_ (natex prarg-pre ... (~datum _) prarg-post ...))
+   #'(natex prarg-pre ...
+            _
+            prarg-post ...)]
 
   ;; Pre-supplied arguments without a template
-  [(_ (onex prarg ...+))
+  [(_ (natex prarg ...+))
    ;; we use currying instead of templates when a template hasn't
    ;; explicitly been indicated since in such cases, we cannot
    ;; always infer the appropriate arity for a template (e.g. it
@@ -295,14 +295,14 @@ provide appropriate error messages at the level of the DSL.
    ;; curried function will accept any number of arguments
    #:do [(define threading-side (syntax-property this-syntax 'threading-side))]
    (if (and threading-side (eq? threading-side 'right))
-       #'(curry (flow onex) prarg ...)
-       #'(curryr (flow onex) prarg ...))]
+       #'(curry natex prarg ...)
+       #'(curryr natex prarg ...))]
 
   ;; pass-through (identity flow)
   [(_ (~datum _)) #'values]
 
   ;; literally indicated function identifier
-  [(_ ex:expr) #'ex]
+  [(_ natex:expr) #'natex]
 
   ;; a non-flow
   [(_) #'void])
