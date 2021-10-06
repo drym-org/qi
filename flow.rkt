@@ -129,16 +129,13 @@ provide appropriate error messages at the level of the DSL.
    #'(compose
       (curry apply (flow onex))
       (give (curry map (flow f))))]
-  [(_ ((~datum ..) onex:clause ...))
-   #'(compose (flow onex) ...)]
-  [(_ ((~datum compose) onex:clause ...))
-   #'(flow (.. onex ...))]
   [(_ ((~datum ~>) onex:clause ...))
    (datum->syntax
     this-syntax
-    (list 'flow
-          (cons '..
-                (reverse (syntax->list #'(onex ...))))))]
+    (cons 'compose
+          (reverse
+           (syntax->list
+            #'((flow onex) ...)))))]
   [(_ ((~datum thread) onex:clause ...))
    #'(flow (~> onex ...))]
   [(_ ((~datum ~>>) onex:clause ...))

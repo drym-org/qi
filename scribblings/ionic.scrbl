@@ -86,8 +86,6 @@ The core form that defines and uses the flow language is @racket[☯], while oth
                            (and% flow-expr)
                            (or% flow-expr)
                            (with-key flow-expr)
-                           (.. flow-expr)
-                           (compose flow-expr)
                            (~> flow-expr)
                            (thread flow-expr)
                            (~>> flow-expr)

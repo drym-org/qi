@@ -73,7 +73,7 @@
                     "5.0" "5"))
        (check-true ((☯ (or eq?
                            equal?
-                           (.. = (>< string->number))))
+                           (~> (>< string->number) =)))
                     "5.0" "5"))
        (check-false ((☯ (or eq?
                             equal?
@@ -81,7 +81,7 @@
                      "5" "6"))
        (check-false ((☯ (or eq?
                             equal?
-                            (.. = (>< string->number))))
+                            (~> (>< string->number) =)))
                      "5" "6"))
        (check-true ((☯ (or _ NOT)) #f) "_ in or"))
      (test-case
@@ -279,35 +279,6 @@
 
     (test-suite
      "routing forms"
-     (test-case
-         ".."
-       (check-equal? ((☯ (.. (string-append "a" _ "b")
-                             number->string
-                             (* 2)
-                             add1))
-                      5)
-                     "a12b")
-       (check-equal? ((☯ (.. (string-append _ "a" _ "b")
-                             (>< number->string)
-                             (>< add1)))
-                      5 6)
-                     "6a7b")
-       (check-equal? ((☯ (.. +
-                             (>< (* 2))
-                             (>< add1)))
-                      5 6)
-                     26)
-       (check-equal? ((☯ (.. string-append
-                             (>< (string-append "a" _ "b"))))
-                      "p" "q")
-                     "apbaqb")
-       (check-equal? ((☯ (compose (string-append "a" _ "b")
-                                  number->string
-                                  (* 2)
-                                  add1))
-                      5)
-                     "a12b"
-                     "named composition form"))
      (test-case
          "~>"
        (check-equal? ((☯ (~> add1
@@ -993,15 +964,15 @@
                     'no
                     "n-ary predicate")
       (check-equal? (switch (3 5)
-                      [< (.. + (>< add1))]
+                      [< (~> (>< add1) +)]
                       [else 'no])
                     10
-                    ".. and >< in call position")
+                    "~> and >< in call position")
       (check-equal? (switch (3 5)
-                      [< (.. + (>< (.. add1 sqr)))]
+                      [< (~> (>< (~> sqr add1)) +)]
                       [else 'no])
                     36
-                    ".. and >< in call position")
+                    "~> and >< in call position")
       (check-equal? (switch (3 5)
                       [true. (~> (>< add1) *)]
                       [else 'no])
@@ -1038,7 +1009,7 @@
                     6
                     "apply in consequent")
       (check-equal? (switch ((list 2 1 3))
-                      [(.. (> 2) length) (apply sort < _ #:key identity)]
+                      [(~> length (> 2)) (apply sort < _ #:key identity)]
                       [else 'no])
                     (list 1 2 3)
                     "apply in consequent with non-tail arguments")
@@ -1197,8 +1168,8 @@
       (check-false ((π (x) (and (> 5) (< 10))) 2))
       (check-false ((π (x) (and (> 5) (< 10))) 12))
       (check-true ((π args list?) 1 2 3) "packed args")
-      (check-false ((π args (.. (> 3) length)) 1 2 3) "packed args")
-      (check-true ((π args (.. (> 3) length)) 1 2 3 4) "packed args")
+      (check-false ((π args (~> length (> 3))) 1 2 3) "packed args")
+      (check-true ((π args (~> length (> 3))) 1 2 3 4) "packed args")
       (check-false ((π args (apply > _)) 1 2 3) "apply with packed args")
       (check-true ((π args (apply > _)) 3 2 1) "apply with packed args"))
     (test-case
@@ -1232,12 +1203,12 @@
                     'b)
       (check-equal? ((λ01 args [list? 'a]) 1 2 3) 'a)
       (check-equal? ((λ01 args
-                          [(.. (> 3) length) 'a]
+                          [(~> length (> 3)) 'a]
                           [else 'b]) 1 2 3)
                     'b
                     "packed args")
       (check-equal? ((λ01 args
-                          [(.. (> 3) length) 'a]
+                          [(~> length (> 3)) 'a]
                           [else 'b]) 1 2 3 4)
                     'a
                     "packed args")
