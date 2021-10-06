@@ -568,68 +568,7 @@
                     "template with multiple arguments")))
 
     (test-suite
-     "high-level circuit elements"
-     (test-suite
-      "fanout"
-      (check-equal? ((☯ (~> (fanout 3)
-                            +))
-                     5)
-                    15))
-     (test-suite
-      "inverter"
-      (check-false ((☯ (~> inverter
-                           AND))
-                    5 6))
-      (check-true ((☯ (~> inverter
-                          OR))
-                   #f #t)))
-     (test-suite
-      "feedback"
-      (check-equal? ((☯ (feedback sqr 2))
-                     5)
-                    625)
-      (check-equal? ((☯ (~> + (feedback add1 5)))
-                     5 6)
-                    16)
-      (check-equal? ((☯ (~> (feedback (>< add1) 3)
-                            +))
-                     2 3)
-                    11)
-      (check-equal? ((☯ (~> (feedback (== add1 sub1) 3)
-                            +))
-                     2 3)
-                    5))
-     (test-suite
-      "group"
-      (check-equal? ((☯ (~> (group 0 (const 5) +) +))
-                     1 2)
-                    8)
-      (check-equal? ((☯ (~> (group 1 add1 sub1) +))
-                     1 2)
-                    3)
-      (check-equal? ((☯ (~> (group 3 * add1) +))
-                     1 2 3 4)
-                    11)
-      (check-equal? ((☯ (~> (group 2
-                                   (~> (>< add1) +)
-                                   add1)
-                            +))
-                     4 5 6)
-                    18)
-      (check-equal? ((☯ (~> (group 2 (select) (select))
-                            +))
-                     1 3 5 7 9)
-                    0
-                    "group with arity-nullifying clause")
-      (check-equal? ((☯ (~> (group 2 (>< (-< _ _)) (>< _))
-                            +))
-                     1 3 5 7 9)
-                    29
-                    "group with arity-increasing clause")
-      (check-equal? ((☯ (~> (group 2 (>< sqr) _) +))
-                     1 2 3)
-                    8
-                    "group with don't-care"))
+     "conditionals"
      (test-suite
       "sieve"
       (check-equal? ((☯ (~> (sieve positive? add1 (const -1)) +))
@@ -651,25 +590,6 @@
                      1 -3 5)
                     9
                     "sieve with arity-increasing clause"))
-     (test-suite
-      "select"
-      (check-equal? ((☯ (select 0))
-                     1)
-                    1)
-      (check-equal? ((☯ (select 1))
-                     1 2 3)
-                    2)
-      (check-equal? ((☯ (select 2))
-                     1 2 3)
-                    3)
-      (check-equal? ((☯ (~> (select 0 2)
-                            string-append))
-                     "1" "2" "3")
-                    "13")
-      (check-equal? ((☯ (~> (select 2 0)
-                            string-append))
-                     "1" "2" "3")
-                    "31"))
      (test-suite
       "gate"
       (check-equal? ((☯ (gate positive?))
@@ -745,7 +665,89 @@
                     5)
       (check-equal? ((☯ (switch [(< 10) _] [else (gen 0)]))
                      15)
-                    0))
+                    0)))
+    (test-suite
+     "high-level circuit elements"
+     (test-suite
+      "fanout"
+      (check-equal? ((☯ (~> (fanout 3)
+                            +))
+                     5)
+                    15))
+     (test-suite
+      "inverter"
+      (check-false ((☯ (~> inverter
+                           AND))
+                    5 6))
+      (check-true ((☯ (~> inverter
+                          OR))
+                   #f #t)))
+     (test-suite
+      "feedback"
+      (check-equal? ((☯ (feedback sqr 2))
+                     5)
+                    625)
+      (check-equal? ((☯ (~> + (feedback add1 5)))
+                     5 6)
+                    16)
+      (check-equal? ((☯ (~> (feedback (>< add1) 3)
+                            +))
+                     2 3)
+                    11)
+      (check-equal? ((☯ (~> (feedback (== add1 sub1) 3)
+                            +))
+                     2 3)
+                    5))
+     (test-suite
+      "group"
+      (check-equal? ((☯ (~> (group 0 (const 5) +) +))
+                     1 2)
+                    8)
+      (check-equal? ((☯ (~> (group 1 add1 sub1) +))
+                     1 2)
+                    3)
+      (check-equal? ((☯ (~> (group 3 * add1) +))
+                     1 2 3 4)
+                    11)
+      (check-equal? ((☯ (~> (group 2
+                                   (~> (>< add1) +)
+                                   add1)
+                            +))
+                     4 5 6)
+                    18)
+      (check-equal? ((☯ (~> (group 2 (select) (select))
+                            +))
+                     1 3 5 7 9)
+                    0
+                    "group with arity-nullifying clause")
+      (check-equal? ((☯ (~> (group 2 (>< (-< _ _)) (>< _))
+                            +))
+                     1 3 5 7 9)
+                    29
+                    "group with arity-increasing clause")
+      (check-equal? ((☯ (~> (group 2 (>< sqr) _) +))
+                     1 2 3)
+                    8
+                    "group with don't-care"))
+     (test-suite
+      "select"
+      (check-equal? ((☯ (select 0))
+                     1)
+                    1)
+      (check-equal? ((☯ (select 1))
+                     1 2 3)
+                    2)
+      (check-equal? ((☯ (select 2))
+                     1 2 3)
+                    3)
+      (check-equal? ((☯ (~> (select 0 2)
+                            string-append))
+                     "1" "2" "3")
+                    "13")
+      (check-equal? ((☯ (~> (select 2 0)
+                            string-append))
+                     "1" "2" "3")
+                    "31"))
      (test-suite
       "effect"
       (check-equal? ((☯ (ε sub1 add1))
