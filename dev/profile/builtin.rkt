@@ -11,8 +11,8 @@
         [(> x 5) 'b]
         [else 'c]))
 
-(define (compose-fn f g)
-  ((compose f g) 5))
+(define (compose-fn v)
+  ((compose sub1 sqr add1) v))
 
 (define (root-mean-square vs)
   (let ([squares (map sqr vs)])

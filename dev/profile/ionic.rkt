@@ -7,13 +7,13 @@
 (require (only-in math sqr)
          ionic)
 
-(define-switch (cond-fn x)
+(define-switch cond-fn
   [(< 5) 'a]
   [(> 5) 'b]
   [else 'c])
 
-(define (compose-fn f g)
-  ((☯ (~> g f)) 5))
+(define-flow compose-fn
+  (~> add1 sqr sub1))
 
-(define-flow (root-mean-square vs)
+(define-flow root-mean-square
   (~>> (map sqr) (-< (apply + _) length) / sqrt))
