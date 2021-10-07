@@ -37,4 +37,7 @@
   [(_ (name:id arg:id ...) expr:expr ...)
    #'(define name
        (switch-lambda (arg ...)
-         expr ...))])
+         expr ...))]
+  [(_ name:id expr:expr ...)
+   #'(define name
+       (☯ (switch expr ...)))])
