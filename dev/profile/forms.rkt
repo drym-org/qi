@@ -3,16 +3,13 @@
 (require (only-in data/collection
                   cycle
                   take
-                  in
-                  second)
+                  in)
          (only-in math sqr)
          racket/match
          ionic
-         adjutor
          racket/format)
 
-(define (measure fn . args)
-  (second (values->list (time-apply fn args))))
+(require "util.rkt")
 
 (define (group a b c)
   ((☯ (~> (group 2 + values)

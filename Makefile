@@ -85,8 +85,7 @@ profile-forms:
 
 profile-base:
 	echo "Running base smoke profilers..."
-	raco profile dev/profile/builtin.rkt | grep "Total cpu time"
-	raco profile dev/profile/ionic.rkt | grep "Total cpu time"
+	racket dev/profile/base.rkt
 
 profile: profile-base profile-forms
 
