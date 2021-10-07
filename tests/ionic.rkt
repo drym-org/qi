@@ -185,6 +185,16 @@
        (check-false ((☯ none?) 3 #f 5))
        (check-false ((☯ none?) #f #f 5))
        (check-true ((☯ none?) #f #f #f)))
+     (test-suite
+      "collect"
+      (check-equal? ((☯ (collect (string-join "")))
+                     "a" "b" "c")
+                    "abc")
+      (check-equal? ((☯ (collect (string-join "")))
+                     "a")
+                    "a")
+      (check-equal? ((☯ (collect (string-join ""))))
+                    ""))
      (test-case
          "gen"
        (check-equal? ((☯ (gen 5)))
@@ -369,7 +379,7 @@
                       3 5)
                      8
                      "amp with don't-care")
-       (check-equal? ((☯ (~> (>< (select))
+       (check-equal? ((☯ (~> (>< ⏚)
                              +))
                       5 7)
                      0
@@ -409,7 +419,7 @@
                       5)
                      11
                      "tee with don't-care")
-       (check-equal? ((☯ (~> (-< (select))
+       (check-equal? ((☯ (~> (-< ⏚)
                              +))
                       5 7)
                      0
@@ -445,7 +455,7 @@
                       5 7)
                      12
                      "relay with don't-care")
-       (check-equal? ((☯ (~> (== (select) add1)
+       (check-equal? ((☯ (~> (== ⏚ add1)
                              +))
                       5 7)
                      8
@@ -456,7 +466,7 @@
                      18
                      "relay with arity-increasing clause")
        (check-exn exn:fail?
-                  (thunk ((☯ (~> (== (select) add1)
+                  (thunk ((☯ (~> (== ⏚ add1)
                                  +))
                           5 7 8))
                   "relay elements must be in one-to-one correspondence with input")
@@ -636,17 +646,17 @@
       (test-case
           "result of predicate expression"
         (check-equal? ((☯ (switch
-                            [add1 (=> (select 1) add1)]
+                            [add1 (=> 1> add1)]
                             [else 'hi]))
                        6)
                       8)
         (check-equal? ((☯ (switch
-                            [(member _ (list 1 5 4 2 6)) (=> (select 1))]
+                            [(member _ (list 1 5 4 2 6)) (=> 1>)]
                             [else 'hi]))
                        2)
                       (list 2 6))
         (check-equal? ((☯ (switch
-                            [(member _ (list 1 5 4 2 6)) (=> (select 1) length)]
+                            [(member _ (list 1 5 4 2 6)) (=> 1> length)]
                             [else 'hi]))
                        2)
                       2)
@@ -656,12 +666,12 @@
                        (list add1 sub1))
                       6)
         (check-equal? ((☯ (switch
-                              [+ (=> (select 1))]
+                              [+ (=> 1>)]
                             [else 'hi]))
                        2 3)
                       5)
         (check-equal? ((☯ (switch
-                            [(apply sort < _ #:key identity) (=> (select 1))]
+                            [(apply sort < _ #:key identity) (=> 1>)]
                             [else 'no]))
                        (list 2 1 3))
                       (list 1 2 3)
@@ -677,7 +687,7 @@
       (check-equal? ((☯ (~> (sieve positive? + (const 0)) +))
                      1 2 3 4)
                     10)
-      (check-equal? ((☯ (~> (sieve negative? (select) (select))
+      (check-equal? ((☯ (~> (sieve negative? ⏚ ⏚)
                             +))
                      1 3 5 7)
                     0
@@ -701,6 +711,35 @@
                     11)))
     (test-suite
      "high-level circuit elements"
+     (test-suite
+      "input aliases"
+      (check-equal? ((☯ (~> 1>))
+                     1 2 3 4 5 6 7 8 9)
+                    1)
+      (check-equal? ((☯ (~> 2>))
+                     1 2 3 4 5 6 7 8 9)
+                    2)
+      (check-equal? ((☯ (~> 3>))
+                     1 2 3 4 5 6 7 8 9)
+                    3)
+      (check-equal? ((☯ (~> 4>))
+                     1 2 3 4 5 6 7 8 9)
+                    4)
+      (check-equal? ((☯ (~> 5>))
+                     1 2 3 4 5 6 7 8 9)
+                    5)
+      (check-equal? ((☯ (~> 6>))
+                     1 2 3 4 5 6 7 8 9)
+                    6)
+      (check-equal? ((☯ (~> 7>))
+                     1 2 3 4 5 6 7 8 9)
+                    7)
+      (check-equal? ((☯ (~> 8>))
+                     1 2 3 4 5 6 7 8 9)
+                    8)
+      (check-equal? ((☯ (~> 9>))
+                     1 2 3 4 5 6 7 8 9)
+                    9))
      (test-suite
       "fanout"
       (check-equal? ((☯ (~> (fanout 3)
@@ -748,7 +787,7 @@
                             +))
                      4 5 6)
                     18)
-      (check-equal? ((☯ (~> (group 2 (select) (select))
+      (check-equal? ((☯ (~> (group 2 ⏚ ⏚)
                             +))
                      1 3 5 7 9)
                     0
@@ -792,17 +831,7 @@
                              add1))
                        5)
                       6)
-        (check-equal? a 11)))
-     (test-suite
-      "collect"
-      (check-equal? ((☯ (collect (string-join "")))
-                     "a" "b" "c")
-                    "abc")
-      (check-equal? ((☯ (collect (string-join "")))
-                     "a")
-                    "a")
-      (check-equal? ((☯ (collect (string-join ""))))
-                    "")))
+        (check-equal? a 11))))
 
     (test-suite
      "universality"
@@ -1104,15 +1133,15 @@
     (test-case
         "result of predicate expression"
       (check-equal? (switch (6)
-                      [add1 (=> (select 1) add1)]
+                      [add1 (=> 1> add1)]
                       [else 'hi])
                     8)
       (check-equal? (switch (2)
-                      [(member _ (list 1 5 4 2 6)) (=> (select 1))]
+                      [(member _ (list 1 5 4 2 6)) (=> 1>)]
                       [else 'hi])
                     (list 2 6))
       (check-equal? (switch (2)
-                      [(member _ (list 1 5 4 2 6)) (=> (select 1) length)]
+                      [(member _ (list 1 5 4 2 6)) (=> 1> length)]
                       [else 'hi])
                     2)
       (check-equal? (switch ((list add1 sub1))
@@ -1120,23 +1149,23 @@
                       [else 'hi])
                     6)
       (check-equal? (switch (2 3)
-                      [+ (=> (select 1))]
+                      [+ (=> 1>)]
                       [else 'hi])
                     5)
       (check-equal? (switch (2 3)
-                      [#f (select 1)]
-                      [+ (=> (select 1))]
+                      [#f 1>]
+                      [+ (=> 1>)]
                       [else 'hi])
                     5
                     "=> in the middle somewhere")
       (check-equal? (switch (2 3)
-                      [#f (=> (select 1))]
-                      [+ (=> (select 1))]
+                      [#f (=> 1>)]
+                      [+ (=> 1>)]
                       [else 'hi])
                     5
                     "more than one =>")
       (check-equal? (switch ((list 2 1 3))
-                      [(apply sort < _ #:key identity) (=> (select 1))]
+                      [(apply sort < _ #:key identity) (=> 1>)]
                       [else 'no])
                     (list 1 2 3)
                     "apply in predicate with non-tail arguments"))

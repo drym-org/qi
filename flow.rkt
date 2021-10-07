@@ -86,7 +86,7 @@ provide appropriate error messages at the level of the DSL.
                           "  " msg)))
 
 (define-syntax-parser flow
-  ;; special words
+  ;;; Special words
   [(_ ((~datum one-of?) v:expr ...))
    #'(compose
       ->boolean
@@ -141,8 +141,11 @@ provide appropriate error messages at the level of the DSL.
   [(_ (~datum any?)) #'any?]
   [(_ (~datum all?)) #'all?]
   [(_ (~datum none?)) #'none?]
+  [(_ ((~datum collect) onex:clause))
+   #'(flow (~> list onex))]
 
-  ;; routing elements
+  ;;; Core routing elements
+
   [(_ (~or (~datum ground) (~datum ⏚)))
    #'(flow (select))]
   [(_ ((~datum ><) onex:clause))
@@ -184,7 +187,8 @@ provide appropriate error messages at the level of the DSL.
                           (list 'arg ...)
                           "(group <number> <selection flow> <remainder flow>)")]
 
-  ;; Conditionals
+  ;;; Conditionals
+
   [(_ ((~datum if) condition:clause
                    consequent:clause
                    alternative:clause))
@@ -204,7 +208,7 @@ provide appropriate error messages at the level of the DSL.
    ;; we split the flow ahead of time to avoid evaluating
    ;; the condition more than once
    #'(flow (~> (-< condition0 _)
-               (if (select 1)
+               (if 1>
                    (~> consequent0 ...)
                    (group 1 ⏚
                           (switch [condition consequent]
@@ -236,7 +240,29 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~datum gate) onex:clause))
    #'(flow (if onex _ ground))]
 
-  ;; high level circuit elements
+  ;;; High level circuit elements
+
+  ;; aliases for inputs
+  [(_ (~datum 1>))
+   #'(flow (select 1))]
+  [(_ (~datum 2>))
+   #'(flow (select 2))]
+  [(_ (~datum 3>))
+   #'(flow (select 3))]
+  [(_ (~datum 4>))
+   #'(flow (select 4))]
+  [(_ (~datum 5>))
+   #'(flow (select 5))]
+  [(_ (~datum 6>))
+   #'(flow (select 6))]
+  [(_ (~datum 7>))
+   #'(flow (select 7))]
+  [(_ (~datum 8>))
+   #'(flow (select 8))]
+  [(_ (~datum 9>))
+   #'(flow (select 9))]
+
+  ;; high level routing
   [(_ ((~datum fanout) n:number))
    (datum->syntax
     this-syntax
@@ -256,8 +282,8 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~or (~datum effect) (~datum ε)) sidex:clause onex:clause))
    #'(flow (-< (~> sidex ground)
                onex))]
-  [(_ ((~datum collect) onex:clause))
-   #'(flow (~> list onex))]
+
+  ;;; Miscellaneous
 
   ;; towards universality
   [(_ (~datum apply))
