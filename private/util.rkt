@@ -46,14 +46,28 @@
            #f
            args))))
 
+(define (counting-string n)
+  (let ([d (remainder n 10)]
+        [ns (number->string n)])
+    (cond [(= d 1) (string-append ns "st")]
+          [(= d 2) (string-append ns "nd")]
+          [(= d 3) (string-append ns "rd")]
+          [else (string-append ns "th")])))
+
 (define (arg n)
   (λ args
-    (if (>= n (length args))
-        (error 'select (~a "Can't select argument at index "
-                           n
-                           " in "
-                           args))
-        (list-ref args n))))
+    (cond [(> n (length args))
+           (error 'select (~a "Can't select "
+                              (counting-string n)
+                              " value in "
+                              args))]
+          [(= 0 n)
+           (error 'select (~a "Can't select "
+                              (counting-string n)
+                              " value in "
+                              args
+                              " -- select is 1-indexed"))]
+          [else (list-ref args (sub1 n))])))
 
 ;; give a (list-)lifted function available arguments
 ;; directly instead of wrapping them with a list

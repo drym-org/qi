@@ -204,7 +204,7 @@ provide appropriate error messages at the level of the DSL.
    ;; we split the flow ahead of time to avoid evaluating
    ;; the condition more than once
    #'(flow (~> (-< condition0 _)
-               (if (select 0)
+               (if (select 1)
                    (~> consequent0 ...)
                    (group 1 ⏚
                           (switch [condition consequent]

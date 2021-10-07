@@ -636,17 +636,17 @@
       (test-case
           "result of predicate expression"
         (check-equal? ((☯ (switch
-                            [add1 (=> (select 0) add1)]
+                            [add1 (=> (select 1) add1)]
                             [else 'hi]))
                        6)
                       8)
         (check-equal? ((☯ (switch
-                            [(member _ (list 1 5 4 2 6)) (=> (select 0))]
+                            [(member _ (list 1 5 4 2 6)) (=> (select 1))]
                             [else 'hi]))
                        2)
                       (list 2 6))
         (check-equal? ((☯ (switch
-                            [(member _ (list 1 5 4 2 6)) (=> (select 0) length)]
+                            [(member _ (list 1 5 4 2 6)) (=> (select 1) length)]
                             [else 'hi]))
                        2)
                       2)
@@ -656,12 +656,12 @@
                        (list add1 sub1))
                       6)
         (check-equal? ((☯ (switch
-                              [+ (=> (select 0))]
+                              [+ (=> (select 1))]
                             [else 'hi]))
                        2 3)
                       5)
         (check-equal? ((☯ (switch
-                            [(apply sort < _ #:key identity) (=> (select 0))]
+                            [(apply sort < _ #:key identity) (=> (select 1))]
                             [else 'no]))
                        (list 2 1 3))
                       (list 1 2 3)
@@ -764,20 +764,20 @@
                     "group with don't-care"))
      (test-suite
       "select"
-      (check-equal? ((☯ (select 0))
+      (check-equal? ((☯ (select 1))
                      1)
                     1)
-      (check-equal? ((☯ (select 1))
-                     1 2 3)
-                    2)
       (check-equal? ((☯ (select 2))
                      1 2 3)
+                    2)
+      (check-equal? ((☯ (select 3))
+                     1 2 3)
                     3)
-      (check-equal? ((☯ (~> (select 0 2)
+      (check-equal? ((☯ (~> (select 1 3)
                             string-append))
                      "1" "2" "3")
                     "13")
-      (check-equal? ((☯ (~> (select 2 0)
+      (check-equal? ((☯ (~> (select 3 1)
                             string-append))
                      "1" "2" "3")
                     "31"))
@@ -1104,15 +1104,15 @@
     (test-case
         "result of predicate expression"
       (check-equal? (switch (6)
-                      [add1 (=> (select 0) add1)]
+                      [add1 (=> (select 1) add1)]
                       [else 'hi])
                     8)
       (check-equal? (switch (2)
-                      [(member _ (list 1 5 4 2 6)) (=> (select 0))]
+                      [(member _ (list 1 5 4 2 6)) (=> (select 1))]
                       [else 'hi])
                     (list 2 6))
       (check-equal? (switch (2)
-                      [(member _ (list 1 5 4 2 6)) (=> (select 0) length)]
+                      [(member _ (list 1 5 4 2 6)) (=> (select 1) length)]
                       [else 'hi])
                     2)
       (check-equal? (switch ((list add1 sub1))
@@ -1120,23 +1120,23 @@
                       [else 'hi])
                     6)
       (check-equal? (switch (2 3)
-                      [+ (=> (select 0))]
+                      [+ (=> (select 1))]
                       [else 'hi])
                     5)
       (check-equal? (switch (2 3)
-                      [#f (select 0)]
-                      [+ (=> (select 0))]
+                      [#f (select 1)]
+                      [+ (=> (select 1))]
                       [else 'hi])
                     5
                     "=> in the middle somewhere")
       (check-equal? (switch (2 3)
-                      [#f (=> (select 0))]
-                      [+ (=> (select 0))]
+                      [#f (=> (select 1))]
+                      [+ (=> (select 1))]
                       [else 'hi])
                     5
                     "more than one =>")
       (check-equal? (switch ((list 2 1 3))
-                      [(apply sort < _ #:key identity) (=> (select 0))]
+                      [(apply sort < _ #:key identity) (=> (select 1))]
                       [else 'no])
                     (list 1 2 3)
                     "apply in predicate with non-tail arguments"))
