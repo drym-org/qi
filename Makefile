@@ -1,5 +1,5 @@
 # Adapted from: http://www.greghendershott.com/2017/04/racket-makefiles.html
-PACKAGE-NAME=ionic
+PACKAGE-NAME=qi
 
 DEPS-FLAGS=--check-pkg-deps --unused-pkg-deps
 
@@ -61,7 +61,7 @@ test:
 	raco test -x -p $(PACKAGE-NAME)
 
 test-with-errortrace:
-	racket -l errortrace -l racket -e '(require (submod "tests/ionic.rkt" test))'
+	racket -l errortrace -l racket -e '(require (submod "tests/qi.rkt" test))'
 
 errortrace: test-with-errortrace
 

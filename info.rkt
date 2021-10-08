@@ -1,5 +1,5 @@
 #lang info
-(define collection "ionic")
+(define collection "qi")
 (define deps '("base"
                "mischief"
                "fancy-app"
@@ -13,11 +13,11 @@
                      "sandbox-lib"
                      "math-lib"
                      "relation"))
-(define scribblings '(("scribblings/ionic.scrbl" ())))
+(define scribblings '(("scribblings/qi.scrbl" ())))
 (define compile-omit-paths '("dev" "tests" "coverage"))
 (define test-include-paths '("tests"))
 (define test-omit-paths '("dev" "coverage"))
-(define clean '("compiled" "doc" "doc/ionic" "private/compiled"))
+(define clean '("compiled" "doc" "doc/qi" "private/compiled"))
 (define pkg-desc "Predicate-based dispatch form.")
 (define version "0.0")
 (define pkg-authors '(countvajhula))

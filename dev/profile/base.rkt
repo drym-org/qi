@@ -8,7 +8,7 @@
          racket/match
          (only-in racket/list
                   range)
-         (prefix-in q: "ionic.rkt")
+         (prefix-in q: "qi.rkt")
          (prefix-in b: "builtin.rkt"))
 
 (require racket/function

@@ -1,6 +1,6 @@
 #lang racket/base
 
-(require ionic
+(require qi
          rackunit
          rackunit/text-ui
          (only-in math sqr)
@@ -11,7 +11,7 @@
 
 (define tests
   (test-suite
-   "ionic tests"
+   "qi tests"
 
    (test-suite
     "flow tests"
@@ -841,7 +841,7 @@
      (check-equal? (parameterize ([current-namespace (make-base-empty-namespace)])
                      (namespace-require 'racket/base)
                      (namespace-require 'math)
-                     (namespace-require 'ionic)
+                     (namespace-require 'qi)
                      ((☯ (~> (-< (~> '(☯ (~> sqr add1))
                                      (eval (current-namespace)))
                                  3)

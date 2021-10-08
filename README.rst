@@ -1,15 +1,15 @@
-.. image:: https://github.com/countvajhula/ionic/actions/workflows/test.yml/badge.svg
-    :target: https://github.com/countvajhula/ionic/actions/workflows/test.yml
+.. image:: https://github.com/countvajhula/qi/actions/workflows/test.yml/badge.svg
+    :target: https://github.com/countvajhula/qi/actions/workflows/test.yml
 
-.. image:: https://coveralls.io/repos/github/countvajhula/ionic/badge.svg?branch=main
-    :target: https://coveralls.io/github/countvajhula/ionic?branch=main
+.. image:: https://coveralls.io/repos/github/countvajhula/qi/badge.svg?branch=main
+    :target: https://coveralls.io/github/countvajhula/qi?branch=main
 
-ionic
-=====
+qi
+===
 Another way to structure computations.
 
-Install it from the `Racket Package Index <https://pkgs.racket-lang.org/package/ionic>`_.
-Read `the documentation <https://docs.racket-lang.org/ionic/index.html>`_ to learn more.
+Install it from the `Racket Package Index <https://pkgs.racket-lang.org/package/qi>`_.
+Read `the documentation <https://docs.racket-lang.org/qi/index.html>`_ to learn more.
 
 "License":
 ==========

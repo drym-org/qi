@@ -3,7 +3,7 @@
          scribble-abbrevs/manual
          scribble/example
          racket/sandbox
-         @for-label[ionic
+         @for-label[qi
                     racket
                     (only-in relation ->number ->string sum)]]
 
@@ -12,7 +12,7 @@
                  [sandbox-error-output 'string]
                  [sandbox-memory-limit #f])
     (make-evaluator 'racket/base
-                    '(require ionic
+                    '(require qi
                               (only-in racket/list range)
                               relation)
                     '(define (sqr x)
@@ -21,7 +21,7 @@
 @title{Qi: A Functional, Flow-Oriented DSL}
 @author{Siddhartha Kasivajhula}
 
-@defmodule[ionic]
+@defmodule[qi]
 
 An embedded, general-purpose language to allow convenient framing of programming logic in terms of functional @emph{flows}.
 

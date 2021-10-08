@@ -6,7 +6,7 @@
                   in)
          (only-in math sqr)
          racket/match
-         ionic
+         qi
          racket/format)
 
 (require "util.rkt")

@@ -5,7 +5,7 @@
          root-mean-square)
 
 (require (only-in math sqr)
-         ionic)
+         qi)
 
 (define-switch cond-fn
   [(< 5) sqr]
