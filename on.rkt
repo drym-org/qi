@@ -3,7 +3,9 @@
 (provide on
          flow-lambda
          define-flow
-         π)
+         π
+         let/flow
+         let*/flow)
 
 (require syntax/parse/define
          mischief/shorthand
@@ -39,3 +41,15 @@
   [(_ name:id expr:expr)
    #'(define name
        (flow expr))])
+
+(define-syntax-parser let/flow
+  [(_ ([var:id val:expr] ...) body ...)
+   #'(let ([var val] ...)
+       (on (var ...)
+         body ...))])
+
+(define-syntax-parser let*/flow
+  [(_ ([var:id val:expr] ...) body ...)
+   #'(let* ([var val] ...)
+       (on (var ...)
+         body ...))])

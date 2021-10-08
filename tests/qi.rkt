@@ -1224,25 +1224,51 @@
 
    (test-suite
     "definition forms"
+    (test-suite
+     "let/flow"
+     (check-equal? (let/flow ([x 5]
+                              [y 3])
+                     (~> + sqr add1))
+                   65))
+    (test-suite
+     "let*/flow"
+     (check-equal? (let*/flow ([x 5]
+                               [y (- x 2)])
+                     (~> + sqr add1))
+                   65))
+    (test-suite
+     "let/switch"
+     (check-equal? (let/switch ([x 5]
+                                [y 3])
+                     [(~> + (> 10)) 'hi]
+                     [else 'bye])
+                   'bye))
+    (test-suite
+     "let*/switch"
+     (check-equal? (let*/switch ([x 5]
+                                 [y (- x 2)])
+                     [(~> + (> 10)) 'hi]
+                     [else 'bye])
+                   'bye))
     (test-case
         "predicate lambda"
       (check-true ((π (x)
-                      (and positive? integer?))
+                     (and positive? integer?))
                    5))
       (check-false ((π (x)
-                       (and positive? integer?))
+                      (and positive? integer?))
                     -5))
       (check-false ((π (x)
-                       (and positive? integer?))
+                      (and positive? integer?))
                     5.3))
       (check-true ((π (x y)
-                      (or < =))
+                     (or < =))
                    5 6))
       (check-true ((π (x y)
-                      (or < =))
+                     (or < =))
                    5 5))
       (check-false ((π (x y)
-                       (or < =))
+                      (or < =))
                     5 4))
       (check-true ((π (x) (and (> 5) (< 10))) 7))
       (check-false ((π (x) (and (> 5) (< 10))) 2))
@@ -1255,30 +1281,30 @@
     (test-case
         "switch lambda"
       (check-equal? ((switch-lambda (x)
-                                    [(and positive? integer?) 'a])
+                       [(and positive? integer?) 'a])
                      5)
                     'a)
       (check-equal? ((switch-lambda (x)
-                                    [(and positive? integer?) 'a]
-                                    [else 'b])
+                       [(and positive? integer?) 'a]
+                       [else 'b])
                      -5)
                     'b)
       (check-equal? ((switch-lambda (x)
-                                    [(and positive? integer?) 'a]
-                                    [else 'b])
+                       [(and positive? integer?) 'a]
+                       [else 'b])
                      5.3)
                     'b)
       (check-equal? ((switch-lambda (x y)
-                                    [(or < =) 'a])
+                       [(or < =) 'a])
                      5 6)
                     'a)
       (check-equal? ((switch-lambda (x y)
-                                    [(or < =) 'a])
+                       [(or < =) 'a])
                      5 5)
                     'a)
       (check-equal? ((switch-lambda (x y)
-                                    [(or < =) 'a]
-                                    [else 'b])
+                       [(or < =) 'a]
+                       [else 'b])
                      5 4)
                     'b)
       (check-equal? ((λ01 args [list? 'a]) 1 2 3) 'a)

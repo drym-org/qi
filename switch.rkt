@@ -3,7 +3,9 @@
 (provide switch
          switch-lambda
          define-switch
-         λ01)
+         λ01
+         let/switch
+         let*/switch)
 
 (require syntax/parse/define
          racket/stxparam
@@ -41,3 +43,15 @@
   [(_ name:id expr:expr ...)
    #'(define name
        (☯ (switch expr ...)))])
+
+(define-syntax-parser let/switch
+  [(_ ([var:id val:expr] ...) body ...)
+   #'(let ([var val] ...)
+       (switch (var ...)
+         body ...))])
+
+(define-syntax-parser let*/switch
+  [(_ ([var:id val:expr] ...) body ...)
+   #'(let* ([var val] ...)
+       (switch (var ...)
+         body ...))])
