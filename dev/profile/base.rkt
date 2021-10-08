@@ -16,7 +16,7 @@
          "util.rkt")
 
 (define (check-cond cond-fn how-many)
-  (for ([i (take how-many (in (cycle '(1 2 3))))])
+  (for ([i (take how-many (cycle (range 10)))])
     (cond-fn i)))
 
 (define (check-compose compose-fn how-many)
@@ -30,7 +30,7 @@
 
 (displayln "Conditionals benchmark...")
 (for ([f (list b:cond-fn q:cond-fn)]
-      [name (list "Built-in:" "Qi:")])
+      [name (list "Built-in" "Qi")])
   (let ([ms (measure check-cond f 300000)])
     (displayln (~a name ": " ms " ms"))))
 
@@ -42,6 +42,6 @@
 
 (displayln "Root Mean Square benchmark...")
 (for ([f (list b:root-mean-square q:root-mean-square)]
-      [name (list "Built-in:" "Qi:")])
-  (let ([ms (measure check-rms f 300000)])
+      [name (list "Built-in" "Qi")])
+  (let ([ms (measure check-rms f 500000)])
     (displayln (~a name ": " ms " ms"))))

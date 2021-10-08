@@ -7,9 +7,9 @@
 (require (only-in math sqr))
 
 (define (cond-fn x)
-  (cond [(< x 5) 'a]
-        [(> x 5) 'b]
-        [else 'c]))
+  (cond [(< x 5) (sqr x)]
+        [(> x 5) (add1 x)]
+        [else x]))
 
 (define (compose-fn v)
   ((compose sub1 sqr add1) v))
