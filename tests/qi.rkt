@@ -803,6 +803,9 @@
                     "group with don't-care"))
      (test-suite
       "select"
+      (check-equal? ((☯ (~> (select) +))
+                     1)
+                    0)
       (check-equal? ((☯ (select 1))
                      1)
                     1)
@@ -820,6 +823,26 @@
                             string-append))
                      "1" "2" "3")
                     "31"))
+     (test-suite
+      "block"
+      (check-equal? ((☯ (~> (block) list))
+                     1 2)
+                    (list 1 2))
+      (check-equal? ((☯ (~> (block 1) list))
+                     1)
+                    null)
+      (check-equal? ((☯ (~> (block 2) list))
+                     1 2 3)
+                    (list 1 3))
+      (check-equal? ((☯ (~> (block 3) list))
+                     1 2 3)
+                    (list 1 2))
+      (check-equal? ((☯ (~> (block 1 3) list))
+                     1 2 3)
+                    (list 2))
+      (check-equal? ((☯ (~> (block 3 1) list))
+                     1 2 3)
+                    (list 2)))
      (test-suite
       "effect"
       (check-equal? ((☯ (ε sub1 add1))

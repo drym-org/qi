@@ -3,6 +3,7 @@
 (define deps '("base"
                "mischief"
                "fancy-app"
+               "typed-stack"
                "adjutor"))
 (define build-deps '("scribble-lib"
                      "scribble-abbrevs"

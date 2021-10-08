@@ -164,6 +164,13 @@ provide appropriate error messages at the level of the DSL.
    #'(report-syntax-error 'select
                           (list 'arg ...)
                           "(select <number> ...)")]
+  [(_ ((~datum block) n:number ...))
+   #'(flow (~> (esc (except-args n ...))
+               (apply values _)))]
+  [(_ ((~datum block) arg ...))  ; error handling catch-all
+   #'(report-syntax-error 'block
+                          (list 'arg ...)
+                          "(block <number> ...)")]
   [(_ ((~datum group) n:number
                       selection-onex:clause
                       remainder-onex:clause))

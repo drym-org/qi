@@ -12,7 +12,8 @@
          relay
          loom-compose
          parity-xor
-         arg)
+         arg
+         except-args)
 
 (require racket/match
          (only-in racket/function
@@ -21,6 +22,7 @@
          racket/bool
          racket/list
          racket/format
+         typed-stack
          (only-in adjutor values->list))
 
 ;; we use a lambda to capture the arguments at runtime
@@ -68,6 +70,33 @@
                               args
                               " -- select is 1-indexed"))]
           [else (list-ref args (sub1 n))])))
+
+(define (except-args . indices)
+  (λ args
+    (let ([indices (apply make-stack (sort indices <))])
+      (if (and (not (stack-empty? indices))
+               (<= (top indices) 0))
+          (error 'block (~a "Can't block "
+                            (counting-string (top indices))
+                            " value in "
+                            args
+                            " -- block is 1-indexed"))
+          (let loop ([rem-args args]
+                     [cur-idx 1])
+            (if (stack-empty? indices)
+                rem-args
+                (match rem-args
+                  ['() (error 'block (~a "Can't block "
+                                         (counting-string (top indices))
+                                         " value in "
+                                         args))]
+                  [(cons v vs)
+                   (if (stack-empty? indices)
+                       rem-args
+                       (if (= cur-idx (top indices))
+                           (begin (pop! indices)
+                                  (loop vs (add1 cur-idx)))
+                           (cons v (loop vs (add1 cur-idx)))))])))))))
 
 ;; give a (list-)lifted function available arguments
 ;; directly instead of wrapping them with a list
