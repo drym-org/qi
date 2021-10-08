@@ -125,19 +125,6 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~datum or%) onex:clause ...))
    #'(flow (~> (== (esc (disjux-clause onex)) ...)
                any?))]
-  [(_ ((~datum ~>) onex:clause ...))
-   (datum->syntax
-    this-syntax
-    (cons 'compose
-          (reverse
-           (syntax->list
-            #'((flow onex) ...)))))]
-  [(_ ((~datum thread) onex:clause ...))
-   #'(flow (~> onex ...))]
-  [(_ ((~datum ~>>) onex:clause ...))
-   #'(flow (~> (esc (right-threading-clause onex)) ...))]
-  [(_ ((~datum thread-right) onex:clause ...))
-   #'(flow (~>> onex ...))]
   [(_ (~datum any?)) #'any?]
   [(_ (~datum all?)) #'all?]
   [(_ (~datum none?)) #'none?]
@@ -146,30 +133,31 @@ provide appropriate error messages at the level of the DSL.
 
   ;;; Core routing elements
 
-  [(_ (~or (~datum ground) (~datum ⏚)))
+  [(_ (~or (~datum ⏚) (~datum ground)))
    #'(flow (select))]
-  [(_ ((~datum ><) onex:clause))
+  [(_ ((~or (~datum ~>) (~datum thread)) onex:clause ...))
+   (datum->syntax
+    this-syntax
+    (cons 'compose
+          (reverse
+           (syntax->list
+            #'((flow onex) ...)))))]
+  [(_ ((~or (~datum ~>>) (~datum thread-right)) onex:clause ...))
+   #'(flow (~> (esc (right-threading-clause onex)) ...))]
+  [(_ ((~or (~datum ><) (~datum amp)) onex:clause))
    #'(curry map-values (flow onex))]
-  [(_ ((~datum amp) onex:clause))
-   #'(flow (>< onex))]
-  [(_ (~datum X))
+  [(_ (~or (~datum X) (~datum crossover)))
    #'(λ args (apply values (reverse args)))]
-  [(_ (~datum crossover))
-   #'(flow X)]
   [(_ ((~datum pass) onex:clause))
    #'(curry filter-values (flow onex))]
-  [(_ ((~datum ==) onex:clause ...))
+  [(_ ((~or (~datum ==) (~datum relay)) onex:clause ...))
    #'(relay (flow onex) ...)]
-  [(_ ((~datum relay) onex:clause ...))
-   #'(flow (== onex ...))]
-  [(_ ((~datum -<) onex:clause ...))
+  [(_ ((~or (~datum -<) (~datum tee)) onex:clause ...))
    #'(λ args
        (apply values
               (append (values->list
                        (apply (flow onex) args))
                       ...)))]
-  [(_ ((~datum tee) onex:clause ...))
-   #'(flow (-< onex ...))]
   [(_ ((~datum select) n:number ...))
    #'(flow (-< (esc (arg n)) ...))]
   [(_ ((~datum select) arg ...))  ; error handling catch-all
@@ -279,7 +267,7 @@ provide appropriate error messages at the level of the DSL.
                         #'onex))))]
   [(_ (~datum inverter))
    #'(flow (>< NOT))]
-  [(_ ((~or (~datum effect) (~datum ε)) sidex:clause onex:clause))
+  [(_ ((~or (~datum ε) (~datum effect)) sidex:clause onex:clause))
    #'(flow (-< (~> sidex ground)
                onex))]
 
