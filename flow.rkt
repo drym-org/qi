@@ -173,6 +173,11 @@ provide appropriate error messages at the level of the DSL.
    #'(report-syntax-error 'block
                           (list 'arg ...)
                           "(block <number> ...)")]
+  [(_ ((~datum bundle) (n:number ...)
+                       selection-onex:clause
+                       remainder-onex:clause))
+   #'(flow (-< (~> (select n ...) selection-onex)
+               (~> (block n ...) remainder-onex)))]
   [(_ ((~datum group) n:number
                       selection-onex:clause
                       remainder-onex:clause))

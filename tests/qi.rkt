@@ -858,6 +858,26 @@
                      1 2 3)
                     (list 2)))
      (test-suite
+      "bundle"
+      (check-equal? ((☯ (~> (bundle () + sqr) +))
+                     3)
+                    9)
+      (check-equal? ((☯ (bundle (1) sqr _))
+                     3)
+                    9)
+      (check-equal? ((☯ (bundle (2) _ ⏚))
+                     1 2 3)
+                    2)
+      (check-equal? ((☯ (bundle (3) _ ⏚))
+                     1 2 3)
+                    3)
+      (check-equal? ((☯ (~> (bundle (1 3) string-append ⏚)))
+                     "1" "2" "3")
+                    "13")
+      (check-equal? ((☯ (~> (bundle (3 1) string-append _) string-append))
+                     "1" "2" "3")
+                    "312"))
+     (test-suite
       "effect"
       (check-equal? ((☯ (ε sub1 add1))
                      5)
