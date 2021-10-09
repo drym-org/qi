@@ -9,11 +9,19 @@
          (only-in racket/list
                   range)
          (prefix-in q: "qi.rkt")
-         (prefix-in b: "builtin.rkt"))
+         (prefix-in b: "builtin.rkt")
+         syntax/parse/define
+         version-case
+         mischief/shorthand
+         (for-syntax racket/base))
 
 (require racket/function
          racket/format
          "util.rkt")
+
+(version-case
+ [(version< (version) "7.9.0.22")
+  (define-alias define-syntax-parse-rule define-simple-macro)])
 
 (define (check-cond cond-fn how-many)
   (for ([i (take how-many (cycle (range 10)))])
@@ -28,20 +36,31 @@
     (let ([vs (range i (+ i 10))])
       (rms vs))))
 
-(displayln "Conditionals benchmark...")
-(for ([f (list b:cond-fn q:cond-fn)]
-      [name (list "Built-in" "Qi")])
-  (let ([ms (measure check-cond f 300000)])
-    (displayln (~a name ": " ms " ms"))))
+(define-syntax-parse-rule (run-benchmark name
+                                         runner
+                                         f-builtin
+                                         f-qi
+                                         n-times)
+  (begin (displayln (~a "Running " name " benchmark..."))
+         (for ([f (list f-builtin f-qi)]
+               [label (list "λ" "☯")])
+           (let ([ms (measure runner f n-times)])
+             (displayln (~a label ": " ms " ms"))))))
 
-(displayln "Composition benchmark...")
-(for ([f (list b:compose-fn q:compose-fn)]
-      [name (list "Built-in" "Qi")])
-  (let ([ms (measure check-compose f 3000000)])
-    (displayln (~a name ": " ms " ms"))))
+(run-benchmark "Conditionals"
+               check-cond
+               b:cond-fn
+               q:cond-fn
+               300000)
 
-(displayln "Root Mean Square benchmark...")
-(for ([f (list b:root-mean-square q:root-mean-square)]
-      [name (list "Built-in" "Qi")])
-  (let ([ms (measure check-rms f 500000)])
-    (displayln (~a name ": " ms " ms"))))
+(run-benchmark "Composition"
+               check-compose
+               b:compose-fn
+               q:compose-fn
+               3000000)
+
+(run-benchmark "Root Mean Square"
+               check-rms
+               b:root-mean-square
+               q:root-mean-square
+               500000)
