@@ -130,6 +130,8 @@ provide appropriate error messages at the level of the DSL.
   [(_ (~datum none?)) #'none?]
   [(_ ((~datum collect) onex:clause))
    #'(flow (~> list onex))]
+  [(_ (~or (~datum △) (~datum prism)))
+   #'(flow (apply values _))]
 
   ;;; Core routing elements
 
@@ -147,7 +149,7 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~or (~datum ><) (~datum amp)) onex:clause))
    #'(curry map-values (flow onex))]
   [(_ (~or (~datum X) (~datum crossover)))
-   #'(λ args (apply values (reverse args)))]
+   #'(flow (~> (collect reverse) △))]
   [(_ ((~datum pass) onex:clause))
    #'(curry filter-values (flow onex))]
   [(_ ((~or (~datum ==) (~datum relay)) onex:clause ...))
@@ -166,7 +168,7 @@ provide appropriate error messages at the level of the DSL.
                           "(select <number> ...)")]
   [(_ ((~datum block) n:number ...))
    #'(flow (~> (esc (except-args n ...))
-               (apply values _)))]
+               △))]
   [(_ ((~datum block) arg ...))  ; error handling catch-all
    #'(report-syntax-error 'block
                           (list 'arg ...)

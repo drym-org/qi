@@ -195,6 +195,20 @@
                     "a")
       (check-equal? ((☯ (collect (string-join ""))))
                     ""))
+     (test-suite
+      "prism"
+      (check-equal? ((☯ (~> △ +))
+                     null)
+                    0)
+      (check-equal? ((☯ (~> prism +))
+                     null)
+                    0)
+      (check-equal? ((☯ △)
+                     (list 1))
+                    1)
+      (check-equal? ((☯ (~> △ +))
+                     (list 1 2 3 4))
+                    10))
      (test-case
          "gen"
        (check-equal? ((☯ (gen 5)))
