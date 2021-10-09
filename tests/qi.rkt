@@ -1254,22 +1254,9 @@
                      (~> + sqr add1))
                    65))
     (test-suite
-     "let*/flow"
-     (check-equal? (let*/flow ([x 5]
-                               [y (- x 2)])
-                     (~> + sqr add1))
-                   65))
-    (test-suite
      "let/switch"
      (check-equal? (let/switch ([x 5]
                                 [y 3])
-                     [(~> + (> 10)) 'hi]
-                     [else 'bye])
-                   'bye))
-    (test-suite
-     "let*/switch"
-     (check-equal? (let*/switch ([x 5]
-                                 [y (- x 2)])
                      [(~> + (> 10)) 'hi]
                      [else 'bye])
                    'bye))
