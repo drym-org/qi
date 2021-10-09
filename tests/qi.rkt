@@ -187,13 +187,16 @@
        (check-true ((☯ none?) #f #f #f)))
      (test-suite
       "collect"
-      (check-equal? ((☯ (collect (string-join "")))
+      (check-equal? ((☯ (~> collect (string-join "")))
                      "a" "b" "c")
                     "abc")
-      (check-equal? ((☯ (collect (string-join "")))
+      (check-equal? ((☯ (~> ▽ (string-join "")))
+                     "a" "b" "c")
+                    "abc")
+      (check-equal? ((☯ (~> ▽ (string-join "")))
                      "a")
                     "a")
-      (check-equal? ((☯ (collect (string-join ""))))
+      (check-equal? ((☯ (~> ▽ (string-join ""))))
                     ""))
      (test-suite
       "prism"
@@ -291,7 +294,13 @@
         (check-false ((☯ XNOR) 3 #f))
         (check-true ((☯ XNOR) 3 5))
         (check-true ((☯ XNOR) #f #f))
-        (check-true ((☯ XNOR) #f #f #f)))))
+        (check-true ((☯ XNOR) #f #f #f))))
+     (test-suite
+      "interactions between components"
+      (test-case
+          "prism and collect"
+        (check-equal? ((☯ (~> △ ▽)) (list 1 2 3))
+                      (list 1 2 3)))))
 
     (test-suite
      "routing forms"

@@ -128,8 +128,8 @@ provide appropriate error messages at the level of the DSL.
   [(_ (~datum any?)) #'any?]
   [(_ (~datum all?)) #'all?]
   [(_ (~datum none?)) #'none?]
-  [(_ ((~datum collect) onex:clause))
-   #'(flow (~> list onex))]
+  [(_ (~or (~datum ▽) (~datum collect)))
+   #'list]
   [(_ (~or (~datum △) (~datum prism)))
    #'(flow (apply values _))]
 
@@ -149,7 +149,7 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~or (~datum ><) (~datum amp)) onex:clause))
    #'(curry map-values (flow onex))]
   [(_ (~or (~datum X) (~datum crossover)))
-   #'(flow (~> (collect reverse) △))]
+   #'(flow (~> ▽ reverse △))]
   [(_ ((~datum pass) onex:clause))
    #'(curry filter-values (flow onex))]
   [(_ ((~or (~datum ==) (~datum relay)) onex:clause ...))
