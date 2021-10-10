@@ -23,24 +23,29 @@
  [(version< (version) "7.9.0.22")
   (define-alias define-syntax-parse-rule define-simple-macro)])
 
-(define (check-cond cond-fn how-many)
+(define (check-value fn how-many)
   (for ([i (take how-many (cycle (range 10)))])
-    (cond-fn i)))
+    (fn i)))
 
-(define (check-compose compose-fn how-many)
-  (for ([v (in-range how-many)])
-    (compose-fn v)))
-
-(define (check-rms rms how-many)
+(define (check-list fn how-many)
   (for ([i (in-range how-many)])
     (let ([vs (range i (+ i 10))])
-      (rms vs))))
+      (fn vs))))
 
 (define-syntax-parse-rule (run-benchmark name
                                          runner
-                                         f-builtin
-                                         f-qi
+                                         f-name
                                          n-times)
+  #:with f-builtin (datum->syntax #'name
+                                  (string->symbol
+                                   (string-append "b:"
+                                                  (symbol->string
+                                                   (syntax->datum #'f-name)))))
+  #:with f-qi (datum->syntax #'name
+                             (string->symbol
+                              (string-append "q:"
+                                             (symbol->string
+                                              (syntax->datum #'f-name)))))
   (begin (displayln (~a "Running " name " benchmark..."))
          (for ([f (list f-builtin f-qi)]
                [label (list "λ" "☯")])
@@ -48,19 +53,16 @@
              (displayln (~a label ": " ms " ms"))))))
 
 (run-benchmark "Conditionals"
-               check-cond
-               b:cond-fn
-               q:cond-fn
+               check-value
+               cond-fn
                300000)
 
 (run-benchmark "Composition"
-               check-compose
-               b:compose-fn
-               q:compose-fn
-               3000000)
+               check-value
+               compose-fn
+               300000)
 
 (run-benchmark "Root Mean Square"
-               check-rms
-               b:root-mean-square
-               q:root-mean-square
+               check-list
+               root-mean-square
                500000)
