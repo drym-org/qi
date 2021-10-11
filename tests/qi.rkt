@@ -674,12 +674,12 @@
                        6)
                       8)
         (check-equal? ((☯ (switch
-                            [(member _ (list 1 5 4 2 6)) (=> 1>)]
+                            [(member (list 1 5 4 2 6)) (=> 1>)]
                             [else 'hi]))
                        2)
                       (list 2 6))
         (check-equal? ((☯ (switch
-                            [(member _ (list 1 5 4 2 6)) (=> 1> length)]
+                            [(member (list 1 5 4 2 6)) (=> 1> length)]
                             [else 'hi]))
                        2)
                       2)
@@ -689,12 +689,12 @@
                        (list add1 sub1))
                       6)
         (check-equal? ((☯ (switch
-                              [+ (=> 1>)]
+                            [+ (=> 1>)]
                             [else 'hi]))
                        2 3)
                       5)
         (check-equal? ((☯ (switch
-                            [(apply sort < _ #:key identity) (=> 1>)]
+                            [(~>> △ (sort < #:key identity)) (=> 1>)]
                             [else 'no]))
                        (list 2 1 3))
                       (list 1 2 3)
