@@ -46,11 +46,13 @@
                               (string-append "q:"
                                              (symbol->string
                                               (syntax->datum #'f-name)))))
-  (begin (displayln (~a "Running " name " benchmark..."))
+  (begin (displayln (~a name ":"))
          (for ([f (list f-builtin f-qi)]
                [label (list "λ" "☯")])
            (let ([ms (measure runner f n-times)])
              (displayln (~a label ": " ms " ms"))))))
+
+(displayln "\nRunning flat benchmarks...")
 
 (run-benchmark "Conditionals"
                check-value
@@ -66,3 +68,15 @@
                check-list
                root-mean-square
                500000)
+
+(displayln "\nRunning Recursive benchmarks...")
+
+(run-benchmark "Factorial"
+               check-value
+               fact
+               100000)
+
+(run-benchmark "Pingala"
+               check-value
+               ping
+               10000)

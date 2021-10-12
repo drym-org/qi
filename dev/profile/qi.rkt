@@ -2,7 +2,9 @@
 
 (provide cond-fn
          compose-fn
-         root-mean-square)
+         root-mean-square
+         fact
+         ping)
 
 (require (only-in math sqr)
          qi)
@@ -17,3 +19,12 @@
 
 (define-flow root-mean-square
   (~> (map sqr _) (-< (apply + _) length) / sqrt))
+
+(define-switch fact
+  [(< 2) 1]
+  [else (~> (-< _ (~> sub1 fact)) *)])
+
+(define-switch ping
+  [(< 2) _]
+  [else (~> (-< sub1
+                (- 2)) (>< ping) +)])

@@ -2,7 +2,9 @@
 
 (provide cond-fn
          compose-fn
-         root-mean-square)
+         root-mean-square
+         fact
+         ping)
 
 (require (only-in math sqr))
 
@@ -19,3 +21,14 @@
     (let ([mean-squares (/ (apply + squares)
                            (length squares))])
       (sqrt mean-squares))))
+
+(define (fact n)
+  (if (< n 2)
+      1
+      (* (fact (sub1 n)) n)))
+
+(define (ping n)
+  (if (< n 2)
+      n
+      (+ (ping (sub1 n))
+         (ping (- n 2)))))
