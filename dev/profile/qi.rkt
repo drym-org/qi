@@ -4,7 +4,11 @@
          compose-fn
          root-mean-square
          fact
-         ping)
+         ping
+         filter-map-fn
+         filter-map-values
+         double-list
+         double-values)
 
 (require (only-in math sqr)
          qi)
@@ -28,3 +32,15 @@
   [(< 2) _]
   [else (~> (-< sub1
                 (- 2)) (>< ping) +)])
+
+(define-flow filter-map-fn
+  (~> △ (>< (if odd? sqr ⏚)) ▽))
+
+(define-flow filter-map-values
+  (>< (if odd? sqr ⏚)))
+
+(define-flow double-list
+  (~> △ (>< (-< _ _)) ▽))
+
+(define-flow double-values
+  (>< (-< _ _)))

@@ -32,6 +32,13 @@
     (let ([vs (range i (+ i 10))])
       (fn vs))))
 
+(define (check-values fn how-many)
+  (for ([i (in-range how-many)])
+    (let ([vs (range i (+ i 10))])
+      (call-with-values (λ ()
+                          (apply values vs))
+                        fn))))
+
 (define-syntax-parse-rule (run-benchmark name
                                          runner
                                          f-name
@@ -67,6 +74,26 @@
 (run-benchmark "Root Mean Square"
                check-list
                root-mean-square
+               500000)
+
+(run-benchmark "Filter-map"
+               check-list
+               filter-map-fn
+               500000)
+
+(run-benchmark "Filter-map values"
+               check-values
+               filter-map-values
+               500000)
+
+(run-benchmark "Double list"
+               check-list
+               double-list
+               500000)
+
+(run-benchmark "Double values"
+               check-values
+               double-values
                500000)
 
 (displayln "\nRunning Recursive benchmarks...")
