@@ -187,6 +187,13 @@ provide appropriate error messages at the level of the DSL.
 
   ;;; Conditionals
 
+  [(_ ((~datum if) consequent:clause
+                   alternative:clause))
+   #'(λ args
+       ;; the first argument is the predicate flow here
+       (if (apply (car args) (cdr args))
+           (apply (flow consequent) (cdr args))
+           (apply (flow alternative) (cdr args))))]
   [(_ ((~datum if) condition:clause
                    consequent:clause
                    alternative:clause))
@@ -283,6 +290,7 @@ provide appropriate error messages at the level of the DSL.
 
   ;;; Higher-order flows
 
+  ;; map, filter, and fold
   [(_ (~or (~datum ><) (~datum amp)))
    #'map-values]
   [(_ ((~or (~datum ><) (~datum amp)) onex:clause))

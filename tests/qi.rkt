@@ -567,6 +567,26 @@
      "conditionals"
      (test-suite
       "if"
+      (check-equal? ((☯ (if sub1 add1))
+                     negative?
+                     5)
+                    6
+                    "control form of if, where the predicate is an input")
+      (check-equal? ((☯ (if sub1 add1))
+                     positive?
+                     5)
+                    4
+                    "control form of if, where the predicate is an input")
+      (check-equal? ((☯ (if + -))
+                     <
+                     5 6)
+                    11
+                    "control form of if, where the predicate is an input")
+      (check-equal? ((☯ (if + -))
+                     >
+                     5 6)
+                    -1
+                    "control form of if, where the predicate is an input")
       (check-equal? ((☯ (if negative? sub1 add1))
                      5)
                     6)
