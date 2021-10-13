@@ -3,6 +3,7 @@
 (provide do-with-value
          just-do
          sum
+         flip
          sort
          true.)
 
@@ -20,6 +21,10 @@
 
 (define (sum lst)
   (apply + lst))
+
+(define (flip f)
+  (λ (x y . args)
+    (apply f y x args)))
 
 (define (sort less-than? #:key key . vs)
   (b:sort (map key vs) less-than?))

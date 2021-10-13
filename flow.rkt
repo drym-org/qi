@@ -285,11 +285,30 @@ provide appropriate error messages at the level of the DSL.
    #'(flow (-< (~> sidex ground)
                onex))]
 
-  ;;; Miscellaneous
+  ;;; Higher-order flows
+
+  [(_ (~datum <<))
+   #'(flow (~> (group 2 _ list) foldr))]
+  [(_ ((~datum <<) fn))
+   #'(λ args
+       (foldr (flow fn) ((flow fn)) args))]
+  [(_ ((~datum <<) fn init))
+   #'(λ args
+       (foldr (flow fn) init args))]
+  [(_ (~datum >>))
+   #'(flow (~> (group 2 _ list) foldl))]
+  [(_ ((~datum >>) fn))
+   #'(λ args
+       (foldl (flow fn) ((flow fn)) args))]
+  [(_ ((~datum >>) fn init))
+   #'(λ args
+       (foldl (flow fn) init args))]
 
   ;; towards universality
   [(_ (~datum apply))
    #'(flow (~> (group 1 _ list) (esc (apply _ _))))]
+
+  ;;; Miscellaneous
 
   ;; escape hatch for racket expressions or anything
   ;; to be "passed through"

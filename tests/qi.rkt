@@ -900,19 +900,45 @@
         (check-equal? a 11))))
 
     (test-suite
-     "universality"
-     (check-equal? ((☯ (~> (-< (gen +) 2 3)
-                           apply)))
-                   5)
-     (check-equal? (parameterize ([current-namespace (make-base-empty-namespace)])
-                     (namespace-require 'racket/base)
-                     (namespace-require 'math)
-                     (namespace-require 'qi)
-                     ((☯ (~> (-< (~> '(☯ (~> sqr add1))
-                                     (eval (current-namespace)))
-                                 3)
-                             apply))))
-                   10))
+     "higher-order flows"
+     (test-suite
+      "left fold >>"
+      (check-equal? ((☯ (~> (>> +))) 1 2 3 4)
+                    10)
+      (check-equal? ((☯ (~> (>> + 1))) 1 2 3 4)
+                    11)
+      (check-equal? ((☯ (~> (>> cons null))) 1 2 3 4)
+                    (list 4 3 2 1))
+      (check-equal? ((☯ (~> (>> (flip cons) null))) 1 2 3 4)
+                    '((((() . 1) . 2) . 3) . 4))
+      (check-equal? ((☯ (~> (-< (gen cons) (gen null) (gen 1 2 3 4)) >>)))
+                    (list 4 3 2 1)))
+     (test-suite
+      "right fold <<"
+      (check-equal? ((☯ (~> (<< +))) 1 2 3 4)
+                    10)
+      (check-equal? ((☯ (~> (<< + 1))) 1 2 3 4)
+                    11)
+      (check-equal? ((☯ (~> (<< cons null))) 1 2 3 4)
+                    (list 1 2 3 4))
+      (check-equal? ((☯ (~> (<< (flip cons) null))) 1 2 3 4)
+                    '((((() . 4) . 3) . 2) . 1))
+      (check-equal? ((☯ (~> (-< (gen cons) (gen null) (gen 1 2 3 4)) <<)))
+                    (list 1 2 3 4)))
+     (test-suite
+      "apply"
+      (check-equal? ((☯ (~> (-< (gen +) 2 3)
+                            apply)))
+                    5)
+      (check-equal? (parameterize ([current-namespace (make-base-empty-namespace)])
+                      (namespace-require 'racket/base)
+                      (namespace-require 'math)
+                      (namespace-require 'qi)
+                      ((☯ (~> (-< (~> '(☯ (~> sqr add1))
+                                      (eval (current-namespace)))
+                                  3)
+                              apply))))
+                    10)))
     (test-suite
      "arity modulating forms"
      (check-true ((☯ (and% positive? even?))
