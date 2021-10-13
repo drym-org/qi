@@ -146,12 +146,8 @@ provide appropriate error messages at the level of the DSL.
             #'((flow onex) ...)))))]
   [(_ ((~or (~datum ~>>) (~datum thread-right)) onex:clause ...))
    #'(flow (~> (esc (right-threading-clause onex)) ...))]
-  [(_ ((~or (~datum ><) (~datum amp)) onex:clause))
-   #'(curry map-values (flow onex))]
   [(_ (~or (~datum X) (~datum crossover)))
    #'(flow (~> ▽ reverse △))]
-  [(_ ((~datum pass) onex:clause))
-   #'(curry filter-values (flow onex))]
   [(_ ((~or (~datum ==) (~datum relay)) onex:clause ...))
    #'(relay (flow onex) ...)]
   [(_ ((~or (~datum -<) (~datum tee)) onex:clause ...))
@@ -287,6 +283,14 @@ provide appropriate error messages at the level of the DSL.
 
   ;;; Higher-order flows
 
+  [(_ (~or (~datum ><) (~datum amp)))
+   #'map-values]
+  [(_ ((~or (~datum ><) (~datum amp)) onex:clause))
+   #'(curry map-values (flow onex))]
+  [(_ (~datum pass))
+   #'filter-values]
+  [(_ ((~datum pass) onex:clause))
+   #'(curry filter-values (flow onex))]
   [(_ (~datum <<))
    #'(flow (~> (group 2 _ list) foldr))]
   [(_ ((~datum <<) fn))

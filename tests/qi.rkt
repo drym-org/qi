@@ -392,43 +392,6 @@
        (check-equal? ((☯ X) "a")
                      "a"))
      (test-case
-         "><"
-       (check-equal? ((☯ (~> (>< sqr)
-                             +))
-                      3 5)
-                     34)
-       (check-equal? ((☯ (~> (>< _)
-                             +))
-                      3 5)
-                     8
-                     "amp with don't-care")
-       (check-equal? ((☯ (~> (>< ⏚)
-                             +))
-                      5 7)
-                     0
-                     "amp with arity-nullifying clause")
-       (check-equal? ((☯ (~> (>< (-< _ _))
-                             +))
-                      5)
-                     10
-                     "amp with arity-increasing clause")
-       (check-equal? ((☯ (~> (amp sqr)
-                             +))
-                      3 5)
-                     34
-                     "named amplification form"))
-     (test-case
-         "pass"
-       (check-equal? ((☯ (~> (pass positive?)
-                             +))
-                      -3 5)
-                     5)
-       (check-equal? ((☯ (~> (pass positive?)
-                             +))
-                      -5 -7)
-                     0
-                     "pass with arity-nullifying clause"))
-     (test-case
          "-<"
        (check-equal? ((☯ (~> (-< sqr add1)
                              +))
@@ -901,6 +864,49 @@
 
     (test-suite
      "higher-order flows"
+     (test-suite
+      "><"
+      (check-equal? ((☯ (~> >< +))
+                     sqr 3 5)
+                    34)
+      (check-equal? ((☯ (~> (>< sqr)
+                            +))
+                     3 5)
+                    34)
+      (check-equal? ((☯ (~> (>< _)
+                            +))
+                     3 5)
+                    8
+                    "amp with don't-care")
+      (check-equal? ((☯ (~> (>< ⏚)
+                            +))
+                     5 7)
+                    0
+                    "amp with arity-nullifying clause")
+      (check-equal? ((☯ (~> (>< (-< _ _))
+                            +))
+                     5)
+                    10
+                    "amp with arity-increasing clause")
+      (check-equal? ((☯ (~> (amp sqr)
+                            +))
+                     3 5)
+                    34
+                    "named amplification form"))
+     (test-suite
+      "pass"
+      (check-equal? ((☯ (~> pass +))
+                     positive? -3 5 2)
+                    7)
+      (check-equal? ((☯ (~> (pass positive?)
+                            +))
+                     -3 5 2)
+                    7)
+      (check-equal? ((☯ (~> (pass positive?)
+                            +))
+                     -5 -7)
+                    0
+                    "pass with arity-nullifying clause"))
      (test-suite
       "left fold >>"
       (check-equal? ((☯ (~> (>> +))) 1 2 3 4)
