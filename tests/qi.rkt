@@ -199,11 +199,11 @@
       (check-equal? ((☯ (~> ▽ (string-join ""))))
                     ""))
      (test-suite
-      "prism"
+      "sep"
       (check-equal? ((☯ (~> △ +))
                      null)
                     0)
-      (check-equal? ((☯ (~> prism +))
+      (check-equal? ((☯ (~> sep +))
                      null)
                     0)
       (check-equal? ((☯ △)
@@ -298,9 +298,11 @@
      (test-suite
       "interactions between components"
       (test-case
-          "prism and collect"
+          "prisms"
         (check-equal? ((☯ (~> △ ▽)) (list 1 2 3))
-                      (list 1 2 3)))))
+                      (list 1 2 3))
+        (check-equal? ((☯ (~> ▽ △ string-append)) "a" "b" "c")
+                      "abc"))))
 
     (test-suite
      "routing forms"

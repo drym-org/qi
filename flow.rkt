@@ -130,7 +130,7 @@ provide appropriate error messages at the level of the DSL.
   [(_ (~datum none?)) #'none?]
   [(_ (~or (~datum ▽) (~datum collect)))
    #'list]
-  [(_ (~or (~datum △) (~datum prism)))
+  [(_ (~or (~datum △) (~datum sep)))
    #'(flow (apply values _))]
 
   ;;; Core routing elements
