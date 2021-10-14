@@ -284,11 +284,14 @@ provide appropriate error messages at the level of the DSL.
                         #'onex))))]
   [(_ ((~datum loop) pred:clause mapex:clause combex:clause retex:clause))
    #'(letrec ([loop (☯ (if pred
-                           (~> (-< (~> car mapex)
-                                   (~> cdr loop))
+                           (~> (group 1 mapex loop)
                                combex)
                            retex))])
        loop)]
+  [(_ ((~datum loop) pred:clause mapex:clause combex:clause))
+   #'(flow (loop pred mapex combex ⏚))]
+  [(_ ((~datum loop) pred:clause mapex:clause))
+   #'(flow (loop pred mapex _ ⏚))]
   [(_ ((~datum loop2) pred:clause mapex:clause combex:clause))
    #'(letrec ([loop2 (☯ (if pred
                             (~> (== (-< cdr
