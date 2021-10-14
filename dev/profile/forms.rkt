@@ -33,6 +33,11 @@
           add1))
    vs))
 
+(define (amp . vs)
+  (apply
+   (☯ (>< sqr))
+   vs))
+
 (run-benchmark "group"
                check-values
                (local group)
@@ -42,3 +47,8 @@
                check-values
                (local relay)
                50000)
+
+(run-benchmark "amp"
+               check-values
+               (local amp)
+               300000)
