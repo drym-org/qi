@@ -282,11 +282,21 @@ provide appropriate error messages at the level of the DSL.
           (cons '~>
                 (repeat (syntax->datum #'n)
                         #'onex))))]
-  [(_ ((~datum loop) onex:clause pred:clause))
+  [(_ ((~datum loop) pred:clause mapex:clause combex:clause retex:clause))
    #'(letrec ([loop (☯ (if pred
-                           (~> onex loop)
-                           _))])
+                           (~> (-< (~> car mapex)
+                                   (~> cdr loop))
+                               combex)
+                           retex))])
        loop)]
+  [(_ ((~datum loop2) pred:clause mapex:clause combex:clause))
+   #'(letrec ([loop2 (☯ (if pred
+                            (~> (== (-< cdr
+                                        (~> car mapex)) _)
+                                (group 1 _ combex)
+                                loop2)
+                            2>))])
+       loop2)]
   [(_ (~datum inverter))
    #'(flow (>< NOT))]
   [(_ ((~or (~datum ε) (~datum effect)) sidex:clause onex:clause))
