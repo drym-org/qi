@@ -282,24 +282,6 @@ provide appropriate error messages at the level of the DSL.
           (cons '~>
                 (repeat (syntax->datum #'n)
                         #'onex))))]
-  [(_ ((~datum loop) pred:clause mapex:clause combex:clause retex:clause))
-   #'(letrec ([loop (☯ (if pred
-                           (~> (group 1 mapex loop)
-                               combex)
-                           retex))])
-       loop)]
-  [(_ ((~datum loop) pred:clause mapex:clause combex:clause))
-   #'(flow (loop pred mapex combex ⏚))]
-  [(_ ((~datum loop) pred:clause mapex:clause))
-   #'(flow (loop pred mapex _ ⏚))]
-  [(_ ((~datum loop2) pred:clause mapex:clause combex:clause))
-   #'(letrec ([loop2 (☯ (if pred
-                            (~> (== (-< cdr
-                                        (~> car mapex)) _)
-                                (group 1 _ combex)
-                                loop2)
-                            2>))])
-       loop2)]
   [(_ (~datum inverter))
    #'(flow (>< NOT))]
   [(_ ((~or (~datum ε) (~datum effect)) sidex:clause onex:clause))
@@ -333,6 +315,26 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~datum >>) fn init))
    #'(λ args
        (foldl (flow fn) init args))]
+
+  ;; looping
+  [(_ ((~datum loop) pred:clause mapex:clause combex:clause retex:clause))
+   #'(letrec ([loop (☯ (if pred
+                           (~> (group 1 mapex loop)
+                               combex)
+                           retex))])
+       loop)]
+  [(_ ((~datum loop) pred:clause mapex:clause combex:clause))
+   #'(flow (loop pred mapex combex ⏚))]
+  [(_ ((~datum loop) pred:clause mapex:clause))
+   #'(flow (loop pred mapex _ ⏚))]
+  [(_ ((~datum loop2) pred:clause mapex:clause combex:clause))
+   #'(letrec ([loop2 (☯ (if pred
+                            (~> (== (-< cdr
+                                        (~> car mapex)) _)
+                                (group 1 _ combex)
+                                loop2)
+                            2>))])
+       loop2)]
 
   ;; towards universality
   [(_ (~datum apply))

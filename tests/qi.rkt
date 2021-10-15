@@ -954,6 +954,30 @@
       (check-equal? ((☯ (~> (-< (gen cons) (gen null) (gen 1 2 3 4)) <<)))
                     (list 1 2 3 4)))
      (test-suite
+      "loop"
+      (check-equal? ((☯ (~> (loop (~> ▽ (not null?))
+                                  sqr)
+                            ▽)) 1 2 3)
+                    (list 1 4 9))
+      (check-equal? ((☯ (~> (loop (~> ▽ (not null?))
+                                  sqr
+                                  +
+                                  0))) 1 2 3)
+                    14))
+     (test-suite
+      "loop2"
+      (check-equal? ((☯ (~> (loop2 (~> 1> (not null?))
+                                   sqr
+                                   cons)))
+                     (list 1 2 3) null)
+                    (list 9 4 1))
+      (check-equal? ((☯ (~> (loop2 (~> 1> (not null?))
+                                   sqr
+                                   +)))
+                     (list 1 2 3)
+                     0)
+                    14))
+     (test-suite
       "apply"
       (check-equal? ((☯ (~> (-< (gen +) 2 3)
                             apply)))
