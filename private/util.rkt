@@ -30,16 +30,19 @@
 (define (loom-compose f g [n #f])
   (let ([n (or n (procedure-arity f))])
     (λ args
-      (if (< (length args) n)
-          (error 'group (~a "Can't select "
-                            n
-                            " arguments from "
-                            args))
-          (let ([sargs (take args n)]
-                [rargs (drop args n)])
-            (apply values
-                   (append (values->list (apply f sargs))
-                           (values->list (apply g rargs)))))))))
+      (let ([num-args (length args)])
+        (if (< num-args n)
+           (if (= 0 num-args)
+               (values)
+               (error 'group (~a "Can't select "
+                                 n
+                                 " arguments from "
+                                 args)))
+           (let ([sargs (take args n)]
+                 [rargs (drop args n)])
+             (apply values
+                    (append (values->list (apply f sargs))
+                            (values->list (apply g rargs))))))))))
 
 (define (parity-xor . args)
   (not
