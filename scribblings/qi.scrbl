@@ -5,7 +5,10 @@
          racket/sandbox
          @for-label[qi
                     racket
-                    (only-in relation ->number ->string sum)]]
+                    (only-in relation
+                             ->number
+                             ->string
+                             sum)]]
 
 @(define eval-for-docs
   (parameterize ([sandbox-output 'string]
@@ -23,18 +26,20 @@
 
 @defmodule[qi]
 
-An embedded, general-purpose language to allow convenient framing of programming logic in terms of functional @emph{flows}.
+An embeddable, general-purpose, Turing-complete language to allow convenient framing of programming logic in terms of functional @emph{flows}.
 
 One way to structure computations is as a flowchart, with arrows representing logical transitions indicating the sequence in which actions are performed. Aside from this ordering, these actions are independent of one another and could be anything at all. This is the standard model we implicitly employ when writing functions in Racket or another programming language. The present module provides another way, where computations are structured as a flow like a flow of energy, electricity passing through a circuit, rivers flowing through channels. In this model, arrows represent that the outputs of one flow feed into another. This constraint allows us to compose functions at a high level to derive complex and robust functional pipelines from simple components with a minimum of repetition and boilerplate, engendering @hyperlink["https://www.theschooloflife.com/thebookoflife/wu-wei-doing-nothing/"]{effortless clarity}.
 
 @examples[
     #:eval eval-for-docs
+    ((☯ (~> sqr add1)) 3)
     ((☯ (and positive? odd?)) 5)
     ((☯ (<= 5 _ 10)) 6)
     ((☯ (<= 5 _ 10)) 12)
     ((☯ (~> (>< ->string) string-append)) 5 7)
+    (~> (2 3) + sqr)
     (define-switch (abs n)
-      [negative? (* -1)]
+      [negative? -]
       [else _])
     (abs -5)
     (abs 5)
