@@ -255,6 +255,62 @@ The core interface to the flow language is the form @racket[☯]. In addition, o
   Similiar to the function form of @racket[define] but constrained to be a (predicate-based) dispatcher. This is exactly equivalent to @racket[(define name (switch-lambda args [predicate consequent ...] ... [else consequent ...]))].
 }
 
+@section{Forms}
+
+@defidform[_]{
+  The symbol @racket[_] means different things depending on the context, but when used on its own, it is the identity flow or trivial transformation, where the outputs are the same as the inputs.
+}
+
+@defform[(gen expr ...)]{
+  Generate the values of the provided Racket expressions as flows. This is one of the most common ways to translate an ordinary value into a flow.
+}
+
+@defform[(one-of? expr ...)]{
+  Is the input one of the indicated values?
+}
+
+@defform[(all flo)]{
+  Do @emph{all} of the inputs satisfy the predicate @racket[flo]?
+}
+
+@defform[(any flo)]{
+  Do @emph{any} of the inputs satisfy the predicate @racket[flo]?
+}
+
+@defform[(none flo)]{
+  Output true if @emph{none} of the inputs satisfy the predicate @racket[flo].
+}
+
+@defform[(and flo ...)]{
+  Output true if the inputs, when considered together, satisfy each of the @racket[flo] predicates.
+}
+
+@defform[(or flo ...)]{
+  Output true if the inputs, when considered together, satisfy any of the @racket[flo] predicates.
+}
+
+@defform[(not flo)]{
+  Output true if the inputs, when considered together, do @emph{not} satisfy the predicate @racket[flo].
+}
+
+@deftogether[(
+@defform[#:link-target? #f
+         (~> flo ...)]
+@defform[#:link-target? #f
+         (~>> flo ...)]
+)]{
+  Compose flows in sequence, from left to right. In the metaphor of an analog electrical circuit, you could think of this as a wire.
+
+  @racket[~>] "threads" the arguments in the leading position, while @racket[~>>] threads them in the trailing position. Argument positions may also be explicitly indicated via a template¹, either individually or en masse.
+}
+
+@deftogether[(
+@defform[(-< flo ...)]
+@defform[(tee flo ...)]
+)]{
+  Tee junction.
+}
+
 @section{Usage}
 
 The Qi language isn't specific to a domain (except the domain of functions!) and may be used in normal (e.g. Racket) code simply by employing the appropriate @seclink["Forms"]{form}.
