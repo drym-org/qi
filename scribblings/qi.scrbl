@@ -68,69 +68,99 @@ This section provides a specification of the basic syntax recognizable to all of
 
 @;{TODO: describe syntax - and, or, %, not, apply, with-key, .., and%, or%, ...}
 
-@section{Forms}
+@section{Interface}
 
-The core form that defines and uses the flow language is @racket[☯], while other forms such as @racket[on], @racket[switch], and @racket[~>] leverage the former to provide convenient syntax in specialized cases. @racket[on] provides a way to declare the arguments to the flow up front. @racket[~>] is similar to @racket[on] but implicitly threads the arguments through a sequence of flows. @racket[switch] is a conditional dispatch form analogous to @racket[cond] whose predicate and consequent expressions are all flows. In addition, other forms like @racket[define-flow] and @racket[define-switch] are provided that leverage these to create functions constrained to the flow language, for use in defining predicates, dispatchers, or arbitrary transformations. The advantage of using these forms over the usual general-purpose @racket[define] form is that they are more clear and more robust, as the constraints they impose minimize boilerplate by narrowing scope, while also providing guardrails against programmer error.
+The core interface to the flow language is the form @racket[☯]. In addition, other forms such as @racket[on], @racket[switch], and @racket[~>] build on top of @racket[☯] to provide convenient syntax in specialized cases. @racket[on] provides a way to declare the arguments to the flow up front. @racket[~>] is similar to @racket[on] but implicitly threads the arguments through a sequence of flows. @racket[switch] is a conditional dispatch form analogous to @racket[cond] whose predicate and consequent expressions are all flows. In addition, other forms like @racket[define-flow] and @racket[define-switch] are provided that leverage these to create functions constrained to the flow language, for use in defining predicates, dispatchers, or arbitrary transformations. The advantage of using these forms over the usual general-purpose @racket[define] form is that they are more clear and more robust, as the constraints they impose minimize boilerplate by narrowing scope, while also providing guardrails against programmer error.
 
 @deftogether[(
 @defform*/subs[[(☯ flow-expr)]
                ([flow-expr _
-                           (one-of? flow-expr)
+                           (one-of? expr ...)
                            (all flow-expr)
                            (any flow-expr)
                            (none flow-expr)
-                           (and flow-expr)
-                           (or flow-expr)
+                           (and flow-expr ...)
+                           (or flow-expr ...)
                            (not flow-expr)
-                           (gen flow-expr)
-                           (NOT flow-expr)
-                           (AND flow-expr)
-                           (OR flow-expr)
-                           (NOR flow-expr)
-                           (NAND flow-expr)
-                           (XOR flow-expr)
-                           (XNOR flow-expr)
-                           (and% flow-expr)
-                           (or% flow-expr)
-                           (~> flow-expr)
-                           (thread flow-expr)
-                           (~>> flow-expr)
-                           (thread-right flow-expr)
-                           (any? flow-expr)
-                           (all? flow-expr)
-                           (none? flow-expr)
-                           (X flow-expr)
-                           (crossover flow-expr)
+                           (gen expr ...)
+                           NOT
+                           !
+                           AND
+                           &
+                           OR
+                           ||
+                           NOR
+                           NAND
+                           XOR
+                           XNOR
+                           (and% flow-expr ...)
+                           (or% flow-expr ...)
+                           any?
+                           all?
+                           none?
+                           ▽
+                           collect
+                           △
+                           sep
+                           ⏚
+                           ground
+                           (~> flow-expr ...)
+                           (thread flow-expr ...)
+                           (~>> flow-expr ...)
+                           (thread-right flow-expr ...)
+                           X
+                           crossover
+                           (== flow-expr ...)
+                           (relay flow-expr ...)
+                           (-< flow-expr ...)
+                           (tee flow-expr ...)
+                           (select index ...)
+                           (block index ...)
+                           (bundle (index ...) flow-expr flow-expr)
+                           (group number flow-expr flow-expr)
+                           (sieve flow-expr flow-expr flow-expr)
+                           (if flow-expr flow-expr flow-expr)
+                           (switch switch-expr ...)
+                           (gate flow-expr)
+                           1>
+                           2>
+                           3>
+                           4>
+                           5>
+                           6>
+                           7>
+                           8>
+                           9>
+                           (fanout number)
+                           (feedback flow-expr number)
+                           inverter
+                           (ε flow-expr flow-expr)
+                           (effect flow-expr flow-expr)
                            (>< flow-expr)
                            (amp flow-expr)
                            (pass flow-expr)
-                           (== flow-expr)
-                           (relay flow-expr)
-                           (-< flow-expr)
-                           (tee flow-expr)
-                           (select flow-expr)
-                           (group flow-expr)
-                           (sieve flow-expr)
-                           (if flow-expr)
-                           (switch flow-expr)
-                           (gate flow-expr)
-                           (ground flow-expr)
-                           (fanout flow-expr)
-                           (feedback flow-expr)
-                           (inverter flow-expr)
-                           (effect flow-expr)
-                           (collect flow-expr)
-                           (apply flow-expr)
-                           (esc flow-expr)
-                           (val:literal flow-expr)
-                           (quote flow-expr)
-                           ((__) flow-expr)
-                           ((_) flow-expr)
-                           (() flow-expr)
-                           (ex flow-expr)
-                           (_ flow-expr)
-    ])]
-  @defform[(flow ...)]
+                           (<< flow-expr expr)
+                           (>> flow-expr expr)
+                           (loop flow-expr flow-expr flow-expr flow-expr)
+                           (loop2 flow-expr flow-expr flow-expr)
+                           apply
+                           (esc flow-expr ...)
+                           literal
+                           (quote value)
+                           (quasiquote value)
+                           (quote-syntax value)
+                           (syntax value)
+                           (expr expr ... __ expr ...)
+                           (expr expr ... _ expr ...)
+                           (expr expr ...)
+                           expr
+                           _]
+                [expr a-racket-expression]
+                [index exact-positive-integer?]
+                [number exact-nonnegative-integer?]
+                [literal a-racket-literal]
+                [value a-racket-value])]
+  @defform[(flow flow-expr)]
   )]{
   Define a @tech{flow}.
 
