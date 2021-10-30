@@ -13,7 +13,8 @@
          loom-compose
          parity-xor
          arg
-         except-args)
+         except-args
+         call)
 
 (require racket/match
          (only-in racket/function

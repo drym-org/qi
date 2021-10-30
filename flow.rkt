@@ -338,7 +338,7 @@ provide appropriate error messages at the level of the DSL.
 
   ;; towards universality
   [(_ (~datum apply))
-   #'(flow (~> (group 1 _ list) (esc (apply _ _))))]
+   #'call]
 
   ;;; Miscellaneous
 
