@@ -12,6 +12,7 @@
                      "cover"
                      "cover-coveralls"
                      "sandbox-lib"
+                     "fancy-app"
                      "math-lib"
                      "relation"))
 (define scribblings '(("scribblings/qi.scrbl" ())))
