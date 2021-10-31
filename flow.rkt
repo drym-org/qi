@@ -344,8 +344,8 @@ provide appropriate error messages at the level of the DSL.
 
   ;; escape hatch for racket expressions or anything
   ;; to be "passed through"
-  [(_ ((~datum esc) ex:expr ...))
-   #'(begin ex ...)]
+  [(_ ((~datum esc) ex:expr))
+   #'ex]
 
   ;; a literal is interpreted as a flow generating it
   [(_ val:literal) #'(flow (gen val))]

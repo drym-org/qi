@@ -228,10 +228,7 @@
          "escape hatch"
        (check-equal? ((☯ (esc (first (list + *)))) 3 7)
                      10
-                     "normal racket expressions")
-       (check-equal? ((☯ (esc + (second (list + *)))) 3 7)
-                     21
-                     "multiple expressions in escape clause"))
+                     "normal racket expressions"))
      (test-suite
       "elementary boolean gates"
       (test-case
