@@ -69,6 +69,12 @@ The core interface to the flow language is the form @racket[☯]. In addition, o
 @deftogether[(
 @defform*/subs[[(☯ flow-expr)]
                ([flow-expr _
+                           (gen expr ...)
+                           △
+                           sep
+                           ▽
+                           collect
+                           (esc flow-expr ...)
                            (one-of? expr ...)
                            (all flow-expr)
                            (any flow-expr)
@@ -76,7 +82,8 @@ The core interface to the flow language is the form @racket[☯]. In addition, o
                            (and flow-expr ...)
                            (or flow-expr ...)
                            (not flow-expr)
-                           (gen expr ...)
+                           (and% flow-expr ...)
+                           (or% flow-expr ...)
                            NOT
                            !
                            AND
@@ -87,15 +94,10 @@ The core interface to the flow language is the form @racket[☯]. In addition, o
                            NAND
                            XOR
                            XNOR
-                           (and% flow-expr ...)
-                           (or% flow-expr ...)
                            any?
                            all?
                            none?
-                           ▽
-                           collect
-                           △
-                           sep
+                           inverter
                            ⏚
                            ground
                            (~> flow-expr ...)
@@ -108,14 +110,8 @@ The core interface to the flow language is the form @racket[☯]. In addition, o
                            (relay flow-expr ...)
                            (-< flow-expr ...)
                            (tee flow-expr ...)
-                           (select index ...)
-                           (block index ...)
-                           (bundle (index ...) flow-expr flow-expr)
-                           (group number flow-expr flow-expr)
-                           (sieve flow-expr flow-expr flow-expr)
-                           (if flow-expr flow-expr flow-expr)
-                           (switch switch-expr ...)
-                           (gate flow-expr)
+                           (fanout number)
+                           (feedback flow-expr number)
                            1>
                            2>
                            3>
@@ -125,11 +121,14 @@ The core interface to the flow language is the form @racket[☯]. In addition, o
                            7>
                            8>
                            9>
-                           (fanout number)
-                           (feedback flow-expr number)
-                           inverter
-                           (ε flow-expr flow-expr)
-                           (effect flow-expr flow-expr)
+                           (select index ...)
+                           (block index ...)
+                           (bundle (index ...) flow-expr flow-expr)
+                           (group number flow-expr flow-expr)
+                           (sieve flow-expr flow-expr flow-expr)
+                           (if flow-expr flow-expr flow-expr)
+                           (switch switch-expr ...)
+                           (gate flow-expr)
                            (>< flow-expr)
                            (amp flow-expr)
                            (pass flow-expr)
@@ -137,8 +136,9 @@ The core interface to the flow language is the form @racket[☯]. In addition, o
                            (>> flow-expr expr)
                            (loop flow-expr flow-expr flow-expr flow-expr)
                            (loop2 flow-expr flow-expr flow-expr)
+                           (ε flow-expr flow-expr)
+                           (effect flow-expr flow-expr)
                            apply
-                           (esc flow-expr ...)
                            literal
                            (quote value)
                            (quasiquote value)
