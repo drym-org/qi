@@ -287,6 +287,9 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~or (~datum ε) (~datum effect)) sidex:clause onex:clause))
    #'(flow (-< (~> sidex ground)
                onex))]
+  [(_ ((~or (~datum ε) (~datum effect)) sidex:clause))
+   #'(flow (-< (~> sidex ground)
+               _))]
 
   ;;; Higher-order flows
 

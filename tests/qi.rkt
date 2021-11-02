@@ -873,6 +873,12 @@
       (check-equal? ((☯ (ε sub1 add1))
                      5)
                     6)
+      (check-equal? (let ([sv (void)])
+                      ((☯ (ε (~> sub1 (esc (λ (x) (set! sv x))))))
+                       5)
+                      sv)
+                    4
+                    "pure side effect")
       (let ([a 10])
         (check-equal? ((☯ (ε (esc (λ (_)
                                     (set! a (add1 a))))
