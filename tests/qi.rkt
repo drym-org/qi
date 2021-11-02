@@ -211,7 +211,11 @@
                     1)
       (check-equal? ((☯ (~> △ +))
                      (list 1 2 3 4))
-                    10))
+                    10)
+      (check-exn exn:fail:contract?
+                 (thunk ((☯ (~> △ +))
+                         #(1 2 3 4)))
+                 10))
      (test-case
          "gen"
        (check-equal? ((☯ (gen 5)))

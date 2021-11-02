@@ -131,7 +131,11 @@ provide appropriate error messages at the level of the DSL.
   [(_ (~or (~datum ▽) (~datum collect)))
    #'list]
   [(_ (~or (~datum △) (~datum sep)))
-   #'(flow (apply values _))]
+   #'(flow (if list?
+               (apply values _)
+               (raise-argument-error '△
+                                     "list?"
+                                     _)))]
 
   ;;; Core routing elements
 
