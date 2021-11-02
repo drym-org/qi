@@ -429,7 +429,7 @@ The core interface to the flow language is the form @racket[☯]. In addition, o
   @defidform[8>]
   @defidform[9>]
 )]{
-  Aliases for inputs, by index. Equivalent to @racket[(select N)], for index @racket[N].
+  Aliases for inputs, by index. Equivalent to @racket[(select N)], for index @racket[N]. If you need to select more than one input, use @racket[select] directly.
 }
 
 @deftogether[(
@@ -465,6 +465,8 @@ The core interface to the flow language is the form @racket[☯]. In addition, o
                               [flow-expr (=> flow-expr)]
                               [else flow-expr]])]{
   The flow analogue of @racket[cond], this is a predicate-based dispatcher where the predicate and consequent expressions are all flows. When the @racket[=>] form is used in a consequent flow, the consequent receives @emph{N + 1} inputs, where the first input is the result of the predicate flow, and the remaining @racket[N] inputs are the inputs to the switch. This form is analogous to the @racket[=>] symbol when used in a @racket[cond].
+
+  Note that if none of the conditions are met, this flow outputs @emph{no values}. If you need a specific value such as @racket[void], indicate it explicitly via @racket[[else (void)]].
 }
 
 @defform[(gate condition-flo)]{
