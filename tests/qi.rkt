@@ -612,6 +612,22 @@
                      15)
                     0))
      (test-suite
+      "when"
+      (check-equal? ((☯ (when positive? add1))
+                     5)
+                    6)
+      (check-equal? ((☯ (~> (when positive? add1) +))
+                     -5)
+                    0))
+     (test-suite
+      "unless"
+      (check-equal? ((☯ (~> (unless positive? add1) +))
+                     5)
+                    0)
+      (check-equal? ((☯ (unless positive? add1))
+                     -5)
+                    -4))
+     (test-suite
       "switch"
       (check-equal? ((☯ (switch [negative? sub1]))
                      -5)

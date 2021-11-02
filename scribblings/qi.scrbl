@@ -127,6 +127,8 @@ The core interface to the flow language is the form @racket[☯]. In addition, o
                            (group number flow-expr flow-expr)
                            (sieve flow-expr flow-expr flow-expr)
                            (if flow-expr flow-expr flow-expr)
+                           (when flow-expr flow-expr)
+                           (unless flow-expr flow-expr)
                            (switch switch-expr ...)
                            (gate flow-expr)
                            (>< flow-expr)
@@ -455,8 +457,14 @@ The core interface to the flow language is the form @racket[☯]. In addition, o
 
 @subsection{Conditionals}
 
-@defform[(if condition-flo consequent-flo alternative-flo)]{
+@deftogether[(
+  @defform[(if condition-flo consequent-flo alternative-flo)]
+  @defform[(when condition-flo consequent-flo)]
+  @defform[(unless condition-flo alternative-flo)]
+)]{
   The flow analogue of @racket[if], this is the basic conditional, passing the inputs through either @racket[consequent-flo] or @racket[alternative-flo], depending on whether they satisfy @racket[condition-flo].
+
+  @racket[when] is shorthand for @racket[(if condition-flo consequent-flo ⏚)] and @racket[unless] is shorthand for @racket[(if condition-flo ⏚ alternative-flo)].
 }
 
 @defform*/subs[#:link-target? #f
@@ -503,8 +511,12 @@ The core interface to the flow language is the form @racket[☯]. In addition, o
            (loop condition-flo map-flo combine-flo)]
   @defform[#:link-target? #f
            (loop condition-flo map-flo)]
+  @defform[#:link-target? #f
+           (loop map-flo)]
 )]{
   A simple loop for structural recursion on the input values, this applies @racket[map-flo] to the first input on each successive iteration and recurses on the remaining inputs, combining these using @racket[combine-flo] to yield the result as long as the inputs satisfy @racket[condition-flo]. When the inputs do not satisfy @racket[condition-flo], @racket[return-flo] is applied to the inputs to yield the result at that terminating step. If the condition is satisfied and there are no further values, the loop terminates naturally.
+
+  If unspecified, @racket[condition-flo] defaults to @racket[#t], @racket[combine-flo] defaults to @racket[_], and @racket[return-flo] defaults to @racket[⏚].
 }
 
 @defform[(loop2 condition-flo map-flo combine-flo)]{
