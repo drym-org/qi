@@ -330,6 +330,8 @@ provide appropriate error messages at the level of the DSL.
    #'(flow (loop pred mapex combex ⏚))]
   [(_ ((~datum loop) pred:clause mapex:clause))
    #'(flow (loop pred mapex _ ⏚))]
+  [(_ ((~datum loop) mapex:clause))
+   #'(flow (loop #t mapex _ ⏚))]
   [(_ ((~datum loop2) pred:clause mapex:clause combex:clause))
    #'(letrec ([loop2 (☯ (if pred
                             (~> (== (-< cdr

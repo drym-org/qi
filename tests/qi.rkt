@@ -966,7 +966,10 @@
                                   sqr
                                   +
                                   0))) 1 2 3)
-                    14))
+                    14)
+      (check-equal? ((☯ (~> (loop sqr) ▽))
+                     1 2 3)
+                    (list 1 4 9)))
      (test-suite
       "loop2"
       (check-equal? ((☯ (~> (loop2 (~> 1> (not null?))
