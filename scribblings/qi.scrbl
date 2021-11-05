@@ -47,17 +47,25 @@ The former way is often necessary when writing functions at a low level, where t
     (root-mean-square (range 10))
   ]
 
+@table-of-contents[]
+
 @section{Introduction}
 
  A @deftech{flow} is either made up of flows, or is a native (e.g. Racket) function. Flows may be composed using a number of combinators that could yield either linear or nonlinear composite flows.
 
- The semantics of a flow is function invocation -- simply invoke a flow with inputs (i.e. ordinary arguments) to obtain the outputs. A flow in general is @code{m × n}, i.e. it accepts @code{m} inputs and yields @code{n} outputs, for arbitrary non-negative integers @code{m} and @code{n}.
+ A flow in general accepts @code{m} inputs and yields @code{n} outputs, for arbitrary non-negative integers @code{m} and @code{n}. We say that such a flow is @code{m × n}.
 
- Any value or expression can be incorporated into flows by wrapping it with the @racket[gen] form, which "lifts" an ordinary value to a flow.
+ The semantics of a flow is function invocation -- simply invoke a flow with inputs (i.e. ordinary arguments) to obtain the outputs.
 
-@section{Interface}
+ The Qi language allows you to describe and use flows in your code.
 
-The core interface to the flow language is the form @racket[☯]. In addition, other forms such as @racket[on], @racket[switch], and @racket[~>] build on top of @racket[☯] to provide convenient syntax in specialized cases.
+@section{Usage}
+
+ Qi isn't specific to a domain (except the domain of functions!) and may be used in normal (e.g. Racket) code simply by employing an appropriate @seclink["Language_Interface"]{interface} form.
+
+@section{Language Interface}
+
+The core entry-point to the flow language is the form @racket[☯]. In addition, other forms such as @racket[on], @racket[switch], and @racket[~>] build on top of @racket[☯] to provide convenient syntax in specialized cases. Together, these forms represent the interface between the host language (e.g. Racket) and Qi.
 
 @subsection{Core}
 
@@ -286,9 +294,9 @@ The following definition forms may be used in place of the usual general-purpose
 
 The advantage of using these over the general-purpose @racket[define] form is that, as they express the definition at the appropriate level of abstraction and with the attendant constraints for the type of flow, they can be more clear and more robust, minimizing boilerplate while providing guardrails against programmer error.
 
-@section{Forms}
+@section{Qi Forms}
 
-The core forms of the Qi language, these may be used in all flows.
+The core syntax of the Qi language. These forms may be used in any flow.
 
 @subsection{Basic}
 
@@ -845,8 +853,8 @@ A parenthesized expression that isn't one of the Qi forms is treated as a partia
     ((☯ (< 5 __ 10)) 6 7 11)
   ]
 
-@section{Usage}
+@section{Interoperating with the Host Language}
 
-The Qi language isn't specific to a domain (except the domain of functions!) and may be used in normal (e.g. Racket) code simply by employing the appropriate @seclink["Forms"]{form}.
+Arbitrary native (e.g. Racket) expressions can be used in flows in one of two ways. The first and most common way is to simply wrap the expression with a @racket[gen] form while within a flow context. This flow generates the @tech/reference{value} of the expression.
 
-Arbitrary native (e.g. Racket) expressions can be used in flows in one of two ways. The first and most common way is to simply wrap the expression with a @racket[gen] form while within a flow context. This flow generates the @tech/reference{value} of the expression. The second way is if you want to describe a flow using the native language instead of the flow language. In this case, use the @racket[esc] form. The wrapped expression in this case @emph{must} evaluate to a function, since functions are the only values describable in the native language that can be treated as flows. Note that use of @racket[esc] is unnecessary for function identifiers since these are usable as flows directly, and these can even be partially applied using standard application syntax, optionally with @racket[_] and @racket[__] to indicate argument placement. But you may still need it in the specific case where the identifier collides with a Qi form.
+The second way is if you want to describe a flow using the native language instead of the flow language. In this case, use the @racket[esc] form. The wrapped expression in this case @emph{must} evaluate to a function, since functions are the only values describable in the native language that can be treated as flows. Note that use of @racket[esc] is unnecessary for function identifiers since these are usable as flows directly, and these can even be partially applied using standard application syntax, optionally with @racket[_] and @racket[__] to indicate argument placement. But you may still need it in the specific case where the identifier collides with a Qi form.
