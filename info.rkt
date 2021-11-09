@@ -20,6 +20,6 @@
 (define test-include-paths '("tests"))
 (define test-omit-paths '("dev" "coverage"))
 (define clean '("compiled" "doc" "doc/qi" "private/compiled"))
-(define pkg-desc "Another way to structure computations.")
+(define pkg-desc "A general-purpose functional DSL.")
 (define version "0.0")
 (define pkg-authors '(countvajhula))
