@@ -35,7 +35,9 @@ The former way is often necessary when writing functions at a low level, where t
 
 @examples[
     #:eval eval-for-docs
+    #:label #f
     ((☯ (~> sqr add1)) 3)
+    (map (☯ (~> sqr add1)) (list 1 2 3 4))
     (filter (☯ (< 5 _ 10)) (list 3 7 9 12))
     (~> (2 3) (>< ->string) string-append)
     (define-flow (≈ m n)

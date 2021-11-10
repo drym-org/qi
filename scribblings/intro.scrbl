@@ -53,22 +53,20 @@
 
 Let's say we want to implement @racket[abs]. This is a function that returns the absolute value of the input argument, i.e. the value unchanged if it is positive, and negated otherwise. With Racket, we might implement it like this:
 
-@examples[
-    #:eval eval-for-docs
+@codeblock{
     (define (abs v)
       (if (negative? v)
           (- v)
           v))
-  ]
+}
 
 For this very simple function, the input argument is mentioned @racket[4] times! An equivalent Qi definition is:
 
-@examples[
-    #:eval eval-for-docs
+@codeblock{
     (define-switch abs-value
       [negative? -]
       [else _])
-  ]
+}
 
 This uses the definition form of @racket[switch], which is a flow-oriented conditional form that is an alternative to @racket[if] and @racket[cond]. The @racket[_] symbol here indicates that the input is to be passed through unchanged, i.e. it is the trivial or identity flow. The input argument is not mentioned; rather, the definition expresses @racket[abs] as a conditioned transformation of the input.
 
@@ -98,6 +96,16 @@ Now, it isn't just about being @emph{able} to enter them, but being able to ente
 
 Some specific suggestions are included below for commonly-used editors.
 
+@subsection{DrRacket}
+
+Stephen De Gabrielle created a @seclink["top" #:doc '(lib "quickscript/scribblings/quickscript.scrbl")]{quickscript} for convenient entry of Qi forms, which you can find @hyperlink["https://gist.github.com/spdegabrielle/a6c1dc432599591bb7808c01ec04cfdb"]{here}. This option is based on using keyboard shortcuts to enter exactly the form you need.
+
+Laurent Orseau's @other-doc['(lib "quickscript-extra/scribblings/quickscript-extra.scrbl")] library includes the @hyperlink["https://github.com/Metaxal/quickscript-extra/blob/master/scripts/complete-word.rkt"]{complete-word} script that allows you to define shorthands that expand into pre-written templates (e.g. @racket[(☯ \|)], with @racket[\|] indicating the cursor position), and includes some Qi templates with defaults that you could @seclink["Shadow_scripts" #:doc '(lib "quickscript/scribblings/quickscript.scrbl")]{customize further}. This option is based on short textual aliases with a common keyboard shortcut.
+
+There are also a few general unicode entry options, including a quickscript for @hyperlink["https://gist.github.com/Metaxal/c328dca7849018388f792094f8e0895c"]{unicode entry in DrRacket}, and @hyperlink["https://docs.racket-lang.org/the-unicoder/index.html"]{The Unicoder} by William Hatch for system-wide unicode entry. While these options are useful and recommended, they are not a substitute for the Qi-specific options above but a complement to them.
+
+Use any combination of the above that would help you express yourself economically and fluently.
+
 @subsection{Vim/Emacs}
 
 For Vim and Emacs Evil users, here are suggested keybindings for use in insert mode:
@@ -112,16 +120,6 @@ For Vim and Emacs Evil users, here are suggested keybindings for use in insert m
                (list @racket[⏚] @code{C-=}))]
 
 For vanilla Emacs users, I don't have specific suggestions since usage patterns vary so widely. But you may want to define a custom @hyperlink["https://www.emacswiki.org/emacs/InputMethods"]{input method} for use with Qi (i.e. don't rely on the LaTeX input method, which is too general, and therefore isn't fast), or possibly use a @hyperlink["https://www.emacswiki.org/emacs/Hydra"]{Hydra}.
-
-@subsection{DrRacket}
-
-Stephen De Gabrielle created a @seclink["top" #:doc '(lib "quickscript/scribblings/quickscript.scrbl")]{quickscript} for convenient entry of Qi forms, which you can find @hyperlink["https://gist.github.com/spdegabrielle/a6c1dc432599591bb7808c01ec04cfdb"]{here}. This option is based on using keyboard shortcuts to enter exactly the form you need.
-
-Laurent Orseau's @other-doc['(lib "quickscript-extra/scribblings/quickscript-extra.scrbl")] library includes the @hyperlink["https://github.com/Metaxal/quickscript-extra/blob/master/scripts/complete-word.rkt"]{complete-word} script that allows you to define shorthands that expand into pre-written templates (e.g. @racket[(☯ \|)], with @racket[\|] indicating the cursor position), and includes some Qi templates that you could customize further. This option is based on short textual aliases with a common keyboard shortcut.
-
-There are also a few general unicode entry options, including a quickscript for @hyperlink["https://gist.github.com/Metaxal/c328dca7849018388f792094f8e0895c"]{unicode entry in DrRacket}, and @hyperlink["https://docs.racket-lang.org/the-unicoder/index.html"]{The Unicoder} by William Hatch for system-wide unicode entry. While these options are useful and recommended, they are not a substitute for the Qi-specific options above but a complement to them.
-
-Use any combination of the above that would help you express yourself economically and fluently.
 
 @section{Relationship to the Threading Macro}
 
