@@ -14,8 +14,10 @@
                      "sandbox-lib"
                      "fancy-app"
                      "math-lib"
+                     "quickscript"
+                     "threading-doc"
                      "relation"))
-(define scribblings '(("scribblings/qi.scrbl" ())))
+(define scribblings '(("scribblings/qi.scrbl" (multi-page))))
 (define compile-omit-paths '("dev" "tests" "coverage"))
 (define test-include-paths '("tests"))
 (define test-omit-paths '("dev" "coverage"))
