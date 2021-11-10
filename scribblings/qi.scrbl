@@ -29,7 +29,7 @@
 
 An embeddable, general-purpose language to allow convenient framing of programming logic in terms of functional @emph{flows}.
 
-One way to structure computations -- the one we typically employ when writing functions in Racket or another programming language -- is as a flowchart, with arrows representing transitions of control, indicating the sequence in which actions are performed. In this model, aside from the implied ordering, the actions are independent of one another and could be anything at all. Another way -- provided by the present module -- is to structure computations as a fluid flow, like a flow of energy, electricity passing through a circuit, streams flowing around rocks. In this model, arrows represent that actions feed into one another.
+One way to structure computations -- the one we typically employ when writing functions in Racket or another programming language -- is as a flowchart, with arrows representing transitions of control, indicating the sequence in which actions are performed. Aside from the implied ordering, the actions are independent of one another and could be anything at all. Another way -- provided by the present module -- is to structure computations as a fluid flow, like a flow of energy, electricity passing through a circuit, streams flowing around rocks. Here, arrows represent that actions feed into one another.
 
 The former way is often necessary when writing functions at a low level, where the devil is in the details. But once these functional building blocks are available, the latter model is often more appropriate, allowing us to compose functions at a high level to derive complex and robust functional pipelines from simple components with a minimum of repetition and boilerplate, engendering @hyperlink["https://www.theschooloflife.com/thebookoflife/wu-wei-doing-nothing/"]{effortless clarity}. The facilities in the present module allow you to employ this flow-oriented model in any source program.
 
@@ -61,7 +61,7 @@ The former way is often necessary when writing functions at a low level, where t
 
 @section{Usage}
 
- Qi isn't specific to a domain (except the domain of functions!) and may be used in normal (e.g. Racket) code simply by employing an appropriate @seclink["Language_Interface"]{interface} form.
+ Qi isn't specific to a domain (except the domain of functions!) and may be used in normal (e.g. Racket) code simply by employing an appropriate @seclink["Language_Interface"]{interface} form. Since some of the forms use and favor unicode characters (while also providing plain-English aliases), see @secref["Flowing_with_the_Flow"] for tips on entering these characters.
 
 @section{Language Interface}
 
@@ -858,3 +858,42 @@ A parenthesized expression that isn't one of the Qi forms is treated as a partia
 Arbitrary native (e.g. Racket) expressions can be used in flows in one of two ways. The first and most common way is to simply wrap the expression with a @racket[gen] form while within a flow context. This flow generates the @tech/reference{value} of the expression.
 
 The second way is if you want to describe a flow using the native language instead of the flow language. In this case, use the @racket[esc] form. The wrapped expression in this case @emph{must} evaluate to a function, since functions are the only values describable in the native language that can be treated as flows. Note that use of @racket[esc] is unnecessary for function identifiers since these are usable as flows directly, and these can even be partially applied using standard application syntax, optionally with @racket[_] and @racket[__] to indicate argument placement. But you may still need it in the specific case where the identifier collides with a Qi form.
+
+@section{Flowing with the Flow}
+
+If your code flows but you don't, then we're only halfway there. This section will cover some UX considerations related to entering unicode characters that are used in the Qi forms, so that expressing flows in code is just a thought away.
+
+The main thing is, you want to ensure that these forms have convenient keybindings:
+
+@tabular[#:sep @hspace[1]
+         (list (list @racket[☯])
+               (list @racket[~>])
+               (list @racket[-<])
+               (list @racket[△])
+               (list @racket[▽])
+               (list @racket[⏚]))]
+
+Now, it isn't just about being @emph{able} to enter them, but being able to enter them @emph{without effort}. This makes a difference, because having convenient keybindings for Qi is less about entering unicode conveniently than it is about @emph{expressing ideas} economically.
+
+Some specific suggestions are included below for commonly-used editors.
+
+@subsection{Vim/Emacs}
+
+For Vim and Emacs Evil users, here are suggested keybindings for use in insert mode:
+
+@tabular[#:sep @hspace[1]
+         (list (list @bold{Form} @bold{Keybinding})
+               (list @racket[☯] @code{C-;})
+               (list @racket[~>] @code{C->})
+               (list @racket[-<] @code{C-<})
+               (list @racket[△] @code{C-v})
+               (list @racket[▽] @code{C-V})
+               (list @racket[⏚] @code{C-=}))]
+
+For vanilla Emacs users, I don't have specific suggestions since usage patterns vary so widely. But you may want to define a custom @hyperlink["https://www.emacswiki.org/emacs/InputMethods"]{input method} for use with Qi (i.e. don't rely on the LaTeX input method, which is too general, and therefore isn't fast), or possibly use a @hyperlink["https://www.emacswiki.org/emacs/Hydra"]{Hydra}.
+
+@subsection{Dr. Racket}
+
+Stephen De Gabrielle created a quickscript for convenient entry of Qi forms, which you can find @hyperlink["https://gist.github.com/spdegabrielle/a6c1dc432599591bb7808c01ec04cfdb"]{here}.
+
+There are also a few general unicode entry options, including Laurent Orseau's quickscript for @hyperlink["https://gist.github.com/Metaxal/c328dca7849018388f792094f8e0895c"]{unicode entry in DrRacket}, and @hyperlink["https://docs.racket-lang.org/the-unicoder/index.html"]{The Unicoder} by William Hatch for system-wide unicode entry. While these options are useful and recommended, they are not a substitute for the Qi-specific options above but a complement to them.
