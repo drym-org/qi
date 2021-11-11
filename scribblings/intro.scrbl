@@ -80,7 +80,7 @@ The second way is if you want to describe a flow using the native language inste
 
 @section{Flowing with the Flow}
 
-If your code flows but you don't, then we're only halfway there. This section will cover some UX considerations related to entering unicode characters that are used in the Qi forms, so that expressing flows in code is just a thought away.
+If your code flows but you don't, then we're only halfway there. This section will cover some UX considerations related to programming in Qi, so that expressing flows in code is just a thought away.
 
 The main thing is, you want to ensure that these forms have convenient keybindings:
 
@@ -92,7 +92,7 @@ The main thing is, you want to ensure that these forms have convenient keybindin
                (list @racket[▽])
                (list @racket[⏚]))]
 
-Now, it isn't just about being @emph{able} to enter them, but being able to enter them @emph{without effort}. This makes a difference, because having convenient keybindings for Qi is less about entering unicode conveniently than it is about @emph{expressing ideas} economically.
+Now, it isn't just about being @emph{able} to enter them, but being able to enter them @emph{without effort}. This makes a difference, because having convenient keybindings for Qi is less about entering unicode conveniently than it is about @emph{expressing ideas} economically, just as having evocative symbols in Qi is less about brevity and more about appealing to the intuition. After all, as the old writer's adage goes, "show, don't tell."
 
 Some specific suggestions are included below for commonly-used editors.
 
