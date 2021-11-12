@@ -52,5 +52,6 @@ The former way is often necessary when writing functions at a low level, where t
 @table-of-contents[]
 
 @include-section["intro.scrbl"]
+@include-section["tutorial.scrbl"]
 @include-section["interface.scrbl"]
 @include-section["forms.scrbl"]

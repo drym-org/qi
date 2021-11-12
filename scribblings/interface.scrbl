@@ -122,9 +122,11 @@ The core entry-point to the flow language is the form @racket[☯]. In addition,
                 [value a-racket-value])]
   @defform[(flow flow-expr)]
   )]{
-  Define a @tech{flow}.
+  Define a @tech{flow} by using the various @seclink["Qi_Forms"]{forms} of the Qi language.
 
-This produces a value (an ordinary function) that, when invoked, transforms inputs according to the flow specification. A flow defined in this manner does not name its inputs, and does not actually produce output until invoked with inputs.
+This produces a value that is an ordinary function. When invoked with arguments, this function passes those arguments as inputs to the defined flow, producing its outputs as return values. A flow defined in this manner does not name its inputs, and like any function, it only produces output when it is invoked with inputs.
+
+See also @racket[on] and @racket[~>], which are shorthands to invoke the flow with arguments immediately.
 
 @examples[
     #:eval eval-for-docs
@@ -139,12 +141,16 @@ This produces a value (an ordinary function) that, when invoked, transforms inpu
 
   This is a way to pass inputs to a flow that is an alternative to the usual function invocation syntax (i.e. an alternative to simply invoking the flow with arguments). It may be preferable in certain cases, since the inputs are named at the beginning rather than at the end.
 
+  In the respect that it both defines as well as invokes the flow, it has the same relationship to @racket[☯] as @racket[let] has to @racket[lambda], and can be used in analogous ways.
+
   Equivalent to @racket[((☯ flow-expr) arg ...)].
 
 @examples[
     #:eval eval-for-docs
     (on (5) (and positive? odd?))
-    (on (3 5) (~> (>< ->string) string-append))
+    (on ((* 2 3) (+ 5 2))
+      (~> (>< ->string)
+          string-append))
   ]
 }
 
@@ -159,6 +165,8 @@ This produces a value (an ordinary function) that, when invoked, transforms inpu
   @margin-note{In these docs, we'll sometimes refer to the host language as "Racket" for convenience, but it should be understood that Qi may be used with any host language.}
 
   As flows themselves can be nonlinear, these threading forms too support arbitrary arity changes along the way to generating the result.
+
+  In the respect that these both define as well as invoke the flow, they have the same relationship to @racket[☯] as @racket[let] has to @racket[lambda], and can be used in analogous ways.
 
   Equivalent to @racket[((☯ (~> flow-expr ...)) args ...)].
 
