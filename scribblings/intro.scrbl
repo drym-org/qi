@@ -275,7 +275,7 @@ Some specific suggestions are included below for commonly used editors.
 
 @subsection{DrRacket}
 
-Stephen De Gabrielle created a @seclink["top" #:doc '(lib "quickscript/scribblings/quickscript.scrbl")]{quickscript} for convenient entry of Qi forms, which you can find @hyperlink["https://gist.github.com/spdegabrielle/a6c1dc432599591bb7808c01ec04cfdb"]{here}. This option is based on using keyboard shortcuts to enter exactly the form you need.
+Stephen De Gabrielle created a @seclink["top" #:doc '(lib "quickscript/scribblings/quickscript.scrbl")]{quickscript} for convenient entry of Qi forms: @other-doc['(lib "qi-quickscripts/scribblings/qi-quickscripts.scrbl")]. This option is based on using keyboard shortcuts to enter exactly the form you need.
 
 Laurent Orseau's @other-doc['(lib "quickscript-extra/scribblings/quickscript-extra.scrbl")] library includes the @hyperlink["https://github.com/Metaxal/quickscript-extra/blob/master/scripts/complete-word.rkt"]{complete-word} script that allows you to define shorthands that expand into pre-written templates (e.g. @racket[(☯ \|)], with @racket[\|] indicating the cursor position), and includes some Qi templates with defaults that you could @seclink["Shadow_scripts" #:doc '(lib "quickscript/scribblings/quickscript.scrbl")]{customize further}. This option is based on short textual aliases with a common keyboard shortcut.
 
