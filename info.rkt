@@ -15,6 +15,8 @@
                      "fancy-app"
                      "math-lib"
                      "quickscript"
+                     "quickscript-extra"
+                     "Qi-Quickscript"
                      "threading-doc"
                      "relation"))
 (define scribblings '(("scribblings/qi.scrbl" (multi-page))))
