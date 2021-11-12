@@ -252,3 +252,9 @@ The following definition forms may be used in place of the usual general-purpose
 }
 
 The advantage of using these over the general-purpose @racket[define] form is that, as they express the definition at the appropriate level of abstraction and with the attendant constraints for the type of flow, they can be more clear and more robust, minimizing boilerplate while providing guardrails against programmer error.
+
+@section{Interoperating with the Host Language}
+
+Arbitrary native (e.g. Racket) expressions can be used in flows in one of two ways. The first and most common way is to simply wrap the expression with a @racket[gen] form while within a flow context. This flow generates the @tech/reference{value} of the expression.
+
+The second way is if you want to describe a flow using the native language instead of the flow language. In this case, use the @racket[esc] form. The wrapped expression in this case @emph{must} evaluate to a function, since functions are the only values describable in the native language that can be treated as flows. Note that use of @racket[esc] is unnecessary for function identifiers since these are usable as flows directly, and these can even be partially applied using standard application syntax, optionally with @racket[_] and @racket[__] to indicate argument placement. But you may still need it in the specific case where the identifier collides with a Qi form.
