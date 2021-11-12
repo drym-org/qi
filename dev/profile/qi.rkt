@@ -22,7 +22,8 @@
   (~> add1 sqr sub1))
 
 (define-flow root-mean-square
-  (~> (map sqr _) (-< (apply + _) length) / sqrt))
+  (~> (-< (~>> △ (>< sqr) +)
+          length) / sqrt))
 
 (define-switch fact
   [(< 2) 1]

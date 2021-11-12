@@ -22,10 +22,8 @@
   ((compose sub1 sqr add1) v))
 
 (define (root-mean-square vs)
-  (let ([squares (map sqr vs)])
-    (let ([mean-squares (/ (apply + squares)
-                           (length squares))])
-      (sqrt mean-squares))))
+  (sqrt (/ (apply + (map sqr vs))
+           (length vs))))
 
 (define (fact n)
   (if (< n 2)
