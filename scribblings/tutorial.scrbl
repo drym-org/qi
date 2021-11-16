@@ -143,6 +143,8 @@ This uses the definition form of @racket[switch], which is a flow-oriented condi
 
 @section{What Flows?}
 
+Sometimes, it may be natural to express the entire computation as a flow, while at other times it may be better to express just a part of it as a flow. In either case, the most natural representation may not be apparent at the outset, by virtue of the fact that we don't always understand the computation to be performed at the outset. In such cases, it may make sense to take an incremental approach.
+
 The classic Computer Science textbook, "The Structure and Interpretation of Computer Programs," contains the famous "metacircular evaluator" -- a Scheme interpreter written in Scheme. The code given for the @racket[eval] function is:
 
 @codeblock{
@@ -153,52 +155,17 @@ The classic Computer Science textbook, "The Structure and Interpretation of Comp
             [(assignment? exp) (eval-assignment exp env)]
             [(definition? exp) (eval-definition exp env)]
             [(if? exp) (eval-if exp env)]
-            [(lambda? exp)
-             (make-procedure (lambda-parameters exp)
-                             (lambda-body exp)
-                             env)]
-            [(begin? exp)
-             (eval-sequence (begin-actions exp) env)]
+            [(lambda? exp) (make-procedure (lambda-parameters exp)
+                                           (lambda-body exp)
+                                           env)]
+            [(begin? exp) (eval-sequence (begin-actions exp) env)]
             [(cond? exp) (eval (cond->if exp) env)]
-            [(application? exp)
-             (apply (eval (operator exp) env)
-                    (list-of-values (operands exp) env))]
-            [else
-             (error "Unknown expression type -- EVAL" exp)]))
+            [(application? exp) (apply (eval (operator exp) env)
+                                       (list-of-values (operands exp) env))]
+            [else (error "Unknown expression type -- EVAL" exp)]))
 }
 
-If we attempt to express this using flows exclusively, we might end up with something like this:
-
-@codeblock{
-    (define-switch eval
-      [(~> 1> self-evaluating?) 1>]
-      [(~> 1> variable?) lookup-variable-value]
-      [(~> 1> quoted?) (~> 1> text-of-quotation)]
-      [(~> 1> assignment?) eval-assignment]
-      [(~> 1> definition?) eval-definition]
-      [(~> 1> if?) eval-if]
-      [(~> 1> lambda?) (~> (== (-< lambda-parameters
-                                   lambda-body)
-                               _)
-                           make-procedure)]
-      [(~> 1> begin?) (~> (== begin-actions
-                              _)
-                          eval-sequence)]
-      [(~> 1> cond?) (~> (== cond->if
-                             _)
-                         eval)]
-      [(~> 1> application?) (~> (-< (~> (== operator
-                                            _) eval)
-                                    (~> (== operands
-                                            _) △ (>< eval)))
-                                apply)]
-      [else
-       (error "Unknown expression type -- EVAL" 1>)])
-}
-
-While this eliminates more than thirty mentions of the inputs to the function in the Racket version, this version introduces a handful of flow references of its own (i.e. @racket[1>]) and is arguably no more clear than the original -- perhaps more daunting still.
-
-Just because we @emph{can} always frame things as a flow, doesn't mean it's always the most natural way to express the computation. Follow what the computation wants to do, not what you want it to do. In the present case, the function is engaged in evaluating an expression in some environment. It is the expression we are concerned with transforming in some way, with the environment merely providing context. Arguably, therefore, it is the @emph{expression} that flows here, in the @emph{context} of an environment. By modeling the computation this way, we get the following implementation:
+This implementation in Racket mentions the expression to be evaluated, @racket[exp], @emph{twenty-five} times. This is often a sign that the computation can be thought of as a flow. In the present case, it would seem that it is the expression @racket[exp] that flows through a series of checks and transformations in the context of some environment @racket[env]. By modeling the computation this way, we derive the following implementation:
 
 @codeblock{
     (define (eval exp env)
@@ -209,27 +176,46 @@ Just because we @emph{can} always frame things as a flow, doesn't mean it's alwa
         [assignment? (eval-assignment env)]
         [definition? (eval-definition env)]
         [if? (eval-if env)]
-        [lambda?
-         (~> (-< lambda-parameters
-                 lambda-body)
-             (make-procedure env))]
-        [begin?
-          (~> begin-actions (eval-sequence env))]
+        [lambda? (~> (-< lambda-parameters
+                         lambda-body) (make-procedure env))]
+        [begin? (~> begin-actions (eval-sequence env))]
         [cond? (~> cond->if (eval env))]
-        [application?
-         (~> (-< (~> operator (eval env))
-                 (~> operands (list-of-values env) △))
-             apply)]
-        [else
-         (error "Unknown expression type -- EVAL" _)]))
+        [application? (~> (-< (~> operator (eval env))
+                              (~> operands (list-of-values env) △)) apply)]
+        [else (error "Unknown expression type -- EVAL" _)]))
 }
 
-This version makes use of partial application @seclink["Templates_and_Partial_Application"]{templates}, making it a hybrid of Racket and Qi. It eliminates two dozen redundant references to the input expression, and contains almost no syntactic redundancy (unlike the preceding Qi implementation), making it the most clear of the three.
+This version eliminates two dozen redundant references to the input expression that were present in the original Racket implementation. As it uses partial application @seclink["Templates_and_Partial_Application"]{templates} in the consequent flows, this version is essentially a hybrid implementation in Qi and Racket.
 
-This illustrates that while many computations are naturally expressed as flows, it's important to ask just @emph{what} is flowing. Sometimes, this is less apparent than at other times. In such cases, don't try too hard to coerce the computation into one way of looking at things or one language. It's less important to be consistent and more important to be clear.
+Yet, an astute observer may point out that although this eliminates almost all mention of @racket[exp], that it still contains @emph{ten} references to the environment, @racket[env]. In our first attempt at a flow-oriented implementation, we chose to see the @racket[eval] function as a flow of the input @emph{expression} through various checks and transformations. We were led to this choice by the observation that all of the conditions in the original Racket implementation were predicated exclusively on @racket[exp]. But now we see that almost all of the consequent expressions use the @emph{environment}, in addition. That is, it would appear that the environment @racket[env] @emph{flows} through the consequent expressions.
 
-Still, some may say, well I don't agree with this assessment at all. Saying that the expression is what flows is subjective and poorly substantiated. It is both the expression @emph{and} the environment that flow here. Alright, well, pushed to take another look at our first attempt at writing this entirely with flows, we may notice that, really, the predicates are all only concerned with the input expression, while the consequent expressions are concerned with both the expression as well as the environment. What if, instead of the switch simply passing all inputs to all of its component flows, what if we could just indicate to the switch how it should direct these values, at the floodgates, as it were? That way, we could say that the predicates get only the first input, and the consequent expressions get all of the inputs. What if it worked that way? What if, indeed.
+For such cases, by means of a @racket[divert] (or its alias, @racket[%]) clause "at the floodgates," the @racket[switch] form allows us to control which values flow to the predicates and which ones flow to the consequents. In the present case, we'd like the predicates to only receive the input @emph{expression}, and the consequents to receive both the expression as well as the environment. By modeling the flow this way, we arrive at the following pure-Qi implementation.
+
+@codeblock{
+  (define-switch eval
+    (% 1> _)
+    [self-evaluating? 1>]
+    [variable? lookup-variable-value]
+    [quoted? (~> 1> text-of-quotation)]
+    [assignment? eval-assignment]
+    [definition? eval-definition]
+    [if? eval-if]
+    [lambda? (~> (== (-< lambda-parameters
+                         lambda-body)
+                     _) make-procedure)]
+    [begin? (~> (== begin-actions
+                    _) eval-sequence)]
+    [cond? (~> (== cond->if
+                   _) eval)]
+    [application? (~> (-< (~> (== operator
+                                  _) eval)
+                          (~> (== operands
+                                  _) △ (>< eval))) apply)]
+    [else (error "Unknown expression type -- EVAL" 1>)])
+}
+
+This version eliminates the more than @emph{thirty} mentions of the inputs to the function that were present in the Racket version, while introducing four flow references (i.e. @racket[1>]). It is stripped down to the essence of what the @racket[eval] function @emph{does}, encoding a lot of our understanding syntactically -- information that is otherwise gleaned only by manual perusal.
 
 @section{Using the Right Tool for the Job}
 
-These examples hopefully illustrate an age-old doctrine -- use the right tool for the job. A language is the best tool of all, so use the right language to express the task at hand. Sometimes, that language is Qi and sometimes it's Racket and sometimes it's a combination of the two, or something else. Employing a collection of general purpose and specialized languages, perhaps, is the best way to flow!
+These examples hopefully illustrate an age-old doctrine -- use the right tool for the job. A language is the best tool of all, so use the right language to express the task at hand. Sometimes, that language is Qi and sometimes it's Racket and sometimes it's a combination of the two, or something else. Don't try too hard to coerce the computation into one way of looking at things. Ultimately, it's less important to be consistent and more important to be fluent and clear. Employing a potpourri of general purpose and specialized languages, perhaps, is the best way to flow!
