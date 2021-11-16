@@ -17,10 +17,9 @@
 
 (define-syntax-parser switch
   [(_ args:subject
-      [predicate:clause consequent]
-      ...)
+      clause ...)
    #`(on args
-       (switch [predicate consequent] ...))])
+       (switch clause ...))])
 
 (define-syntax-parser switch-lambda
   [(_ (arg:id ...) expr:expr ...)

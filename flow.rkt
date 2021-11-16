@@ -212,11 +212,22 @@ provide appropriate error messages at the level of the DSL.
                        alternative:clause))
    #'(flow (if condition ⏚ alternative))]
   [(_ ((~datum switch)))
-   #'(flow ground)]
+   #'(flow ⏚)]
+  [(_ ((~datum switch) ((~or (~datum divert) (~datum %))
+                        condition-gate:clause
+                        consequent-gate:clause)))
+   #'(flow ⏚)]
   [(_ ((~datum switch) [(~datum else) alternative:clause]))
    #'(flow (if #t
                alternative
-               ground))]
+               ⏚))]
+  [(_ ((~datum switch) ((~or (~datum divert) (~datum %))
+                        condition-gate:clause
+                        consequent-gate:clause)
+                       [(~datum else) alternative:clause]))
+   #'(flow (if #t
+               (~> consequent-gate alternative)
+               ⏚))]
   [(_ ((~datum switch) [condition0:clause ((~datum =>) consequent0:clause ...)]
                        [condition:clause consequent:clause]
                        ...))
@@ -228,12 +239,38 @@ provide appropriate error messages at the level of the DSL.
                    (group 1 ⏚
                           (switch [condition consequent]
                             ...)))))]
+  [(_ ((~datum switch) ((~or (~datum divert) (~datum %))
+                        condition-gate:clause
+                        consequent-gate:clause)
+                       [condition0:clause ((~datum =>) consequent0:clause ...)]
+                       [condition:clause consequent:clause]
+                       ...))
+   ;; we split the flow ahead of time to avoid evaluating
+   ;; the condition more than once
+   #'(flow (~> (-< (~> condition-gate condition0) _)
+               (if 1>
+                   (~> consequent-gate consequent0 ...)
+                   (group 1 ⏚
+                          (switch (divert condition-gate consequent-gate)
+                            [condition consequent]
+                            ...)))))]
   [(_ ((~datum switch) [condition0:clause consequent0:clause]
                        [condition:clause consequent:clause]
                        ...))
    #'(flow (if condition0
                consequent0
                (switch [condition consequent]
+                 ...)))]
+  [(_ ((~datum switch) ((~or (~datum divert) (~datum %))
+                        condition-gate:clause
+                        consequent-gate:clause)
+                       [condition0:clause consequent0:clause]
+                       [condition:clause consequent:clause]
+                       ...))
+   #'(flow (if (~> condition-gate condition0)
+               (~> consequent-gate consequent0)
+               (switch (divert condition-gate consequent-gate)
+                 [condition consequent]
                  ...)))]
   [(_ ((~datum sieve) condition:clause
                       selection-onex:clause
@@ -253,7 +290,7 @@ provide appropriate error messages at the level of the DSL.
                           (list 'arg ...)
                           "(sieve <predicate flow> <selection flow> <remainder flow>)")]
   [(_ ((~datum gate) onex:clause))
-   #'(flow (if onex _ ground))]
+   #'(flow (if onex _ ⏚))]
 
   ;;; High level circuit elements
 
@@ -295,10 +332,10 @@ provide appropriate error messages at the level of the DSL.
   [(_ (~datum inverter))
    #'(flow (>< NOT))]
   [(_ ((~or (~datum ε) (~datum effect)) sidex:clause onex:clause))
-   #'(flow (-< (~> sidex ground)
+   #'(flow (-< (~> sidex ⏚)
                onex))]
   [(_ ((~or (~datum ε) (~datum effect)) sidex:clause))
-   #'(flow (-< (~> sidex ground)
+   #'(flow (-< (~> sidex ⏚)
                _))]
 
   ;;; Higher-order flows

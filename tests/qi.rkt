@@ -629,6 +629,8 @@
                     -4))
      (test-suite
       "switch"
+      (check-equal? ((☯ (~> (switch) +)))
+                    0)
       (check-equal? ((☯ (switch [negative? sub1]))
                      -5)
                     -6)
@@ -668,7 +670,43 @@
       (check-equal? ((☯ (switch [(< 10) _] [else (gen 0)]))
                      15)
                     0)
-      (test-case
+      (test-suite
+       "divert"
+       (check-equal? ((☯ (~> (switch (% _ _)) +)))
+                     0)
+       (check-equal? ((☯ (switch (% 1> _)
+                           [positive? +]
+                           [negative? 'hi]
+                           [else 'bye])) 4 -1)
+                     3)
+       (check-equal? ((☯ (switch (divert 1> _)
+                           [positive? +]
+                           [negative? 'hi]
+                           [else 'bye])) 4 -1)
+                     3
+                     "divert word form")
+       (check-equal? ((☯ (switch (% 1> _)
+                           [positive? +]
+                           [negative? 'hi]
+                           [else 'bye])) -2 -1)
+                     'hi)
+       (check-equal? ((☯ (switch (% 1> _)
+                           [positive? +]
+                           [negative? 'hi]
+                           [else 'bye])) 0 -1)
+                     'bye)
+       (check-equal? ((☯ (switch (% 1> _)
+                           [add1 (=> + sqr)]
+                           [negative? 'hi]
+                           [else 'bye])) 4 -1)
+                     64)
+       (check-equal? ((☯ (switch (% 1> 2>)
+                           [positive? _]
+                           [negative? 'hi]
+                           [else 'bye])) 4 -1)
+                     -1
+                     "diverting to consequent flows"))
+      (test-suite
           "result of predicate expression"
         (check-equal? ((☯ (switch
                             [add1 (=> 1> add1)]
@@ -1339,6 +1377,27 @@
                       [else 'no])
                     (list 1 2 3)
                     "apply in predicate with non-tail arguments"))
+    (test-case
+        "divert"
+      (check-equal? (switch (4 -1)
+                      (% 1> _)
+                      [positive? +]
+                      [negative? 'hi]
+                      [else 'bye])
+                    3)
+      (check-equal? (switch (4 -1)
+                      (% 1> _)
+                      [add1 (=> + sqr)]
+                      [negative? 'hi]
+                      [else 'bye])
+                    64)
+      (check-equal? (switch (4 -1)
+                      (% 1> 2>)
+                      [positive? _]
+                      [negative? 'hi]
+                      [else 'bye])
+                    -1
+                    "diverting to consequent flows"))
     (test-case
         "heterogeneous clauses"
       (check-equal? (switch (-3 5)
