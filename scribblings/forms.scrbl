@@ -26,6 +26,8 @@
 
 The core syntax of the Qi language. These forms may be used in any flow.
 
+@table-of-contents[]
+
 @section{Basic}
 
 @defidform[_]{
@@ -425,13 +427,19 @@ The core syntax of the Qi language. These forms may be used in any flow.
 }
 
 @defform*/subs[#:link-target? #f
-               [(switch switch-expr ...)]
-            	([switch-expr [flow-expr flow-expr]
+               [(switch maybe-divert-expr switch-expr ...)]
+                ([maybe-divert-expr (divert condition-gate-flow consequent-gate-flow)
+                                    (% condition-gate-flow consequent-gate-flow)]
+                 [switch-expr [flow-expr flow-expr]
                               [flow-expr (=> flow-expr)]
                               [else flow-expr]])]{
-  The flow analogue of @racket[cond], this is a dispatcher where the predicate and consequent expressions are all flows, each of which typically receives the @racket[switch] inputs. When the @racket[=>] form is used in a consequent flow, the consequent receives @emph{N + 1} inputs, where the first input is the result of the predicate flow, and the remaining @racket[N] inputs are the inputs to the switch. This form is analogous to the @racket[=>] symbol when used in a @racket[cond].
+  The flow analogue of @racket[cond], this is a dispatcher where the condition and consequent expressions are all flows which operate on the switch inputs.
 
-  Note that if none of the conditions are met, this flow outputs @emph{no values}. If you need a specific value such as @racket[(void)], indicate it explicitly via @racket[[else void]].
+  Typically, each of the component flows -- conditions and consequents both -- receives all of the original inputs to the @racket[switch]. This can be changed by using a @racket[divert] clause, which takes two flow arguments, the first of whose outputs go to all of the condition flows, and the second of whose outputs go to all of the consequent flows. This can be useful in cases where multiple values flow, but only some of them are predicated upon, and others (or all of them) inform the actions to be taken. Using @racket[(divert _ _)] is equivalent to not using it. @racket[%] is a symbolic alias for @racket[divert].
+
+  When the @racket[=>] form is used in a consequent flow, the consequent receives @emph{N + 1} inputs, where the first input is the result of the predicate flow, and the remaining @racket[N] inputs are the a priori inputs to the consequent flow (which are typically the original inputs to the switch, unless modulated with a @racket[divert] clause). This form is analogous to the @racket[=>] symbol when used in a @racket[cond]. Note that while switch can direct any number of values, we can unambiguously channel the result of the predicate to the first input of the consequent here because it is guaranteed to be a single value (otherwise it wouldn't be a predicate).
+
+  If none of the conditions are met, this flow outputs @emph{no values}. If you need a specific value such as @racket[(void)], indicate it explicitly via @racket[[else void]].
 
 @examples[
     #:eval eval-for-docs
@@ -441,6 +449,12 @@ The core syntax of the Qi language. These forms may be used in any flow.
     ((☯ (switch [(member (list 1 2 3)) (=> 1> (map - _))]
                 [else 'not-found]))
      2)
+    ((☯ (switch (% 1> _)
+          [number? cons]
+          [list? append]
+          [else 2>]))
+     (list 3)
+     (list 1 2))
   ]
 }
 

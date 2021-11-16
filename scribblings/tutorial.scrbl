@@ -24,7 +24,7 @@
 
 @title{Tutorial: When Should I Use Qi?}
 
-Let's look at a collection of examples that may help shed light on when you should use Qi vs Racket or another language.
+Okay, so you've read @secref["Usage"] and can write some simple flows. Let's now look at a collection of examples that may help shed light on when you should use Qi vs Racket or another language.
 
 @table-of-contents[]
 

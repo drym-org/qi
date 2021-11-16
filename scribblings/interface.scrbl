@@ -183,14 +183,15 @@ See also @racket[on] and @racket[~>], which are shorthands to invoke the flow wi
 @section[#:tag "interface-conditionals"]{Conditionals}
 
 @defform[(switch (arg ...)
+           maybe-divert-clause
            [predicate consequent]
            ...
            [else consequent])]{
-  A predicate-based dispatch form, usable as an alternative to @racket[cond] and @racket[if].
+  A predicate-based dispatch form, usable as an alternative to @racket[cond], @racket[if], and @racket[match].
 
 Each of the @racket[predicate] and @racket[consequent] expressions is a flow, and they are each typically invoked with @racket[arg ...], so that the arguments need not be mentioned anywhere in the body of the form.
 
-This @emph{Racket}-level form leverages the identically-named @emph{Qi} form. See @secref["Conditionals"] for its full syntax and behavior.
+ This @emph{Racket} form leverages the identically-named @emph{Qi} form. See @secref["Conditionals"] for its full syntax and behavior.
 
 @examples[
     #:eval eval-for-docs
