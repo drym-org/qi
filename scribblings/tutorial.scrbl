@@ -22,17 +22,123 @@
                     '(define (sqr x)
                        (* x x)))))
 
-@title{Tutorial: When Should I Use Qi?}
+@title{Tutorial}
 
-Okay, so you've read @secref["Usage"] and can write some simple flows. Let's now look at a collection of examples that may help shed light on when you should use Qi vs Racket or another language.
+Okay, so you've read @secref["Usage"] and understand at a high level that there are interface macros providing a bridge between Racket and Qi, which allow you to use Qi anywhere in your code. Let's now look at a collection of examples that may help shed light on when you should use Qi vs Racket or another language.
 
 @table-of-contents[]
 
-@section{Hadouken!}
+@section{Basics}
+
+Before we get to the examples, we'll first learn to write some simple flows. The basic way to write a flow is to use the @racket[☯] form. A flow defined this way evaluates to an ordinary function, and you can pass input values to the flow by simply invoking this function with arguments.
+
+Ordinary functions are already flows.
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+    ((☯ sqr) 3)
+  ]
+
+Ordinary functions can be partially applied using templates.
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+    ((☯ (+ 2)) 3)
+    ((☯ (string-append "a" _ "c")) "b")
+  ]
+
+Literals are interpreted as flows generating them.
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+    ((☯ "hello") 3)
+  ]
+
+Values can be "threaded" through multiple flows in sequence.
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+    ((☯ (~> sqr add1)) 3)
+  ]
+
+More than one value can flow.
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+    ((☯ (~> + sqr add1)) 3 5)
+  ]
+
+Since threading values through flows in sequence is so common, you can use a shorthand to immediately invoke such a sequential flow on input values.
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+    (~> (3 5) + sqr add1)
+  ]
+
+Flows may divide values.
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+    ((☯ (-< add1 sub1)) 3)
+    ((☯ (-< + -)) 3 5)
+  ]
+
+Flows may channel values through flows in parallel.
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+    ((☯ (== add1 sub1)) 3 7)
+  ]
+
+You could also pass all input values independently through a common flow.
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+    ((☯ (>< sqr)) 3 4 5)
+  ]
+
+Predicates can be composed by using @racket[and], @racket[or], and @racket[not].
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+    ((☯ (and positive? integer? (not odd?))) 2)
+  ]
+
+It is sometimes useful to separate an input list into its component values using a "prism."
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+    ((☯ (~> △ +)) (list 1 2 3))
+  ]
+
+... or constitute a list out of values using an "upside-down prism."
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+    ((☯ (~> (>< sqr) ▽)) 1 2 3)
+  ]
+
+And those are the basics. Now, let's look at the examples, to gain some insight into when to use Qi.
+
+@section{When Should I Use Qi?}
+
+@subsection{Hadouken!}
 
 When you're interested in transforming values, Qi is often the right language to use.
 
-@subsection{Super Smush Numbers}
+@subsubsection{Super Smush Numbers}
 
 Let's say we'd like to define a function that adds together all of the input numbers, except that instead of using usual addition, we want to just adjoin them ("smush them") together to create a bigger number as the result.
 
@@ -60,7 +166,7 @@ The Racket version needs to be parsed in detail in order to be understood, while
 
 The documentation for the @seclink["top" #:doc '(lib "scribblings/threading.scrbl")]{threading macro} contains additional examples of such transformations which to a first approximation apply to Qi as well (see @secref["Relationship_to_the_Threading_Macro"]).
 
-@subsection{Root-Mean-Square}
+@subsubsection{Root-Mean-Square}
 
 While you can always use Qi to express computations as flows, it isn't always a better way of thinking about them -- just a @emph{different} way, better in some cases but not others. Let's look at an example that illustrates this subjectivity.
 
@@ -84,11 +190,11 @@ This first uses the tee junction, @racket[-<], to fork the input down two flows,
 
 Here, there are reasons to favor either representation. The Racket version doesn't have too much redundancy so it is a fine way to express the computation. The Qi version eliminates the redundant references to the input (as it usually does), but aside from that it is primarily distinguished as being a way to express the computation as a series of transformations evaluated sequentially, while the Racket version expresses it as a compound expression to be evaluated hierarchically. They're just @emph{different} and neither is necessarily better.
 
-@section{The Science of Deduction}
+@subsection{The Science of Deduction}
 
 When you seek to analyze some values and make inferences or assertions about them, or take certain actions based on observed properties of values, or, more generally, when you seek to express anything exhibiting @emph{subject-predicate structure}, Qi is often the right language to use.
 
-@subsection{Compound Predicates}
+@subsubsection{Compound Predicates}
 
 In Racket, if we seek to make a compound assertion about some value, we might do something like this:
 
@@ -120,7 +226,7 @@ In Qi, this would be written as:
 
 They say that perfection is achieved not when there is nothing left to add, but when there is nothing left to take away. Well then.
 
-@subsection{abs}
+@subsubsection{abs}
 
 Let's say we want to implement @racket[abs]. This is a function that returns the absolute value of the input argument, i.e. the value unchanged if it is positive, and negated otherwise -- a conditional transformation. With Racket, we might implement it like this:
 
@@ -141,7 +247,7 @@ For this very simple function, the input argument is mentioned @emph{four} times
 
 This uses the definition form of @racket[switch], which is a flow-oriented conditional analogous to @racket[cond]. The @racket[_] symbol here indicates that the input is to be passed through unchanged, i.e. it is the trivial or identity flow. The input argument is not mentioned; rather, the definition expresses @racket[abs] as a conditioned transformation of the input, that is, the essence of what this function is.
 
-@section{The Structure and Interpretation of Flows}
+@subsection{The Structure and Interpretation of Flows}
 
 Sometimes, it is natural to express the entire computation as a flow, while at other times it may be better to express just a part of it as a flow. In either case, the most natural representation may not be apparent at the outset, by virtue of the fact that we don't always understand the computation at the outset. In such cases, it may make sense to take an incremental approach.
 
