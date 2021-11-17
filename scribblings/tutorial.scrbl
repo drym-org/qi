@@ -141,9 +141,9 @@ For this very simple function, the input argument is mentioned @emph{four} times
 
 This uses the definition form of @racket[switch], which is a flow-oriented conditional analogous to @racket[cond]. The @racket[_] symbol here indicates that the input is to be passed through unchanged, i.e. it is the trivial or identity flow. The input argument is not mentioned; rather, the definition expresses @racket[abs] as a conditioned transformation of the input, that is, the essence of what this function is.
 
-@section{What Flows?}
+@section{The Structure and Interpretation of Flows}
 
-Sometimes, it may be natural to express the entire computation as a flow, while at other times it may be better to express just a part of it as a flow. In either case, the most natural representation may not be apparent at the outset, by virtue of the fact that we don't always understand the computation to be performed at the outset. In such cases, it may make sense to take an incremental approach.
+Sometimes, it is natural to express the entire computation as a flow, while at other times it may be better to express just a part of it as a flow. In either case, the most natural representation may not be apparent at the outset, by virtue of the fact that we don't always understand the computation at the outset. In such cases, it may make sense to take an incremental approach.
 
 The classic Computer Science textbook, "The Structure and Interpretation of Computer Programs," contains the famous "metacircular evaluator" -- a Scheme interpreter written in Scheme. The code given for the @racket[eval] function is:
 
@@ -165,7 +165,7 @@ The classic Computer Science textbook, "The Structure and Interpretation of Comp
             [else (error "Unknown expression type -- EVAL" exp)]))
 }
 
-This implementation in Racket mentions the expression to be evaluated, @racket[exp], @emph{twenty-five} times. This is often a sign that the computation can be thought of as a flow. In the present case, it would seem that it is the expression @racket[exp] that flows through a series of checks and transformations in the context of some environment @racket[env]. By modeling the computation this way, we derive the following implementation:
+This implementation in Racket mentions the expression to be evaluated, @racket[exp], @emph{twenty-five} times. This kind of redundancy is often a sign that the computation can be profitably thought of as a flow. In the present case, we notice that every condition in the @racket[cond] expression is a predicate applied to @racket[exp]. It would seem that it is the expression @racket[exp] that flows, here, through a series of checks and transformations in the context of some environment @racket[env]. By modeling the computation this way, we derive the following implementation:
 
 @codeblock{
     (define (eval exp env)
@@ -181,11 +181,11 @@ This implementation in Racket mentions the expression to be evaluated, @racket[e
         [begin? (~> begin-actions (eval-sequence env))]
         [cond? (~> cond->if (eval env))]
         [application? (~> (-< (~> operator (eval env))
-                              (~> operands (list-of-values env) △)) apply)]
+                              (~> operands △ (>< (eval env)))) apply)]
         [else (error "Unknown expression type -- EVAL" _)]))
 }
 
-This version eliminates two dozen redundant references to the input expression that were present in the original Racket implementation. As it uses partial application @seclink["Templates_and_Partial_Application"]{templates} in the consequent flows, this version is essentially a hybrid implementation in Qi and Racket.
+This version eliminates two dozen redundant references to the input expression that were present in the original Racket implementation, and reads naturally. As it uses partial application @seclink["Templates_and_Partial_Application"]{templates} in the consequent flows, this version could be considered a hybrid implementation in Qi and Racket.
 
 Yet, an astute observer may point out that although this eliminates almost all mention of @racket[exp], that it still contains @emph{ten} references to the environment, @racket[env]. In our first attempt at a flow-oriented implementation, we chose to see the @racket[eval] function as a flow of the input @emph{expression} through various checks and transformations. We were led to this choice by the observation that all of the conditions in the original Racket implementation were predicated exclusively on @racket[exp]. But now we see that almost all of the consequent expressions use the @emph{environment}, in addition. That is, it would appear that the environment @racket[env] @emph{flows} through the consequent expressions.
 
@@ -210,12 +210,18 @@ For such cases, by means of a @racket[divert] (or its alias, @racket[%]) clause 
     [application? (~> (-< (~> (== operator
                                   _) eval)
                           (~> (== operands
-                                  _) △ (>< eval))) apply)]
+                                  _) (△ eval))) apply)]
     [else (error "Unknown expression type -- EVAL" 1>)])
 }
 
-This version eliminates the more than @emph{thirty} mentions of the inputs to the function that were present in the Racket version, while introducing four flow references (i.e. @racket[1>]). It is stripped down to the essence of what the @racket[eval] function @emph{does}, encoding a lot of our understanding syntactically -- information that is otherwise gleaned only by manual perusal.
+This version eliminates the more than @emph{thirty} mentions of the inputs to the function that were present in the Racket version, while introducing four flow references (i.e. @racket[1>]). Some of the clauses are unsettlingly elementary, reading like pseudocode rather than a real implementation, while other clauses become complex flows reflecting the path the inputs take through the expression. This version is stripped down to the essence of what the @racket[eval] function @emph{does}, encoding a lot of our understanding syntactically that otherwise is gleaned only by manual perusal -- for instance, the fact that @emph{all} of the predicates are only concerned with the input expression is apparent on the very first line of the switch body. The complexity in this implementation reflects the complexity of the computation being modeled, nothing more.
+
+While the purist may favor this last implementation, it is a matter of some subjectivity, and some may prefer the compromise between minimalism and familiarity that the hybrid solution represents. Indeed, while the last solution is conceptually the most economical, the hybrid solution turns out to be the most lexically economical, i.e. the shortest in terms of number of characters (although, arguably conceptual economy is the more pertinent criterion since syntax need not be text-based). The original Racket implementation is in third place on both counts.
 
 @section{Using the Right Tool for the Job}
 
-These examples hopefully illustrate an age-old doctrine -- use the right tool for the job. A language is the best tool of all, so use the right language to express the task at hand. Sometimes, that language is Qi and sometimes it's Racket and sometimes it's a combination of the two, or something else. Don't try too hard to coerce the computation into one way of looking at things. Ultimately, it's less important to be consistent and more important to be fluent and clear. Employing a potpourri of general purpose and specialized languages, perhaps, is the best way to flow!
+We've seen a number of examples covering transformations, predicates, and conditionals, both simple and complex, where using Qi to describe the computation was often a natural and elegant choice.
+
+The examples hopefully illustrate an age-old doctrine -- use the right tool for the job. A language is the best tool of all, so use the right language to express the task at hand. Sometimes, that language is Qi and sometimes it's Racket and sometimes it's a combination of the two, or something else. Don't try too hard to coerce the computation into one way of looking at things. It's less important to be consistent and more important to be fluent and clear. And by the same token, it's less important for you to fit your brain to the language and more important for the language to be apt to describe the computation, and consequently for it to encourage a way of thinking about the problem that fits your brain.
+
+Employing a potpourri of general purpose and specialized languages, perhaps, is the best way to flow!
