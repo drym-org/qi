@@ -136,6 +136,9 @@ provide appropriate error messages at the level of the DSL.
                (raise-argument-error '△
                                      "list?"
                                      _)))]
+  [(_ ((~or (~datum △) (~datum sep)) onex:clause))
+   #'(λ (v . vs)
+       ((flow (~> △ (>< (apply onex _ vs)))) v))]
 
   ;;; Core routing elements
 

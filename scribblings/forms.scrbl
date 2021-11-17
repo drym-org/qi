@@ -56,14 +56,25 @@ The core syntax of the Qi language. These forms may be used in any flow.
 @deftogether[(
   @defidform[△]
   @defidform[sep]
+  @defform[#:link-target? #f
+           (△ flo)]
+  @defform[#:link-target? #f
+           (sep flo)]
 )]{
   Separate the input list into its component values. This is the inverse of @racket[▽].
+
+  When used in parametrized form with a presupplied @racket[flo], this flow accepts any number of inputs, where the first is expected to be the list to be unraveled. In this form, the flow separates the list into its component values and passes each through @racket[flo] along with the remaining input values.
 
   @racket[△] and @racket[▽] often allow you to use functions directly where you might otherwise need to use an indirection like @racket[apply] or @racket[list].
 
 @examples[
     #:eval eval-for-docs
     ((☯ (~> △ +)) (list 1 2 3 4))
+    ((☯ (~> △ (>< sqr) ▽)) (list 1 2 3 4))
+    ((☯ (~> (△ +) ▽)) (list 1 2 3) 10)
+    (struct kitten (name age) #:transparent)
+    ((☯ (~> (△ kitten) ▽))
+     (list "Ferdinand" "Imp" "Zacky") 0)
   ]
 }
 
@@ -78,6 +89,7 @@ The core syntax of the Qi language. These forms may be used in any flow.
 @examples[
     #:eval eval-for-docs
     ((☯ (~> ▽ (string-join ""))) "a" "b" "c")
+    ((☯ (~> △ (>< sqr) ▽)) (list 1 2 3 4))
   ]
 }
 
