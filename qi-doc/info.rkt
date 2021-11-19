@@ -1,7 +1,7 @@
 #lang info
 
-(define collection 'multi)
-(define deps '())
+(define collection "qi")
+(define deps '("base"))
 (define build-deps '("scribble-lib"
                      "scribble-abbrevs"
                      "racket-doc"
@@ -15,4 +15,4 @@
                      "threading-doc"
                      "relation"))
 (define scribblings '(("scribblings/qi.scrbl" (multi-page))))
-(define clean '("doc" "doc/qi"))
+(define clean '("compiled" "doc" "doc/qi"))
