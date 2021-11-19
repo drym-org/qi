@@ -23,10 +23,10 @@ help:
 # Primarily for use by CI.
 # Installs dependencies as well as linking this as a package.
 install:
-	raco pkg install --deps search-auto --link $(PACKAGE-NAME)-{lib,test,doc}
+	raco pkg install --deps search-auto --link ./$(PACKAGE-NAME)-{lib,test,doc} ./$(PACKAGE-NAME)
 
 remove:
-	raco pkg remove $(PACKAGE-NAME)-{lib,test,doc}
+	raco pkg remove $(PACKAGE-NAME)-{lib,test,doc} $(PACKAGE-NAME)
 
 # Primarily for day-to-day dev.
 # Build libraries from source.
@@ -61,7 +61,7 @@ test:
 	raco test -exp $(PACKAGE-NAME)-{lib,test,doc}
 
 test-with-errortrace:
-	racket -l errortrace -l racket -e '(require (submod "tests/qi.rkt" test))'
+	racket -l errortrace -l racket -e '(require (submod "qi-test/tests/qi.rkt" test))'
 
 errortrace: test-with-errortrace
 
@@ -69,7 +69,7 @@ docs:
 	raco docs $(PACKAGE-NAME)
 
 coverage-check:
-	raco cover -b -n dev -p $(PACKAGE-NAME)
+	raco cover -b -n dev -p $(PACKAGE-NAME)-{lib,test}
 
 coverage-report:
 	open coverage/index.html
@@ -77,7 +77,7 @@ coverage-report:
 cover: coverage-check coverage-report
 
 cover-coveralls:
-	raco cover -b -n dev -f coveralls -p $(PACKAGE-NAME)
+	raco cover -b -n dev -f coveralls -p $(PACKAGE-NAME)-{lib,test}
 
 profile-forms:
 	echo "Profiling forms..."
