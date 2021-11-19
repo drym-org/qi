@@ -1,6 +1,7 @@
 #lang info
 
 (define version "0.0")
+(define collection "qi")
 (define deps '("base"
                "mischief"
                "fancy-app"
