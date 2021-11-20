@@ -35,7 +35,7 @@ jobs:
       - name: Install Package and its Dependencies
         run: make install
         env:
-          INSTALL_PATH=repo
+          INSTALL_PATH: repo
       - name: Check Dependencies
         run: make check-deps
       - name: Run Tests
@@ -61,6 +61,6 @@ jobs:
       - name: Install Package and its Dependencies
         run: make install
         env:
-          INSTALL_PATH=repo
+          INSTALL_PATH: repo
       - name: Report Coverage
         run: make cover-coveralls
