@@ -24,6 +24,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@master
+        with: { path: repo }
       - name: Install Racket
         uses: Bogdanp/setup-racket@v1.3.1
         with:
@@ -33,6 +34,8 @@ jobs:
           version: ${{ matrix.racket-version }}
       - name: Install Package and its Dependencies
         run: make install
+        env:
+          INSTALL_PATH=repo
       - name: Check Dependencies
         run: make check-deps
       - name: Run Tests
@@ -47,6 +50,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@master
+        with: { path: repo }
       - name: Install Racket
         uses: Bogdanp/setup-racket@v1.3.1
         with:
@@ -56,5 +60,7 @@ jobs:
           version: 'stable'
       - name: Install Package and its Dependencies
         run: make install
+        env:
+          INSTALL_PATH=repo
       - name: Report Coverage
         run: make cover-coveralls
