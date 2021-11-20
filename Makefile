@@ -26,7 +26,7 @@ install:
 	raco pkg install --deps search-auto --link $(PWD)/$(PACKAGE-NAME)-lib $(PWD)/$(PACKAGE-NAME)-test $(PWD)/$(PACKAGE-NAME)-doc $(PWD)/$(PACKAGE-NAME)
 
 remove:
-	raco pkg remove $(PACKAGE-NAME)-{lib,test,doc} $(PACKAGE-NAME)
+	raco pkg remove $(PACKAGE-NAME)-lib $$(PACKAGE-NAME)-test ($(PACKAGE-NAME)-doc PACKAGE-NAME)
 
 # Primarily for day-to-day dev.
 # Build libraries from source.
@@ -48,7 +48,7 @@ build-all:
 # (define clean '("compiled" "doc" "doc/<collect>")) to clean
 # generated docs, too.
 clean:
-	raco setup --fast-clean --pkgs $(PACKAGE-NAME)-{lib,test,doc}
+	raco setup --fast-clean --pkgs $(PACKAGE-NAME)-lib $(PACKAGE-NAME)-test $(PACKAGE-NAME)-doc
 
 # Primarily for use by CI, after make install -- since that already
 # does the equivalent of make setup, this tries to do as little as
@@ -58,7 +58,7 @@ check-deps:
 
 # Suitable for both day-to-day dev and CI
 test:
-	raco test -exp $(PACKAGE-NAME)-{lib,test,doc}
+	raco test -exp $(PACKAGE-NAME)-lib $(PACKAGE-NAME)-test $(PACKAGE-NAME)-doc
 
 test-with-errortrace:
 	racket -l errortrace -l racket -e '(require (submod "qi-test/tests/qi.rkt" test))'
@@ -69,7 +69,7 @@ docs:
 	raco docs $(PACKAGE-NAME)
 
 coverage-check:
-	raco cover -b -n dev -p $(PACKAGE-NAME)-{lib,test}
+	raco cover -b -n dev -p $(PACKAGE-NAME)-lib $(PACKAGE-NAME)-test
 
 coverage-report:
 	open coverage/index.html
@@ -77,7 +77,7 @@ coverage-report:
 cover: coverage-check coverage-report
 
 cover-coveralls:
-	raco cover -b -n dev -f coveralls -p $(PACKAGE-NAME)-{lib,test}
+	raco cover -b -n dev -f coveralls -p $(PACKAGE-NAME)-lib $(PACKAGE-NAME)-test
 
 profile-forms:
 	echo "Profiling forms..."
