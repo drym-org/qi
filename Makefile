@@ -1,8 +1,5 @@
 # Adapted from: http://www.greghendershott.com/2017/04/racket-makefiles.html
 PACKAGE-NAME=qi
-# Install path would be set as an environment variable
-# on the CI server
-INSTALL_PATH ?= .
 
 DEPS-FLAGS=--check-pkg-deps --unused-pkg-deps
 
@@ -26,7 +23,7 @@ help:
 # Primarily for use by CI.
 # Installs dependencies as well as linking this as a package.
 install:
-	raco pkg install --deps search-auto --link $(INSTALL_PATH)/$(PACKAGE-NAME)-{lib,test,doc} $(INSTALL_PATH)/$(PACKAGE-NAME)
+	raco pkg install --deps search-auto --link $(PWD)/$(PACKAGE-NAME)-{lib,test,doc} $(PWD)/$(PACKAGE-NAME)
 
 remove:
 	raco pkg remove $(PACKAGE-NAME)-{lib,test,doc} $(PACKAGE-NAME)
