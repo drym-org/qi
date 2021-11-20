@@ -57,7 +57,7 @@ check-deps:
 	raco setup --no-docs $(DEPS-FLAGS) $(PACKAGE-NAME)
 
 # Suitable for both day-to-day dev and CI
-test:
+test: clean
 	raco test -exp $(PACKAGE-NAME)-lib $(PACKAGE-NAME)-test $(PACKAGE-NAME)-doc
 
 test-with-errortrace:
