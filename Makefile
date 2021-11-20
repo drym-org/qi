@@ -23,7 +23,7 @@ help:
 # Primarily for use by CI.
 # Installs dependencies as well as linking this as a package.
 install:
-	raco pkg install --deps search-auto --link $(PWD)/$(PACKAGE-NAME)-{lib,test,doc} $(PWD)/$(PACKAGE-NAME)
+	raco pkg install --deps search-auto --link $(PWD)/$(PACKAGE-NAME)-lib $(PWD)/$(PACKAGE-NAME)-test $(PWD)/$(PACKAGE-NAME)-doc $(PWD)/$(PACKAGE-NAME)
 
 remove:
 	raco pkg remove $(PACKAGE-NAME)-{lib,test,doc} $(PACKAGE-NAME)
