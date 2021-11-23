@@ -1,6 +1,4 @@
 # Adapted from: http://www.greghendershott.com/2017/04/racket-makefiles.html
-SHELL=/bin/bash
-
 PACKAGE-NAME=qi
 
 DEPS-FLAGS=--check-pkg-deps --unused-pkg-deps
@@ -25,21 +23,21 @@ help:
 # Primarily for use by CI.
 # Installs dependencies as well as linking this as a package.
 install:
-	raco pkg install --deps search-auto --link $(PWD)/$(PACKAGE-NAME)-{lib,test,doc} $(PWD)/$(PACKAGE-NAME)
+	raco pkg install --deps search-auto
 
 remove:
-	raco pkg remove $(PACKAGE-NAME)-{lib,test,doc} $(PACKAGE-NAME)
+	raco pkg remove $(PACKAGE-NAME)
 
 # Primarily for day-to-day dev.
 # Build libraries from source.
 build:
-	raco setup --no-docs --tidy --pkgs $(PACKAGE-NAME)-lib
+	raco setup --no-docs --tidy --pkgs $(PACKAGE-NAME)
 
 # Primarily for day-to-day dev.
 # Build docs (if any).
 build-docs:
 	raco setup --no-launcher --no-foreign-libs --no-info-domain --no-pkg-deps \
-	--no-install --no-post-install --tidy --pkgs $(PACKAGE-NAME)-doc
+	--no-install --no-post-install --tidy --pkgs $(PACKAGE-NAME)
 
 # Primarily for day-to-day dev.
 # Build libraries from source, build docs (if any), and check dependencies.
@@ -50,7 +48,7 @@ build-all:
 # (define clean '("compiled" "doc" "doc/<collect>")) to clean
 # generated docs, too.
 clean:
-	raco setup --fast-clean --pkgs $(PACKAGE-NAME)-{lib,test,doc}
+	raco setup --fast-clean --pkgs $(PACKAGE-NAME)
 
 # Primarily for use by CI, after make install -- since that already
 # does the equivalent of make setup, this tries to do as little as
@@ -59,11 +57,11 @@ check-deps:
 	raco setup --no-docs $(DEPS-FLAGS) $(PACKAGE-NAME)
 
 # Suitable for both day-to-day dev and CI
-test: clean
-	raco test -exp $(PACKAGE-NAME)-{lib,test,doc}
+test:
+	raco test -x -p $(PACKAGE-NAME)
 
 test-with-errortrace:
-	racket -l errortrace -l racket -e '(require (submod "qi-test/tests/qi.rkt" test))'
+	racket -l errortrace -l racket -e '(require (submod "tests/qi.rkt" test))'
 
 errortrace: test-with-errortrace
 
@@ -71,7 +69,7 @@ docs:
 	raco docs $(PACKAGE-NAME)
 
 coverage-check:
-	raco cover -b -n dev -p $(PACKAGE-NAME)-{lib,test}
+	raco cover -b -n dev -p $(PACKAGE-NAME)
 
 coverage-report:
 	open coverage/index.html
@@ -79,7 +77,7 @@ coverage-report:
 cover: coverage-check coverage-report
 
 cover-coveralls:
-	raco cover -b -n dev -f coveralls -p $(PACKAGE-NAME)-{lib,test}
+	raco cover -b -n dev -f coveralls -p $(PACKAGE-NAME)
 
 profile-forms:
 	echo "Profiling forms..."
