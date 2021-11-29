@@ -325,13 +325,16 @@ provide appropriate error messages at the level of the DSL.
           (cons '-<
                 (repeat (syntax->datum #'n)
                         '_))))]
-  [(_ ((~datum feedback) onex:clause n:number))
-   (datum->syntax
-    this-syntax
-    (list 'flow
-          (cons '~>
-                (repeat (syntax->datum #'n)
-                        #'onex))))]
+  [(_ ((~datum feedback) n:expr onex:clause))
+   #'(λ args
+       (let loop ([i n]
+                  [args args])
+         (if (> i 0)
+             (loop (sub1 i)
+                   (values->list
+                    ;; TODO: ideally avoid the values->list conversion
+                    (apply (flow onex) args)))
+             (apply values args))))]
   [(_ (~datum inverter))
    #'(flow (>< NOT))]
   [(_ ((~or (~datum ε) (~datum effect)) sidex:clause onex:clause))

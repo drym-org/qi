@@ -349,12 +349,12 @@ The core syntax of the Qi language. These forms may be used in any flow.
   ]
 }
 
-@defform[(feedback flo N)]{
+@defform[(feedback N flo)]{
   Pass the inputs @racket[N] times through @racket[flo] by "feeding back" the outputs each time.
 
 @examples[
     #:eval eval-for-docs
-    ((☯ (feedback add1 3)) 5)
+    ((☯ (feedback 3 add1)) 5)
   ]
 }
 
