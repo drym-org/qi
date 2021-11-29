@@ -323,7 +323,7 @@ provide appropriate error messages at the level of the DSL.
                 (repeat (syntax->datum #'n)
                         '_))))]
   [(_ ((~datum feedback) n:expr onex:clause))
-   #'(power n onex)]
+   #'(power n (flow onex))]
   [(_ (~datum inverter))
    #'(flow (>< NOT))]
   [(_ ((~or (~datum ε) (~datum effect)) sidex:clause onex:clause))
