@@ -14,7 +14,9 @@
          parity-xor
          arg
          except-args
-         call)
+         call
+         repeat
+         power)
 
 (require racket/match
          (only-in racket/function
@@ -184,3 +186,11 @@
   (not (apply any? args)))
 
 (define none? (compose not not ~none?))
+
+(define (repeat n v)
+  (if (= 0 n)
+      null
+      (cons v (repeat (sub1 n) v))))
+
+(define (power n f)
+  (apply compose (repeat n f)))

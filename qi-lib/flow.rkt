@@ -13,16 +13,13 @@
          racket/format
          mischief/shorthand
          (for-syntax racket/base
-                     syntax/parse))
+                     syntax/parse
+                     (only-in "private/util.rkt"
+                              repeat)))
 
 (require "private/util.rkt")
 
 (begin-for-syntax
-  (define (repeat n v)
-    (if (= 0 n)
-        null
-        (cons v (repeat (sub1 n) v))))
-
   (define-syntax-class literal
     (pattern
      (~or expr:boolean
@@ -326,15 +323,7 @@ provide appropriate error messages at the level of the DSL.
                 (repeat (syntax->datum #'n)
                         '_))))]
   [(_ ((~datum feedback) n:expr onex:clause))
-   #'(λ args
-       (let loop ([i n]
-                  [args args])
-         (if (> i 0)
-             (loop (sub1 i)
-                   (values->list
-                    ;; TODO: ideally avoid the values->list conversion
-                    (apply (flow onex) args)))
-             (apply values args))))]
+   #'(power n onex)]
   [(_ (~datum inverter))
    #'(flow (>< NOT))]
   [(_ ((~or (~datum ε) (~datum effect)) sidex:clause onex:clause))
