@@ -170,6 +170,8 @@ See also @racket[on] and @racket[~>], which are shorthands to invoke the flow wi
 
   Equivalent to @racket[((☯ (~> flow-expr ...)) args ...)].
 
+  See also: @secref["Relationship_to_the_Threading_Macro"].
+
 @examples[
     #:eval eval-for-docs
 	(~> (3) sqr add1)

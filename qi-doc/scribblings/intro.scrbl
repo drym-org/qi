@@ -79,6 +79,8 @@ Use any combination of the above that would help you express yourself economical
 
 @subsection{Vim/Emacs}
 
+@subsubsection{Keybindings}
+
 For Vim and Emacs Evil users, here are suggested keybindings for use in insert mode:
 
 @tabular[#:sep @hspace[1]
@@ -92,6 +94,17 @@ For Vim and Emacs Evil users, here are suggested keybindings for use in insert m
 
 For vanilla Emacs users, I don't have specific suggestions since usage patterns vary so widely. But you may want to define a custom @hyperlink["https://www.emacswiki.org/emacs/InputMethods"]{input method} for use with Qi (i.e. don't rely on the LaTeX input method, which is too general, and therefore isn't fast), or possibly use a @hyperlink["https://www.emacswiki.org/emacs/Hydra"]{Hydra}.
 
+@subsubsection{Indentation}
+
+In Racket Mode for Emacs, use the following config to indent Qi forms correctly:
+
+@codeblock{
+    (put 'switch 'racket-indent-function 1)
+    (put 'switch-lambda 'racket-indent-function 1)
+    (put 'on 'racket-indent-function 1)
+    (put 'π 'racket-indent-function 1)
+}
+
 @section{Relationship to the Threading Macro}
 
-Qi's threading form @racket[~>] is a more general version, and almost drop-in alternative, to the usual threading macro in @other-doc['(lib "scribblings/threading.scrbl")]. You might consider migrating to Qi if you need to thread more than one argument or would like to make more pervasive use of flow-oriented reasoning. To do so, the only difference is that the input arguments to Qi's threading form must be wrapped in parentheses. This is in order to be unambiguous since we can thread more than one argument. The threading library also provides numerous shorthands for common cases, many of which don't have equivalents in Qi -- if you'd like to have these, please create an issue on the source repo to register your interest.
+Qi's threading form @racket[~>] is a more general version, and almost drop-in alternative, to the usual threading macro in @other-doc['(lib "scribblings/threading.scrbl")]. You might consider migrating to Qi if you need to thread more than one argument or would like to make more pervasive use of flow-oriented reasoning. To do so, the only change that would be needed is to wrap the input argument in parentheses. This is necessary in order to be unambiguous since Qi's threading form can thread more than one argument. The threading library also provides numerous shorthands for common cases, many of which don't have equivalents in Qi -- if you'd like to have these, please create an issue on the source repo to register your interest.

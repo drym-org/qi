@@ -240,7 +240,7 @@ Let's say we want to implement @racket[abs]. This is a function that returns the
 For this very simple function, the input argument is mentioned @emph{four} times! An equivalent Qi definition is:
 
 @codeblock{
-    (define-switch abs-value
+    (define-switch abs
       [negative? -]
       [else _])
 }
