@@ -44,7 +44,7 @@ build-docs:
 # Primarily for day-to-day dev.
 # Build libraries from source, build docs (if any), and check dependencies.
 build-all:
-	raco setup --tidy $(DEPS-FLAGS) --pkgs $(PACKAGE-NAME)
+	raco setup --tidy $(DEPS-FLAGS) --pkgs $(PACKAGE-NAME)-{lib,test,doc} $(PACKAGE-NAME)
 
 # Note: Each collection's info.rkt can say what to clean, for example
 # (define clean '("compiled" "doc" "doc/<collect>")) to clean
@@ -59,7 +59,7 @@ check-deps:
 	raco setup --no-docs $(DEPS-FLAGS) $(PACKAGE-NAME)
 
 # Suitable for both day-to-day dev and CI
-test: clean
+test:
 	raco test -exp $(PACKAGE-NAME)-{lib,test,doc}
 
 test-with-errortrace:
