@@ -83,12 +83,12 @@ cover-coveralls:
 
 profile-forms:
 	echo "Profiling forms..."
-	racket dev/profile/forms.rkt
+	racket profile/forms.rkt
 
 profile-base:
 	echo "Running base smoke profilers..."
-	racket dev/profile/base.rkt
+	racket profile/base.rkt
 
 profile: profile-base profile-forms
 
-.PHONY:	help install remove build build-docs build-all clean check-deps test test-with-errortrace errortrace docs cover coverage-check coverage-report cover-coveralls profile
+.PHONY:	help install remove build build-docs build-all clean check-deps test test-with-errortrace errortrace docs cover coverage-check coverage-report cover-coveralls profile-forms profile-base profile
