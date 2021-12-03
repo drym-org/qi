@@ -34,6 +34,8 @@ This tutorial is available in two formats:
 
 They contain similar material, but the interactive version includes additional steps and exercises. The interactive format is a more efficient and effective way to learn than reading documentation, and is recommended.
 
+@table-of-contents[]
+
 @section{Interactive Tutorial}
 
 This tutorial is distributed using the @other-doc['(lib "from-template/scribblings/from-template.scrbl")] package, and contains the same material as the documentation-based tutorial, but also includes additional material such as exercises, all presented in an interactive format.

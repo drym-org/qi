@@ -26,6 +26,8 @@
 
 The core entry-point to the flow language is the form @racket[☯]. In addition, other forms such as @racket[on], @racket[switch], and @racket[~>] build on top of @racket[☯] to provide convenient syntax in specialized cases. Together, these forms represent the interface between the host language (e.g. Racket) and Qi.
 
+@table-of-contents[]
+
 @section{Core}
 
 @deftogether[(

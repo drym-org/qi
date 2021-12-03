@@ -24,6 +24,8 @@
 
 @title{Introduction and Usage}
 
+@table-of-contents[]
+
 @section{What is a Flow?}
 
  A @deftech{flow} is either made up of flows, or is a native (e.g. Racket) function. Flows may be composed using a number of combinators that could yield either linear or nonlinear composite flows.
