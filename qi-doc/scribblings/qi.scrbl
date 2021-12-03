@@ -55,3 +55,4 @@ The former way is often necessary when writing functions at a low level, where t
 @include-section["tutorial.scrbl"]
 @include-section["interface.scrbl"]
 @include-section["forms.scrbl"]
+@include-section["using-qi.scrbl"]
