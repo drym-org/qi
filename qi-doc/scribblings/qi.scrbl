@@ -51,6 +51,10 @@ The former way is often necessary when writing functions at a low level, where t
 
 @table-of-contents[]
 
+@section{Using These Docs}
+
+@secref["Introduction_and_Usage"] describes the language and how to optimize your editor of choice to effectively write Qi. Learn the language by going through the @secref["Tutorial"], and read @secref["When_Should_I_Use_Qi_"] for examples illustrating its use. The various interfaces and forms of the language are documented in @secref["Language_Interface"] and @secref["Qi_Forms"].
+
 @include-section["intro.scrbl"]
 @include-section["tutorial.scrbl"]
 @include-section["interface.scrbl"]
