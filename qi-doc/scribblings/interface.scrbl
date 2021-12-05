@@ -76,6 +76,7 @@ The core entry-point to the flow language is the form @racket[☯]. In addition,
                            (tee flow-expr ...)
                            (fanout number)
                            (feedback number flow-expr)
+                           count
                            1>
                            2>
                            3>

@@ -944,7 +944,13 @@
                             add1))
                       5)
                      6)
-       (check-equal? a 11))))
+       (check-equal? a 11)))
+
+    (test-suite
+     "count"
+     (check-equal? ((☯ count) 3 4 5) 3)
+     (check-equal? ((☯ count) 5) 1)
+     (check-equal? ((☯ count)) 0)))
 
    (test-suite
     "higher-order flows"

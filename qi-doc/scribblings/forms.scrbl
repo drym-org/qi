@@ -608,3 +608,15 @@ Usually, the @racket[_] symbol indicates the trivial or identity flow, simply pa
     ((☯ (< 5 __ 10)) 6 7 8)
     ((☯ (< 5 __ 10)) 6 7 11)
   ]
+
+@section{Utilities}
+
+@defidform[count]{
+  The arity of the flow. Analogous to @racket[length] for lists, this counts the values in the flow.
+
+@examples[
+    #:eval eval-for-docs
+    ((☯ count) 5)
+    ((☯ (~> (-< _ _ _) count)) 5)
+  ]
+}

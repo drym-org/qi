@@ -314,6 +314,10 @@ provide appropriate error messages at the level of the DSL.
   [(_ (~datum 9>))
    #'(flow (select 9))]
 
+  ;; common utilities
+  [(_ (~datum count))
+   #'(flow (~> (>< 1) +))]
+
   ;; high level routing
   [(_ ((~datum fanout) n:number))
    (datum->syntax
