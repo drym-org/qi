@@ -565,9 +565,23 @@ The core syntax of the Qi language. These forms may be used in any flow.
 
   Use @racket[(ε side-effect-flo)] to just perform a side effect without modifying the input, equivalent to @racket[(-< (~> side-effect-flo ⏚) _)].
 
+  Remember that, as the side-effect flow is based on a tee junction, it must handle as many inputs as the main flow. For instance, if you were to use @racket[displayln] as the side-effect, it wouldn't work if more than one value were flowing, and you'd get an inscrutable error resembling:
+
+@codeblock{
+; displayln: contract violation
+;   expected: output-port?
+;   given: 1
+;   argument position: 2nd
+;   other arguments...:
+;    1
+}
+
+  As @racket[displayln] expects a single input, you'd need to use @racket[(>< displayln)] for this side-effect in general.
+
 @examples[
     #:eval eval-for-docs
     ((☯ (~> (ε displayln sqr) add1)) 3)
+    ((☯ (~> (ε (>< displayln) *) add1)) 3 5)
   ]
 }
 
