@@ -42,7 +42,7 @@ The core syntax of the Qi language. These forms may be used in any flow.
 }
 
 @defform[(gen expr ...)]{
-  Generate the values of the provided Racket expressions as flows. This is the most common way to translate an ordinary value into a flow.
+  A flow that generates the @emph{values} of the provided Racket expressions @racket[expr], ignoring any input values provided to it at runtime. This is the most common way to translate an ordinary value into a flow.
 
 @examples[
     #:eval eval-for-docs
@@ -94,7 +94,7 @@ The core syntax of the Qi language. These forms may be used in any flow.
 }
 
 @defform[(esc expr)]{
-  Escape to the host language to evaluate @racket[expr] which is expected to yield a @tech{flow}.
+  Escape to the host language to evaluate @racket[expr] which is expected to yield a @tech{flow}. @racket[(☯ (esc (☯ expr)))] is equivalent to @racket[(☯ expr)].
 
 @examples[
     #:eval eval-for-docs
