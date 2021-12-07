@@ -351,15 +351,15 @@ provide appropriate error messages at the level of the DSL.
   [(_ (~datum <<))
    #'foldr-values]
   [(_ ((~datum <<) fn init))
-   #'(flow (~> (-< (gen (flow fn)) (gen init) _) <<))]
+   #'(flow (~> (-< (gen (flow fn)) (gen (flow init)) _) <<))]
   [(_ ((~datum <<) fn))
-   #'(flow (<< fn ((flow fn))))]
+   #'(flow (<< fn (gen ((flow fn)))))]
   [(_ (~datum >>))
    #'foldl-values]
   [(_ ((~datum >>) fn init))
-   #'(flow (~> (-< (gen (flow fn)) (gen init) _) >>))]
+   #'(flow (~> (-< (gen (flow fn)) (gen (flow init)) _) >>))]
   [(_ ((~datum >>) fn))
-   #'(flow (>> fn ((flow fn))))]
+   #'(flow (>> fn (gen ((flow fn)))))]
 
   ;; looping
   [(_ ((~datum loop) pred:clause mapex:clause combex:clause retex:clause))

@@ -199,14 +199,14 @@
 
 (define (foldl-values f init . vs)
   (let loop ([vs vs]
-             [accs (list init)])
+             [accs (values->list (init))])
     (match vs
       ['() (apply values accs)]
       [(cons v rem-vs) (loop rem-vs (values->list (apply f v accs)))])))
 
 (define (foldr-values f init . vs)
   (let loop ([vs (reverse vs)]
-             [accs (list init)])
+             [accs (values->list (init))])
     (match vs
       ['() (apply values accs)]
       [(cons v rem-vs) (loop rem-vs (values->list (apply f v accs)))])))
