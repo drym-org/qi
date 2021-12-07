@@ -349,13 +349,13 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~datum pass) onex:clause))
    #'(curry filter-values (flow onex))]
   [(_ (~datum <<))
-   #'(flow (~> (group 2 _ list) foldr))]
+   #'foldr-values]
   [(_ ((~datum <<) fn init))
    #'(flow (~> (-< (gen (flow fn)) (gen init) _) <<))]
   [(_ ((~datum <<) fn))
    #'(flow (<< fn ((flow fn))))]
   [(_ (~datum >>))
-   #'(flow (~> (group 2 _ list) foldl))]
+   #'foldl-values]
   [(_ ((~datum >>) fn init))
    #'(flow (~> (-< (gen (flow fn)) (gen init) _) >>))]
   [(_ ((~datum >>) fn))

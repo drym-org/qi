@@ -512,7 +512,7 @@ The core syntax of the Qi language. These forms may be used in any flow.
 @defform[#:link-target? #f
          (>> flo)]
 )]{
-  The flow analogues to @racket[foldr] and @racket[foldl] (respectively -- the side on which the symbols "fold" corresponds to the type of fold), these fold over input values rather than an input list. The @racket[init-flo] is optional; if it isn't provided, @racket[flo] itself is invoked with no arguments to obtain the init value, to borrow a convention from the Clojure language.
+  The flow analogues to @racket[foldr] and @racket[foldl] (respectively -- the side on which the symbols "fold" corresponds to the type of fold), these fold over input @emph{values} rather than an input list. The @racket[init-flo] is optional; if it isn't provided, @racket[flo] itself is invoked with no arguments to obtain the init value, to borrow a convention from the Clojure language. @racket[flo] receives the current input value in the first position, followed by the accumulated values, and may generate any number of output values. These output values are fed back as accumulated values for the next iteration if input values remain to be processed; otherwise, they are produced as the output of the flow.
 
 @examples[
     #:eval eval-for-docs

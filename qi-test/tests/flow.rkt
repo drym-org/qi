@@ -1010,7 +1010,9 @@
      (check-equal? ((☯ (>> (esc (flip cons)) null)) 1 2 3 4)
                    '((((() . 1) . 2) . 3) . 4))
      (check-equal? ((☯ (~> (-< (gen cons) (gen null) (gen 1 2 3 4)) >>)))
-                   (list 4 3 2 1)))
+                   (list 4 3 2 1))
+     (check-equal? ((☯ (~> (>> (-< (block 1) (~> 1> (-< _ _))) "") string-append)) "a" "b")
+                   "aabb"))
     (test-suite
      "right fold <<"
      (check-equal? ((☯ (<< +)) 1 2 3 4)
@@ -1024,7 +1026,9 @@
      (check-equal? ((☯ (<< (esc (flip cons)) null)) 1 2 3 4)
                    '((((() . 4) . 3) . 2) . 1))
      (check-equal? ((☯ (~> (-< (gen cons) (gen null) (gen 1 2 3 4)) <<)))
-                   (list 1 2 3 4)))
+                   (list 1 2 3 4))
+     (check-equal? ((☯ (~> (<< (-< (block 1) (~> 1> (-< _ _))) "") string-append)) "a" "b")
+                   "bbaa"))
     (test-suite
      "loop"
      (check-equal? ((☯ (~> (loop (~> ▽ (not null?))

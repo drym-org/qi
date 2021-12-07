@@ -16,7 +16,9 @@
          except-args
          call
          repeat
-         power)
+         power
+         foldl-values
+         foldr-values)
 
 (require racket/match
          (only-in racket/function
@@ -194,3 +196,17 @@
 
 (define (power n f)
   (apply compose (repeat n f)))
+
+(define (foldl-values f init . vs)
+  (let loop ([vs vs]
+             [accs (list init)])
+    (match vs
+      ['() (apply values accs)]
+      [(cons v rem-vs) (loop rem-vs (values->list (apply f v accs)))])))
+
+(define (foldr-values f init . vs)
+  (let loop ([vs (reverse vs)]
+             [accs (list init)])
+    (match vs
+      ['() (apply values accs)]
+      [(cons v rem-vs) (loop rem-vs (values->list (apply f v accs)))])))
