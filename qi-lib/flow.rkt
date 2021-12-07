@@ -351,13 +351,13 @@ provide appropriate error messages at the level of the DSL.
   [(_ (~datum <<))
    #'(flow (~> (group 2 _ list) foldr))]
   [(_ ((~datum <<) fn init))
-   #'(flow (~> (-< (gen fn) (gen init) _) <<))]
+   #'(flow (~> (-< (gen (flow fn)) (gen init) _) <<))]
   [(_ ((~datum <<) fn))
    #'(flow (<< fn ((flow fn))))]
   [(_ (~datum >>))
    #'(flow (~> (group 2 _ list) foldl))]
   [(_ ((~datum >>) fn init))
-   #'(flow (~> (-< (gen fn) (gen init) _) >>))]
+   #'(flow (~> (-< (gen (flow fn)) (gen init) _) >>))]
   [(_ ((~datum >>) fn))
    #'(flow (>> fn ((flow fn))))]
 
