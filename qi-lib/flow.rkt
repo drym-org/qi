@@ -350,20 +350,16 @@ provide appropriate error messages at the level of the DSL.
    #'(curry filter-values (flow onex))]
   [(_ (~datum <<))
    #'(flow (~> (group 2 _ list) foldr))]
-  [(_ ((~datum <<) fn))
-   #'(λ args
-       (foldr (flow fn) ((flow fn)) args))]
   [(_ ((~datum <<) fn init))
-   #'(λ args
-       (foldr (flow fn) init args))]
+   #'(flow (~> (-< (gen fn) (gen init) _) <<))]
+  [(_ ((~datum <<) fn))
+   #'(flow (<< fn ((flow fn))))]
   [(_ (~datum >>))
    #'(flow (~> (group 2 _ list) foldl))]
-  [(_ ((~datum >>) fn))
-   #'(λ args
-       (foldl (flow fn) ((flow fn)) args))]
   [(_ ((~datum >>) fn init))
-   #'(λ args
-       (foldl (flow fn) init args))]
+   #'(flow (~> (-< (gen fn) (gen init) _) >>))]
+  [(_ ((~datum >>) fn))
+   #'(flow (>> fn ((flow fn))))]
 
   ;; looping
   [(_ ((~datum loop) pred:clause mapex:clause combex:clause retex:clause))
