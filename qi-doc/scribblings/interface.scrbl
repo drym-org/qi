@@ -38,7 +38,8 @@ The core entry-point to the flow language is the form @racket[☯]. In addition,
                            sep
                            ▽
                            collect
-                           (esc flow-expr)
+                           (esc expr)
+                           (def flow-expr)
                            (one-of? expr ...)
                            (all flow-expr)
                            (any flow-expr)

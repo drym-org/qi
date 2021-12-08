@@ -1069,7 +1069,15 @@
                                      (eval (current-namespace)))
                                  3)
                              apply))))
-                   10)))
+                   10))
+    (test-suite
+     "def"
+     (check-equal? ((☯ (~> (== (def *) _) map)) 5 (list 1 2 3))
+                   '(5 10 15))
+     (check-equal? ((☯ (~> (== (def string-append) _) map)) "a" (list "b" "c" "d"))
+                   '("ab" "ac" "ad"))
+     (check-equal? ((☯ (~> (-< (~> second (def *)) _) map)) (list 1 2 3))
+                   '(2 4 6))))
    (test-suite
     "arity modulating forms"
     (check-true ((☯ (and% positive? even?))
