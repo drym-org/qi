@@ -74,13 +74,16 @@ provide appropriate error messages at the level of the DSL.
 
 |#
 
-(define (report-syntax-error name args msg)
+(define (report-syntax-error name args usage [msg ""])
   (raise-syntax-error name
                       (~a "Syntax error in "
                           (list* name args)
                           "\n"
                           "Usage:\n"
-                          "  " msg)))
+                          "  " usage
+                          (if (equal? "" msg)
+                              ""
+                              (string-append "\n" msg)))))
 
 (define-syntax-parser flow
   ;;; Special words
@@ -451,4 +454,12 @@ provide appropriate error messages at the level of the DSL.
   [(_ natex:expr) #'natex]
 
   ;; a non-flow
-  [(_) #'void])
+  [(_) #'void]
+
+  [(flow expr0 expr ...+)  ; error handling catch-all
+   #'(report-syntax-error
+      'flow
+      (list 'expr0 'expr ...)
+      (string-append "(" (symbol->string 'flow) " flo)")
+      (string-append (symbol->string 'flow)
+                     " expects a single flow specification, but it received many."))])
