@@ -362,12 +362,17 @@ The core syntax of the Qi language. These forms may be used in any flow.
   ]
 }
 
-@defform[(feedback N flo)]{
-  Pass the inputs @racket[N] times through @racket[flo] by "feeding back" the outputs each time.
+@deftogether[(
+@defform[(feedback N flo)]
+@defform[#:link-target? #f
+         (feedback (while cond-flo) (then then-flo) flo)]
+)]{
+  Pass the inputs @racket[N] times through @racket[flo] by "feeding back" the outputs each time. If a @racket[while] clause is specified in place of a value, then the outputs are fed back as long as @racket[cond-flo] is true. If the optional @racket[then] form is specified, @racket[then-flo] will be invoked on the outputs at the end after the loop has completed.
 
 @examples[
     #:eval eval-for-docs
     ((☯ (feedback 3 add1)) 5)
+    ((☯ (feedback (while (< 50)) sqr)) 2)
   ]
 }
 
@@ -510,16 +515,24 @@ The core syntax of the Qi language. These forms may be used in any flow.
 @examples[
     #:eval eval-for-docs
     ((☯ (>< sqr)) 1 2 3)
+    ((☯ ><) sqr 1 2 3)
     ((☯ (>< (-< _ _))) 1 2 3)
   ]
 }
 
-@defform[(pass condition-flo)]{
+@deftogether[(
+@defidform[pass]
+@defform[#:link-target? #f
+         (pass condition-flo)]
+)]{
   The flow analogue to @racket[filter], this filters the input values individually under @racket[condition-flo], yielding only those values that satisfy it.
+
+  If used in identifier form simply as @racket[pass], it treats the first input as @racket[condition-flo] and the remaining inputs as the values to be filtered.
 
 @examples[
     #:eval eval-for-docs
     ((☯ (pass positive?)) 1 -2 3)
+    ((☯ pass) positive? 1 -2 3)
   ]
 }
 

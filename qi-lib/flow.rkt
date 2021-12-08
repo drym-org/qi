@@ -329,8 +329,21 @@ provide appropriate error messages at the level of the DSL.
           (cons '-<
                 (repeat (syntax->datum #'n)
                         '_))))]
+  [(_ ((~datum feedback) ((~datum while) tilex:clause)
+                         ((~datum then) thenex:clause)
+                         onex:clause))
+   #'(letrec ([loop (☯ (~> (if tilex
+                               (~> onex loop)
+                               thenex)))])
+       loop)]
+  [(_ ((~datum feedback) ((~datum while) tilex:clause) onex:clause))
+   #'(flow (feedback (while tilex) (then _) onex))]
+  [(_ ((~datum feedback) n:expr
+                         ((~datum then) thenex:clause)
+                         onex:clause))
+   #'(flow (~> (esc (power n (flow onex))) thenex))]
   [(_ ((~datum feedback) n:expr onex:clause))
-   #'(power n (flow onex))]
+   #'(flow (feedback n (then _) onex))]
   [(_ (~datum inverter))
    #'(flow (>< NOT))]
   [(_ ((~or (~datum ε) (~datum effect)) sidex:clause onex:clause))

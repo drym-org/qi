@@ -826,6 +826,9 @@
      (check-equal? ((☯ (~> + (feedback 5 add1)))
                     5 6)
                    16)
+     (check-equal? ((☯ (~> + (feedback 5 (then sqr) add1)))
+                    5 6)
+                   256)
      (check-equal? ((☯ (~> (feedback 3 (>< add1))
                            +))
                     2 3)
@@ -833,7 +836,10 @@
      (check-equal? ((☯ (~> (feedback 3 (== add1 sub1))
                            +))
                     2 3)
-                   5))
+                   5)
+     (check-equal? ((☯ (feedback (while positive?) (then (~> (-< _ _) *)) (- 15)))
+                    20)
+                   100))
     (test-suite
      "group"
      (check-equal? ((☯ (~> (group 0 (const 5) +) +))
