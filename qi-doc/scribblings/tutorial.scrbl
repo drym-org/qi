@@ -375,7 +375,7 @@ This answers whether the input is a positive integer divisible by 3, which, in t
     (threeish? 32)
   ]
 
-We often use predicates in conditional expressions such as @racket[if] or @racket[cond].  Since this pattern is so common, Qi provides a dedicated conditional form called @racket[switch] which allows you to use flows as your conditions as well as the transformations to perform on the inputs if the conditions hold. This form is useful in cases where the result of the conditional expression is a function of its inputs. This is a very common case. Take a moment to scan through a favorite Racket project you worked on. Look for @racket[cond] expressions where every condition answers a question about the same value or same set of values. Every one of these cases (and more) are cases where you needed switch but didn't have it. Well, now you do! Let's look at what it does.
+We often use predicates in conditional expressions such as @racket[if] or @racket[cond].  Since this pattern is so common, Qi provides a dedicated conditional form called @racket[switch] which allows you to use flows as your conditions as well as the transformations to perform on the inputs if the conditions hold. This form is useful in cases where the result of the conditional expression is a function of its inputs. This is a very common case. Take a moment to scan through a favorite Racket project you worked on. Look for @racket[cond] expressions where every condition answers a question about the same value or the same set of values. Every one of these cases (and more) are cases where you needed @racket[switch] but didn't have it. Well, now you do! Let's look at what it does.
 
 @racket[switch] looks a lot like @racket[cond], except that every one of its condition and consequent clauses is a flow. These flows typically all receive the same inputs -– the original inputs to the switch expression.
 
@@ -416,7 +416,7 @@ That's one way to give this flow a name. Another way is to use the dedicated @ra
     (amplify 0)
   ]
 
-Finally, we can also end flows by using the @racket[ground] form.
+Finally, we can end flows by using the @racket[ground] form.
 
 @examples[
     #:eval eval-for-docs
@@ -437,7 +437,7 @@ This produces no values at all, and is useful in complex flows where we may desi
 
 As with any complex language, there are many ways of saying the same thing.  We could have done this computation in any number of other ways. We did it this way here just to illustrate what ⏚ does.
 
-We've now learned about the @racket[☯], on, @racket[~>], and @racket[switch] forms, which are ways to enter the Qi language. We've learned many of the forms of the Qi language and how they allow us to describe computations in terms of complex flows that direct multiple values through bifurcating and recombining sequences of transformations to arrive at the result.
+We've now learned about the @racket[☯], @racket[on], @racket[~>], and @racket[switch] forms, which are ways to enter the Qi language. We've learned many of the forms of the Qi language and how they allow us to describe computations in terms of complex flows that direct multiple values through bifurcating and recombining sequences of transformations to arrive at the result.
 
 We've also learned that we can give names to flows via @racket[define-flow], and @racket[define-switch].
 
