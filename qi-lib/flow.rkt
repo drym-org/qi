@@ -402,7 +402,7 @@ provide appropriate error messages at the level of the DSL.
   ;; towards universality
   [(_ (~datum apply))
    #'call]
-  [(_ ((~datum def) flo:clause))
+  [(_ ((~datum clos) flo:clause))
    #'(flow (esc (λ args
                   (flow (~> (-< (~> (gen args) △) _)
                             flo)))))]

@@ -102,16 +102,16 @@ The core syntax of the Qi language. These forms may be used in any flow.
   ]
 }
 
-@defform[(def flo)]{
-  A flow that generates a flow as a value. Any inputs to the @racket[def] flow are available to @racket[flo] when it is applied to inputs, i.e. it is analogous to a @hyperlink["https://www.gnu.org/software/guile/manual/html_node/Closure.html"]{closure} in Racket.
+@defform[(clos flo)]{
+  A flow that generates a flow as a value. Any inputs to the @racket[clos] flow are available to @racket[flo] when it is applied to inputs, i.e. it is analogous to a @hyperlink["https://www.gnu.org/software/guile/manual/html_node/Closure.html"]{closure} in Racket.
 
-  We typically describe flows using Qi, while @racket[esc] allows us to describe a flow using the host language. In either case, the flow simply @emph{operates} on runtime inputs. In some cases, though, we need to generate a flow as a @emph{value} to be used later, for instance, when the flow is parametrized by inputs not available until runtime. @racket[def] allows us to define and produce such a flow using Qi.
+  We typically describe flows using Qi, while @racket[esc] allows us to describe a flow using the host language. In either case, the flow simply @emph{operates} on runtime inputs. In some cases, though, we need to generate a flow as a @emph{value} to be used later, for instance, when the flow is parametrized by inputs not available until runtime. @racket[clos] allows us to define and produce such a flow using Qi.
 
-  Without @racket[def], we could still accomplish this by using @racket[esc] and producing a function value (i.e. a @racket[lambda]) as the result of the function we define -- but this would mean that we must employ the host language to describe the flow rather than Qi.
+  Without @racket[clos], we could still accomplish this by using @racket[esc] and producing a function value (i.e. a @racket[lambda]) as the result of the function we define -- but this would mean that we must employ the host language to describe the flow rather than Qi.
 
 @examples[
     #:eval eval-for-docs
-    ((☯ (~> (-< (~> first (def *)) rest) map)) (list 5 4 3 2 1))
+    ((☯ (~> (-< (~> first (clos *)) rest) map)) (list 5 4 3 2 1))
   ]
 }
 
