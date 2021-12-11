@@ -276,18 +276,14 @@ provide appropriate error messages at the level of the DSL.
                  [condition consequent]
                  ...)))]
   [(_ ((~datum sieve) condition:clause
-                      selection-onex:clause
-                      remainder-onex:clause))
-   ;; this is equivalent to "channel-clause", but done via with-syntax
-   ;; so it's usable in the syntax (expansion) phase
-   (with-syntax ([sonex (if (eq? '_ (syntax->datum #'selection-onex))
-                            (datum->syntax #'selection-onex #'values)
-                            #'selection-onex)]
-                 [ronex (if (eq? '_ (syntax->datum #'remainder-onex))
-                            (datum->syntax #'remainder-onex #'values)
-                            #'remainder-onex)])
-     #'(flow (-< (~> (pass condition) sonex)
-                 (~> (pass (not condition)) ronex))))]
+                      sonex:clause
+                      ronex:clause))
+   #'(flow (-< (~> (pass condition) sonex)
+               (~> (pass (not condition)) ronex)))]
+  [(_ (~datum sieve))
+   #'(λ (condition sonex ronex . args)
+       ((flow (~> △ (-< (~> (pass condition) sonex)
+                        (~> (pass (not condition)) ronex)))) args))]
   [(_ ((~datum sieve) arg ...))  ; error handling catch-all
    #'(report-syntax-error 'sieve
                           (list 'arg ...)

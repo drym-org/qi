@@ -432,8 +432,14 @@ The core syntax of the Qi language. These forms may be used in any flow.
   ]
 }
 
-@defform[(sieve condition-flo selection-flo remainder-flo)]{
+@deftogether[(
+@defidform[sieve]
+@defform[#:link-target? #f
+         (sieve condition-flo selection-flo remainder-flo)]
+)]{
   Divide the set of inputs into two groups @emph{by condition}, passing the inputs that satisfy @racket[condition-flo] (individually) to @racket[selection-flo] and the remainder to @racket[remainder-flo].
+
+ When used in identifier form simply as @racket[sieve], it treats the first three inputs as @racket[condition-flo], @racket[selection-flo] and @racket[remainder-flo], respectively, and the remaining as the data inputs to be acted upon.
 
 @examples[
     #:eval eval-for-docs

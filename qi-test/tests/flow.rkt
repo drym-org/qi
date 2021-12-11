@@ -763,7 +763,12 @@
                            +))
                     1 -3 5)
                    9
-                   "sieve with arity-increasing clause"))
+                   "sieve with arity-increasing clause")
+     (check-equal? (~> (1 2 -3 4)
+                       (-< (gen positive?) (gen +) (gen (☯ (+ 2))) _)
+                       sieve
+                       +)
+                   6))
     (test-suite
      "gate"
      (check-equal? ((☯ (gate positive?))
