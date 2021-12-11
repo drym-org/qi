@@ -1085,6 +1085,9 @@
                    '(5 10 15))
      (check-equal? ((☯ (~> (== (clos string-append) _) map)) "a" (list "b" "c" "d"))
                    '("ab" "ac" "ad"))
+     (check-equal? ((☯ (~> (== (~>> (clos string-append)) _) map)) "a" (list "b" "c" "d"))
+                   '("ba" "ca" "da")
+                   "clos respects threading direction at the site of definition")
      (check-equal? ((☯ (~> (-< (~> second (clos *)) _) map)) (list 1 2 3))
                    '(2 4 6))))
    (test-suite

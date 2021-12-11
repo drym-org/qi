@@ -109,9 +109,13 @@ The core syntax of the Qi language. These forms may be used in any flow.
 
   Without @racket[clos], we could still accomplish this by using @racket[esc] and producing a function value (i.e. a @racket[lambda]) as the result of the function we define -- but this would mean that we must employ the host language to describe the flow rather than Qi.
 
+  When used within a threading form (i.e. @racket[~>] or @racket[~>>]), @racket[clos] incorporates the pre-supplied input in accordance with the threading direction at the site of its definition.
+
 @examples[
     #:eval eval-for-docs
     ((☯ (~> (-< (~> first (clos *)) rest) map)) (list 5 4 3 2 1))
+    (~> ("a" (list "b" "c" "d")) (== (clos string-append) _) map)
+    (~> ("a" (list "b" "c" "d")) (== (~>> (clos string-append)) _) map)
   ]
 }
 

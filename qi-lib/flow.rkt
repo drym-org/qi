@@ -403,9 +403,14 @@ provide appropriate error messages at the level of the DSL.
   [(_ (~datum apply))
    #'call]
   [(_ ((~datum clos) flo:clause))
-   #'(flow (esc (λ args
-                  (flow (~> (-< (~> (gen args) △) _)
-                            flo)))))]
+   #:do [(define threading-side (syntax-property this-syntax 'threading-side))]
+   (if (and threading-side (eq? threading-side 'right))
+       #'(flow (esc (λ args
+                      (flow (~> (-< _ (~> (gen args) △))
+                                flo)))))
+       #'(flow (esc (λ args
+                      (flow (~> (-< (~> (gen args) △) _)
+                                flo))))))]
 
   ;;; Miscellaneous
 
