@@ -138,7 +138,7 @@ provide appropriate error messages at the level of the DSL.
                                      _)))]
   [(_ ((~or (~datum △) (~datum sep)) onex:clause))
    #'(λ (v . vs)
-       ((flow (~> △ (>< (apply onex _ vs)))) v))]
+       ((flow (~> △ (>< (apply (flow onex) _ vs)))) v))]
 
   ;;; Core routing elements
 
