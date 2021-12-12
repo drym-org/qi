@@ -340,6 +340,15 @@ provide appropriate error messages at the level of the DSL.
    #'(flow (~> (esc (power n (flow onex))) thenex))]
   [(_ ((~datum feedback) n:expr onex:clause))
    #'(flow (feedback n (then _) onex))]
+  [(_ (~datum feedback))
+   #'(letrec ([loop (☯ (~> (if (~> (-< 1> (block 1 2 3)) apply)
+                               (~> (-< (select 1 2 3)
+                                       (~> (block 1 2)
+                                           apply))
+                                   loop)
+                               (~> (-< 2> (block 1 2 3))
+                                   apply))))])
+       loop)]
   [(_ (~datum inverter))
    #'(flow (>< NOT))]
   [(_ ((~or (~datum ε) (~datum effect)) sidex:clause onex:clause))

@@ -369,11 +369,15 @@ The core syntax of the Qi language. These forms may be used in any flow.
 }
 
 @deftogether[(
-@defform[(feedback N flo)]
+@defidform[feedback]
+@defform[#:link-target? #f
+         (feedback N flo)]
 @defform[#:link-target? #f
          (feedback (while cond-flo) (then then-flo) flo)]
 )]{
   Pass the inputs @racket[N] times through @racket[flo] by "feeding back" the outputs each time. If a @racket[while] clause is specified in place of a value, then the outputs are fed back as long as @racket[cond-flo] is true. If the optional @racket[then] form is specified, @racket[then-flo] will be invoked on the outputs at the end after the loop has completed.
+
+  If used in identifier form simply as @racket[feedback], it treats the first three inputs as @racket[cond-flo], @racket[then-flo], and @racket[flo], respectively, and all three are expected. The remaining inputs are treated as the data inputs being acted upon.
 
 @examples[
     #:eval eval-for-docs

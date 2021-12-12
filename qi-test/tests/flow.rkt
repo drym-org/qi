@@ -848,7 +848,15 @@
                    5)
      (check-equal? ((☯ (feedback (while positive?) (then (~> (-< _ _) *)) (- 15)))
                     20)
-                   100))
+                   100)
+     (check-equal? ((☯ (~> (-< (gen positive?)
+                               (gen (☯ (~> (-< _ _) *)))
+                               (gen (☯ (- 15)))
+                               _)
+                           feedback))
+                    20)
+                   100
+                   "pure control form of feedback"))
     (test-suite
      "group"
      (check-equal? ((☯ (~> (group 0 (const 5) +) +))
