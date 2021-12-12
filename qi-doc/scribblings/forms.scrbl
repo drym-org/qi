@@ -111,6 +111,8 @@ The core syntax of the Qi language. These forms may be used in any flow.
 
   When used within a threading form (i.e. @racket[~>] or @racket[~>>]), @racket[clos] incorporates the pre-supplied input in accordance with the threading direction at the site of its definition.
 
+  @margin-note{A flow defined using @racket[clos] retains @emph{all} of the inputs from the definition site. Filtering the inputs @emph{within} the flow definition filters the aggregate inputs available at runtime invocation -- not the inputs available at the definition site. If you only need access to a subset of definition-site inputs, these must be filtered prior to passing them in to @racket[clos].}
+
 @examples[
     #:eval eval-for-docs
     ((☯ (~> (-< (~> first (clos *)) rest) map)) (list 5 4 3 2 1))

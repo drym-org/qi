@@ -768,7 +768,8 @@
                        (-< (gen positive?) (gen +) (gen (☯ (+ 2))) _)
                        sieve
                        +)
-                   6))
+                   6
+                   "pure control form of sieve"))
     (test-suite
      "gate"
      (check-equal? ((☯ (gate positive?))
