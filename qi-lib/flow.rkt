@@ -109,7 +109,7 @@ provide appropriate error messages at the level of the DSL.
    #'not]
   [(_ (~or (~datum AND) (~datum &)))
    #'all?]
-  [(_ (~or (~datum OR) (~datum ||)))
+  [(_ (~or (~datum OR) (~datum ∥)))
    #'any?]
   [(_ (~datum NOR))
    #'(flow (~> OR NOT))]

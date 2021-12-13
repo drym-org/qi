@@ -242,9 +242,11 @@ The core syntax of the Qi language. These forms may be used in any flow.
 
 @deftogether[(
   @defidform[OR]
-  @defidform[||]
+  @defidform[∥]
 )]{
   A Boolean OR gate, this outputs the disjunction of the inputs.
+
+Note that the symbol form uses Unicode @code{0x2225} corresponding to LaTeX's @code{\parallel}. We do not use the easier-to-type @racket[||] symbol (that was formerly used here in older versions of Qi) as that is treated as the @seclink["default-readtable-dispatch" #:doc '(lib "scribblings/reference/reference.scrbl")]{empty symbol} by Racket's reader, which could cause problems in some cases.
 
 @examples[
     #:eval eval-for-docs

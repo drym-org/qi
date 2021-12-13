@@ -54,7 +54,7 @@ The core entry-point to the flow language is the form @racket[☯]. In addition,
                            AND
                            &
                            OR
-                           ||
+                           ∥
                            NOR
                            NAND
                            XOR
