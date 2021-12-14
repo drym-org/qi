@@ -25,10 +25,10 @@ help:
 # Primarily for use by CI.
 # Installs dependencies as well as linking this as a package.
 install:
-	raco pkg install --deps search-auto --link $(PWD)/$(PACKAGE-NAME)-{lib,test,doc} $(PWD)/$(PACKAGE-NAME)
+	raco pkg install --deps search-auto --link $(PWD)/$(PACKAGE-NAME)-{lib,test,doc,probe} $(PWD)/$(PACKAGE-NAME)
 
 remove:
-	raco pkg remove $(PACKAGE-NAME)-{lib,test,doc} $(PACKAGE-NAME)
+	raco pkg remove $(PACKAGE-NAME)-{lib,test,doc,probe} $(PACKAGE-NAME)
 
 # Primarily for day-to-day dev.
 # Build libraries from source.
@@ -44,13 +44,13 @@ build-docs:
 # Primarily for day-to-day dev.
 # Build libraries from source, build docs (if any), and check dependencies.
 build-all:
-	raco setup --tidy $(DEPS-FLAGS) --pkgs $(PACKAGE-NAME)-{lib,test,doc} $(PACKAGE-NAME)
+	raco setup --tidy $(DEPS-FLAGS) --pkgs $(PACKAGE-NAME)-{lib,test,doc,probe} $(PACKAGE-NAME)
 
 # Note: Each collection's info.rkt can say what to clean, for example
 # (define clean '("compiled" "doc" "doc/<collect>")) to clean
 # generated docs, too.
 clean:
-	raco setup --fast-clean --pkgs $(PACKAGE-NAME)-{lib,test,doc}
+	raco setup --fast-clean --pkgs $(PACKAGE-NAME)-{lib,test,doc,probe}
 
 # Primarily for use by CI, after make install -- since that already
 # does the equivalent of make setup, this tries to do as little as
@@ -60,7 +60,7 @@ check-deps:
 
 # Suitable for both day-to-day dev and CI
 test:
-	raco test -exp $(PACKAGE-NAME)-{lib,test,doc}
+	raco test -exp $(PACKAGE-NAME)-{lib,test,doc,probe}
 
 test-with-errortrace:
 	racket -l errortrace -l racket -e '(require (submod "qi-test/tests/qi.rkt" test))'
