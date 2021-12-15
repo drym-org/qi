@@ -40,6 +40,8 @@ They contain similar material, but the interactive version includes additional s
 
 This tutorial is distributed using the @other-doc['(lib "from-template/scribblings/from-template.scrbl")] package, and contains the same material as the documentation-based tutorial, but also includes additional material such as exercises, all presented in an interactive format.
 
+@subsection{Installation}
+
 If you don't already have @other-doc['(lib "from-template/scribblings/from-template.scrbl")] installed, you'll need to run this first:
 
 @codeblock{
@@ -52,9 +54,23 @@ And then, downloading the tutorial is as simple as:
   raco new qi-tutorial
 }
 
-... and opening the file @code{start.rkt} in your favorite editor. The tutorial is structured as a collection of Racket modules that you can interactively run, allowing you to experiment with each form as you hone your understanding.
+... and opening the file @code{start.rkt} in your favorite editor.
+
+@subsection{Setup}
+
+  The tutorial is structured as a collection of Racket modules that you can interactively run, allowing you to experiment with each form as you hone your understanding. To do this most effectively, follow the instructions below for your chosen editor.
+
+@subsubsection[#:tag "drracket-tutorial"]{DrRacket}
+
+  Laurent Orseau's @code{select-send-sexpr} @seclink["top" #:doc '(lib "quickscript/scribblings/quickscript.scrbl")]{quickscript} allows you to evaluate expressions on-demand in a context-sensitive way. It is essential for the interactive experience. Follow the instructions @hyperlink["https://github.com/countvajhula/qi-tutorial"]{in the README} to install it. Once installed, you can use @code{Control-Shift-Enter} (customizable) to evaluate the expression indicated (and usually highlighted) by your cursor position.
+
+@subsubsection{Emacs}
+
+  The native Emacs experience in Racket Mode is already geared towards interactive evaluation, so you should be all set. If you use modal editing, however, I recommend trying @hyperlink["https://github.com/countvajhula/symex.el"]{Symex.el}, which was designed with interactive evaluation in mind and provides a seamless experience here (disclosure: I'm the author!).
 
 @section{Online Tutorial}
+
+If you'd like to just go through the tutorial in documentation format, read on.
 
 Qi is a general-purpose functional language, but it isn't a @hash-lang[], it's just a library. You can use it in any module just by:
 
