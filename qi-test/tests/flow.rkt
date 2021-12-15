@@ -10,6 +10,10 @@
          racket/function
          "private/util.rkt")
 
+;; used in the "language extension" tests for `qi:*`
+(define-syntax-rule (qi:square flo)
+  (☯ (feedback 2 flo)))
+
 (define tests
   (test-suite
    "flow tests"
@@ -1104,6 +1108,13 @@
                    "clos respects threading direction at the site of definition")
      (check-equal? ((☯ (~> (-< (~> second (clos *)) _) map)) (list 1 2 3))
                    '(2 4 6))))
+
+   (test-suite
+    "language extension"
+    (test-suite
+     "qi:"
+     (check-equal? (~> (2 3) + (qi:square sqr))
+                   625)))
    (test-suite
     "arity modulating forms"
     (check-true ((☯ (and% positive? even?))

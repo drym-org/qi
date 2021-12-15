@@ -112,6 +112,7 @@ The core entry-point to the flow language is the form @racket[☯]. In addition,
                            (quasiquote value)
                            (quote-syntax value)
                            (syntax value)
+                           (qi:* expr ...)
                            (expr expr ... __ expr ...)
                            (expr expr ... _ expr ...)
                            (expr expr ...)

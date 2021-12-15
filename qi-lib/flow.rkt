@@ -13,6 +13,7 @@
          racket/format
          mischief/shorthand
          (for-syntax racket/base
+                     racket/string
                      syntax/parse
                      (only-in "private/util.rkt"
                               repeat)))
@@ -39,7 +40,12 @@
 
   (define-syntax-class clause
     (pattern
-     expr:expr)))
+     expr:expr))
+
+  (define-syntax-class (starts-with pfx)
+    (pattern
+     i:id #:when (string-prefix? (symbol->string
+                                  (syntax-e #'i)) pfx))))
 
 (define-alias ☯ flow)
 
@@ -423,6 +429,11 @@ provide appropriate error messages at the level of the DSL.
   ;; to be "passed through"
   [(_ ((~datum esc) ex:expr))
    #'ex]
+
+  ;; form to allow extension of the Qi language, to be
+  ;; "passed through"
+  [(_ ((~var ext-form (starts-with "qi:")) expr ...))
+   #'(ext-form expr ...)]
 
   ;; a literal is interpreted as a flow generating it
   [(_ val:literal) #'(flow (gen val))]
