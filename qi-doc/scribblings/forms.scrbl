@@ -375,6 +375,8 @@ Note that the symbol form uses Unicode @code{0x2225} corresponding to LaTeX's @c
 @defform[#:link-target? #f
          (feedback N flo)]
 @defform[#:link-target? #f
+         (feedback N (then then-flo) flo)]
+@defform[#:link-target? #f
          (feedback (while cond-flo) (then then-flo) flo)]
 )]{
   Pass the inputs @racket[N] times through @racket[flo] by "feeding back" the outputs each time. If a @racket[while] clause is specified in place of a value, then the outputs are fed back as long as @racket[cond-flo] is true. If the optional @racket[then] form is specified, @racket[then-flo] will be invoked on the outputs at the end after the loop has completed.
