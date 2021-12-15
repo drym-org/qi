@@ -11,6 +11,7 @@
                      "quickscript"
                      "quickscript-extra"
                      "qi-lib"
+                     "qi-probe"
                      "Qi-Quickscripts"
                      "threading-doc"
                      "fancy-app"
