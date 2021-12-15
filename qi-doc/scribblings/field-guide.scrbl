@@ -38,22 +38,6 @@ Before you write a flow, consider drawing out a "circuit diagram" on paper. Star
 
 Decompose your flow into its smallest components, and name each so that they are independent flows. Qi flows, by virtue of being functions, are highly composable, and are, by the same token, eminently decomposable. This tends to make refactoring flows a much more reliable undertaking than it typically is in other languages.
 
-@section{Effectively Using Feedback Loops}
-
-@racket[feedback] is Qi's most powerful looping form, useful for arbitrary recursion. It encourages quite a different way of thinking about code than Racket's usual looping forms. Here are some tips on "grokking" it.
-
-@subsection{Scratch Values and Data Values}
-
-Prior to entering the feedback loop, start the "scratch" flows that the loop will need. In some common cases, this may include a "counter" flow which keeps track of number of iterations, a result flow which accumulates an output, or something of this nature. In addition to these scratch flows, the loop will, of course, also receive all of the input data in the form of multiple values following the scratch values. The scratch inputs must always come first, so that we know where to find them (since we have no idea how many data values there will be at any stage of the loop), so that we can consistently refer to them using e.g. @racket[1>] and @racket[2>].
-
-@subsection{Input Tracing}
-
-For each input, think about just one cycle of the loop: what must happen to it in this cycle before it is fed forward to the next cycle of the loop? Trace each input in this way and ensure that the corresponding output of the present cycle represents the correct input value for the next cycle. For instance, if there is a simple counter in the first @emph{input} position, ensure that the first @emph{output} of the present cycle is the counter incremented by one. We also need to ensure that the same number of @emph{scratch} values flow to the next cycle as are used in the present cycle. There are no constraints on the number of data values, and often, this will change from one cycle to the next.
-
-@subsection{Keeping It Tidy}
-
-Use the @racket[then] clause to ensure that the feedback loop produces only its computed output and not the "scratch" values used in guiding the flow, i.e., these should be blocked in the @racket[then] clause (using, for instance, @racket[block] or another appropriate form).
-
 @section{Debugging}
 
 @subsection{Using Side Effects}
@@ -99,6 +83,22 @@ Qi includes a "circuit tester" style debugger, which you can use to check the va
 @bold{Meaning}: A flow is either returning more or fewer values than the expression receiving the result of the flow is expecting.
 
 @bold{Common example}: Attempting to assign the result of a multi-valued flow to a single variable. Use @racket[define-values] instead of @racket[define] here, or consider decomposing the flow into multiple flows that each return a single value.
+
+@section{Effectively Using Feedback Loops}
+
+@racket[feedback] is Qi's most powerful looping form, useful for arbitrary recursion. It encourages quite a different way of thinking about code than Racket's usual looping forms. Here are some tips on "grokking" it.
+
+@subsection{Scratch Values and Data Values}
+
+Prior to entering the feedback loop, start the "scratch" flows that the loop will need. In some common cases, this may include a "counter" flow which keeps track of number of iterations, a result flow which accumulates an output, or something of this nature. In addition to these scratch flows, the loop will, of course, also receive all of the input data in the form of multiple values following the scratch values. The scratch inputs must always come first, so that we know where to find them (since we have no idea how many data values there will be at any stage of the loop), so that we can consistently refer to them using e.g. @racket[1>] and @racket[2>].
+
+@subsection{Input Tracing}
+
+For each input, think about just one cycle of the loop: what must happen to it in this cycle before it is fed forward to the next cycle of the loop? Trace each input in this way and ensure that the corresponding output of the present cycle represents the correct input value for the next cycle. For instance, if there is a simple counter in the first @emph{input} position, ensure that the first @emph{output} of the present cycle is the counter incremented by one. We also need to ensure that the same number of @emph{scratch} values flow to the next cycle as are used in the present cycle. There are no constraints on the number of data values, and often, this will change from one cycle to the next.
+
+@subsection{Keeping It Tidy}
+
+Use the @racket[then] clause to ensure that the feedback loop produces only its computed output and not the "scratch" values used in guiding the flow, i.e., these should be blocked in the @racket[then] clause (using, for instance, @racket[block] or another appropriate form).
 
 @section{Idioms and Transforms}
 
