@@ -96,7 +96,7 @@ Prior to entering the feedback loop, augment the data values by starting the "co
 
 @subsection{Input Tracing}
 
-For each input, think about just one cycle of the loop: what must happen to it in this cycle before it is fed forward to the next cycle of the loop? Trace each input in this way and ensure that the corresponding output of the present cycle represents the correct input value for the next cycle. For instance, if there is a simple counter in the first @emph{input} position, ensure that the first @emph{output} of the present cycle is the counter incremented by one. We also need to ensure that the same number of @emph{scratch} values flow to the next cycle as are used in the present cycle. There are no constraints on the number of data values, and often, this will change from one cycle to the next.
+For each input, think about just one cycle of the loop: what must happen to it in this cycle before it is fed forward to the next cycle of the loop? Trace each input in this way and ensure that the corresponding output of the present cycle represents the correct input value for the next cycle. For instance, if there is a simple counter in the first @emph{input} position, ensure that the first @emph{output} of the present cycle is the counter incremented by one. We also need to ensure that the same number of @emph{control} values flow to the next cycle as are used in the present cycle. There are no constraints on the number of data values, and often, this will change from one cycle to the next.
 
 @subsection{Keeping It Tidy}
 
