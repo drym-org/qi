@@ -42,7 +42,7 @@ Decompose your flow into its smallest components, and name each so that they are
 
 @subsection{Using Side Effects}
 
-For the simplest cases, you could just use the side-effect form, @racket[effect] (or @racket[ε]), to see the values at a particular point in the flow without affecting the functioning of the flow itself.
+For the simplest cases, you could just use the side-effect form, @racket[effect] (or @racket[ε]), to see the values at a particular point in the flow without affecting the behavior of the flow itself.
 
 @subsection{Using a Tester}
 
@@ -86,11 +86,13 @@ Qi includes a "circuit tester" style debugger, which you can use to check the va
 
 @section{Effectively Using Feedback Loops}
 
-@racket[feedback] is Qi's most powerful looping form, useful for arbitrary recursion. It encourages quite a different way of thinking about code than Racket's usual looping forms. Here are some tips on "grokking" it.
+@racket[feedback] is Qi's most powerful looping form, useful for arbitrary recursion. As it encourages quite a different way of thinking than Racket's usual looping forms do, here are some tips on "grokking" it.
 
-@subsection{Scratch Values and Data Values}
+In essence, the feedback loop is very simple –- all it does is pass the same inputs through a flow over and over again until a condition is met, at which point these inputs just flow out of the loop. Nothing complicated at all! The subtlety comes in, though, when we treat some inputs as "control" inputs that determine attributes @emph{of} the flow or as "scratch" inputs that encode computations done @emph{on} the flow, while treating the remaining inputs as the data that are actually acted upon. By doing this, we can do pretty much anything we'd like to, i.e. it can be used for general recursion.
 
-Prior to entering the feedback loop, start the "scratch" flows that the loop will need. In some common cases, this may include a "counter" flow which keeps track of number of iterations, a result flow which accumulates an output, or something of this nature. In addition to these scratch flows, the loop will, of course, also receive all of the input data in the form of multiple values following the scratch values. The scratch inputs must always come first, so that we know where to find them (since we have no idea how many data values there will be at any stage of the loop), so that we can consistently refer to them using e.g. @racket[1>] and @racket[2>].
+@subsection{Control Values and Data Values}
+
+Prior to entering the feedback loop, augment the data values by starting the "control" or "scratch" flows that the loop will need (although control and scratch inputs are not @emph{quite} the same (see above), we can use the terms interchangeably for our purposes here). In some common cases, this may include a "counter" flow which keeps track of number of iterations, a result flow which accumulates an output, or something of this nature. In addition to these control flows, the loop will, of course, also receive all of the input data in the form of multiple values following the control values. The control inputs must always come first, so that we know where to find them (since we have no idea how many data values there will be at any stage of the loop), so that we can consistently refer to them using e.g. @racket[1>] and @racket[2>].
 
 @subsection{Input Tracing}
 

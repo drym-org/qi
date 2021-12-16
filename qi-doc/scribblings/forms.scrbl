@@ -113,6 +113,8 @@ The core syntax of the Qi language. These forms may be used in any flow.
 
   @margin-note{A flow defined using @racket[clos] retains @emph{all} of the inputs from the definition site. Filtering the inputs @emph{within} the flow definition filters the aggregate inputs available at runtime invocation -- not the inputs available at the definition site. If you only need access to a subset of definition-site inputs, these must be filtered prior to passing them in to @racket[clos].}
 
+  See @secref["Converting_a_Function_to_a_Closure"] in the field guide for more tips on using closures.
+
 @examples[
     #:eval eval-for-docs
     ((☯ (~> (-< (~> first (clos *)) rest) map)) (list 5 4 3 2 1))
@@ -371,26 +373,6 @@ Note that the symbol form uses Unicode @code{0x2225} corresponding to LaTeX's @c
 }
 
 @deftogether[(
-@defidform[feedback]
-@defform[#:link-target? #f
-         (feedback N flo)]
-@defform[#:link-target? #f
-         (feedback N (then then-flo) flo)]
-@defform[#:link-target? #f
-         (feedback (while cond-flo) (then then-flo) flo)]
-)]{
-  Pass the inputs @racket[N] times through @racket[flo] by "feeding back" the outputs each time. If a @racket[while] clause is specified in place of a value, then the outputs are fed back as long as @racket[cond-flo] is true. If the optional @racket[then] form is specified, @racket[then-flo] will be invoked on the outputs at the end after the loop has completed.
-
-  If used in identifier form simply as @racket[feedback], it treats the first three inputs as @racket[cond-flo], @racket[then-flo], and @racket[flo], respectively, and all three are expected. The remaining inputs are treated as the data inputs being acted upon.
-
-@examples[
-    #:eval eval-for-docs
-    ((☯ (feedback 3 add1)) 5)
-    ((☯ (feedback (while (< 50)) sqr)) 2)
-  ]
-}
-
-@deftogether[(
   @defidform[1>]
   @defidform[2>]
   @defidform[3>]
@@ -518,6 +500,62 @@ Note that the symbol form uses Unicode @code{0x2225} corresponding to LaTeX's @c
   ]
 }
 
+@section{Loops}
+
+@deftogether[(
+  @defform[(loop condition-flo map-flo combine-flo return-flo)]
+  @defform[#:link-target? #f
+           (loop condition-flo map-flo combine-flo)]
+  @defform[#:link-target? #f
+           (loop condition-flo map-flo)]
+  @defform[#:link-target? #f
+           (loop map-flo)]
+)]{
+  A simple loop for structural recursion on the input values, this applies @racket[map-flo] to the first input on each successive iteration and recurses on the remaining inputs, combining these using @racket[combine-flo] to yield the result as long as the inputs satisfy @racket[condition-flo]. When the inputs do not satisfy @racket[condition-flo], @racket[return-flo] is applied to the inputs to yield the result at that terminating step. If the condition is satisfied and there are no further values, the loop terminates naturally.
+
+  If unspecified, @racket[condition-flo] defaults to @racket[#t], @racket[combine-flo] defaults to @racket[_], and @racket[return-flo] defaults to @racket[⏚].
+
+@examples[
+    #:eval eval-for-docs
+    ((☯ (loop (* 2))) 1 2 3)
+    ((☯ (loop #t _ +)) 1 2 3 4)
+  ]
+}
+
+@defform[(loop2 condition-flo map-flo combine-flo)]{
+  A "tail-recursive" looping form, this passes the result at each step as a flow input to the next, alongside the inputs to the subsequent step, simply evaluating to the result flow on the last step.
+
+@examples[
+    #:eval eval-for-docs
+    ((☯ (loop2 (~> 1> (not null?))
+               sqr
+               cons))
+     (list 1 2 3) null)
+  ]
+}
+
+@deftogether[(
+@defidform[feedback]
+@defform[#:link-target? #f
+         (feedback N flo)]
+@defform[#:link-target? #f
+         (feedback N (then then-flo) flo)]
+@defform[#:link-target? #f
+         (feedback (while cond-flo) (then then-flo) flo)]
+)]{
+  Pass the inputs @racket[N] times through @racket[flo] by "feeding back" the outputs each time. If a @racket[while] clause is specified in place of a value, then the outputs are fed back as long as @racket[cond-flo] is true. If the optional @racket[then] form is specified, @racket[then-flo] will be invoked on the outputs at the end after the loop has completed.
+
+  If used in identifier form simply as @racket[feedback], it treats the first three inputs as @racket[cond-flo], @racket[then-flo], and @racket[flo], respectively, and all three are expected. The remaining inputs are treated as the data inputs being acted upon.
+
+  For practical advice on using @racket[feedback], see @secref["Effectively_Using_Feedback_Loops"] in the field guide.
+
+@examples[
+    #:eval eval-for-docs
+    ((☯ (feedback 3 add1)) 5)
+    ((☯ (feedback (while (< 50)) sqr)) 2)
+  ]
+}
+
 @section{Higher-order Flows}
 
 @deftogether[(
@@ -585,38 +623,6 @@ Note that the symbol form uses Unicode @code{0x2225} corresponding to LaTeX's @c
 }
 
 @deftogether[(
-  @defform[(loop condition-flo map-flo combine-flo return-flo)]
-  @defform[#:link-target? #f
-           (loop condition-flo map-flo combine-flo)]
-  @defform[#:link-target? #f
-           (loop condition-flo map-flo)]
-  @defform[#:link-target? #f
-           (loop map-flo)]
-)]{
-  A simple loop for structural recursion on the input values, this applies @racket[map-flo] to the first input on each successive iteration and recurses on the remaining inputs, combining these using @racket[combine-flo] to yield the result as long as the inputs satisfy @racket[condition-flo]. When the inputs do not satisfy @racket[condition-flo], @racket[return-flo] is applied to the inputs to yield the result at that terminating step. If the condition is satisfied and there are no further values, the loop terminates naturally.
-
-  If unspecified, @racket[condition-flo] defaults to @racket[#t], @racket[combine-flo] defaults to @racket[_], and @racket[return-flo] defaults to @racket[⏚].
-
-@examples[
-    #:eval eval-for-docs
-    ((☯ (loop (* 2))) 1 2 3)
-    ((☯ (loop #t _ +)) 1 2 3 4)
-  ]
-}
-
-@defform[(loop2 condition-flo map-flo combine-flo)]{
-  A "tail-recursive" looping form, this passes the result at each step as a flow input to the next, alongside the inputs to the subsequent step, simply evaluating to the result flow on the last step.
-
-@examples[
-    #:eval eval-for-docs
-    ((☯ (loop2 (~> 1> (not null?))
-               sqr
-               cons))
-     (list 1 2 3) null)
-  ]
-}
-
-@deftogether[(
   @defform[(ε side-effect-flo flo)]
   @defform[#:link-target? #f (ε side-effect-flo)]
   @defform[(effect side-effect-flo flo)]
@@ -638,6 +644,8 @@ Note that the symbol form uses Unicode @code{0x2225} corresponding to LaTeX's @c
 }
 
   As @racket[displayln] expects a single input, you'd need to use @racket[(>< displayln)] for this side-effect in general.
+
+  If you are interesting in using @racket[effect] to debug a flow, see the section on @secref["Debugging" #:doc '(lib "qi/scribblings/qi.scrbl")] in the field guide for more strategies.
 
 @examples[
     #:eval eval-for-docs
