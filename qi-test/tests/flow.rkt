@@ -819,12 +819,15 @@
                    9))
     (test-suite
      "fanout"
-     (check-equal? ((☯ (~> (fanout 3)
-                           +))
-                    5)
+     (check-equal? (~> (5) (fanout 3) +)
+                   15)
+     (check-equal? (~> (2 3) (fanout 3) +)
                    15)
      (check-equal? (~> (3 "a") fanout string-append)
                    "aaa"
+                   "control form of fanout")
+     (check-equal? (~> (3 "a" "b") fanout string-append)
+                   "ababab"
                    "control form of fanout"))
     (test-suite
      "inverter"

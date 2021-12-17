@@ -16,6 +16,7 @@
          except-args
          call
          repeat
+         repeat-values
          power
          foldl-values
          foldr-values)
@@ -193,6 +194,9 @@
   (if (= 0 n)
       null
       (cons v (repeat (sub1 n) v))))
+
+(define (repeat-values n . vs)
+  (apply values (apply append (repeat n vs))))
 
 (define (power n f)
   (apply compose (repeat n f)))

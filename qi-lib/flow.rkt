@@ -325,7 +325,7 @@ provide appropriate error messages at the level of the DSL.
 
   ;; high level routing
   [(_ (~datum fanout))
-   #'(flow (~> repeat △))]
+   #'repeat-values]
   [(_ ((~datum fanout) n:number))
    (datum->syntax
     this-syntax
