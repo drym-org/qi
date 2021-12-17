@@ -75,8 +75,13 @@ The core entry-point to the flow language is the form @racket[☯]. In addition,
                            (relay flow-expr ...)
                            (-< flow-expr ...)
                            (tee flow-expr ...)
+                           fanout
                            (fanout number)
+                           feedback
                            (feedback number flow-expr)
+                           (feedback number (then flow-expr) flow-expr)
+                           (feedback (while flow-expr) flow-expr)
+                           (feedback (while flow-expr) (then flow-expr) flow-expr)
                            count
                            1>
                            2>
@@ -91,17 +96,32 @@ The core entry-point to the flow language is the form @racket[☯]. In addition,
                            (block index ...)
                            (bundle (index ...) flow-expr flow-expr)
                            (group number flow-expr flow-expr)
+                           sieve
                            (sieve flow-expr flow-expr flow-expr)
+                           (if flow-expr flow-expr)
                            (if flow-expr flow-expr flow-expr)
                            (when flow-expr flow-expr)
                            (unless flow-expr flow-expr)
+                           switch
                            (switch switch-expr ...)
+                           (switch (% flow-expr) switch-expr ...)
+                           (switch (divert flow-expr) switch-expr ...)
                            (gate flow-expr)
+                           ><
                            (>< flow-expr)
+                           amp
                            (amp flow-expr)
+                           pass
                            (pass flow-expr)
-                           (<< flow-expr expr)
-                           (>> flow-expr expr)
+                           <<
+                           (<< flow-expr)
+                           (<< flow-expr flow-expr)
+                           >>
+                           (>> flow-expr)
+                           (>> flow-expr flow-expr)
+                           (loop flow-expr)
+                           (loop flow-expr flow-expr)
+                           (loop flow-expr flow-expr flow-expr)
                            (loop flow-expr flow-expr flow-expr flow-expr)
                            (loop2 flow-expr flow-expr flow-expr)
                            (ε flow-expr flow-expr)
