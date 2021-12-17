@@ -324,6 +324,8 @@ provide appropriate error messages at the level of the DSL.
    #'(flow (~> (>< 1) +))]
 
   ;; high level routing
+  [(_ (~datum fanout))
+   #'(flow (~> repeat △))]
   [(_ ((~datum fanout) n:number))
    (datum->syntax
     this-syntax

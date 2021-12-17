@@ -362,13 +362,20 @@ Note that the symbol form uses Unicode @code{0x2225} corresponding to LaTeX's @c
   ]
 }
 
-@defform[(fanout N)]{
+@deftogether[(
+@defidform[fanout]
+@defform[#:link-target? #f
+         (fanout N)]
+)]{
   Split the inputs into @racket[N] copies of themselves.
+
+  When used in identifier form simply as @racket[fanout], it treats the first input as @racket[N], and the remaining inputs as the values to be fanned out.
 
 @examples[
     #:eval eval-for-docs
     ((☯ (fanout 3)) 5)
     ((☯ (fanout 2)) 3 7)
+    (~> (3 "hello?") fanout)
   ]
 }
 

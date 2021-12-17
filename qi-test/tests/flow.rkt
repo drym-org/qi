@@ -822,7 +822,10 @@
      (check-equal? ((☯ (~> (fanout 3)
                            +))
                     5)
-                   15))
+                   15)
+     (check-equal? (~> (3 "a") fanout string-append)
+                   "aaa"
+                   "control form of fanout"))
     (test-suite
      "inverter"
      (check-false ((☯ (~> inverter
