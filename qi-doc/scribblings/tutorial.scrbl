@@ -432,6 +432,20 @@ That's one way to give this flow a name. Another way is to use the dedicated @ra
     (amplify 0)
   ]
 
+As flows accept any number of input values, the predicates we define and use (for instance with switch) can operate on multiple values as well. The following flow computes the absolute difference between two input values:
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+    (define-values (a b) (values 3 5))
+
+    (switch (a b)
+      [> -]
+      [< (~> X -)])
+  ]
+
+The @racket[X] or "crossover" form used here reverses the order of the inputs, and ensures that the larger argument is passed to the subtract operation in the first position.
+
 Finally, we can end flows by using the @racket[ground] form.
 
 @examples[
