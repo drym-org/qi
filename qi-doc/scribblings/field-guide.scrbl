@@ -26,6 +26,8 @@
 
 @title{Field Guide}
 
+This section contains practical advice for using Qi. It includes recipes for doing various things, advice on gotchas and commonly encountered errors, and other tips you may find useful "in the field."
+
 @table-of-contents[]
 
 @section{Writing Flows}
