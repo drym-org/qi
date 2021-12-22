@@ -1,7 +1,9 @@
 #lang racket/base
 
 (provide probe
-         readout)
+         readout
+         define-probed-flow
+         probe-named-flow)
 
 (require syntax/parse/define
          racket/stxparam
@@ -23,3 +25,23 @@
      (syntax-parameterize ([readout (syntax-id-rules ()
                                       [_ return])])
        flo))))
+
+(define-syntax-parser define-probed-flow
+  [(_ (name:id arg:id ...) expr:expr)
+   #'(define name
+       (λ (outer)
+         (syntax-parameterize ([readout (syntax-id-rules ()
+                                          [_ outer])])
+           (flow-lambda (arg ...)
+             expr))))]
+  [(_ name:id expr:expr)
+   #'(define name
+       (λ (outer)
+         (syntax-parameterize ([readout (syntax-id-rules ()
+                                          [_ outer])])
+           (flow expr))))])
+
+(define-syntax-parse-rule (probe-named-flow (flo arg ...))
+  (call/cc
+   (λ (outer)
+     ((flo outer) arg ...))))
