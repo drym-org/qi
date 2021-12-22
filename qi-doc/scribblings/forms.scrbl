@@ -44,6 +44,8 @@ The core syntax of the Qi language. These forms may be used in any flow.
 @defform[(gen expr ...)]{
   A flow that generates the @emph{values} of the provided Racket expressions @racket[expr], ignoring any input values provided to it at runtime. This is the most common way to translate an ordinary value into a flow.
 
+  Note that @seclink["Literals"]{literals} are transparently wrapped with @racket[gen] during @tech/reference{expansion} and don't need to be explicitly wrapped.
+
 @examples[
     #:eval eval-for-docs
     ((☯ (gen 1)) 3)
