@@ -10,12 +10,13 @@
                      "from-template"
                      "quickscript"
                      "quickscript-extra"
-                     "qi-lib"
-                     "qi-probe"
                      "Qi-Quickscripts"
+                     "tmux-vim-demo"
                      "threading-doc"
                      "fancy-app"
                      "math-lib"
+                     "qi-lib"
+                     "qi-probe"
                      "relation"))
 (define scribblings '(("scribblings/qi.scrbl" (multi-page))))
 (define clean '("compiled" "doc" "doc/qi"))

@@ -68,6 +68,10 @@ And then, downloading the tutorial is as simple as:
 
   The native Emacs experience in Racket Mode is already geared towards interactive evaluation, so you should be all set. If you use modal editing, however, I recommend trying @hyperlink["https://github.com/countvajhula/symex.el"]{Symex.el}, which was designed with interactive evaluation in mind and provides a seamless experience here (disclosure: I'm the author!).
 
+@subsubsection{Vim}
+
+D. Ben Knoble's @other-doc['(lib "tmux-vim-demo/scribblings/tmux-vim-demo.scrbl")] allows you to run expressions on demand with a split-pane view of your Vim buffer and a tmux session containing a Racket REPL. See @hyperlink["https://github.com/countvajhula/qi-tutorial"]{the README} for additional setup instructions once the package is installed. Once set up, you can simply use @code{r} (in Normal mode) to send the current line or visual selection to the REPL.
+
 @section{Online Tutorial}
 
 If you'd like to just go through the tutorial in documentation format, read on.
