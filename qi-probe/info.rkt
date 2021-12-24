@@ -7,4 +7,6 @@
                "version-case"))
 (define build-deps '())
 (define clean '("compiled" "private/compiled"))
+(define compile-omit-paths '("tests"))
+(define test-include-paths '("tests"))
 (define pkg-authors '(countvajhula))

@@ -89,24 +89,30 @@ point in the flow and also reset the parameter as described above.
                           src)])])
        flo))))
 
-(define-syntax-parse-rule (qi:probe flo)
-  (syntax-parameterize
-      ([readout (syntax-id-rules ()
-                  [_ (flow
-                      (esc
-                       (λ args
-                         (let ([src (source)])
-                           ;; reset source to avoid the possibility of stale
-                           ;; continuations used later outside of a `probe`
-                           (source default-source)
-                           (apply src args)))))])])
-    (flow flo)))
+(define-syntax-parser qi:probe
+  [(_ flo)
+   ;; unhygienic to avoid depending on qi-lib here
+   (with-syntax ([flow (datum->syntax this-syntax 'flow)])
+     #'(syntax-parameterize
+          ([readout (syntax-id-rules ()
+                      [_ (flow
+                          (esc
+                           (λ args
+                             (let ([src (source)])
+                               ;; reset source to avoid the possibility of stale
+                               ;; continuations used later outside of a `probe`
+                               (source default-source)
+                               (apply src args)))))])])
+        (flow flo)))])
 
 (define-syntax-parser define-probed-flow
+  ;; unhygienic to avoid depending on qi-lib here
   [(_ (name:id arg:id ...) flo:expr)
-   #'(define name
-       (flow-lambda (arg ...)
-         (qi:probe flo)))]
+   (with-syntax ([flow-lambda (datum->syntax this-syntax 'flow-lambda)])
+     #'(define name
+        (flow-lambda (arg ...)
+                     (qi:probe flo))))]
   [(_ name:id flo:expr)
-   #'(define name
-       (flow (qi:probe flo)))])
+   (with-syntax ([flow (datum->syntax this-syntax 'flow)])
+     #'(define name
+        (flow (qi:probe flo))))])
