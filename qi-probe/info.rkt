@@ -4,7 +4,8 @@
 (define collection "qi")
 (define deps '("base"
                "mischief"
-               "version-case"))
+               "version-case"
+               "qi-lib"))
 (define build-deps '())
 (define clean '("compiled" "private/compiled"))
 (define compile-omit-paths '("tests"))
