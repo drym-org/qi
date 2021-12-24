@@ -716,7 +716,7 @@ Usually, the @racket[_] symbol indicates the trivial or identity flow, simply pa
 @section{Language Extension}
 
 @defform[(qi:* expr ...)]{
-  A form with a name starting with "qi:" is treated in a special way -- it is simply left alone during the macro expansion phase as far as Qi is concerned, as it is expected to be a macro written by a third party that will expand into a @emph{Racket} expression that is usable as a flow (i.e. similar to the @racket[esc] form). That is, such a form must expand either to a flow specified using Qi and wrapped with @racket[☯], or to a @tech/reference{lambda} containing arbitrary Racket code.
+  A form with a name starting with "qi:" is treated in a special way -- it is simply left alone during the macro expansion phase as far as Qi is concerned, as it is expected to be a macro written by a third party that will expand into a @emph{Racket} expression that is usable as a flow (i.e. similar to the @racket[esc] form). That is, such a form must expand either to a flow specified using Qi and wrapped with @racket[☯], or to a @seclink["lambda" #:doc '(lib "scribblings/guide/guide.scrbl")]{lambda} containing arbitrary Racket code.
 
  This allows you to extend the Qi language locally without requiring changes to be made in the library itself.
 
