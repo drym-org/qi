@@ -67,7 +67,7 @@ Qi includes a "circuit tester" style debugger, which you can use to check the va
     (probe (~> (5) sqr readout (* 2) add1))
     (probe (~> (5) sqr (* 2) readout add1))
     (probe (~> (5) sqr (* 2) add1 readout))
-    (probe (~> (5) sqr (if (~> (> 20) readout) _ (* 2)) add1 readout))
+    (probe (~> (5) sqr (if (~> (> 20) readout) _ (* 2)) add1))
   ]
 }
 
