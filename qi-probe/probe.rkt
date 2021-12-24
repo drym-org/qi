@@ -92,7 +92,6 @@ point in the flow and also reset the parameter as described above.
 
 (define-syntax-parser qi:probe
   [(_ flo)
-   ;; unhygienic to avoid depending on qi-lib here
    #'(syntax-parameterize
          ([readout (syntax-id-rules ()
                      [_ (flow
@@ -106,7 +105,6 @@ point in the flow and also reset the parameter as described above.
        (flow flo))])
 
 (define-syntax-parser define-probed-flow
-  ;; unhygienic to avoid depending on qi-lib here
   [(_ (name:id arg:id ...) flo:expr)
    #'(define name
        (flow-lambda (arg ...)

@@ -267,7 +267,9 @@ Each of the @racket[predicate] and @racket[consequent] expressions is a flow, an
 The following definition forms may be used in place of the usual general-purpose @racket[define] form when defining flows.
 
 @deftogether[(
-  @defform[(define-flow (name args) body ...)]
+  @defform[(define-flow name body ...)]
+  @defform[#:link-target? #f
+           (define-flow (name args) body ...)]
 )]{
   Similiar to the function form of @racket[define] but constrained to the flow language. This is exactly equivalent to @racket[(define name (lambda/subject args body ...))].
 }
