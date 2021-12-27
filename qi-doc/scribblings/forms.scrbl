@@ -713,6 +713,17 @@ Usually, the @racket[_] symbol indicates the trivial or identity flow, simply pa
   ]
 }
 
+@defidform[live?]{
+  Check if there are any values flowing -- evaluates to @racket[true] if there are, and @racket[false] otherwise.
+
+@examples[
+    #:eval eval-for-docs
+    ((☯ live?) 5)
+    ((☯ (~> (-< _ _ _) live?)) 5)
+    ((☯ (~> (-< _ _ _) ⏚ live?)) 5)
+  ]
+}
+
 @section{Language Extension}
 
 @defform[(qi:* expr ...)]{

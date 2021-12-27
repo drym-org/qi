@@ -322,6 +322,8 @@ provide appropriate error messages at the level of the DSL.
   ;; common utilities
   [(_ (~datum count))
    #'(λ args (length args))]
+  [(_ (~datum live?))
+   #'(λ args (not (null? args)))]
 
   ;; high level routing
   [(_ (~datum fanout))

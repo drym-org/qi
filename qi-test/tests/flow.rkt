@@ -983,7 +983,15 @@
      "count"
      (check-equal? ((☯ count) 3 4 5) 3)
      (check-equal? ((☯ count) 5) 1)
-     (check-equal? ((☯ count)) 0)))
+     (check-equal? ((☯ count)) 0))
+
+    (test-suite
+     "live?"
+     (check-true ((☯ live?) 3 4 5))
+     (check-true ((☯ live?) 5))
+     (check-false ((☯ live?)))
+     (check-true (~> (1 2) live?))
+     (check-false (~> (1 2) ⏚ live?))))
 
    (test-suite
     "higher-order flows"
