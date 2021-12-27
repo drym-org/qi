@@ -26,15 +26,18 @@
   (second (values->list (time-apply fn args))))
 
 (define (check-value fn how-many)
+  ;; call a function with a single (numeric) argument
   (for ([i (take how-many (cycle (range 10)))])
     (fn i)))
 
 (define (check-list fn how-many)
+  ;; call a function with a single list argument
   (for ([i (in-range how-many)])
     (let ([vs (range i (+ i 10))])
       (fn vs))))
 
 (define (check-values fn how-many)
+  ;; call a function with multiple values as independent arguments
   (for ([i (in-range how-many)])
     (let ([vs (range i (+ i 10))])
       (call-with-values (λ ()

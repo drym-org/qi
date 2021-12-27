@@ -46,7 +46,7 @@
 (run-benchmark "count"
                check-values
                (local count)
-               200000)
+               1000000)
 
 (run-benchmark "relay"
                check-values
