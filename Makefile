@@ -21,6 +21,9 @@ help:
 	@echo "coverage-check - Run test coverage checker"
 	@echo "coverage-report - View test coverage report"
 	@echo "docs - view docs in a browser"
+	@echo "profile - Run comprehensive performance benchmarks"
+	@echo "profile-base - Run basic comparative benchmarks"
+	@echo "profile-forms - Run benchmarks for individual Qi forms"
 
 # Primarily for use by CI.
 # Installs dependencies as well as linking this as a package.
