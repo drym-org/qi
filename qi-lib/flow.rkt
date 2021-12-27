@@ -321,7 +321,7 @@ provide appropriate error messages at the level of the DSL.
 
   ;; common utilities
   [(_ (~datum count))
-   #'(flow (~> (>< 1) +))]
+   #'(λ args (length args))]
 
   ;; high level routing
   [(_ (~datum fanout))

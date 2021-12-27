@@ -38,9 +38,14 @@
    (☯ (>< sqr))
    vs))
 
-(run-benchmark "group"
+(define (count . vs)
+  (apply
+   (☯ count)
+   vs))
+
+(run-benchmark "count"
                check-values
-               (local group)
+               (local count)
                200000)
 
 (run-benchmark "relay"
