@@ -719,8 +719,24 @@ Usually, the @racket[_] symbol indicates the trivial or identity flow, simply pa
 @examples[
     #:eval eval-for-docs
     ((☯ live?) 5)
-    ((☯ (~> (-< _ _ _) live?)) 5)
-    ((☯ (~> (-< _ _ _) ⏚ live?)) 5)
+    (~> (5) (-< _ _ _) live?)
+    (~> (5) (-< _ _ _) ⏚ live?)
+    (~> (8 "hello" 3 'boo 4) (pass number?) (if live? min #f))
+    (~> ("hello" 'boo) (pass number?) (if live? min #f))
+  ]
+}
+
+@defform[(rectify v ...)]{
+  Check if the flow is @racket[live?], and if it isn't, then ensure that the values @racket[v ...] are produced. Equivalent to @racket[(if live? _ (gen v ...))].
+
+  A flow may sometimes produce @emph{no values}. In such cases, depending on how the output of the flow is used, it may be desirable to ensure that it returns some default value or values instead. @racket[rectify] produces the original output of the flow unchanged if there is any output, and otherwise outputs @racket[v ...].
+
+@examples[
+    #:eval eval-for-docs
+    (~> (5) (rectify #f))
+    (~> (5) ⏚ (rectify #f))
+    (~> (8 "hello" 3 'boo 4) (pass number?) (rectify 0) min)
+    (~> ("hello" 'boo) (pass number?) (rectify 0) min)
   ]
 }
 

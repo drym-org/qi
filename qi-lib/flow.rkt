@@ -324,6 +324,8 @@ provide appropriate error messages at the level of the DSL.
    #'(λ args (length args))]
   [(_ (~datum live?))
    #'(λ args (not (null? args)))]
+  [(_ ((~datum rectify) v:expr ...))
+   #'(flow (if live? _ (gen v ...)))]
 
   ;; high level routing
   [(_ (~datum fanout))

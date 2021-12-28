@@ -991,7 +991,15 @@
      (check-true ((☯ live?) 5))
      (check-false ((☯ live?)))
      (check-true (~> (1 2) live?))
-     (check-false (~> (1 2) ⏚ live?))))
+     (check-false (~> (1 2) ⏚ live?)))
+
+    (test-suite
+     "rectify"
+     (check-equal? (~> (3 4 5) (rectify 'boo) +) 12)
+     (check-equal? (~> (5) (rectify 'boo)) 5)
+     (check-equal? (~> () (rectify 'boo)) 'boo)
+     (check-equal? (~> (1 2) (rectify #f) +) 3)
+     (check-equal? (~> (1 2) ⏚ (rectify #f)) #f)))
 
    (test-suite
     "higher-order flows"
