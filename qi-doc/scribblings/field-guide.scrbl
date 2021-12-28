@@ -26,7 +26,7 @@
 
 @title{Field Guide}
 
-This section contains practical advice on using Qi. It includes recipes for doing various things, advice on gotchas and commonly encountered errors, and other tips you may find useful "in the field."
+This section contains practical advice on using Qi. It includes recipes for doing various things, advice on gotchas, troubleshooting commonly encountered errors, and other tips you may find useful "in the field."
 
 @table-of-contents[]
 
@@ -112,6 +112,17 @@ If, on the other hand, your flow is defined elsewhere and only @emph{used} at th
 @bold{Meaning}: A flow is either returning more or fewer values than the expression receiving the result of the flow is expecting.
 
 @bold{Common example}: Attempting to assign the result of a multi-valued flow to a single variable. Use @racket[define-values] instead of @racket[define] here, or consider decomposing the flow into multiple flows that each return a single value.
+
+@bold{Error}:
+
+@codeblock{
+;  _: wildcard not allowed as an expression
+;   in: _
+}
+
+@bold{Meaning}: @racket[_] is a valid @emph{Qi} expression but an invalid @emph{Racket} expression. Somewhere in the course of evaluation of your code, the interpreter received @racket[_] and was asked to evaluate it as a @emph{Racket} expression. It doesn't like this.
+
+@bold{Common example}: This usually happens when you try to use a template inside a nested application, where it becomes Racket rather than Qi. For instance, @racket[(~> (1) (* 3 (+ _ 2)))] is invalid because, within the @racket[(* ...)] template, the language is @emph{Racket} rather than Qi. You might try @seclink["Nested_Applications_are_Sequential_Flows"]{linearizing the flow}, something like @racket[(~> (1) (+ _ 2) (* 3))].
 
 @section{Effectively Using Feedback Loops}
 
