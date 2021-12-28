@@ -5,6 +5,7 @@
 (require qi
          rackunit
          (only-in math sqr)
+         (only-in adjutor values->list)
          racket/function
          "private/util.rkt")
 
@@ -13,11 +14,14 @@
    "switch tests"
    (test-suite
     "Edge/base cases"
+    (check-equal? (values->list (switch ())) null "null switch")
+    (check-equal? (switch (2)) 2 "trivial switch")
+    (check-equal? (switch (2) [negative? sub1]) 2 "no matching clauses")
     (check-equal? (switch (6 5)
                     [< 'yo]
                     [else void])
                   (void)
-                  "no matching clause returns no values - must be explicit about e.g. void")
+                  "no matching clause returns input values - must be explicit about e.g. void")
     (check-equal? (switch (5 3)
                     [< (=> (group 1 ⏚ +))]
                     [else -])

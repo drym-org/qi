@@ -221,11 +221,11 @@ provide appropriate error messages at the level of the DSL.
                        alternative:clause))
    #'(flow (if condition ⏚ alternative))]
   [(_ ((~datum switch)))
-   #'(flow ⏚)]
+   #'(flow)]
   [(_ ((~datum switch) ((~or (~datum divert) (~datum %))
                         condition-gate:clause
                         consequent-gate:clause)))
-   #'(flow ⏚)]
+   #'(flow)]
   [(_ ((~datum switch) [(~datum else) alternative:clause]))
    #'(flow (if #t
                alternative
@@ -498,7 +498,7 @@ provide appropriate error messages at the level of the DSL.
   [(_ natex:expr) #'natex]
 
   ;; a non-flow
-  [(_) #'void]
+  [(_) #'values]
 
   [(flow expr0 expr ...+)  ; error handling catch-all
    #'(report-syntax-error

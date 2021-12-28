@@ -5,6 +5,7 @@
 (require qi
          rackunit
          (only-in math sqr)
+         (only-in adjutor values->list)
          racket/list
          racket/string
          racket/function
@@ -22,9 +23,9 @@
     "core language"
     (test-suite
      "Edge/base cases"
-     (check-equal? ((☯)) (void) "non-flow")
-     (check-equal? ((☯) 0) (void) "non-flow")
-     (check-equal? ((☯) 1 2) (void) "non-flow")
+     (check-equal? (values->list ((☯))) null "empty flow with no inputs")
+     (check-equal? ((☯) 0) 0 "empty flow with one input")
+     (check-equal? (values->list ((☯) 1 2)) (list 1 2) "empty flow with multiple inputs")
      (check-equal? ((☯ (const 3))) 3 "no arguments")
      (check-equal? ((flow add1) 2) 3 "simple function")
      (check-equal? ((flow 0) 2) 0 "literal (number)")
@@ -644,7 +645,8 @@
                    -6)
      (check-equal? ((☯ (~> (switch [negative? sub1]) +))
                     5)
-                   0)
+                   5
+                   "no matching condition means input passes through")
      (check-equal? ((☯ (switch [negative? sub1] [else add1]))
                     5)
                    6)
@@ -671,7 +673,8 @@
                    0)
      (check-equal? ((☯ (~> (switch [< +] [> -]) +))
                     6 6)
-                   0)
+                   12
+                   "no matching clause means inputs pass through")
      (check-equal? ((☯ (switch [(< 10) _] [else (gen 0)]))
                     5)
                    5)

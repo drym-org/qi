@@ -18,7 +18,7 @@
 (define-syntax-parser switch
   [(_ args:subject
       clause ...)
-   #`(on args
+   #'(on args
        (switch clause ...))])
 
 (define-syntax-parser switch-lambda

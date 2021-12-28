@@ -5,6 +5,7 @@
 (require qi
          rackunit
          (only-in math sqr)
+         (only-in adjutor values->list)
          racket/function)
 
 (define tests
@@ -13,10 +14,10 @@
    (test-suite
     "Edge/base cases"
     (check-equal? (on (0))
-                  (void)
+                  0
                   "no clauses, unary")
-    (check-equal? (on (5 5))
-                  (void)
+    (check-equal? (values->list (on (5 5)))
+                  (list 5 5)
                   "no clauses, binary")
     (check-equal? (on ()
                     (const 3))

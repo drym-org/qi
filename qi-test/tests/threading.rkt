@@ -5,6 +5,7 @@
 (require qi
          rackunit
          (only-in math sqr)
+         (only-in adjutor values->list)
          racket/function)
 
 (define tests
@@ -12,19 +13,14 @@
    "threading tests"
    (test-suite
     "Edge/base cases"
-    (check-equal? (~> ()) (void))
-    (check-equal? (~>> ()) (void))
+    (check-equal? (values->list (~> ())) null)
+    (check-equal? (values->list (~>> ())) null)
     (check-equal? (~> () (const 5)) 5)
     (check-equal? (~>> () (const 5)) 5)
-    ;; when no functions to thread through are provided,
-    ;; we could either (1) return void, (2) return no values
-    ;; at all, or (3) return the input values themselves.
-    ;; the standard threading behavior does (3)
-    ;; while at the moment the present form does (1)
-    (check-equal? (~> (4)) (void))
-    (check-equal? (~>> (4)) (void))
-    (check-equal? (~> (4 5 6)) (void))
-    (check-equal? (~>> (4 5 6)) (void)))
+    (check-equal? (~> (4)) 4)
+    (check-equal? (~>> (4)) 4)
+    (check-equal? (values->list (~> (4 5 6))) '(4 5 6))
+    (check-equal? (values->list (~>> (4 5 6))) '(4 5 6)))
    (test-suite
     "smoke"
     (check-equal? (~> (3) sqr add1) 10)

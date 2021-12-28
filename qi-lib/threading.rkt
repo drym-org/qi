@@ -10,13 +10,11 @@
          "on.rkt")
 
 (define-syntax-parser ~>
-  [(_ args:subject) #'(void)]
   [(_ args:subject clause:clause ...)
    #:with ags (attribute args.args)
-   #`(on ags (~> clause ...))])
+   #'(on ags (~> clause ...))])
 
 (define-syntax-parser ~>>
-  [(_ args:subject) #'(void)]
   [(_ args:subject clause:clause ...)
    #:with ags (attribute args.args)
-   #`(on ags (~>> clause ...))])
+   #'(on ags (~>> clause ...))])
