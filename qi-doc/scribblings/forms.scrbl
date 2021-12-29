@@ -343,11 +343,23 @@ Note that the symbol form uses Unicode @code{0x2225} corresponding to LaTeX's @c
 @defform[(== flo ...)]
 @defform[(relay flo ...)]
 )]{
-  Compose flows in parallel, so that inputs are passed through the corresponding @racket[flo]'s individually. The number of @racket[flo]s must be the same as the number of runtime inputs. As flows are nonlinear, the number of outputs will not necessarily be the same as the number of inputs.
+  Compose flows in parallel, so that inputs are passed through the corresponding @racket[flo]'s individually. The number of @racket[flo]s must be the same as the number of runtime inputs. As @seclink["What_is_a_Flow_"]{flows can be nonlinear}, the number of outputs produced by the relay does not necessarily equal the number of inputs.
 
 @examples[
     #:eval eval-for-docs
     ((☯ (== add1 sub1)) 1 2)
+  ]
+}
+
+@deftogether[(
+@defform[(==* flo ...)]
+@defform[(relay* flo ...)]
+)]{
+  Similar to @racket[==] and analogous to @racket[list*], this passes each input through the corresponding @racket[flo] individually, until it encounters the last @racket[flo]. This last one receives all of the remaining inputs.
+
+@examples[
+    #:eval eval-for-docs
+    ((☯ (==* add1 sub1 +)) 1 1 1 1 1)
   ]
 }
 

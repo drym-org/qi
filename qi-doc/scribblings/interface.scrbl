@@ -73,6 +73,8 @@ The core entry-point to the flow language is the form @racket[☯]. In addition,
                            crossover
                            (== flow-expr ...)
                            (relay flow-expr ...)
+                           (==* flow-expr ...)
+                           (relay* flow-expr ...)
                            (-< flow-expr ...)
                            (tee flow-expr ...)
                            fanout

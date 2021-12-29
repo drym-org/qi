@@ -474,6 +474,21 @@
                    33
                    "named relay form"))
     (test-suite
+     "==*"
+     (check-equal? ((☯ (~> (==* add1 sub1 +)
+                           list))
+                    1 1 1 1 1)
+                   (list 2 0 3))
+     (check-equal? ((☯ (~> (==* add1 sub1 +)
+                           list))
+                    1 1)
+                   (list 2 0 0))
+     (check-equal? ((☯ (~> (relay* add1 sub1 +)
+                           list))
+                    1 1 1 1 1)
+                   (list 2 0 3)
+                   "named relay* form"))
+    (test-suite
      "ground"
      (check-equal? ((☯ (-< ⏚ add1))
                     5)

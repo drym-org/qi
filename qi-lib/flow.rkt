@@ -163,6 +163,10 @@ provide appropriate error messages at the level of the DSL.
    #'(flow (~> ▽ reverse △))]
   [(_ ((~or (~datum ==) (~datum relay)) onex:clause ...))
    #'(relay (flow onex) ...)]
+  [(_ ((~or (~datum ==*) (~datum relay*)) onex:clause ... rest-onex:clause))
+   (with-syntax ([len (datum->syntax this-syntax
+                                     (length (syntax->list #'(onex ...))))])
+     #'(flow (group len (== onex ...) rest-onex) ))]
   [(_ ((~or (~datum -<) (~datum tee)) onex:clause ...))
    #'(λ args
        (apply values
