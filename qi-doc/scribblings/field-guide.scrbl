@@ -44,13 +44,25 @@ Decompose your flow into its smallest components, and name each so that they are
 
 @subsection{Using Side Effects}
 
-For the simplest cases, you could just use the side-effect form, @racket[effect] (or @racket[ε]), to see the values at a particular point in the flow without affecting the behavior of the flow itself.
+The most lightweight way to debug your code is to use side effects, as this allows you to check values at various points in flows without affecting their functioning in any way. You can use this debugging approach always, even in functional Racket code that isn't using Qi.
+
+This approach involves using the side-effect form, @racket[effect] (or @racket[ε]) at a particular point (or several points) in the flow in order to see or manipulate the values there. To use it in general Racket code, just wrap the Racket code with @racket[☯] to employ Qi there (and therefore side effects).
+
+Side effects are a natural fit for debugging functional code in general, as the example below shows.
+
+@bold{Example}: Racket's @racket[regexp-replace*] function transforms a string into another based on a regex-based replacement rule. It accepts a pattern, a string, and a replacement rule (as a function), and then constructs the output string by parsing the input string and calling your replacement rule function each time there is a match to the pattern. With regexes, things don't usually work until you've gone through multiple cycles of debugging, so in this case, in order to see what arguments are being supplied to your replacement rule function, you could simply add a side effect using Qi.
+
+@codeblock{
+  (regexp-replace* PATTERN
+                   str
+                   (☯ (ε (>< println) replace-rule)))
+}
 
 @subsection{Using a Tester}
 
 @defmodule[qi/probe]
 
-Qi includes a "circuit tester" style debugger, which you can use to check the values at arbitrary points in the flow. It can be used even if the flow is raising an error – the tester can help you find the error.
+Qi includes a "circuit tester" style debugger, which you can use to check the values at arbitrary points in the flow. It can be used even if the flow is raising an error – the tester can help you find the error. It offers similar functionality to @other-doc['(lib "debug/scribblings/debug.scrbl")] but is specialized for functional debugging and Qi flows.
 
 To use it, first wrap the entire expression @emph{invoking} the flow with @racket[probe]. Then, if your flow happens to be defined inline with the invocation, you can simply place a literal @racket[readout] anywhere within the flow to cause the entire expression to evaluate to the values flowing at that point. See @racket[probe] for examples of this.
 

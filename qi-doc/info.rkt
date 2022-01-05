@@ -13,6 +13,8 @@
                      "Qi-Quickscripts"
                      "tmux-vim-demo"
                      "threading-doc"
+                     "debug"
+                     "mischief"
                      "fancy-app"
                      "math-lib"
                      "qi-lib"
