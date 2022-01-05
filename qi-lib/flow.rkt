@@ -45,7 +45,9 @@
   (define-syntax-class (starts-with pfx)
     (pattern
      i:id #:when (string-prefix? (symbol->string
-                                  (syntax-e #'i)) pfx))))
+                                  (syntax-e #'i)) pfx)))
+
+  (struct qi-macro [transformer]))
 
 (define-alias ☯ flow)
 
@@ -63,6 +65,13 @@
 (define-syntax-parser disjux-clause  ; "juxtaposed" disjoin
   [(_ (~datum _)) #'false.]
   [(_ onex:clause) #'(flow onex)])
+
+;; TODO: move to macros.rkt and import here
+(define-syntax-rule (define-qi-syntax-rule (name . pat) template)
+  (define-syntax name
+    (qi-macro
+     (syntax-rules ()
+       [(name . pat) template]))))
 
 #|
 A note on error handling:
@@ -440,8 +449,18 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~datum esc) ex:expr))
    #'ex]
 
-  ;; form to allow extension of the Qi language, to be
-  ;; "passed through"
+  ;; form to allow extension of the Qi language via macros,
+  ;; to be "passed through"
+  [(_ (m:id expr ...))
+   #:when (qi-macro? (syntax-local-value #'m))
+   #:with expanded (syntax-local-apply-transformer ; TODO: use local-apply-transformer
+                    (qi-macro-transformer (syntax-local-value #'m))
+                    #'m
+                    'expression
+                    #f
+                    #'(m expr ...))
+   #'(flow expanded)]
+  ;; backwards compat macro extensibility via Racket macros
   [(_ ((~var ext-form (starts-with "qi:")) expr ...))
    #'(ext-form expr ...)]
 
