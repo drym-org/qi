@@ -134,7 +134,7 @@ If, on the other hand, your flow is defined elsewhere and only @emph{used} at th
 
 @bold{Meaning}: @racket[_] is a valid @emph{Qi} expression but an invalid @emph{Racket} expression. Somewhere in the course of evaluation of your code, the interpreter received @racket[_] and was asked to evaluate it as a @emph{Racket} expression. It doesn't like this.
 
-@bold{Common example}: This usually happens when you try to use a template inside a nested application, where it becomes Racket rather than Qi. For instance, @racket[(~> (1) (* 3 (+ _ 2)))] is invalid because, within the @racket[(* ...)] template, the language is @emph{Racket} rather than Qi, and you can't use a Qi template (i.e. @racket[(+ _ 2)]) there. You might try @seclink["Nested_Applications_are_Sequential_Flows"]{linearizing the flow}, something like @racket[(~> (1) (+ _ 2) (* 3))].
+@bold{Common example}: This usually happens when you try to use a template inside a nested application, where it becomes Racket rather than Qi. For instance, @racket[(~> (1) (* 3 (+ _ 2)))] is invalid because, within the @racket[(* ...)] template, the language is @emph{Racket} rather than Qi, and you can't use a Qi template (i.e. @racket[(+ _ 2)]) there. You might try @seclink["Nested_Applications_are_Sequential_Flows"]{sequencing the flow}, something like @racket[(~> (1) (+ _ 2) (* 3))].
 
 @section{Effectively Using Feedback Loops}
 
