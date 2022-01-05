@@ -173,3 +173,29 @@ A nested function application can always be converted to a sequential flow.
 @subsection{Converting a Function to a Closure}
 
 Sometimes you may find you want to go from something like @racket[(~> f1 f2)] to a similar flow except that one of the functions is itself parameterized by an input, i.e. it is a closure. If @racket[f1] is the one that needs to be a closure, you can do it like this: @racket[(~> (== (clos f1) f2) apply)], assuming that the closed-over argument to @racket[f1] is passed in as the first input. Closures are useful in a wide variety of situations, however, and this isn't a one-size-fits-all formula.
+
+@subsection{Bindings are an Alternative to Nonlinearity}
+
+In some cases, we'd prefer to think of a nonlinear flow as a linear sequence on a subset of arguments that happens to need the remainder of the arguments somewhere down the line. In such cases, it is advisable to employ bindings so that the flow can be defined on this subset of them and employ the remainder by name.
+
+For example, these are equivalent:
+
+@codeblock{
+  (define-flow make-document
+    (~> (== _
+            (~>> file-contents
+                 (parse-result document/p)
+                 △))
+        document))
+}
+
+@codeblock{
+  (define (make-document name file)
+    (~>> (file)
+         file-contents
+         (parse-result document/p)
+         △
+         (document name)))
+}
+
+Adding bindings can eliminate nonlinearities, and by the same token, introducing nonlinearity can eliminate bindings.
