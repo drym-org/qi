@@ -15,6 +15,7 @@
          (for-syntax racket/base
                      racket/string
                      syntax/parse
+                     syntax/apply-transformer
                      (only-in "private/util.rkt"
                               repeat)))
 
@@ -453,12 +454,11 @@ provide appropriate error messages at the level of the DSL.
   ;; to be "passed through"
   [(_ (m:id expr ...))
    #:when (qi-macro? (syntax-local-value #'m))
-   #:with expanded (syntax-local-apply-transformer ; TODO: use local-apply-transformer
+   #:with expanded (local-apply-transformer
                     (qi-macro-transformer (syntax-local-value #'m))
-                    #'m
+                    #'(m expr ...)
                     'expression
-                    #f
-                    #'(m expr ...))
+                    #f)
    #'(flow expanded)]
   ;; backwards compat macro extensibility via Racket macros
   [(_ ((~var ext-form (starts-with "qi:")) expr ...))
