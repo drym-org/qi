@@ -453,7 +453,7 @@ provide appropriate error messages at the level of the DSL.
   ;; form to allow extension of the Qi language via macros,
   ;; to be "passed through"
   [(_ (m:id expr ...))
-   #:when (qi-macro? (syntax-local-value #'m))
+   #:when (qi-macro? (syntax-local-value #'m (λ () #f)))
    #:with expanded (local-apply-transformer
                     (qi-macro-transformer (syntax-local-value #'m))
                     #'(m expr ...)
