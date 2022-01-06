@@ -5,12 +5,14 @@
          root-mean-square
          fact
          ping
+         eratos
          filter-map-fn
          filter-map-values
          double-list
          double-values)
 
 (require (only-in math sqr)
+         (only-in racket/list range)
          qi)
 
 (define-switch cond-fn
@@ -33,6 +35,14 @@
   [(< 2) _]
   [else (~> (-< sub1
                 (- 2)) (>< ping) +)])
+
+(define-flow (eratos n)
+  (~> (-< (gen null) (~>> add1 (range 2) △))
+      (feedback (while (~> (block 1) live?))
+                (then (~> 1> reverse))
+                (-< (~> (select 1 2) X cons)
+                    (~> (-< (~>> 2> (clos (~> remainder (not (= 0)))))
+                            (block 1 2)) pass)))))
 
 (define-flow filter-map-fn
   (~> △ (>< (if odd? sqr ⏚)) ▽))

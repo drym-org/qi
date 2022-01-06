@@ -6,6 +6,8 @@
                   in)
          (only-in racket/list
                   range)
+         (only-in racket/function
+                  curryr)
          (prefix-in q: "qi.rkt")
          (prefix-in b: "builtin.rkt"))
 
@@ -59,3 +61,10 @@
                check-value
                ping
                10000)
+
+(define check-value-primes (curryr check-value (list 100 200 300)))
+
+(run-benchmark "Eratosthenes"
+               check-value-primes
+               eratos
+               100)

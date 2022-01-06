@@ -25,9 +25,9 @@
 (define (measure fn . args)
   (second (values->list (time-apply fn args))))
 
-(define (check-value fn how-many)
+(define (check-value fn how-many [inputs (range 10)])
   ;; call a function with a single (numeric) argument
-  (for ([i (take how-many (cycle (range 10)))])
+  (for ([i (take how-many (cycle inputs))])
     (fn i)))
 
 (define (check-list fn how-many)

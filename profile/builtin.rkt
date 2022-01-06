@@ -5,13 +5,15 @@
          root-mean-square
          fact
          ping
+         eratos
          filter-map-fn
          filter-map-values
          double-list
          double-values)
 
 (require (only-in math sqr)
-         racket/list)
+         racket/list
+         racket/match)
 
 (define (cond-fn x)
   (cond [(< x 5) (sqr x)]
@@ -35,6 +37,17 @@
       n
       (+ (ping (sub1 n))
          (ping (- n 2)))))
+
+(define (eratos n)
+  (let ([lst (range 2 (add1 n))])
+    (let loop ([rem lst]
+               [result null])
+      (match rem
+        ['() (reverse result)]
+        [(cons v vs) (loop (filter (λ (n)
+                                     (not (= 0 (remainder n v))))
+                                   vs)
+                           (cons v result))]))))
 
 (define (filter-map-fn lst)
   (map sqr (filter odd? lst)))
