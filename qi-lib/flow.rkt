@@ -17,7 +17,10 @@
                      syntax/parse
                      syntax/apply-transformer
                      (only-in "private/util.rkt"
-                              repeat)))
+                              repeat))
+         (only-in qi/macro
+                  qi-macro?
+                  qi-macro-transformer))
 
 (require "private/util.rkt")
 
@@ -46,9 +49,7 @@
   (define-syntax-class (starts-with pfx)
     (pattern
      i:id #:when (string-prefix? (symbol->string
-                                  (syntax-e #'i)) pfx)))
-
-  (struct qi-macro [transformer]))
+                                  (syntax-e #'i)) pfx))))
 
 (define-alias ☯ flow)
 
@@ -66,13 +67,6 @@
 (define-syntax-parser disjux-clause  ; "juxtaposed" disjoin
   [(_ (~datum _)) #'false.]
   [(_ onex:clause) #'(flow onex)])
-
-;; TODO: move to macros.rkt and import here
-(define-syntax-rule (define-qi-syntax-rule (name . pat) template)
-  (define-syntax name
-    (qi-macro
-     (syntax-rules ()
-       [(name . pat) template]))))
 
 #|
 A note on error handling:
