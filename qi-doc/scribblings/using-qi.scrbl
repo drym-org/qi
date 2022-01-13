@@ -86,7 +86,7 @@ Here, there are reasons to favor either representation. The Racket version doesn
 
 @section{The Science of Deduction}
 
-When you seek to analyze some values and make inferences or assertions about them, or take certain actions based on observed properties of values, or, more generally, when you seek to express anything exhibiting @emph{subject-predicate structure}, Qi is often the right language to use.
+When you seek to analyze some values and make inferences or assertions about them, or take certain actions based on observed properties of values, or, more generally, when you want to express anything exhibiting @emph{subject-predicate structure}, Qi is often the right language to use.
 
 @subsection{Compound Predicates}
 
