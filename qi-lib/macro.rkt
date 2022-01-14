@@ -1,6 +1,7 @@
 #lang racket/base
 
 (provide define-qi-syntax-rule
+         define-qi-syntax-parser
          (for-syntax qi-macro
                      qi-macro?
                      qi-macro-transformer))
@@ -14,4 +15,10 @@
   (define-syntax name
     (qi-macro
      (syntax-rules ()
-       [(name . pat) template]))))
+       [(_ . pat) template]))))
+
+(define-syntax-rule (define-qi-syntax-parser name clause ...)
+  (define-syntax name
+    (qi-macro
+     (syntax-rules ()
+       clause ...))))
