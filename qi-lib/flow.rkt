@@ -96,6 +96,19 @@ provide appropriate error messages at the level of the DSL.
                               (string-append "\n" msg)))))
 
 (define-syntax-parser flow
+
+  ;; Check first whether the form is a macro. If it is, expand it.
+  ;; This is prioritized over other forms so that extensions may
+  ;; override built-in Qi forms.
+  [(_ (m:id expr ...))
+   #:when (qi-macro? (syntax-local-value #'m (λ () #f)))
+   #:with expanded (local-apply-transformer
+                    (qi-macro-transformer (syntax-local-value #'m))
+                    #'(m expr ...)
+                    'expression
+                    #f)
+   #'(flow expanded)]
+
   ;;; Special words
   [(_ ((~datum one-of?) v:expr ...))
    #'(compose
@@ -444,16 +457,6 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~datum esc) ex:expr))
    #'ex]
 
-  ;; form to allow extension of the Qi language via macros,
-  ;; to be "passed through"
-  [(_ (m:id expr ...))
-   #:when (qi-macro? (syntax-local-value #'m (λ () #f)))
-   #:with expanded (local-apply-transformer
-                    (qi-macro-transformer (syntax-local-value #'m))
-                    #'(m expr ...)
-                    'expression
-                    #f)
-   #'(flow expanded)]
   ;; backwards compat macro extensibility via Racket macros
   [(_ ((~var ext-form (starts-with "qi:")) expr ...))
    #'(ext-form expr ...)]
