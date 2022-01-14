@@ -6,19 +6,24 @@
                      qi-macro?
                      qi-macro-transformer))
 
-(require (for-syntax racket/base))
+(require (for-syntax racket/base
+                     syntax/parse))
 
 (begin-for-syntax
   (struct qi-macro [transformer]))
 
-(define-syntax-rule (define-qi-syntax-rule (name . pat) template)
-  (define-syntax name
-    (qi-macro
-     (syntax-rules ()
-       [(_ . pat) template]))))
+(define-syntax define-qi-syntax-rule
+  (syntax-parser
+    [(_ (name . pat) template)
+     #`(define-syntax #,((make-interned-syntax-introducer 'qi) #'name)
+         (qi-macro
+          (syntax-rules ()
+            [(_ . pat) template])))]))
 
-(define-syntax-rule (define-qi-syntax-parser name clause ...)
-  (define-syntax name
-    (qi-macro
-     (syntax-rules ()
-       clause ...))))
+(define-syntax define-qi-syntax-parser
+  (syntax-parser
+    [(_ name clause ...)
+     #`(define-syntax #,((make-interned-syntax-introducer 'qi) #'name)
+         (qi-macro
+          (syntax-rules ()
+            clause ...)))]))

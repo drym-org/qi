@@ -101,9 +101,10 @@ provide appropriate error messages at the level of the DSL.
   ;; This is prioritized over other forms so that extensions may
   ;; override built-in Qi forms.
   [(_ (m:id expr ...))
-   #:when (qi-macro? (syntax-local-value #'m (λ () #f)))
+   #:do [(define space-m ((make-interned-syntax-introducer 'qi) #'m))]
+   #:when (qi-macro? (syntax-local-value space-m (λ () #f)))
    #:with expanded (local-apply-transformer
-                    (qi-macro-transformer (syntax-local-value #'m))
+                    (qi-macro-transformer (syntax-local-value space-m))
                     #'(m expr ...)
                     'expression
                     #f)
