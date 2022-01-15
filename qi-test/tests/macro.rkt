@@ -4,13 +4,15 @@
 
 (require qi
          rackunit
-         (only-in math sqr))
+         (only-in math sqr)
+         (for-syntax syntax/parse
+                     racket/base))
 
-(define-qi-syntax-rule (square flo)
+(define-qi-syntax-rule (square flo:expr)
   (feedback 2 flo))
 
 (define-qi-syntax-parser cube
-  [(_ flo) (feedback 3 flo)])
+  [(_ flo) #'(feedback 3 flo)])
 
 (define-qi-syntax-rule (fanout flo)
   'hello)
