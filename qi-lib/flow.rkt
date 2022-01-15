@@ -106,7 +106,7 @@ provide appropriate error messages at the level of the DSL.
                     (qi-macro-transformer (syntax-local-value #'m))
                     #'(m expr ...)
                     'expression
-                    #f)
+                    '())
    #'(flow expanded)]
 
   ;;; Special words
