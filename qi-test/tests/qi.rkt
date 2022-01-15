@@ -7,7 +7,7 @@
          (prefix-in switch: "switch.rkt")
          (prefix-in threading: "threading.rkt")
          (prefix-in definitions: "definitions.rkt")
-         (prefix-in macros: "macro.rkt")
+         (prefix-in macro: "macro.rkt")
          "private/util.rkt")
 
 (define tests
@@ -19,7 +19,7 @@
    switch:tests
    threading:tests
    definitions:tests
-   macros:tests))
+   macro:tests))
 
 (module+ test
   (just-do
