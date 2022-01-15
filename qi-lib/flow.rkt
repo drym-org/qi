@@ -100,11 +100,12 @@ provide appropriate error messages at the level of the DSL.
   ;; Check first whether the form is a macro. If it is, expand it.
   ;; This is prioritized over other forms so that extensions may
   ;; override built-in Qi forms.
-  [(_ (m:id expr ...))
+  [(_ stx)
+   #:with (~or (m:id expr ...) m:id) #'stx
    #:when (qi-macro? (syntax-local-value #'m (λ () #f)))
    #:with expanded (local-apply-transformer
                     (qi-macro-transformer (syntax-local-value #'m))
-                    #'(m expr ...)
+                    #'stx
                     'expression
                     '())
    #'(flow expanded)]

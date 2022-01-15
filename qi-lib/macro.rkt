@@ -21,14 +21,6 @@
        [(_ . pat) #'template]))))
 
 ;; TODO: improve to match actual syntax-parse syntax
-;; also, this doesn't seem to accept identifier macros
-;; in the pattern atm,
-;; e.g. (define-qi-syntax-parser kazam [_:id #''hello])
-;; kazam: illegal use of syntax
-;;   in: kazam
-;;   value at phase 1: #<qi-macro>
-;; -> probably caused by using explicit (m expr ...) in the flow
-;;    expansion rule.
 (define-syntax-parse-rule (define-qi-syntax-parser name (pat template) ...)
   (define-syntax name
     (qi-macro
