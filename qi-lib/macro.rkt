@@ -20,9 +20,8 @@
      (syntax-parser
        [(_ . pat) #'template]))))
 
-;; TODO: improve to match actual syntax-parse syntax
-(define-syntax-parse-rule (define-qi-syntax-parser name (pat template) ...)
+(define-syntax-parse-rule (define-qi-syntax-parser name clause ...)
   (define-syntax name
     (qi-macro
      (syntax-parser
-       (pat template) ...))))
+       clause ...))))
