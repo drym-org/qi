@@ -14,7 +14,7 @@
 (define-qi-syntax-parser cube
   [(_ flo) #'(feedback 3 flo)])
 
-(define-qi-syntax-rule (fanout flo)
+(define-qi-syntax-rule (fanout n)
   'hello)
 
 (define tests
