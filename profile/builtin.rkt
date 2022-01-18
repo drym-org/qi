@@ -21,7 +21,7 @@
         [else x]))
 
 (define (compose-fn v)
-  ((compose sub1 sqr add1) v))
+  (sub1 (sqr (add1 v))))
 
 (define (root-mean-square vs)
   (sqrt (/ (apply + (map sqr vs))
