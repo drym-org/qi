@@ -16,8 +16,12 @@
                      racket/string
                      syntax/parse
                      syntax/apply-transformer
+                     version-case
                      (only-in "private/util.rkt"
                               repeat))
+         (for-meta 2
+                   version-case
+                   racket/base)
          (only-in qi/macro
                   qi-macro?
                   qi-macro-transformer))
@@ -102,9 +106,14 @@ provide appropriate error messages at the level of the DSL.
   ;; override built-in Qi forms.
   [(_ stx)
    #:with (~or (m:id expr ...) m:id) #'stx
-   #:when (qi-macro? (syntax-local-value #'m (λ () #f)))
+   #:do [(version-case
+          [(version< (version) "8.2.0.3")
+           (define space-m #'m)]
+          [else
+           (define space-m ((make-interned-syntax-introducer 'qi) #'m))])]
+   #:when (qi-macro? (syntax-local-value space-m (λ () #f)))
    #:with expanded (local-apply-transformer
-                    (qi-macro-transformer (syntax-local-value #'m))
+                    (qi-macro-transformer (syntax-local-value space-m))
                     #'stx
                     'expression
                     '())
