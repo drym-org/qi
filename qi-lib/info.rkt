@@ -6,7 +6,8 @@
                "mischief"
                "fancy-app"
                "typed-stack"
-               "adjutor"))
+               "adjutor"
+               "version-case"))
 (define build-deps '())
 (define clean '("compiled" "private/compiled"))
 (define pkg-authors '(countvajhula))
