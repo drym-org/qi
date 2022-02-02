@@ -17,7 +17,7 @@
 
 (begin-for-syntax
   (version-case
-   [(version> (version) "8.2.0.3")
+   [(version< (version) "8.2.0.3")
     ;; the property accessor is called qi-macro-transformer
     ;; so that it can be accessed in the same way on any
     ;; version of racket though the implementation may vary
