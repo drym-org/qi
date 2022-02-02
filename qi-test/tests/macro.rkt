@@ -6,7 +6,8 @@
          rackunit
          (only-in math sqr)
          (for-syntax syntax/parse
-                     racket/base))
+                     racket/base)
+         "private/util.rkt")
 
 (define-qi-syntax-rule (square flo:expr)
   (feedback 2 flo))
@@ -23,11 +24,28 @@
 (define-qi-syntax-parser kazam
   [_:id #''hello])
 
+(define-qi-syntax-rule (my-and flo ...)
+  (default (and flo ...))
+  (and flo ...))
+
+(define-qi-syntax-parser my-or
+  (default [(_ v ...) #'(or v ...)])
+  [(_ flo ...) #'(or flo ...)])
+
 (define tests
   (test-suite
    "macro tests"
-   (check-equal? ((☯ (square sqr)) 2) 16)
-   (check-equal? ((☯ (~> (pare sqr +) ▽)) 3 6 9) (list 9 15))
-   (check-equal? ((☯ (cube sqr)) 2) 256)
-   (check-equal? ((☯ (fanout 5)) 2) 'hello "extensions can override built-in forms")
-   (check-equal? ((☯ kazam) 2) 'hello "extensions can add identifier macros")))
+   (test-suite
+    "base"
+    (check-equal? ((☯ (square sqr)) 2) 16)
+    (check-equal? ((☯ (~> (pare sqr +) ▽)) 3 6 9) (list 9 15))
+    (check-equal? ((☯ (cube sqr)) 2) 256)
+    (check-equal? ((☯ (fanout 5)) 2) 'hello "extensions can override built-in forms")
+    (check-equal? ((☯ kazam) 2) 'hello "extensions can add identifier macros"))
+
+   (test-suite
+    "interaction with built-in forms"
+    (check-equal? (my-and 5 6) 6)
+    (check-true ((☯ (my-and positive? integer?)) 5))
+    (check-equal? (my-or 5 6) 5)
+    (check-true ((☯ (my-or positive? integer?)) 5.2)))))

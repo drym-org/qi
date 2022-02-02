@@ -5,7 +5,9 @@
          sum
          flip
          sort
-         true.)
+         true.
+         my-and
+         my-or)
 
 (require (prefix-in b: racket/base))
 
@@ -32,3 +34,9 @@
 (define true.
   (procedure-rename (const #t)
                     'true.))
+
+(define-syntax my-and
+  (make-rename-transformer #'and))
+
+(define-syntax my-or
+  (make-rename-transformer #'or))
