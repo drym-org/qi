@@ -86,7 +86,9 @@
 
   (define-syntax define-qi-syntax-rule
     (syntax-parser
-      [(_ (name . pat) template)
+      [(_ (name . pat)
+          (~optional ((~datum default) default-impl))
+          template)
        #`(define-syntax #,((make-interned-syntax-introducer 'qi) #'name)
            (qi-macro
             (syntax-parser
@@ -94,7 +96,10 @@
 
   (define-syntax define-qi-syntax-parser
     (syntax-parser
-      [(_ name clause ...)
+      [(_ name
+          (~optional ((~datum default) default-parser-impl))
+          clause
+          ...)
        #`(define-syntax #,((make-interned-syntax-introducer 'qi) #'name)
            (qi-macro
             (syntax-parser
