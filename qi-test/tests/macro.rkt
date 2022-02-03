@@ -25,11 +25,9 @@
   [_:id #''hello])
 
 (define-qi-syntax-rule (my-and flo ...)
-  (default (and flo ...))
   (and flo ...))
 
 (define-qi-syntax-parser my-or
-  (default [(_ v ...) #'(or v ...)])
   [(_ flo ...) #'(or flo ...)])
 
 (define tests
