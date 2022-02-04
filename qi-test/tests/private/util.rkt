@@ -7,7 +7,8 @@
          sort
          true.
          my-and
-         my-or)
+         my-or
+         also-or)
 
 (require (prefix-in b: racket/base))
 
@@ -39,4 +40,7 @@
   (make-rename-transformer #'and))
 
 (define-syntax my-or
+  (make-rename-transformer #'or))
+
+(define-syntax also-or
   (make-rename-transformer #'or))

@@ -30,6 +30,9 @@
 (define-qi-syntax-parser my-or
   [(_ flo ...) #'(or flo ...)])
 
+(define-qi-syntax-parser also-or
+  [(_ flo ...) #''hello])
+
 (define tests
   (test-suite
    "macro tests"
@@ -46,4 +49,6 @@
     (check-equal? (my-and 5 6) 6)
     (check-true ((☯ (my-and positive? integer?)) 5))
     (check-equal? (my-or 5 6) 5)
-    (check-true ((☯ (my-or positive? integer?)) 5.2)))))
+    (check-true ((☯ (my-or positive? integer?)) 5.2))
+    (check-equal? ((☯ (also-or 1 2 3))) 'hello)
+    (check-equal? (also-or 5 6) 5 "macro with different qi and racket expansions"))))
