@@ -50,5 +50,11 @@
     (check-true ((☯ (my-and positive? integer?)) 5))
     (check-equal? (my-or 5 6) 5)
     (check-true ((☯ (my-or positive? integer?)) 5.2))
-    (check-equal? ((☯ (also-or 1 2 3))) 'hello)
-    (check-equal? (also-or 5 6) 5 "macro with different qi and racket expansions"))))
+    (check-equal? ((☯ (also-or 1 2 3))) 'hello
+                  "macro with different qi and racket expansions")
+    (check-equal? (also-or 5 6) 5
+                  "macro with different qi and racket expansions")
+    (check-equal? ((☯ (also-and 1 2 3))) 'hello
+                  "macro defined in another module and provided 'for space'")
+    (check-equal? (also-and 5 6) 6
+                  "macro defined in another module and provided 'for space'"))))

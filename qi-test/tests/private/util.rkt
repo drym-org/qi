@@ -8,9 +8,12 @@
          true.
          my-and
          my-or
-         also-or)
+         also-or
+         also-and
+         (for-space qi also-and))
 
-(require (prefix-in b: racket/base))
+(require (prefix-in b: racket/base)
+         qi)
 
 (define-syntax-rule (do-with-value value code ...)
   (let ()
@@ -44,3 +47,10 @@
 
 (define-syntax also-or
   (make-rename-transformer #'or))
+
+(define-syntax also-and
+  (make-rename-transformer #'and))
+
+;; used to test defining and providing a qi macro "for space"
+(define-qi-syntax-parser also-and
+  [(_ flo ...) #''hello])
