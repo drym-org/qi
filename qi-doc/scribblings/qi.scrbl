@@ -41,5 +41,6 @@ For an overview, continue to the @seclink["Introduction_and_Usage"]{Introduction
 @include-section["tutorial.scrbl"]
 @include-section["interface.scrbl"]
 @include-section["forms.scrbl"]
+@include-section["macros.scrbl"]
 @include-section["using-qi.scrbl"]
 @include-section["field-guide.scrbl"]

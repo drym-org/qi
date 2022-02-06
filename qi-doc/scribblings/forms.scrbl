@@ -22,7 +22,7 @@
                     '(define (sqr x)
                        (* x x)))))
 
-@title{Qi Forms}
+@title[#:tag "Qi_Forms"]{The Qi Language}
 
 The core syntax of the Qi language. These forms may be used in any flow.
 
@@ -757,6 +757,8 @@ Usually, the @racket[_] symbol indicates the trivial or identity flow, simply pa
 }
 
 @section{Language Extension}
+
+These forms to extend the language are @bold{deprecated}. Qi now supports first-class macros that don't need the prefix "qi:", and these may be defined in ways analogous to defining Racket macros. See @secref["Qi_Macros"] for more.
 
 @defform[(qi:* expr ...)]{
   A form with a name starting with "qi:" is treated in a special way -- it is simply left alone during the macro expansion phase as far as Qi is concerned, as it is expected to be a macro written by a third party that will expand into a @emph{Racket} expression that is usable as a flow (i.e. similar to the @racket[esc] form). That is, such a form must expand either to a flow specified using Qi and wrapped with @racket[☯], or to a @seclink["lambda" #:doc '(lib "scribblings/guide/guide.scrbl")]{lambda} containing arbitrary Racket code.
