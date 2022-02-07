@@ -295,16 +295,31 @@ The advantage of using these over the general-purpose @racket[define] form is th
 
 @section{Interoperating with the Host Language}
 
+Arbitrary native (e.g. Racket) expressions can be used in flows in one of two ways. This section describes these two ways and also discusses other considerations regarding use of the host language alongside Qi.
+
 @subsection{Using Racket Values in Qi Flows}
 
-Arbitrary native (e.g. Racket) expressions can be used in flows in one of two ways. The first and most common way is to simply wrap the expression with a @racket[gen] form while within a flow context. This flow generates the @tech/reference{value} of the expression.
+The first and most common way is to simply wrap the expression with a @racket[gen] form while within a flow context. This flow generates the @tech/reference{value} of the expression.
+
+@examples[
+    #:eval eval-for-docs
+    (define v 2)
+    ((☯ (~> (gen (* 5 v) (* 3 v)) list)))
+]
 
 @subsection{Using Racket to Define Flows}
 
 The second way is if you want to describe a flow using the host language instead of Qi. In this case, use the @racket[esc] form. The wrapped expression in this case @emph{must} evaluate to a function, since functions are the only values describable in the host language that can be treated as flows. Note that use of @racket[esc] is unnecessary for function identifiers since these are usable as flows directly, and these can even be partially applied using standard application syntax, optionally with @racket[_] and @racket[__] to indicate argument placement. But you may still need it in the specific case where the identifier collides with a Qi form.
 
+@examples[
+    #:eval eval-for-docs
+    (define-flow add-two
+      (esc (λ (a b) (+ a b))))
+    (~> (3 5) add-two)
+]
+
 @subsection{Using Qi Macros Alongside Racket Macros}
 
-Qi macros exist in their own @tech/reference{binding space} and do not interfere with host language macros or those of any other hosted DSL.
+@seclink["Qi_Macros"]{Qi macros} exist in their own @tech/reference{binding space} and do not interfere with host language macros or those of any other hosted DSL.
 
 Just keep in mind the following difference in behavior with @racket[provide] and @racket[require] where binding spaces are concerned: Qi macros must be provided specifically in the Qi binding space: @racket[(provide (for-space qi my-macro))] in order to be usable in other modules. Simply providing an identifier without indicating a space will provide it only in the default host-language binding space, if the identifier happens to be also defined there (otherwise it would raise an error indicating that the binding doesn't exist). At the other end, client modules may either simply @racket[require] the module containing the Qi macro in the usual way, e.g. @racket[(require my-macro-module)], or indicate a space via something like @racket[(require (for-space qi (only-in my-macro-module my-macro)))]. By default, @racket[require] (unlike @racket[provide]) imports identifiers in all binding spaces (including the default host-language binding space), unless you indicate otherwise.
