@@ -104,11 +104,12 @@ provide appropriate error messages at the level of the DSL.
    #:with (~or (m:id expr ...) m:id) #'stx
    #:do [(define space-m ((make-interned-syntax-introducer 'qi) #'m))]
    #:when (qi-macro? (syntax-local-value space-m (λ () #f)))
-   #:with expanded (local-apply-transformer
+   #:with expanded (syntax-local-apply-transformer
                     (qi-macro-transformer (syntax-local-value space-m))
-                    #'stx
+                    space-m
                     'expression
-                    '())
+                    #f
+                    #'stx)
    #'(flow expanded)]
 
   ;;; Special words
