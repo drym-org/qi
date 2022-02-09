@@ -35,7 +35,7 @@ For an overview, continue to the @seclink["Introduction_and_Usage"]{Introduction
 
 @section{Using These Docs}
 
-@secref["Introduction_and_Usage"] describes the language and how to optimize your editor of choice to effectively write Qi. Learn the language by going through the @secref["Tutorial"], and read @secref["When_Should_I_Use_Qi_"] for examples illustrating its use. The various interfaces and forms of the language are documented in @secref["Language_Interface"] and @secref["Qi_Forms"]. The @secref["Field_Guide"] contains practical advice.
+@secref["Introduction_and_Usage"] describes the language and how to optimize your editor of choice to effectively write Qi. Learn the language by going through the @secref["Tutorial"], and read @secref["When_Should_I_Use_Qi_"] for examples illustrating its use. The many ways in which Qi may be used from the host language (e.g. Racket) are described in @secref["Language_Interface"]. The various built-in forms of the language are documented in @secref["Qi_Forms"], while @secref["Qi_Macros"] covers using macros to extend the language. The @secref["Field_Guide"] contains practical advice.
 
 @include-section["intro.scrbl"]
 @include-section["tutorial.scrbl"]
