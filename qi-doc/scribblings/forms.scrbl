@@ -46,6 +46,8 @@ The core syntax of the Qi language. These forms may be used in any flow.
 
   Note that @seclink["Literals"]{literals} are transparently wrapped with @racket[gen] during @tech/reference{expansion} and don't need to be explicitly wrapped.
 
+  Also see @secref["Using_Racket_Values_in_Qi_Flows"].
+
 @examples[
     #:eval eval-for-docs
     ((☯ (gen 1)) 3)
@@ -97,6 +99,8 @@ The core syntax of the Qi language. These forms may be used in any flow.
 
 @defform[(esc expr)]{
   Escape to the host language to evaluate @racket[expr] which is expected to yield a @tech{flow}. @racket[(☯ (esc (☯ expr)))] is equivalent to @racket[(☯ expr)].
+
+  Also see @secref["Using_Racket_to_Define_Flows"].
 
 @examples[
     #:eval eval-for-docs

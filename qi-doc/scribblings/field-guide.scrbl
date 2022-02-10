@@ -20,6 +20,8 @@
                               qi/probe
                               (only-in racket/list range)
                               racket/string
+                              (for-syntax syntax/parse
+                                          racket/base)
                               relation)
                     '(define (sqr x)
                        (* x x)))))
@@ -173,6 +175,40 @@ A nested function application can always be converted to a sequential flow.
 @subsection{Converting a Function to a Closure}
 
 Sometimes you may find you want to go from something like @racket[(~> f1 f2)] to a similar flow except that one of the functions is itself parameterized by an input, i.e. it is a closure. If @racket[f1] is the one that needs to be a closure, you can do it like this: @racket[(~> (== (clos f1) f2) apply)], assuming that the closed-over argument to @racket[f1] is passed in as the first input. Closures are useful in a wide variety of situations, however, and this isn't a one-size-fits-all formula.
+
+@subsection{Converting a Macro to a Flow}
+
+Flows are expected to be @seclink["What_is_a_Flow_"]{function-valued} at runtime, and so you cannot naively use a macro as a flow. You can always convert a macro into a function by employing an @racket[esc] form and wrapping the macro in a lambda.
+
+@examples[
+    #:eval eval-for-docs
+    (define-syntax-rule (double-me x) (* 2 x))
+    (define-syntax-rule (subtract-two x y) (- x y))
+    (eval:error (~> (5) (subtract-two _ 4) double-me))
+    (~> (5)
+        (esc (λ (x) (subtract-two x 4)))
+        (esc (λ (x) (double-me x))))
+  ]
+
+But, especially if your reason for using macros here is that they are the forms of another DSL that you'd like to use together with Qi, this approach can be cumbersome. In such cases, another option to write macros to make this syntactic transformation invisible. For instance:
+
+@examples[
+    #:eval eval-for-docs
+    (define-syntax-rule (double-me x) (* 2 x))
+    (define-syntax-rule (subtract-two x y) (- x y))
+    (define-qi-syntax-parser subtract-two
+      [_:id #'(esc (λ (x y) (subtract-two x y)))]
+      [(_ y) #'(esc (λ (x) (subtract-two x y)))]
+      [(_ (~datum _) y) #'(subtract-two y)]
+      [(_ x (~datum _)) #'(esc (λ (y) (subtract-two x y)))])
+    (define-qi-syntax-parser double-me
+      [_:id #'(esc (λ (v) (double-me v)))])
+    (~> (5) (subtract-two 4) double-me)
+  ]
+
+Note that the Qi macros can have the same name as the Racket macros since they exist in different @tech/reference{binding spaces} and therefore don't interfere with one another.
+
+If you are using Qi together with another DSL, using this approach, you would need to write a corresponding Qi macro for every form of your DSL. See @secref["Writing_a_Qi_Dialect"] for yet another approach.
 
 @subsection{Bindings are an Alternative to Nonlinearity}
 
