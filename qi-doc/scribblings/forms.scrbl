@@ -762,7 +762,7 @@ Usually, the @racket[_] symbol indicates the trivial or identity flow, simply pa
 
 @section{Language Extension}
 
-This way to extend the language is intended for use in @bold{legacy versions of Racket only}, that is, versions 8.2 or earlier. Qi now (as of Racket 8.3) supports "first class" macros that don't need the prefix "qi:". See @secref["Qi_Macros"] for more. Prefix-based macros (i.e. the kind discussed in the present section) should be considered @bold{deprecated} on versions 8.3 or later.
+This way to extend the language is intended for use in @bold{legacy versions of Racket only}, that is, versions 8.2 or earlier. Qi now (as of Racket 8.3) offers "first class" macro extensibility where there is no need for the special prefix, "qi:". See @secref["Qi_Macros"] for more. Prefix-based macros (i.e. the kind discussed in the present section) should be considered @bold{deprecated} on versions 8.3 or later.
 
 @defform[(qi:* expr ...)]{
   A form with a name starting with "qi:" is treated in a special way -- it is simply left alone during the macro expansion phase as far as Qi is concerned, as it is expected to be a macro written by a third party that will expand into a @emph{Racket} expression that is usable as a flow (i.e. similar to the @racket[esc] form). That is, such a form must expand either to a flow specified using Qi and wrapped with @racket[☯], or to a @seclink["lambda" #:doc '(lib "scribblings/guide/guide.scrbl")]{lambda} containing arbitrary Racket code.
