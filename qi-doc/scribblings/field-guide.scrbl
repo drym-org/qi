@@ -190,7 +190,7 @@ Flows are expected to be @seclink["What_is_a_Flow_"]{function-valued} at runtime
         (esc (λ (x) (double-me x))))
   ]
 
-But, especially if your reason for using macros here is that they are the forms of another DSL that you'd like to use together with Qi, this approach can be cumbersome. In such cases, another option to write macros to make this syntactic transformation invisible. For instance:
+But, especially if your reason for using macros here is that they are the forms of another DSL that you'd like to use together with Qi, this approach can be cumbersome. In such cases, another option is to write macros to make this syntactic transformation invisible. For instance:
 
 @examples[
     #:eval eval-for-docs
