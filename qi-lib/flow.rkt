@@ -477,6 +477,14 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~datum quote-syntax) val)) #'(flow (gen (quote-syntax val)))]
   [(_ ((~datum syntax) val)) #'(flow (gen (syntax val)))]
 
+  ;; Foreign language macros (e.g. Racket or another DSL)
+  [(_ (mac arg ...))
+   #:when (procedure? (syntax-local-value #'mac (λ () #f)))
+   #:do [(define threading-side (syntax-property this-syntax 'threading-side))]
+   (if (and threading-side (eq? threading-side 'right))
+       #'(flow (esc (λ (v) (mac arg ... v))))
+       #'(flow (esc (λ (v) (mac v arg ...)))))]
+
   ;; Partial application with syntactically pre-supplied arguments
   ;; in a simple template
   ;; "prarg" = "pre-supplied argument"
