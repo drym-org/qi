@@ -18,6 +18,9 @@
 (define tests
   (test-suite
    "flow tests"
+   ;; (check-equal? ((☯ (sort < #:key identity))
+   ;;                2 1 3)
+   ;;               (list 1 2 3))
 
    (test-suite
     "core language"
@@ -219,12 +222,13 @@
                 (thunk ((☯ (~> △ +))
                         #(1 2 3 4)))
                 10)
-     (check-equal? ((☯ (~> (△ +) ▽)) (list 1 2 3) 10)
-                   (list 11 12 13)
-                   "separate into a flow with presupplied values")
-     (check-equal? ((☯ (~> (△ (~> X string-append)) ▽)) (list "1" "2" "3") "10")
-                   (list "101" "102" "103")
-                   "separate into a non-primitive flow with presupplied values"))
+     ;; (check-equal? ((☯ (~> (△ +) ▽)) (list 1 2 3) 10)
+     ;;               (list 11 12 13)
+     ;;               "separate into a flow with presupplied values")
+     ;; (check-equal? ((☯ (~> (△ (~> X string-append)) ▽)) (list "1" "2" "3") "10")
+     ;;               (list "101" "102" "103")
+     ;;               "separate into a non-primitive flow with presupplied values")
+     )
     (test-suite
      "gen"
      (check-equal? ((☯ (gen 5)))
@@ -759,12 +763,13 @@
                           [else 'hi]))
                      2 3)
                     5)
-      (check-equal? ((☯ (switch
-                            [(~>> △ (sort < #:key identity)) (=> 1>)]
-                          [else 'no]))
-                     (list 2 1 3))
-                    (list 1 2 3)
-                    "apply in predicate with non-tail arguments")))
+      ;; (check-equal? ((☯ (switch
+      ;;                       [(~>> △ (sort < #:key identity)) (=> 1>)]
+      ;;                     [else 'no]))
+      ;;                (list 2 1 3))
+      ;;               (list 1 2 3)
+      ;;               "apply in predicate with non-tail arguments")
+      ))
     (test-suite
      "sieve"
      (check-equal? ((☯ (~> (sieve positive? add1 (const -1)) +))
