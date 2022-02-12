@@ -70,19 +70,17 @@
     ;; unique argument names, and populate the
     ;; blanks in the template with those arguments
     ;; wrapped in a lambda
-    (list 'flow
-          (list 'esc
-                (list 'lambda
-                      args
-                      (let loop ([tmpl tmpl]
-                                 [args args])
-                        (if (null? args)
-                            tmpl
-                            (match-let ([(cons arg rem-args) args]
-                                        [(cons v vs) tmpl])
-                              (if (eq? '_ v)
-                                  (cons arg (loop vs rem-args))
-                                  (cons v (loop vs args))))))))))
+    (list 'lambda
+          args
+          (let loop ([tmpl tmpl]
+                     [args args])
+            (if (null? args)
+                tmpl
+                (match-let ([(cons arg rem-args) args]
+                            [(cons v vs) tmpl])
+                  (if (eq? '_ v)
+                      (cons arg (loop vs rem-args))
+                      (cons v (loop vs args))))))))
 
   (define (foreign-macro-template-expand stx)
     ;; e.g. (foreign-macro-template-expand #'(flow (mac a _ b _ c)))
@@ -488,12 +486,12 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~datum clos) flo:clause))
    #:do [(define threading-side (syntax-property this-syntax 'threading-side))]
    (if (and threading-side (eq? threading-side 'right))
-       #'(flow (esc (λ args
-                      (flow (~> (-< _ (~> (gen args) △))
-                                flo)))))
-       #'(flow (esc (λ args
-                      (flow (~> (-< (~> (gen args) △) _)
-                                flo))))))]
+       #'(λ args
+           (flow (~> (-< _ (~> (gen args) △))
+                     flo)))
+       #'(λ args
+           (flow (~> (-< (~> (gen args) △) _)
+                     flo))))]
 
   ;;; Miscellaneous
 
@@ -545,8 +543,8 @@ provide appropriate error messages at the level of the DSL.
                )
    #:do [(define threading-side (syntax-property this-syntax 'threading-side))]
    (if (and threading-side (eq? threading-side 'right))
-       #'(flow (esc (λ (v) (mac arg ... v))))
-       #'(flow (esc (λ (v) (mac v arg ...)))))]
+       #'(λ (v) (mac arg ... v))
+       #'(λ (v) (mac v arg ...)))]
 
   ;; Fine-grained template-based application
   ;; This handles templates that indicate a specific number of template
