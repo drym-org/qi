@@ -533,14 +533,13 @@ provide appropriate error messages at the level of the DSL.
 
   ;; Foreign language macros (e.g. Racket or another DSL)
   [(_ (mac pre-arg ... (~datum _) post-arg ...))
-   #:when (procedure? (syntax-local-value #'mac (λ () #f)))
+   #:when (and (procedure? (syntax-local-value #'mac (λ () #f)))
+               (not (eq? 'apply (syntax->datum #'mac))))
    (foreign-macro-template-expand this-syntax)]
   [(_ (mac arg ...))
    ;; TODO: remove exclusions
    #:when (and (procedure? (syntax-local-value #'mac (λ () #f)))
-               ;; (not (eq? 'apply (syntax->datum #'mac)))
-               ;; (not (eq? 'sort (syntax->datum #'mac)))
-               )
+               (not (eq? 'apply (syntax->datum #'mac))))
    #:do [(define threading-side (syntax-property this-syntax 'threading-side))]
    (if (and threading-side (eq? threading-side 'right))
        #'(λ (v) (mac arg ... v))

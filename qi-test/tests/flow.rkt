@@ -18,7 +18,7 @@
 (define tests
   (test-suite
    "flow tests"
-   ;; (check-equal? ((☯ (sort < #:key identity))
+   ;; (check-equal? ((☯ (~>> (sort < #:key identity)))
    ;;                2 1 3)
    ;;               (list 1 2 3))
 
@@ -222,13 +222,12 @@
                 (thunk ((☯ (~> △ +))
                         #(1 2 3 4)))
                 10)
-     ;; (check-equal? ((☯ (~> (△ +) ▽)) (list 1 2 3) 10)
-     ;;               (list 11 12 13)
-     ;;               "separate into a flow with presupplied values")
-     ;; (check-equal? ((☯ (~> (△ (~> X string-append)) ▽)) (list "1" "2" "3") "10")
-     ;;               (list "101" "102" "103")
-     ;;               "separate into a non-primitive flow with presupplied values")
-     )
+     (check-equal? ((☯ (~> (△ +) ▽)) (list 1 2 3) 10)
+                   (list 11 12 13)
+                   "separate into a flow with presupplied values")
+     (check-equal? ((☯ (~> (△ (~> X string-append)) ▽)) (list "1" "2" "3") "10")
+                   (list "101" "102" "103")
+                   "separate into a non-primitive flow with presupplied values"))
     (test-suite
      "gen"
      (check-equal? ((☯ (gen 5)))
