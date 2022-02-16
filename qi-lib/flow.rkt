@@ -14,6 +14,7 @@
          mischief/shorthand
          (for-syntax racket/base
                      racket/string
+                     racket/list
                      syntax/parse
                      racket/match
                      (only-in "private/util.rkt"
@@ -56,12 +57,12 @@
     ;; argument positions indicated in the template
     ;; tmpl resembles '(mac a _ b _ c) -- a list
     ;; here the result would be '(1 3)
-    (let ([arg-tmpl (cdr tmpl)])
+    (let ([arg-tmpl (cdr (syntax->list tmpl))])
       (let loop ([arg-tmpl arg-tmpl]
                  [i 0])
         (match arg-tmpl
           ['() null]
-          [(cons v vs) (if (eq? '_ v)
+          [(cons v vs) (if (eq? '_ (syntax-e v))
                            (cons i (loop vs (add1 i)))
                            (loop vs (add1 i)))]))))
 
@@ -70,26 +71,26 @@
     ;; unique argument names, and populate the
     ;; blanks in the template with those arguments
     ;; wrapped in a lambda
-    (list 'lambda
-          args
-          (let loop ([tmpl tmpl]
-                     [args args])
-            (if (null? args)
-                tmpl
-                (match-let ([(cons arg rem-args) args]
-                            [(cons v vs) tmpl])
-                  (if (eq? '_ v)
-                      (cons arg (loop vs rem-args))
-                      (cons v (loop vs args))))))))
+    #`(lambda #,args
+        #,(datum->syntax
+           tmpl
+           (let loop ([tmpl (syntax->list tmpl)]
+                      [args args])
+             (if (null? args)
+                 tmpl
+                 (match-let ([(cons arg rem-args) args]
+                             [(cons v vs) tmpl])
+                   (if (eq? '_ (syntax-e v))
+                       (cons arg (loop vs rem-args))
+                       (cons v (loop vs args)))))))))
 
   (define (foreign-macro-template-expand stx)
     ;; e.g. (foreign-macro-template-expand #'(flow (mac a _ b _ c)))
-    (datum->syntax stx
-      (let* ([tmpl (cadr (syntax->datum stx))]
-             [indices (foreign-template-arg-indices tmpl)])
-        (foreign-macro-render-template tmpl
-                                       (for/list ([_ indices])
-                                         (gensym)))))))
+    (let* ([tmpl (cadr (syntax->list stx))]
+           [indices (foreign-template-arg-indices tmpl)])
+      (foreign-macro-render-template
+       tmpl
+       (generate-temporaries (make-list (length indices) '_))))))
 
 (define-alias ☯ flow)
 
@@ -533,13 +534,11 @@ provide appropriate error messages at the level of the DSL.
 
   ;; Foreign language macros (e.g. Racket or another DSL)
   [(_ (mac pre-arg ... (~datum _) post-arg ...))
-   #:when (and (procedure? (syntax-local-value #'mac (λ () #f)))
-               (not (eq? 'apply (syntax->datum #'mac))))
+   #:when (procedure? (syntax-local-value #'mac (λ () #f)))
    (foreign-macro-template-expand this-syntax)]
   [(_ (mac arg ...))
    ;; TODO: remove exclusions
-   #:when (and (procedure? (syntax-local-value #'mac (λ () #f)))
-               (not (eq? 'apply (syntax->datum #'mac))))
+   #:when (procedure? (syntax-local-value #'mac (λ () #f)))
    #:do [(define threading-side (syntax-property this-syntax 'threading-side))]
    (if (and threading-side (eq? threading-side 'right))
        #'(λ (v) (mac arg ... v))
