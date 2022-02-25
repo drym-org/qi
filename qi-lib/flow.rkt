@@ -14,7 +14,6 @@
          mischief/shorthand
          (for-syntax racket/base
                      racket/string
-                     racket/list
                      syntax/parse
                      racket/match
                      (only-in "private/util.rkt"
@@ -50,47 +49,7 @@
   (define-syntax-class (starts-with pfx)
     (pattern
      i:id #:when (string-prefix? (symbol->string
-                                  (syntax-e #'i)) pfx)))
-
-  (define (foreign-template-arg-indices tmpl)
-    ;; return a list of indices corresponding to
-    ;; argument positions indicated in the template
-    ;; tmpl resembles '(mac a _ b _ c) -- a list
-    ;; here the result would be '(1 3)
-    (let ([arg-tmpl (cdr (syntax->list tmpl))])
-      (let loop ([arg-tmpl arg-tmpl]
-                 [i 0])
-        (match arg-tmpl
-          ['() null]
-          [(cons v vs) (if (eq? '_ (syntax-e v))
-                           (cons i (loop vs (add1 i)))
-                           (loop vs (add1 i)))]))))
-
-  (define (foreign-macro-render-template tmpl args)
-    ;; accept a template (a list) and a list of
-    ;; unique argument names, and populate the
-    ;; blanks in the template with those arguments
-    ;; wrapped in a lambda
-    #`(lambda #,args
-        #,(datum->syntax
-           tmpl
-           (let loop ([tmpl (syntax->list tmpl)]
-                      [args args])
-             (if (null? args)
-                 tmpl
-                 (match-let ([(cons arg rem-args) args]
-                             [(cons v vs) tmpl])
-                   (if (eq? '_ (syntax-e v))
-                       (cons arg (loop vs rem-args))
-                       (cons v (loop vs args)))))))))
-
-  (define (foreign-macro-template-expand stx)
-    ;; e.g. (foreign-macro-template-expand #'(flow (mac a _ b _ c)))
-    (let* ([tmpl (cadr (syntax->list stx))]
-           [indices (foreign-template-arg-indices tmpl)])
-      (foreign-macro-render-template
-       tmpl
-       (generate-temporaries (make-list (length indices) '_))))))
+                                  (syntax-e #'i)) pfx))))
 
 (define-alias ☯ flow)
 
@@ -143,14 +102,18 @@ provide appropriate error messages at the level of the DSL.
   ;; override built-in Qi forms.
   [(_ stx)
    #:with (~or (m:id expr ...) m:id) #'stx
-   #:do [(define space-m ((make-interned-syntax-introducer 'qi) #'m))]
+   #:do [(define space-m ((make-interned-syntax-introducer 'qi) #'m))
+         (define threading-side (syntax-property this-syntax 'threading-side))]
    #:when (qi-macro? (syntax-local-value space-m (λ () #f)))
    #:with expanded (syntax-local-apply-transformer
                     (qi-macro-transformer (syntax-local-value space-m))
                     space-m
                     'expression
                     #f
-                    #'stx)
+                    ;; propagate the side on which arguments are to
+                    ;; be threaded, so that foreign macro expansion
+                    ;; is aware of it.
+                    (syntax-property #'stx 'threading-side threading-side))
    #'(flow expanded)]
 
   ;;; Special words
@@ -531,18 +494,6 @@ provide appropriate error messages at the level of the DSL.
    #'(curryr natex prarg-post ...)]
   [(_ (natex (~datum __)))
    #'natex]
-
-  ;; Foreign language macros (e.g. Racket or another DSL)
-  [(_ (mac pre-arg ... (~datum _) post-arg ...))
-   #:when (procedure? (syntax-local-value #'mac (λ () #f)))
-   (foreign-macro-template-expand this-syntax)]
-  [(_ (mac arg ...))
-   ;; TODO: remove exclusions
-   #:when (procedure? (syntax-local-value #'mac (λ () #f)))
-   #:do [(define threading-side (syntax-property this-syntax 'threading-side))]
-   (if (and threading-side (eq? threading-side 'right))
-       #'(λ (v) (mac arg ... v))
-       #'(λ (v) (mac v arg ...)))]
 
   ;; Fine-grained template-based application
   ;; This handles templates that indicate a specific number of template
