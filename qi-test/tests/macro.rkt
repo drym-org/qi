@@ -7,6 +7,7 @@
          (only-in math sqr)
          (for-syntax syntax/parse
                      racket/base)
+         syntax/parse/define
          "private/util.rkt")
 
 (define-qi-syntax-rule (square flo:expr)
@@ -33,6 +34,11 @@
 (define-qi-syntax-parser also-or
   [(_ flo ...) #''hello])
 
+(define-syntax-parse-rule (macreaux x y)
+  y)
+
+(define-qi-threadable-syntaxes macreaux)
+
 (define tests
   (test-suite
    "macro tests"
@@ -57,4 +63,12 @@
     (check-equal? ((☯ (also-and 1 2 3))) 'hello
                   "macro defined in another module and provided 'for space'")
     (check-equal? (also-and 5 6) 6
-                  "macro defined in another module and provided 'for space'"))))
+                  "macro defined in another module and provided 'for space'"))
+   (test-suite
+    "interaction with foreign-language macros"
+    (check-equal? ((☯ (macreaux 1)) 2) 1)
+    (check-equal? ((☯ (~>> (macreaux 1))) 2) 2)
+    (check-equal? ((☯ (macreaux _ 1)) 2) 1)
+    (check-equal? ((☯ (macreaux 1 _)) 2) 2)
+    ;; (check-equal? ((☯ (macreaux 1 __)) 2) 2) ; what should happen here?
+    )))

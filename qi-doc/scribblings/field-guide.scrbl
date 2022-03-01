@@ -138,6 +138,17 @@ If, on the other hand, your flow is defined elsewhere and only @emph{used} at th
 
 @bold{Common example}: This usually happens when you try to use a template inside a nested application, where it becomes Racket rather than Qi. For instance, @racket[(~> (1) (* 3 (+ _ 2)))] is invalid because, within the @racket[(* ...)] template, the language is @emph{Racket} rather than Qi, and you can't use a Qi template (i.e. @racket[(+ _ 2)]) there. You might try @seclink["Nested_Applications_are_Sequential_Flows"]{sequencing the flow}, something like @racket[(~> (1) (+ _ 2) (* 3))].
 
+@bold{Error}:
+
+@codeblock{
+; lambda: bad syntax
+;   in: lambda
+}
+
+@bold{Meaning}: The Racket interpreter received syntax, in this case simply "lambda", that it considers to be invalid. Note that if it received something it didn't know anything about, it would say "undefined" rather than "bad syntax." Bad syntax indicates known syntax used in an incorrect way.
+
+@bold{Common example}: Typically, this happens when a Racket expression has not been properly escaped within a Qi context. For instance, @racket[(flow (lambda (x) x))] is invalid because the wrapped expression is Racket rather than Qi. To fix this, use @racket[esc], as in @racket[(flow (esc (lambda (x) x)))].
+
 @section{Effectively Using Feedback Loops}
 
 @racket[feedback] is Qi's most powerful looping form, useful for arbitrary recursion. As it encourages quite a different way of thinking than Racket's usual looping forms do, here are some tips on "grokking" it.
