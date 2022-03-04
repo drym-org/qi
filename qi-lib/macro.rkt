@@ -2,7 +2,7 @@
 
 (provide define-qi-syntax-rule
          define-qi-syntax-parser
-         define-qi-threadable-syntaxes
+         define-qi-foreign-syntaxes
          (for-syntax qi-macro?
                      qi-macro-transformer))
 
@@ -58,7 +58,7 @@
        tmpl
        (generate-temporaries (make-list (length indices) '_)))))
 
-  (define qi-threadable-syntax-transformer
+  (define qi-foreign-syntax-transformer
     (qi-macro
      (syntax-parser
        [(name pre-form ... (~datum _) post-form ...)
@@ -85,11 +85,11 @@
           (syntax-parser
             clause ...)))]))
 
-(define-syntax define-qi-threadable-syntaxes
+(define-syntax define-qi-foreign-syntaxes
   (syntax-parser
     [(_ form-name ...)
      #:with (spaced-form-name ...) (map (make-interned-syntax-introducer 'qi)
                                         (attribute form-name))
      #'(begin
-         (define-syntax spaced-form-name qi-threadable-syntax-transformer)
+         (define-syntax spaced-form-name qi-foreign-syntax-transformer)
          ...)]))

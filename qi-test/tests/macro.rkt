@@ -37,7 +37,7 @@
 (define-syntax-parse-rule (macreaux x y)
   y)
 
-(define-qi-threadable-syntaxes macreaux)
+(define-qi-foreign-syntaxes macreaux)
 
 (define tests
   (test-suite
