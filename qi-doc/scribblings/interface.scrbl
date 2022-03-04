@@ -323,6 +323,19 @@ The second way is if you want to describe a flow using the host language instead
     (~> (3 5) add-two)
 ]
 
+Finally, note that the following case works:
+
+@examples[
+    #:eval eval-for-docs
+    (define (get-flow v)
+      (☯ (~> sqr (+ v))))
+    (~> (5) (get-flow 3))
+]
+
+You might expect here that the expression @racket[(get-flow 3)] would be treated as a @seclink["Templates_and_Partial_Application"]{partial application template}, so that the value @racket[5] would be provided to it as @racket[(get-flow 5 3)], resulting in an error. The reason this isn't what happens is that the partial application behavior in Qi when no argument positions have been indicated is implemented using currying rather than as a template application, and Racket's @racket[curry] and @racket[curryr] functions happen to evaluate to a result immediately if the maximum expected arguments have been provided. Thus, in this case, the @racket[(get-flow 3)] expression is first evaluated to produce a resulting flow which then receives the value @racket[5].
+
+So, function applications where all of the arguments are provided syntactically, and which produce functions as their result, may be used as if they were simple function identifiers, and @racket[esc] may be left out.
+
 @subsubsection{Using Racket Macros as Flows}
 
 Flows are expected to be @seclink["What_is_a_Flow_"]{function-valued} at runtime, and so you cannot naively use a macro as a flow. See @secref["Converting_a_Macro_to_a_Flow"] for ways to do this.
