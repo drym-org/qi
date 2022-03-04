@@ -11,6 +11,7 @@
                      racket/format
                      racket/match
                      racket/list)
+         racket/format
          syntax/parse/define
          syntax/parse)
 
@@ -61,6 +62,18 @@
   (define qi-foreign-syntax-transformer
     (qi-macro
      (syntax-parser
+       [(name pre-form ... (~datum __) post-form ...)
+        #`(esc
+           (lambda args
+             (raise-syntax-error 'name
+                                 (~a "Syntax error in "
+                                     (list 'name
+                                           #,@(syntax->list #'(pre-form ...))
+                                           '__
+                                           #,@(syntax->list #'(post-form ...)))
+                                     "\n"
+                                     "  __ templates are not supported for foreign macros.\n"
+                                     "  Use _'s to indicate a specific number of expected arguments, instead."))))]
        [(name pre-form ... (~datum _) post-form ...)
         (foreign-macro-template-expand this-syntax)]
        [(name form ...)

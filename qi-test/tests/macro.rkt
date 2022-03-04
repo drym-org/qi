@@ -70,5 +70,4 @@
     (check-equal? ((☯ (~>> (macreaux 1))) 2) 2)
     (check-equal? ((☯ (macreaux _ 1)) 2) 1)
     (check-equal? ((☯ (macreaux 1 _)) 2) 2)
-    ;; (check-equal? ((☯ (macreaux 1 __)) 2) 2) ; what should happen here?
-    )))
+    (check-exn exn:fail? (λ () ((☯ (macreaux 1 __)) 2)) 2))))
