@@ -136,7 +136,9 @@ If, on the other hand, your flow is defined elsewhere and only @emph{used} at th
 
 @bold{Meaning}: @racket[_] is a valid @emph{Qi} expression but an invalid @emph{Racket} expression. Somewhere in the course of evaluation of your code, the interpreter received @racket[_] and was asked to evaluate it as a @emph{Racket} expression. It doesn't like this.
 
-@bold{Common example}: This usually happens when you try to use a template inside a nested application, where it becomes Racket rather than Qi. For instance, @racket[(~> (1) (* 3 (+ _ 2)))] is invalid because, within the @racket[(* ...)] template, the language is @emph{Racket} rather than Qi, and you can't use a Qi template (i.e. @racket[(+ _ 2)]) there. You might try @seclink["Nested_Applications_are_Sequential_Flows"]{sequencing the flow}, something like @racket[(~> (1) (+ _ 2) (* 3))].
+@bold{Common example}: Trying to use a template inside a nested application. For instance, @racket[(~> (1) (* 3 (+ _ 2)))] is invalid because, within the @racket[(* ...)] template, the language is @emph{Racket} rather than Qi, and you can't use a Qi template (i.e. @racket[(+ _ 2)]) there. You might try @seclink["Nested_Applications_are_Sequential_Flows"]{sequencing the flow}, something like @racket[(~> (1) (+ _ 2) (* 3))].
+
+@bold{Common example}: Trying to use a Racket macro (rather than a function), or a macro from another DSL, as a flow without first registering it via @racket[define-qi-foreign-syntaxes]. In general, Qi expects flows to be functions unless otherwise explicitly signaled.
 
 @bold{Error}:
 
@@ -147,7 +149,20 @@ If, on the other hand, your flow is defined elsewhere and only @emph{used} at th
 
 @bold{Meaning}: The Racket interpreter received syntax, in this case simply "lambda", that it considers to be invalid. Note that if it received something it didn't know anything about, it would say "undefined" rather than "bad syntax." Bad syntax indicates known syntax used in an incorrect way.
 
-@bold{Common example}: Typically, this happens when a Racket expression has not been properly escaped within a Qi context. For instance, @racket[(flow (lambda (x) x))] is invalid because the wrapped expression is Racket rather than Qi. To fix this, use @racket[esc], as in @racket[(flow (esc (lambda (x) x)))].
+@bold{Common example}: A Racket expression has not been properly escaped within a Qi context. For instance, @racket[(flow (lambda (x) x))] is invalid because the wrapped expression is Racket rather than Qi. To fix this, use @racket[esc], as in @racket[(flow (esc (lambda (x) x)))].
+
+@bold{Common example}: Trying to use a Racket macro (rather than a function), or a macro from another DSL, as a flow without first registering it via @racket[define-qi-foreign-syntaxes]. In general, Qi expects flows to be functions unless otherwise explicitly signaled.
+
+@bold{Error}:
+
+@codeblock{
+; m: use does not match pattern: (m x y)
+;   in: m
+}
+
+@bold{Meaning}: A macro was used in a way that doesn't match any declared syntax patterns.
+
+@bold{Common example}: Trying to use a Racket macro (rather than a function), or a macro from another DSL, as a flow without first registering it via @racket[define-qi-foreign-syntaxes]. In general, Qi expects flows to be functions unless otherwise explicitly signaled.
 
 @section{Effectively Using Feedback Loops}
 
