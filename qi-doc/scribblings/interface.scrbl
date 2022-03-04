@@ -298,11 +298,11 @@ The following definition forms may be used in place of the usual general-purpose
 
 The advantage of using these over the general-purpose @racket[define] form is that, as they express the definition at the appropriate level of abstraction and with the attendant constraints for the type of flow, they can be more clear and more robust, minimizing boilerplate while providing guardrails against programmer error.
 
-@subsection{Using the Host Language from Qi}
+@section{Using the Host Language from Qi}
 
 Arbitrary native (e.g. Racket) expressions can be used in flows in one of two ways. This section describes these two ways and also discusses other considerations regarding use of the host language alongside Qi.
 
-@subsubsection{Using Racket Values in Qi Flows}
+@subsection{Using Racket Values in Qi Flows}
 
 The first and most common way is to simply wrap the expression with a @racket[gen] form while within a flow context. This flow generates the @tech/reference{value} of the expression.
 
@@ -312,7 +312,7 @@ The first and most common way is to simply wrap the expression with a @racket[ge
     ((☯ (~> (gen (* 5 v) (* 3 v)) list)))
 ]
 
-@subsubsection{Using Racket to Define Flows}
+@subsection{Using Racket to Define Flows}
 
 The second way is if you want to describe a flow using the host language instead of Qi. In this case, use the @racket[esc] form. The wrapped expression in this case @emph{must} evaluate to a function, since functions are the only values describable in the host language that can be treated as flows. Note that use of @racket[esc] is unnecessary for function identifiers since these are usable as flows directly, and these can even be partially applied using standard application syntax, optionally with @racket[_] and @racket[__] to indicate argument placement. But you may still need it in the specific case where the identifier collides with a Qi form.
 
@@ -336,7 +336,7 @@ You might expect here that the expression @racket[(get-flow 3)] would be treated
 
 So, function applications where all of the arguments are provided syntactically, and which produce functions as their result, may be used as if they were simple function identifiers, and @racket[esc] may be left out.
 
-@subsubsection{Using Racket Macros as Flows}
+@subsection{Using Racket Macros as Flows}
 
 Flows are expected to be @seclink["What_is_a_Flow_"]{function-valued} at runtime, and so you cannot naively use a macro as a flow. See @secref["Converting_a_Macro_to_a_Flow"] for ways to do this.
 
