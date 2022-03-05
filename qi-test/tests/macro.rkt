@@ -39,6 +39,11 @@
 
 (define-qi-foreign-syntaxes macreaux)
 
+(define-syntax-parse-rule (saints-macreaux x)
+  (* 2 x))
+
+(define-qi-foreign-syntaxes saints-macreaux)
+
 (define tests
   (test-suite
    "macro tests"
@@ -70,4 +75,5 @@
     (check-equal? ((☯ (~>> (macreaux 1))) 2) 2)
     (check-equal? ((☯ (macreaux _ 1)) 2) 1)
     (check-equal? ((☯ (macreaux 1 _)) 2) 2)
-    (check-exn exn:fail? (λ () ((☯ (macreaux 1 __)) 2)) 2))))
+    (check-exn exn:fail? (λ () ((☯ (macreaux 1 __)) 2)) 2)
+    (check-equal? ((☯ saints-macreaux) 5) 10 "can be used in identifier form"))))

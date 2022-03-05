@@ -80,7 +80,8 @@
         #:do [(define threading-side (syntax-property this-syntax 'threading-side))]
         (if (and threading-side (eq? threading-side 'right))
             #'(esc (lambda (v) (name form ... v)))
-            #'(esc (lambda (v) (name v form ...))))]))))
+            #'(esc (lambda (v) (name v form ...))))]
+       [name:id #'(esc (lambda (v) (name v)))]))))
 
 (define-syntax define-qi-syntax-rule
   (syntax-parser
