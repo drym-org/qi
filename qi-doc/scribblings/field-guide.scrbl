@@ -216,25 +216,9 @@ Flows are expected to be @seclink["What_is_a_Flow_"]{function-valued} at runtime
         (esc (λ (x) (double-me x))))
   ]
 
-But, especially if your reason for using macros here is that they are the forms of another DSL that you'd like to use together with Qi, this approach can be cumbersome. In such cases, another option is to write macros to make this syntactic transformation invisible. For instance:
+But this can be cumbersome for anything other than a one-off use of a macro, and it also doesn't take advantage of the syntactic conveniences (such as templates) that Qi already offers. You could write Qi macros to wrap these "foreign" macros and provide all of Qi's usual syntactic behavior, but luckily, you don't need to! Simply use @racket[define-qi-foreign-syntaxes] to "register" any such foreign macros (i.e. macros in any language other than Qi, including Racket) as Qi forms, and then you can use them in the same way as any other function, except that the catch-all @racket[__] template isn't supported.
 
-@examples[
-    #:eval eval-for-docs
-    (define-syntax-rule (double-me x) (* 2 x))
-    (define-syntax-rule (subtract-two x y) (- x y))
-    (define-qi-syntax-parser subtract-two
-      [_:id #'(esc (λ (x y) (subtract-two x y)))]
-      [(_ y) #'(esc (λ (x) (subtract-two x y)))]
-      [(_ (~datum _) y) #'(subtract-two y)]
-      [(_ x (~datum _)) #'(esc (λ (y) (subtract-two x y)))])
-    (define-qi-syntax-parser double-me
-      [_:id #'(esc (λ (v) (double-me v)))])
-    (~> (5) (subtract-two 4) double-me)
-  ]
-
-Note that the Qi macros can have the same name as the Racket macros since they exist in different @tech/reference{binding spaces} and therefore don't interfere with one another.
-
-If you are using Qi together with another DSL, using this approach, you would need to write a corresponding Qi macro for every form of your DSL. See @secref["Writing_a_Qi_Dialect"] for yet another approach.
+Using this approach, you would need to register each such foreign macro using @racket[define-qi-foreign-syntaxes] prior to use. Even though you can register as many as you like with a single declaration, this may feel like an impedance, especially for deep integrations with other DSLs where there may be a large number of such forms. See @secref["Writing_a_Qi_Dialect"] for yet another approach.
 
 @subsection{Bindings are an Alternative to Nonlinearity}
 

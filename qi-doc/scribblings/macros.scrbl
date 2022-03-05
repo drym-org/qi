@@ -64,6 +64,8 @@ This "first class" macro extensibility of Qi follows the general approach descri
 
 @section{Using Macros}
 
+@emph{Note: This section is about using Qi macros. If you are looking for information on using macros of another language (such as Racket or another DSL) together with Qi, see @secref["Using_Racket_Macros_as_Flows"].}
+
  Qi macros are bindings just like Racket macros. In order to use them, simply @seclink["Defining_Macros"]{define them}, and if necessary, @racket[provide], and @racket[require] them in the relevant modules, with the proviso below regarding "binding spaces." Once defined and in scope, Qi macros are indistinguishable from built-in @seclink["Qi_Forms"]{Qi forms}, and may be used in any flow definition just like the built-in forms.
 
  In order to ensure that Qi macros are only usable within a Qi context and do not interfere with Racket macros that may happen to share the same name, Qi macros are defined so that they exist in their own @tech/reference{binding space}. This means that you must use the @racket[provide] subform @racket[for-space] in order to make Qi macros available for use in other modules. They may be @racketlink[require]{required} in the same way as any other bindings, however, i.e. indicating @racket[for-space] with @racket[require] is not necessary.
@@ -87,3 +89,27 @@ And assuming the module defining the Qi macro @racket[pare] is called @racket[ma
 @subsection{Racket Version Compatibility}
 
  As binding spaces were added to Racket in version 8.3, older versions of Racket will not be able to use the macros described here, but can still use the legacy @seclink["Language_Extension"]{@racket[qi:]-prefixed macros}.
+
+@section{More Examples}
+
+If we didn't have @racket[define-qi-foreign-syntaxes] to register "foreign-language macros" (such as Racket macros, or those of another DSL) with Qi in a convenient way, we could still do this manually, by writing corresponding Qi macros to wrap the foreign macros. The following example demonstrates how this might work.
+
+In @secref["Converting_a_Macro_to_a_Flow"], we learned that Racket macros could be used from Qi by employing @racket[esc] and wrapping the foreign macro invocation in a @racket[lambda]. To avoid doing this manually each time, we could write a Qi macro to make this syntactic transformation invisible. For instance:
+
+@examples[
+    #:eval eval-for-docs
+    (define-syntax-rule (double-me x) (* 2 x))
+    (define-syntax-rule (subtract-two x y) (- x y))
+    (define-qi-syntax-parser subtract-two
+      [_:id #'(esc (λ (x y) (subtract-two x y)))]
+      [(_ y) #'(esc (λ (x) (subtract-two x y)))]
+      [(_ (~datum _) y) #'(subtract-two y)]
+      [(_ x (~datum _)) #'(esc (λ (y) (subtract-two x y)))])
+    (define-qi-syntax-parser double-me
+      [_:id #'(esc (λ (v) (double-me v)))])
+    (~> (5) (subtract-two 4) double-me)
+  ]
+
+Note that the Qi macros can have the same name as the Racket macros since they exist in different @tech/reference{binding spaces} and therefore don't interfere with one another.
+
+Of course, writing Qi macros for such cases in practice is unnecessary as there is @racket[define-qi-foreign-syntaxes] instead, which does this for you and in a robust and generally applicable way.
