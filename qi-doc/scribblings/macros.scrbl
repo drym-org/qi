@@ -90,7 +90,7 @@ And assuming the module defining the Qi macro @racket[pare] is called @racket[ma
 
  As binding spaces were added to Racket in version 8.3, older versions of Racket will not be able to use the macros described here, but can still use the legacy @seclink["Language_Extension"]{@racket[qi:]-prefixed macros}.
 
-@section{More Examples}
+@subsection{More Examples}
 
 If we didn't have @racket[define-qi-foreign-syntaxes] to register "foreign-language macros" (such as Racket macros, or those of another DSL) with Qi in a convenient way, we could still do this manually, by writing corresponding Qi macros to wrap the foreign macros. The following example demonstrates how this might work.
 
