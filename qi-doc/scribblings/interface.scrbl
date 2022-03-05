@@ -300,7 +300,7 @@ The advantage of using these over the general-purpose @racket[define] form is th
 
 @section{Using the Host Language from Qi}
 
-Arbitrary native (e.g. Racket) expressions can be used in flows in one of two ways. This section describes these two ways and also discusses other considerations regarding use of the host language alongside Qi.
+Arbitrary native (e.g. Racket) expressions can be used in flows in one of two core ways. This section describes these two ways and also discusses other considerations regarding use of the host language alongside Qi.
 
 @subsection{Using Racket Values in Qi Flows}
 
@@ -338,7 +338,27 @@ So, function applications where all of the arguments are provided syntactically,
 
 @subsection{Using Racket Macros as Flows}
 
-Flows are expected to be @seclink["What_is_a_Flow_"]{function-valued} at runtime, and so you cannot naively use a macro as a flow. See @secref["Converting_a_Macro_to_a_Flow"] for ways to do this.
+Flows are expected to be @seclink["What_is_a_Flow_"]{functions}, and so you cannot naively use a macro as a flow. But there are many ways in which you can. If you'd just like to use such a macro in a one-off manner, see @secref["Converting_a_Macro_to_a_Flow"] for an ad hoc way to do this. But a simpler and more complete way in many cases is to first register the macro (or any number of such macros) using @racket[define-qi-foreign-syntaxes] prior to use.
+
+@defform[(define-qi-foreign-syntaxes form ...)]{
+  This form allows you to "register foreign macros" for use with Qi. These could be Racket macros, or the forms of another DSL. By simply registering such forms by name using this form, you can for the most part use them just as if they were functions, except that the catch-all template @racket[__] isn't supported for such macros.
+
+@examples[
+    #:eval eval-for-docs
+    (define-syntax-rule (double-me x) (* 2 x))
+    (define-syntax-rule (subtract-two x y) (- x y))
+    (define-qi-foreign-syntaxes double-me subtract-two)
+    (~> (5) (subtract-two 4) double-me)
+    (~>> (5) (subtract-two 4) double-me)
+    (~> (5 4) (subtract-two _ _) double-me)
+  ]
+
+By doing this, you can thread multiple values through such syntaxes in the same manner as functions. The catch-all template @racket[__] isn't supported though, since macros (unlike functions) require all the "arguments" to be supplied syntactically at compile time. So while any number of arguments may be supplied to such macros, it must be a @emph{specific} rather than an @emph{arbitrary} number of them, which may be indicated syntactically via @racket[_] to indicate individual expected arguments and their positions.
+
+Note that for a foreign macro used in identifier form (such as @racket[double-me] in the example above), it assumes a @emph{single} argument. This is different from function identifiers where they receive as many values as may happen to be flowing at runtime. With macros, as we saw, we cannot provide them an arbitrary number of arguments. If more than one argument is anticipated, explicitly indicate them using a @racket[_] template.
+
+Finally, as macros "registered" in this way result in the implicit creation of @seclink["Qi_Macros"]{Qi macros} corresponding to each foreign macro, if you'd like to use these forms from another module, you'll need to provide them just like any other Qi macro, i.e. via @racket[(provide (for-space qi ...))]. You may also need to provide these bindings in the default binding space, so that your provide declaration would resemble @racket[(provide (for-space double-me) double-me)].
+}
 
 @section{Using Qi with Another DSL}
 
