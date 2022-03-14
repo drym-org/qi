@@ -164,6 +164,28 @@ If, on the other hand, your flow is defined elsewhere and only @emph{used} at th
 
 @bold{Common example}: Trying to use a Racket macro (rather than a function), or a macro from another DSL, as a flow without first registering it via @racket[define-qi-foreign-syntaxes]. In general, Qi expects flows to be functions unless otherwise explicitly signaled.
 
+@bold{Error}:
+
+@codeblock{
+; syntax-parser: expected identifier not starting with ~ character
+;   at: ~optional
+}
+
+@bold{Meaning}: A macro attempted to use a @seclink["stxparse-patterns" #:doc '(lib "syntax/scribblings/syntax.scrbl")]{syntax pattern} (which are commonly prefixed with the @racket[~] character) but the parser thinks it's an identifier and doesn't like its name.
+
+@bold{Common example}: Syntax patterns are defined in the @seclink["stxparse" #:doc '(lib "syntax/scribblings/syntax.scrbl")]{syntax/parse} library. If you are using them in Qi macros, you will need to @racket[(require syntax/parse)] at the appropriate phase level.
+
+@bold{Error}:
+
+@codeblock{
+; syntax-parser: not defined as syntax class
+;   at: expr
+}
+
+@bold{Meaning}: A macro attempted to use a @seclink["Syntax_Classes" #:doc '(lib "syntax/scribblings/syntax.scrbl")]{syntax class} that the expander doesn't know about.
+
+@bold{Common example}: Common syntax classes are defined in the @seclink["stxparse" #:doc '(lib "syntax/scribblings/syntax.scrbl")]{syntax/parse} library. If you are using them in Qi macros, you will need to @racket[(require syntax/parse)] at the appropriate phase level (e.g. @racket[(require (for-syntax syntax/parse))].
+
 @section{Effectively Using Feedback Loops}
 
 @racket[feedback] is Qi's most powerful looping form, useful for arbitrary recursion. As it encourages quite a different way of thinking than Racket's usual looping forms do, here are some tips on "grokking" it.
