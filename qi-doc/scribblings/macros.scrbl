@@ -90,9 +90,47 @@ And assuming the module defining the Qi macro @racket[pare] is called @racket[ma
 
  As binding spaces were added to Racket in version 8.3, older versions of Racket will not be able to use the macros described here, but can still use the legacy @seclink["Language_Extension"]{@racket[qi:]-prefixed macros}.
 
-@subsection{More Examples}
+@section{Example Macros}
 
-If we didn't have @racket[define-qi-foreign-syntaxes] to register "foreign-language macros" (such as Racket macros, or those of another DSL) with Qi in a convenient way, we could still do this manually, by writing corresponding Qi macros to wrap the foreign macros. The following example demonstrates how this might work.
+When you consider that Racket's @seclink["classes" #:doc '(lib "scribblings/guide/guide.scrbl")]{class-based object system} for object-oriented programming is implemented with Racket macros in terms of the underlying @seclink["structures" #:doc '(lib "scribblings/reference/reference.scrbl")]{struct type} system, it gives you some idea of the extent to which macros enable the addition of new language features, both great and small. In this section we'll look at a few examples of what Qi macros can do.
+
+@subsection{Write Yourself a Maybe Monad for Great Good}
+
+In functional languages such as Haskell, a popular way to do (or rather avoid) exception handling is to use the Maybe monad. Qi doesn't include monads out of the box yet, but you could implement a version of the Maybe monad yourself by using macros. But first, let's quickly review why you might want to in the first place.
+
+Earlier, we @seclink["Overview" #:doc '(lib "qi/scribblings/qi.scrbl")]{drew a distinction} between two paradigms employed in programming languages: one organized around the flow of @emph{control} and another organized around the flow of @emph{data}. A way to manage possible errors in code along the lines of the former ("control") paradigm is to handle @emph{exceptions} that may occur at each stage, and take appropriate action -- for instance, abort the remainder of the computation. A second way to handle errors, more along the lines of the "flow of data" paradigm, is for the "failing" computation to simply produce a sentinel value that signifies an error, so that the sequence of operations does not actually fail but merely generates and propagates a value signifying failure. The trick is, how to do this in such a way that downstream computations are aware of the sentinel error value so that they don't attempt to perform computations on it that they might do on a "normal" value? This is where the Maybe monad comes in.
+
+Let's say that we want to thread values through a number of flows, and if any of those flows raises an exception, we'd like the entire flow to generate @emph{no values}. We can start by writing a macro that wraps any Qi flow with the exception handling logic to generate no values.
+
+@racketblock[
+(define-qi-syntax-rule (try flo)
+  (esc (λ args
+         (with-handlers [(exn? (☯ ⏚))]
+           (apply (☯ flo) args)))))
+]
+
+This flow escapes to Racket in order to wrap the flow with exception handling. Any exceptions raised by execution of the flow result in the enclosing flow simply generating no values.
+
+And now, we're ready to write our Maybe monad.
+
+@racketblock[
+(define-qi-syntax-rule (maybe~> flo ...)
+  (~> (when live? (try flo))
+      ...))
+]
+
+This flow is just like @racket[~>], except that it does two additional things. (1) It wraps each component flow with the @racket[try] macro so that an exception would result in the flow generating no values, and (2) it checks whether there are values flowing at all before attempting to invoke this flow on the inputs – if there are no values flowing, then nothing happens, i.e. no values are generated.
+
+@racketblock[
+((☯ (maybe~> (/ 2) sqr add1)) 10)
+((☯ (maybe~> (/ 0) sqr add1)) 10)
+]
+
+And there you have it, you've implemented the Maybe monad in about 7 lines of Qi macros.
+
+@subsection{Working with Foreign Macros}
+
+Qi expects components of a flow to be flows, which at the lowest level are functions. This means that Qi cannot naively be used with forms from the host language (or another DSL) that are @emph{macros}. If we didn't have @racket[define-qi-foreign-syntaxes] to register such "foreign-language macros" with Qi in a convenient way, we could still implement this feature ourselves, by writing corresponding Qi macros to wrap the foreign macros. The following example demonstrates how this might work.
 
 In @secref["Converting_a_Macro_to_a_Flow"], we learned that Racket macros could be used from Qi by employing @racket[esc] and wrapping the foreign macro invocation in a @racket[lambda]. To avoid doing this manually each time, we could write a Qi macro to make this syntactic transformation invisible. For instance:
 
