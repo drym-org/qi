@@ -70,7 +70,7 @@ Side effects are a natural fit for debugging functional code in general, as the 
 
 Qi includes a "circuit tester" style debugger, which you can use to check the values at arbitrary points in the flow. It can be used even if the flow is raising an error – the tester can help you find the error. It offers similar functionality to @other-doc['(lib "debug/scribblings/debug.scrbl")] but is specialized for functional debugging and Qi flows.
 
-To use it, first wrap the entire expression @emph{invoking} the flow with a @racket[probe] form. Then, you can simply place a literal @racket[readout] anywhere within the flow definition to cause the entire expression to evaluate to the values flowing at that point. This works even if your flow is defined elsewhere (even in another file) and only @emph{used} at the invocation site by name.
+To use it, first wrap the entire expression @emph{invoking} the flow with a @racket[probe] form. Then, you can place a literal @racket[readout] anywhere within the flow definition to cause the entire expression to evaluate to the values flowing at that point. This works even if your flow is defined elsewhere (even in another file) and only @emph{used} at the invocation site by name.
 
 @deftogether[(
   @defform[(probe flo)]
@@ -80,8 +80,7 @@ To use it, first wrap the entire expression @emph{invoking} the flow with a @rac
 
   Note that @racket[probe] is a Racket (rather than Qi) form, and it must wrap a flow @emph{invocation} rather than a flow @emph{definition}. The @racket[readout], on the other hand, is a Qi expression and must be placed somewhere within the flow @emph{definition}.
 
-@examples[
-    #:eval eval-for-docs
+@racketblock[
     (~> (5) sqr (* 2) add1)
     (probe (~> (5) readout sqr (* 2) add1))
     (probe (~> (5) sqr readout (* 2) add1))
@@ -109,8 +108,7 @@ To use it, first wrap the entire expression @emph{invoking} the flow with a @rac
 
   @racket[(define-probed-flow name body)] is equivalent to @racket[(define-flow name (qi:probe body))] or @racket[(define name (flow (qi:probe body)))].
 
-@examples[
-    #:eval eval-for-docs
+@racketblock[
     (define-probed-flow my-flow
       (~> sqr readout (* 3) add1))
     (probe (my-flow 5))
