@@ -42,6 +42,10 @@ Before you write a flow, consider drawing out a "circuit diagram" on paper. Star
 
 Decompose your flow into its smallest components, and name each so that they are independent flows. Qi flows, by virtue of being functions, are highly composable, and are, by the same token, eminently decomposable. This tends to make refactoring flows a much more reliable undertaking than it typically is in other languages.
 
+@subsection{Carry Your Toolbox}
+
+A journeyman of one's craft -- an experienced electrician, say -- doesn't go to work with just her hands. She brings her trusty toolbox which may contain, among other things, a voltage tester, a multimeter, and a continuity tester. Although these are "debugging" tools, they aren't just for identifying bugs -- by providing rapid feedback, they enable her to explore and find creative solutions quickly and reliably. It's the same with Qi. Learn to use the @seclink["Debugging"]{debugging tools} and use them often.
+
 @section{Debugging}
 
 @subsection{Using Side Effects}
