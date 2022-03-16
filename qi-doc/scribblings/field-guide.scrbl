@@ -186,6 +186,17 @@ If, on the other hand, your flow is defined elsewhere and only @emph{used} at th
 
 @bold{Common example}: Common syntax classes are defined in the @seclink["stxparse" #:doc '(lib "syntax/scribblings/syntax.scrbl")]{syntax/parse} library. If you are using them in Qi macros, you will need to @racket[(require syntax/parse)] at the appropriate phase level (e.g. @racket[(require (for-syntax syntax/parse))].
 
+@bold{Error}:
+
+@codeblock{
+; syntax: unbound identifier;
+; also, no #%app syntax transformer is bound in the transformer phase
+}
+
+@bold{Meaning}: A macro attempted to manipulate a syntax object but the expander doesn't know what that even is.
+
+@bold{Common example}: When writing Qi macros, you will often need @racket[(require (for-syntax racket/base))], the same as when writing Racket macros.
+
 @section{Effectively Using Feedback Loops}
 
 @racket[feedback] is Qi's most powerful looping form, useful for arbitrary recursion. As it encourages quite a different way of thinking than Racket's usual looping forms do, here are some tips on "grokking" it.

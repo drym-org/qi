@@ -128,7 +128,7 @@ This flow is just like @racket[~>], except that it does two additional things. (
 
 And there you have it, you've implemented the Maybe monad in about 7 lines of Qi macros.
 
-@subsection{Working with Foreign Macros}
+@subsection{Translating Foreign Macros}
 
 Qi expects components of a flow to be flows, which at the lowest level are functions. This means that Qi cannot naively be used with forms from the host language (or another DSL) that are @emph{macros}. If we didn't have @racket[define-qi-foreign-syntaxes] to register such "foreign-language macros" with Qi in a convenient way, we could still implement this feature ourselves, by writing corresponding Qi macros to wrap the foreign macros. The following example demonstrates how this might work.
 
