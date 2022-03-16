@@ -4,6 +4,7 @@
 
 (require qi
          rackunit
+         rackunit/text-ui
          (only-in math sqr)
          (only-in adjutor values->list)
          racket/list
@@ -1216,3 +1217,6 @@
                    1 -3 5)
                   6
                   "runtime arity changes in threading form"))))
+
+(module+ main
+  (void (run-tests tests)))

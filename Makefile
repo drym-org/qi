@@ -65,6 +65,24 @@ check-deps:
 test:
 	raco test -exp $(PACKAGE-NAME)-{lib,test,doc,probe}
 
+test-flow:
+	racket $(PACKAGE-NAME)-test/tests/flow.rkt
+
+test-on:
+	racket $(PACKAGE-NAME)-test/tests/on.rkt
+
+test-threading:
+	racket $(PACKAGE-NAME)-test/tests/threading.rkt
+
+test-switch:
+	racket $(PACKAGE-NAME)-test/tests/switch.rkt
+
+test-definitions:
+	racket $(PACKAGE-NAME)-test/tests/definitions.rkt
+
+test-macro:
+	racket $(PACKAGE-NAME)-test/tests/macro.rkt
+
 test-with-errortrace:
 	racket -l errortrace -l racket -e '(require (submod "qi-test/tests/qi.rkt" test))'
 
@@ -94,4 +112,4 @@ profile-base:
 
 profile: profile-base profile-forms
 
-.PHONY:	help install remove build build-docs build-all clean check-deps test test-with-errortrace errortrace docs cover coverage-check coverage-report cover-coveralls profile-forms profile-base profile
+.PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-with-errortrace errortrace docs cover coverage-check coverage-report cover-coveralls profile-forms profile-base profile

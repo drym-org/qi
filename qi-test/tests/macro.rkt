@@ -4,6 +4,7 @@
 
 (require qi
          rackunit
+         rackunit/text-ui
          (only-in math sqr)
          (for-syntax syntax/parse
                      racket/base)
@@ -77,3 +78,6 @@
     (check-equal? ((☯ (macreaux 1 _)) 2) 2)
     (check-exn exn:fail? (λ () ((☯ (macreaux 1 __)) 2)) 2)
     (check-equal? ((☯ saints-macreaux) 5) 10 "can be used in identifier form"))))
+
+(module+ main
+  (void (run-tests tests)))

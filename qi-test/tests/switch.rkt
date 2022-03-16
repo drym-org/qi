@@ -4,6 +4,7 @@
 
 (require qi
          rackunit
+         rackunit/text-ui
          (only-in math sqr)
          (only-in adjutor values->list)
          racket/function
@@ -295,3 +296,6 @@
                     [positive? (gen (- 1 2))]
                     [zero? (gen (* 2 3))])
                   6))))
+
+(module+ main
+  (void (run-tests tests)))
