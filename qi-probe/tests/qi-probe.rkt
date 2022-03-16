@@ -20,6 +20,18 @@
 (define-probed-flow my-flow4
   (~> sqr (* 3) add1 readout))
 
+(define-flow my-flow1-B
+  (~> readout sqr (* 3) add1))
+
+(define-flow my-flow2-B
+  (~> sqr readout (* 3) add1))
+
+(define-flow my-flow3-B
+  (~> sqr (* 3) readout add1))
+
+(define-flow my-flow4-B
+  (~> sqr (* 3) add1 readout))
+
 (define tests
   (test-suite
    "qi-probe tests"
@@ -48,6 +60,16 @@
     (check-equal? (probe (my-flow3 5))
                   75)
     (check-equal? (probe (my-flow4 5))
+                  76))
+   (test-suite
+    "separate definition and invocation tests using qi probe macro"
+    (check-equal? (probe (my-flow1-B 5))
+                  5)
+    (check-equal? (probe (my-flow2-B 5))
+                  25)
+    (check-equal? (probe (my-flow3-B 5))
+                  75)
+    (check-equal? (probe (my-flow4-B 5))
                   76))))
 
 (module+ test

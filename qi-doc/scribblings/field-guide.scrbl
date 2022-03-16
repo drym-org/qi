@@ -70,17 +70,15 @@ Side effects are a natural fit for debugging functional code in general, as the 
 
 Qi includes a "circuit tester" style debugger, which you can use to check the values at arbitrary points in the flow. It can be used even if the flow is raising an error – the tester can help you find the error. It offers similar functionality to @other-doc['(lib "debug/scribblings/debug.scrbl")] but is specialized for functional debugging and Qi flows.
 
-To use it, first wrap the entire expression @emph{invoking} the flow with @racket[probe]. Then, if your flow happens to be defined inline with the invocation, you can simply place a literal @racket[readout] anywhere within the flow to cause the entire expression to evaluate to the values flowing at that point. See @racket[probe] for examples of this.
-
-If, on the other hand, your flow is defined elsewhere and only @emph{used} at the invocation site, then in addition to wrapping the invocation with @racket[probe], you'll need to wrap the body of the flow at the definition site with @racket[qi:probe], allowing you to place readouts there even if it happens to be in a separate file than the invocation site. See @racket[qi:probe] for examples of this.
+To use it, first wrap the entire expression @emph{invoking} the flow with a @racket[probe] form. Then, you can simply place a literal @racket[readout] anywhere within the flow definition to cause the entire expression to evaluate to the values flowing at that point. This works even if your flow is defined elsewhere (even in another file) and only @emph{used} at the invocation site by name.
 
 @deftogether[(
   @defform[(probe flo)]
   @defidform[readout]
 )]{
-  @racket[probe] simply marks a flow for debugging, and does not change its functionality. Then, when evaluation encounters the first occurrence of @racket[readout] within @racket[flo], the values at that point are immediately returned as the value of the entire @racket[flo]. This is done via a @tech/reference{continuation}, so that you may precede it with whatever flows you like that might help you understand what's happening at that point, and you don't have to worry about it affecting downstream flows during the process of debugging since those flows would simply never be hit. Additionally, readouts may be placed @emph{anywhere} within the flow, and not necessarily on the main stream -- it will always return the values observed at the specific point where you place the readout.
+  @racket[probe] simply marks a flow invocation for debugging, and does not change its functionality. Then, when evaluation encounters the first occurrence of @racket[readout] within @racket[flo], the values at that point are immediately returned as the value of the entire @racket[flo]. This is done via a @tech/reference{continuation}, so that you may precede it with whatever flows you like that might help you understand what's happening at that point, and you don't have to worry about it affecting downstream flows during the process of debugging since those flows would simply never be hit. Additionally, readouts may be placed @emph{anywhere} within the flow, and not necessarily on the main stream -- it will always return the values observed at the specific point where you place the readout.
 
-  When the flow you intend to debug is defined inline with the invocation (e.g. a flow defined and immediately applied to arguments, or an @racket[on] expression, or a toplevel @racket[~>] or @racket[switch] form), simply using a @racket[probe] together with a @racket[readout] does what you expect. But when you want to debug a named flow that has been defined elsewhere, you'll need to use @racket[qi:probe] at the definition site, in addition.
+  Note that @racket[probe] is a Racket (rather than Qi) form, and it must wrap a flow @emph{invocation} rather than a flow @emph{definition}. The @racket[readout], on the other hand, is a Qi expression and must be placed somewhere within the flow @emph{definition}.
 
 @examples[
     #:eval eval-for-docs
@@ -90,6 +88,9 @@ If, on the other hand, your flow is defined elsewhere and only @emph{used} at th
     (probe (~> (5) sqr (* 2) readout add1))
     (probe (~> (5) sqr (* 2) add1 readout))
     (probe (~> (5) sqr (if (~> (> 20) readout) _ (* 2)) add1))
+    (define-flow my-flow
+      (~> sqr readout (* 3) add1))
+    (probe (my-flow 5))
   ]
 }
 
@@ -99,9 +100,12 @@ If, on the other hand, your flow is defined elsewhere and only @emph{used} at th
   @defform[#:link-target? #f
            (define-probed-flow (name arg ...) body ...)]
 )]{
+
+@bold{NOTE}: This way to place readouts in the flow definition is intended for use in @bold{legacy versions of Racket only}, that is, versions 8.2 or earlier. @racket[qi:probe] and @racket[define-probed-flow] are @bold{no longer needed} in Qi (as of Racket 8.3). These forms should be considered @bold{deprecated} on versions 8.3 or later. On these recent versions of Racket, there is no difference in usage between inline and nonlocal flow definitions, and the @racket[readout] may simply be placed wherever you want it. The legacy documentation follows.
+
   When the flow you'd like to debug is a named flow that is not defined inline at the invocation site, you'll need to take some extra steps to ensure that you can place a @racket[readout] at the @emph{definition} site even though the @racket[probe] itself is placed at the @emph{invocation} site.
 
-  To do this, either wrap the entire body of the definition, or a subflow in the definition, with @racket[qi:probe]. Alternatively, you can use @racket[define-probed-flow] instead of @racket[define-flow], which transparently does this for you. Now, you can place a @racket[probe] at the invocation site, as usual, and it will receive the readout that you indicate at the definition site.
+  To do this, either wrap the entire body of the definition, or a subflow in the definition, with @racket[qi:probe], or alternatively, use @racket[define-probed-flow] instead of @racket[define-flow], which transparently does this for you. Now, you can place a (distinct) @racket[probe] at the invocation site, as usual, and it will receive the readout that you indicate at the definition site.
 
   @racket[(define-probed-flow name body)] is equivalent to @racket[(define-flow name (qi:probe body))] or @racket[(define name (flow (qi:probe body)))].
 

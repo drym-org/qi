@@ -3,7 +3,8 @@
 (provide probe
          readout
          qi:probe
-         define-probed-flow)
+         define-probed-flow
+         (for-space qi readout))
 
 (require syntax/parse/define
          racket/stxparam
@@ -112,3 +113,17 @@ point in the flow and also reset the parameter as described above.
   [(_ name:id flo:expr)
    #'(define name
        (flow (qi:probe flo)))])
+
+;; NOTE: Now that we have proper Qi macros, we can avoid a lot of the
+;; fancy stuff above with syntax parameters, and implement the
+;; definition-site readout simply as a Qi macro. This is the new way --
+;; the qi:probe and define-probed-flow forms are to be considered
+;; deprecated, and may eventually be removed.
+(define-qi-syntax-parser readout
+  [_:id #'(esc
+           (λ args
+             (let ([src (source)])
+               ;; reset source to avoid the possibility of stale
+               ;; continuations used later outside of a `probe`
+               (source default-source)
+               (apply src args))))])
