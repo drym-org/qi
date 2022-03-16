@@ -83,6 +83,9 @@ test-definitions:
 test-macro:
 	racket $(PACKAGE-NAME)-test/tests/macro.rkt
 
+test-probe:
+	raco test -exp $(PACKAGE-NAME)-probe
+
 test-with-errortrace:
 	racket -l errortrace -l racket -e '(require (submod "qi-test/tests/qi.rkt" test))'
 
