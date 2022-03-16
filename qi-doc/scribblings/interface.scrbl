@@ -357,7 +357,7 @@ By doing this, you can thread multiple values through such syntaxes in the same 
 
 Note that for a foreign macro used in identifier form (such as @racket[double-me] in the example above), it assumes a @emph{single} argument. This is different from function identifiers where they receive as many values as may happen to be flowing at runtime. With macros, as we saw, we cannot provide them an arbitrary number of arguments. If more than one argument is anticipated, explicitly indicate them using a @racket[_] template.
 
-Finally, as macros "registered" in this way result in the implicit creation of @seclink["Qi_Macros"]{Qi macros} corresponding to each foreign macro, if you'd like to use these forms from another module, you'll need to provide them just like any other Qi macro, i.e. via @racket[(provide (for-space qi ...))]. You may also need to provide these bindings in the default binding space, so that your provide declaration would resemble @racket[(provide (for-space double-me) double-me)].
+Finally, as macros "registered" in this way result in the implicit creation of @seclink["Qi_Macros"]{Qi macros} corresponding to each foreign macro, if you'd like to use these forms from another module, you'll need to provide them just like any other Qi macro, i.e. via @racket[(provide (for-space qi ...))]. You may also need to provide these bindings in the default binding space, so that your provide declaration would resemble @racket[(provide (for-space qi double-me) double-me)].
 }
 
 @section{Using Qi with Another DSL}
