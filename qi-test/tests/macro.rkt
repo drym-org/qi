@@ -77,7 +77,11 @@
     (check-equal? ((☯ (macreaux _ 1)) 2) 1)
     (check-equal? ((☯ (macreaux 1 _)) 2) 2)
     (check-exn exn:fail? (λ () ((☯ (macreaux 1 __)) 2)) 2)
-    (check-equal? ((☯ saints-macreaux) 5) 10 "can be used in identifier form"))))
+    (check-equal? ((☯ saints-macreaux) 5) 10 "can be used in identifier form")
+    (check-equal? (~> (5) double-me) 10 "registered foreign syntax used in identifier form")
+    (check-equal? (~> (5) (add-two 3)) 8 "registered foreign syntax using the default threading position")
+    (check-equal? (~> (5) (add-two 3 _)) 8 "registered foreign syntax using a template")
+    (check-equal? (~> (5 3) (add-two _ _)) 8 "registered foreign syntax threading multiple values"))))
 
 (module+ main
   (void (run-tests tests)))

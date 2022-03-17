@@ -59,15 +59,16 @@
        tmpl
        (generate-temporaries (make-list (length indices) '_)))))
 
-  (define qi-foreign-syntax-transformer
+  (define (make-qi-foreign-syntax-transformer original-macro-id)
+    (define/syntax-parse original-macro original-macro-id)
     (qi-macro
      (syntax-parser
        [(name pre-form ... (~datum __) post-form ...)
         #`(esc
            (lambda args
-             (raise-syntax-error 'name
+             (raise-syntax-error 'original-macro
                                  (~a "Syntax error in "
-                                     (list 'name
+                                     (list 'original-macro
                                            #,@(syntax->list #'(pre-form ...))
                                            '__
                                            #,@(syntax->list #'(post-form ...)))
@@ -75,13 +76,16 @@
                                      "  __ templates are not supported for foreign macros.\n"
                                      "  Use _'s to indicate a specific number of expected arguments, instead."))))]
        [(name pre-form ... (~datum _) post-form ...)
-        (foreign-macro-template-expand this-syntax)]
+        (foreign-macro-template-expand
+         (datum->syntax this-syntax
+           (cons #'original-macro
+                 (cdr (syntax->list this-syntax)))))]
        [(name form ...)
         #:do [(define threading-side (syntax-property this-syntax 'threading-side))]
         (if (and threading-side (eq? threading-side 'right))
-            #'(esc (lambda (v) (name form ... v)))
-            #'(esc (lambda (v) (name v form ...))))]
-       [name:id #'(esc (lambda (v) (name v)))]))))
+            #'(esc (lambda (v) (original-macro form ... v)))
+            #'(esc (lambda (v) (original-macro v form ...))))]
+       [name:id #'(esc (lambda (v) (original-macro v)))]))))
 
 (define-syntax define-qi-syntax-rule
   (syntax-parser
@@ -105,5 +109,5 @@
      #:with (spaced-form-name ...) (map (make-interned-syntax-introducer 'qi)
                                         (attribute form-name))
      #'(begin
-         (define-syntax spaced-form-name qi-foreign-syntax-transformer)
+         (define-syntax spaced-form-name (make-qi-foreign-syntax-transformer #'form-name))
          ...)]))
