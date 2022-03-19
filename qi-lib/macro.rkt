@@ -66,17 +66,16 @@
     (qi-macro
      (syntax-parser
        [(name pre-form ... (~datum __) post-form ...)
-        #`(esc
-           (lambda args
-             (raise-syntax-error 'original-macro
-                                 (~a "Syntax error in "
-                                     (list 'original-macro
-                                           #,@(syntax->list #'(pre-form ...))
-                                           '__
-                                           #,@(syntax->list #'(post-form ...)))
-                                     "\n"
-                                     "  __ templates are not supported for foreign macros.\n"
-                                     "  Use _'s to indicate a specific number of expected arguments, instead."))))]
+        (let ([name (syntax->datum #'name)])
+          (raise-syntax-error name
+                              (~a "Syntax error in "
+                                  `(,name
+                                    ,@(syntax->datum #'(pre-form ...))
+                                    "__"
+                                    ,@(syntax->datum #'(post-form ...)))
+                                  "\n"
+                                  "  __ templates are not supported for foreign macros.\n"
+                                  "  Use _'s to indicate a specific number of expected arguments, instead.")))]
        [(name pre-form ... (~datum _) post-form ...)
         (foreign-macro-template-expand
          (datum->syntax this-syntax
