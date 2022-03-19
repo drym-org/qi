@@ -1,10 +1,12 @@
 #lang racket/base
 
-(provide define-qi-syntax-rule
+(provide define-qi-syntax
+         define-qi-syntax-rule
          define-qi-syntax-parser
          define-qi-foreign-syntaxes
          (for-syntax qi-macro?
-                     qi-macro-transformer))
+                     qi-macro-transformer
+                     qi-macro))
 
 (require (for-syntax racket/base
                      syntax/parse
@@ -86,6 +88,12 @@
             #'(esc (lambda (v) (original-macro form ... v)))
             #'(esc (lambda (v) (original-macro v form ...))))]
        [name:id #'(esc (lambda (v) (original-macro v)))]))))
+
+(define-syntax define-qi-syntax
+  (syntax-parser
+    [(_ name transformer)
+     #`(define-syntax #,((make-interned-syntax-introducer 'qi) #'name)
+         transformer)]))
 
 (define-syntax define-qi-syntax-rule
   (syntax-parser

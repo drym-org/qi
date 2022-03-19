@@ -62,6 +62,44 @@ This "first class" macro extensibility of Qi follows the general approach descri
   ]
 }
 
+@defstruct[qi-macro ([transformer procedure?])
+                    #:omit-constructor]{
+ If you cannot use the forms above and instead need to define a macro using Racket's macro APIs directly, the only thing you'd need to do is wrap the resulting syntax parser as a @racket[qi-macro] type.
+
+  @examples[#:eval eval-for-docs
+    (require qi
+            (for-syntax syntax/parse
+                        racket/base))
+
+    (define-syntax square
+      (qi-macro
+       (syntax-parser
+         [(_ flo) #'(~> flo flo)])))
+
+    (~> (5) (square add1))
+  ]
+
+ However, note that if the binding you define in this way collides with an identifier in Racket (for instance, if you call it @racket[cond]), it would override the Racket version (unlike using @racket[define-qi-syntax-rule] or @racket[define-qi-syntax-parser] where they exist in a distinct namespace). To avoid this, use @racket[define-qi-syntax] instead of @racket[define-syntax].
+}
+
+@defform[(define-qi-syntax macro-id transformer)]{
+
+ Similar to @racket[define-syntax], this creates a @tech/guide{transformer binding} but uses the Qi @tech/reference{binding space}, so that macros defined this way will not override any Racket (or other language) forms that may have the same name. @racket[(define-qi-syntax macro-id transformer)] is approximately @racket[(define-syntax ((make-interned-syntax-introducer 'qi) macro-id) transformer)].
+
+  @examples[#:eval eval-for-docs
+    (define-qi-syntax cond
+      (qi-macro
+       (syntax-parser
+         [(_ flo) #'(~> flo flo)])))
+
+    (~> (5) (cond add1))
+    (cond [#f 'hi]
+          [else 'bye])
+  ]
+
+ Note that macros defined using this form @emph{must} wrap the resulting syntax parser as a @racket[qi-macro].
+}
+
 @section{Using Macros}
 
 @emph{Note: This section is about using Qi macros. If you are looking for information on using macros of another language (such as Racket or another DSL) together with Qi, see @secref["Using_Racket_Macros_as_Flows"].}
