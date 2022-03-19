@@ -8,7 +8,9 @@
           qi/threading))
 
 (require qi/flow
-         qi/macro
+         (except-in qi/macro
+                    qi-macro-transformer
+                    qi-macro?)
          qi/on
          qi/switch
          qi/threading)
