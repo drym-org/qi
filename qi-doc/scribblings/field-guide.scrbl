@@ -44,7 +44,7 @@ Decompose your flow into its smallest components, and name each so that they are
 
 @subsection{Carry Your Toolbox}
 
-A journeyman of one's craft -- an experienced electrician, say -- doesn't go to work with just her hands. She brings her trusty toolbox which may contain, among other things, a voltage tester, a multimeter, and a continuity tester. Although these are "debugging" tools, they aren't just for identifying bugs -- by providing rapid feedback, they enable her to explore and find creative solutions quickly and reliably. It's the same with Qi. Learn to use the @seclink["Debugging"]{debugging tools} and use them often.
+A journeyman of one's craft -- a woodworker, electrician, or a plumber, say -- always goes to work with a trusty toolbox that contains the tools of the trade, some perhaps even of their own design. An electrician, for instance, may have a voltage tester, a multimeter, and a continuity tester in her toolbox. Although these are "debugging" tools, they aren't just for identifying bugs -- by providing rapid feedback, they enable her to explore and find creative solutions quickly and reliably. It's the same with Qi. Learn to use the @seclink["Debugging"]{debugging tools}, and use them often.
 
 @section{Debugging}
 
