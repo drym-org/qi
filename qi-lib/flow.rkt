@@ -84,16 +84,18 @@ provide appropriate error messages at the level of the DSL.
 
 |#
 
-(define (report-syntax-error name args usage [msg ""])
-  (raise-syntax-error name
-                      (~a "Syntax error in "
-                          (list* name args)
-                          "\n"
-                          "Usage:\n"
-                          "  " usage
-                          (if (equal? "" msg)
-                              ""
-                              (string-append "\n" msg)))))
+(begin-for-syntax
+  (require racket/format)
+  (define (report-syntax-error name args usage [msg ""])
+    (raise-syntax-error name
+                        (~a "Syntax error in "
+                            (list* name args)
+                            "\n"
+                            "Usage:\n"
+                            "  " usage
+                            (if (equal? "" msg)
+                                ""
+                                (string-append "\n" msg))))))
 
 (define-syntax-parser flow
 
@@ -200,16 +202,16 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~datum select) n:number ...))
    #'(flow (-< (esc (arg n)) ...))]
   [(_ ((~datum select) arg ...))  ; error handling catch-all
-   #'(report-syntax-error 'select
-                          (list 'arg ...)
-                          "(select <number> ...)")]
+   (report-syntax-error 'select
+                        (syntax->datum #'(arg ...))
+                        "(select <number> ...)")]
   [(_ ((~datum block) n:number ...))
    #'(flow (~> (esc (except-args n ...))
                △))]
   [(_ ((~datum block) arg ...))  ; error handling catch-all
-   #'(report-syntax-error 'block
-                          (list 'arg ...)
-                          "(block <number> ...)")]
+   (report-syntax-error 'block
+                        (syntax->datum #'(arg ...))
+                        "(block <number> ...)")]
   [(_ ((~datum bundle) (n:number ...)
                        selection-onex:clause
                        remainder-onex:clause))
@@ -222,9 +224,9 @@ provide appropriate error messages at the level of the DSL.
                    (flow remainder-onex)
                    n)]
   [(_ ((~datum group) arg ...))  ; error handling catch-all
-   #'(report-syntax-error 'group
-                          (list 'arg ...)
-                          "(group <number> <selection flow> <remainder flow>)")]
+   (report-syntax-error 'group
+                        (syntax->datum #'(arg ...))
+                        "(group <number> <selection flow> <remainder flow>)")]
 
   ;;; Conditionals
 
@@ -319,9 +321,9 @@ provide appropriate error messages at the level of the DSL.
        ((flow (~> △ (-< (~> (pass condition) sonex)
                         (~> (pass (not condition)) ronex)))) args))]
   [(_ ((~datum sieve) arg ...))  ; error handling catch-all
-   #'(report-syntax-error 'sieve
-                          (list 'arg ...)
-                          "(sieve <predicate flow> <selection flow> <remainder flow>)")]
+   (report-syntax-error 'sieve
+                        (syntax->datum #'(arg ...))
+                        "(sieve <predicate flow> <selection flow> <remainder flow>)")]
   [(_ ((~datum gate) onex:clause))
    #'(flow (if onex _ ⏚))]
 
@@ -528,9 +530,9 @@ provide appropriate error messages at the level of the DSL.
   [(_) #'values]
 
   [(flow expr0 expr ...+)  ; error handling catch-all
-   #'(report-syntax-error
-      'flow
-      (list 'expr0 'expr ...)
-      (string-append "(" (symbol->string 'flow) " flo)")
-      (string-append (symbol->string 'flow)
-                     " expects a single flow specification, but it received many."))])
+   (report-syntax-error
+    'flow
+    (syntax->datum #'(expr0 expr ...))
+    (string-append "(" (symbol->string 'flow) " flo)")
+    (string-append (symbol->string 'flow)
+                   " expects a single flow specification, but it received many."))])
