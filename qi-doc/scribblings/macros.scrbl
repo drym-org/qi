@@ -140,7 +140,11 @@ In functional languages such as Haskell, a popular way to do (or rather avoid) e
 
 Earlier, we @seclink["Overview" #:doc '(lib "qi/scribblings/qi.scrbl")]{drew a distinction} between two paradigms employed in programming languages: one organized around the flow of @emph{control} and another organized around the flow of @emph{data}. A way to manage possible errors in code along the lines of the former ("control") paradigm is to handle @emph{exceptions} that may occur at each stage, and take appropriate action -- for instance, abort the remainder of the computation. A second way to handle errors, more along the lines of the "flow of data" paradigm, is for the "failing" computation to simply produce a sentinel value that signifies an error, so that the sequence of operations does not actually fail but merely generates and propagates a value signifying failure. The trick is, how to do this in such a way that downstream computations are aware of the sentinel error value so that they don't attempt to perform computations on it that they might do on a "normal" value? This is where the Maybe monad comes in.
 
-Let's say that we want to thread values through a number of flows, and if any of those flows raises an exception, we'd like the entire flow to generate @emph{no values}. We can start by writing a macro that wraps any Qi flow with the exception handling logic to generate no values.
+We want to thread values through a number of flows, and if any of those flows raises an exception, we'd like the entire flow to generate @emph{no values}. Typically, we compose flows in series by using the @racket[~>] form. For flows that may fail, we need a similar form, but one that (1) handles failure of a particular flow by producing no values, and (2) composes flows so that the entire flow fails (i.e. produces no values) if any component fails.
+
+Let's write each of these in turn and then put them together.
+
+For the first, we write a macro that wraps any Qi flow with the exception handling logic to generate no values.
 
 @racketblock[
 (define-qi-syntax-rule (try flo)
@@ -149,24 +153,33 @@ Let's say that we want to thread values through a number of flows, and if any of
            (apply (☯ flo) args)))))
 ]
 
-This flow escapes to Racket in order to wrap the flow with exception handling. Any exceptions raised by execution of the flow result in the enclosing flow simply generating no values.
+This form escapes to Racket in order to wrap the flow with exception handling. Any exceptions raised by execution of the flow result in the enclosing flow simply generating no values.
 
-And now, we're ready to write our Maybe monad.
+Now for the second part, in the binary case of two flows @racket[f] and @racket[g], either of which may fail to produce values, the composition could be defined as:
 
 @racketblock[
-(define-qi-syntax-rule (maybe~> flo ...)
-  (~> (when live? (try flo))
-      ...))
+(define-qi-syntax-rule (mcomp f g)
+  (~> f (when live? g)))
 ]
 
-This flow is just like @racket[~>], except that it does two additional things. (1) It wraps each component flow with the @racket[try] macro so that an exception would result in the flow generating no values, and (2) it checks whether there are values flowing at all before attempting to invoke this flow on the inputs – if there are no values flowing, then nothing happens, i.e. no values are generated.
+... which only feeds the output of the first flow to the second if there is any. Now, let's put these together to write our failure-aware threading form, that is to say, our Maybe monad.
+
+@racketblock[
+(define-qi-syntax-parser maybe~>
+  [(_ flo)
+   #'(try flo)]
+  [(_ flo1 flo ...)
+   #'(mcomp (try flo1) (maybe~> flo ...))])
+]
+
+This form is just like @racket[~>], except that it does two additional things: (1) It wraps each component flow with the @racket[try] macro so that an exception would result in the flow generating no values, and (2) it checks whether there are values flowing at all before attempting to invoke the next flow on the outputs. Thus, if there is a failure at any point, the entire rest of the computation is short-circuited.
 
 @racketblock[
 ((☯ (maybe~> (/ 2) sqr add1)) 10)
 ((☯ (maybe~> (/ 0) sqr add1)) 10)
 ]
 
-And there you have it, you've implemented the Maybe monad in about 7 lines of Qi macros.
+And there you have it, you've implemented the Maybe monad in about eleven lines of Qi macros.
 
 @subsection{Translating Foreign Macros}
 
