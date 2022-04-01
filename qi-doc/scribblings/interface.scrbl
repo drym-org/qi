@@ -372,10 +372,12 @@ If the forms of the DSL are callable, i.e. if they are functions, then you can j
 
 See @secref["Converting_a_Macro_to_a_Flow"].
 
-Using the macro bridge approach, you would need to write a corresponding Qi macro for every form of your DSL that interacts with Qi. If this interface between the two languages is large enough, this approach would be cumbersome, and it may be best to implement the DSL itself as a @seclink["Writing_a_Qi_Dialect"]{dialect of Qi}.
+Using the macro bridge approach, you would need to write a corresponding Qi macro for every form of your DSL that interacts with Qi (or use @racket[define-qi-foreign-syntaxes] to do this for you). If this interface between the two languages is large enough, and their use together frequent enough, this approach too may prove cumbersome. In such cases, it may be best to implement the DSL itself as a @seclink["Qi_Dialect_Interop"]{dialect of Qi}.
 
-@subsection{Writing a Qi Dialect}
+@subsection[#:tag "Qi_Dialect_Interop"]{Writing a Qi Dialect}
 
 The problem with the @seclink["Using_a_Macro_Bridge"]{macro bridge approach} is that all paths between the two languages must go through a level of indirection in the host language. That is, the only way for Qi and the other DSL to interact is via Racket as an everpresent intermediary.
 
 To get around this, a final possibility to consider is to translate the DSL itself so that it's implemented in Qi rather than Racket. That is, instead of being specified using Racket macros via e.g. @racket[define-syntax-parse-rule] and @racket[define-syntax-parser], it would rather be defined using @racket[define-qi-syntax-rule] and @racket[define-qi-syntax-parser] so that the language expands to Qi rather than Racket (directly). This would allow your language to be used with Qi seamlessly since it would now be a dialect of Qi.
+
+There are many kinds of languages that you could write in Qi. See @secref["Writing_Languages_in_Qi"] for a view into the possibilities here, and what may be right for your language.

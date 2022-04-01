@@ -25,9 +25,9 @@
                     '(define (sqr x)
                        (* x x)))))
 
-@title{Qi Macros}
+@title[#:tag "Qi_Macros"]{Qi Macros}
 
-Qi may be extended in much the same way as Racket -- using @tech/reference{macros}. Qi macros are indistinguishable from built-in Qi forms during the macro expansion phase, just as user-defined Racket macros are indistinguishable from macros that are part of the Racket language. This allows us to have the same syntactic freedom with Qi as we are used to with Racket.
+Qi may be extended in much the same way as Racket -- using @tech/reference{macros}. Qi macros are indistinguishable from built-in Qi forms during the macro expansion phase, just as user-defined Racket macros are indistinguishable from macros that are part of the Racket language. This allows us to have the same syntactic freedom with Qi as we are used to with Racket, from being able to @seclink["Adding_New_Language_Features"]{add new language features} to implementing @seclink["Writing_Languages_in_Qi"]{entire new languages} in Qi.
 
 This "first class" macro extensibility of Qi follows the general approach described in @hyperlink["https://dl.acm.org/doi/abs/10.1145/3428297"]{Macros for Domain-Specific Languages (Ballantyne et. al.)}.
 
@@ -130,7 +130,7 @@ And assuming the module defining the Qi macro @racket[pare] is called @racket[ma
 
  As binding spaces were added to Racket in version 8.3, older versions of Racket will not be able to use the macros described here, but can still use the legacy @seclink["Language_Extension"]{@racket[qi:]-prefixed macros}.
 
-@section{Example Macros}
+@section{Adding New Language Features}
 
 When you consider that Racket's @seclink["classes" #:doc '(lib "scribblings/guide/guide.scrbl")]{class-based object system} for object-oriented programming is implemented with Racket macros in terms of the underlying @seclink["structures" #:doc '(lib "scribblings/reference/reference.scrbl")]{struct type} system, it gives you some idea of the extent to which macros enable the addition of new language features, both great and small. In this section we'll look at a few examples of what Qi macros can do.
 
@@ -204,3 +204,80 @@ In @secref["Converting_a_Macro_to_a_Flow"], we learned that Racket macros could 
 Note that the Qi macros can have the same name as the Racket macros since they exist in different @tech/reference{binding spaces} and therefore don't interfere with one another.
 
 Of course, writing Qi macros for such cases in practice is unnecessary as there is @racket[define-qi-foreign-syntaxes] instead, which does this for you and in a robust and generally applicable way.
+
+@section{Writing Languages in Qi}
+
+Just as Racket macros allow us to write new languages in Racket, Qi macros allow us to write new languages in Qi.
+
+You may prefer to use Qi as your starting point if your language deals with the flow of data, or if the semantics of the language are more easily expressed in Qi than in Racket. By starting from Qi, you inherit access to all of Qi's forms, extensions, and tools that have been designed with the flow of data in mind – so you can focus on the specifics of your domain rather than the generalities of data flow.
+
+Macros that define new languages are called @deftech{interface macros}, since they form the interface between two languages. Languages fall into two classes depending on their use of interface macros.
+
+@subsection{Embedded Languages}
+
+Typically, you would implement a language in Qi by writing one macro for each form of your language -- that is, there are as many @tech["interface macros"] as there are forms in the language. Such languages are called embedded languages or @deftech{embedded DSLs}. Embedded languages implicitly inherit the flow-oriented semantics of Qi, and could range from general-purpose "dialects" of Qi to specialized DSLs. They are perhaps the most common type of language one might write in Qi.
+
+If your language would employ flows in a general way but with specialized data structures or idioms, then it may be a good candidate for implementation as an embedded Qi DSL.
+
+@subsection{Hosted Languages}
+
+It is also possible to implement your language as a @emph{single} Qi macro or a small set of mutually reliant macros, with the bulk of the forms of the language specified as expansion rules within these macros. Such a language is called a @emph{hosted} language or @deftech{hosted DSL}, and each of the @tech["interface macros"] it is made up of could be considered to be hosted sublanguages. Examples of hosted languages include Racket's @racket[match], and Qi itself, and typically (as in these examples) they are defined via a single interface macro containing all of the rules of the language.
+
+The advantage of writing a hosted DSL, in general, is that by introducing a level of indirection between your code and the host-language (e.g. Racket or Qi) expander, you gain access to a distinct namespace that does not interfere with the names in the host language, allowing you greater syntactic freedom (for instance, to name your forms @racket[and] and @racket[if], which would otherwise collide with forms of the same name in the host language). In addition, you gain control over the expansion process, allowing you to, for instance, add a custom compiler to optimize the expanded forms of your language before host language expansion takes over.
+
+If you are interested in writing a hosted language that you'd like to use from within Qi, there are two options. You could either write the language as a Qi macro, or as a Racket macro and leverage it via Qi's @racket[esc]. In the latter case, you could even write a Qi "bridge" macro that transparently employs @racket[esc]. These two options are functionally equivalent, but if your language is data-oriented it may make more sense for it to compile to Qi so that it can leverage any flow optimizations that may eventually be part of the Qi compiler.
+
+@subsection{Embedding a Hosted Language}
+
+You can always embed a hosted language into the host language by implementing a set of macros corresponding to each form of the language. For languages that are large enough, this may be the best option to gain the advantages of a hosted language while also retaining the convenience of an embedded one for special cases. For instance, for a small embedded version of Qi, you could do:
+
+@racketblock[
+(define-syntax-parse-rule (~> flo ...)
+  (flow (~> flo ...)))
+(define-syntax-parse-rule (>< flo)
+  (flow (>< flo)))
+(define-syntax-parse-rule (-< flo ...)
+  (flow (-< flo ...)))
+(define-syntax-parse-rule (== flo ...)
+  (flow (== flo ...)))
+]
+
+And this would allow you to use Qi forms directly in Racket -- indeed, the forms in the @secref["Language_Interface"] are such embeddings of Qi into Racket. The same approach would also work to embed a hosted DSL into Qi, whether that DSL is hosted on Qi or Racket.
+
+Let's add some pattern matching to Qi by embedding Racket's pattern matching language into Qi, using this approach.
+
+First, the simplest possible embedding of @racket[match] is to just write a Qi macro corresponding to the Racket macro.
+
+@racketblock[
+(define-qi-syntax-rule (match [pats body] ...)
+  (esc (λ args
+         (match/values (apply values args)
+           [pats (apply (flow body) args)]
+           ...))))
+]
+
+This @seclink["Converting_a_Macro_to_a_Flow"]{converts the foreign macro to a flow} in the usual way, i.e. by wrapping it in a lambda and using it via @racket[esc], as discussed earlier. Note that it expects the body of the match clauses to be @emph{Qi} rather than Racket, and any identifiers bound by pattern matching would be in scope in these flows since that is what @racket[match] does. Let's use it:
+
+@racketblock[
+(~> (5 (list 1 2 3))
+    (match
+      [(n (list a b c)) (gen n (+ a b c))]
+      [(n (cons v vs)) 'something-else]))
+]
+
+This is great, but in practice we are often interested in using pattern matching for @emph{destructuring} the input, and already know the pattern it is going to match. For such cases it would be nice to have a more convenient form to use. We can do this by writing a second macro to embed this narrower functionality into Qi.
+
+@racketblock[
+(define-qi-syntax-rule (pat pat-clause body ...)
+  (match [pat-clause body ...]))
+]
+
+And now:
+
+@racketblock[
+(~> (5 (list 1 2 3))
+    (pat (n (list a b c)) (gen n (+ a b c))))
+(~> (1 2 3) (pat (_ (? number?) x) +))
+]
+
+Similarly, we could write more such embeddings to simplify other common cases, such as matching against a single input value. Thus, the features provided by one language may be embedded into another language.
