@@ -79,7 +79,7 @@ This "first class" macro extensibility of Qi follows the general approach descri
     (~> (5) (square add1))
   ]
 
- However, if the binding you define in this way collides with an identifier in Racket (for instance, if you call it @racket[cond]), it would override the Racket version (unlike using @racket[define-qi-syntax-rule] or @racket[define-qi-syntax-parser] where they exist in a distinct namespace). To avoid this, use @racket[define-qi-syntax] instead of @racket[define-syntax].
+ However, if the binding you define in this way collides with an identifier in Racket (for instance, if you call it @racket[cond]), it would override the Racket version (unlike using @racket[define-qi-syntax-rule] or @racket[define-qi-syntax-parser] where they exist in a distinct @tech/reference{binding space}). To avoid this, use @racket[define-qi-syntax] instead of @racket[define-syntax].
 
  Note that the type constructor @racket[qi-macro] is all that is publicly exported for this struct type (and only in the @techlink[#:doc '(lib "scribblings/reference/reference.scrbl") #:key "phase level"]{syntax phase}), since the details of its implementation are considered internal to the Qi library.
 }
