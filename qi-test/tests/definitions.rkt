@@ -4,6 +4,7 @@
 
 (require qi
          rackunit
+         rackunit/text-ui
          (only-in math sqr))
 
 (define tests
@@ -100,3 +101,6 @@
                         [else 'b]) 1 3 2)
                   'b
                   "apply with packed args"))))
+
+(module+ main
+  (void (run-tests tests)))

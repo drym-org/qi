@@ -15,8 +15,12 @@
          (for-syntax racket/base
                      racket/string
                      syntax/parse
+                     racket/match
                      (only-in "private/util.rkt"
-                              repeat)))
+                              repeat))
+         (only-in qi/macro
+                  qi-macro?
+                  qi-macro-transformer))
 
 (require "private/util.rkt")
 
@@ -80,18 +84,40 @@ provide appropriate error messages at the level of the DSL.
 
 |#
 
-(define (report-syntax-error name args usage [msg ""])
-  (raise-syntax-error name
-                      (~a "Syntax error in "
-                          (list* name args)
-                          "\n"
-                          "Usage:\n"
-                          "  " usage
-                          (if (equal? "" msg)
-                              ""
-                              (string-append "\n" msg)))))
+(begin-for-syntax
+  (require racket/format)
+  (define (report-syntax-error name args usage [msg ""])
+    (raise-syntax-error name
+                        (~a "Syntax error in "
+                            (list* name args)
+                            "\n"
+                            "Usage:\n"
+                            "  " usage
+                            (if (equal? "" msg)
+                                ""
+                                (string-append "\n" msg))))))
 
 (define-syntax-parser flow
+
+  ;; Check first whether the form is a macro. If it is, expand it.
+  ;; This is prioritized over other forms so that extensions may
+  ;; override built-in Qi forms.
+  [(_ stx)
+   #:with (~or (m:id expr ...) m:id) #'stx
+   #:do [(define space-m ((make-interned-syntax-introducer 'qi) #'m))
+         (define threading-side (syntax-property this-syntax 'threading-side))]
+   #:when (qi-macro? (syntax-local-value space-m (λ () #f)))
+   #:with expanded (syntax-local-apply-transformer
+                    (qi-macro-transformer (syntax-local-value space-m))
+                    space-m
+                    'expression
+                    #f
+                    ;; propagate the side on which arguments are to
+                    ;; be threaded, so that foreign macro expansion
+                    ;; is aware of it.
+                    (syntax-property #'stx 'threading-side threading-side))
+   #'(flow expanded)]
+
   ;;; Special words
   [(_ ((~datum one-of?) v:expr ...))
    #'(compose
@@ -176,16 +202,16 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~datum select) n:number ...))
    #'(flow (-< (esc (arg n)) ...))]
   [(_ ((~datum select) arg ...))  ; error handling catch-all
-   #'(report-syntax-error 'select
-                          (list 'arg ...)
-                          "(select <number> ...)")]
+   (report-syntax-error 'select
+                        (syntax->datum #'(arg ...))
+                        "(select <number> ...)")]
   [(_ ((~datum block) n:number ...))
    #'(flow (~> (esc (except-args n ...))
                △))]
   [(_ ((~datum block) arg ...))  ; error handling catch-all
-   #'(report-syntax-error 'block
-                          (list 'arg ...)
-                          "(block <number> ...)")]
+   (report-syntax-error 'block
+                        (syntax->datum #'(arg ...))
+                        "(block <number> ...)")]
   [(_ ((~datum bundle) (n:number ...)
                        selection-onex:clause
                        remainder-onex:clause))
@@ -198,9 +224,9 @@ provide appropriate error messages at the level of the DSL.
                    (flow remainder-onex)
                    n)]
   [(_ ((~datum group) arg ...))  ; error handling catch-all
-   #'(report-syntax-error 'group
-                          (list 'arg ...)
-                          "(group <number> <selection flow> <remainder flow>)")]
+   (report-syntax-error 'group
+                        (syntax->datum #'(arg ...))
+                        "(group <number> <selection flow> <remainder flow>)")]
 
   ;;; Conditionals
 
@@ -295,9 +321,9 @@ provide appropriate error messages at the level of the DSL.
        ((flow (~> △ (-< (~> (pass condition) sonex)
                         (~> (pass (not condition)) ronex)))) args))]
   [(_ ((~datum sieve) arg ...))  ; error handling catch-all
-   #'(report-syntax-error 'sieve
-                          (list 'arg ...)
-                          "(sieve <predicate flow> <selection flow> <remainder flow>)")]
+   (report-syntax-error 'sieve
+                        (syntax->datum #'(arg ...))
+                        "(sieve <predicate flow> <selection flow> <remainder flow>)")]
   [(_ ((~datum gate) onex:clause))
    #'(flow (if onex _ ⏚))]
 
@@ -426,12 +452,12 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~datum clos) flo:clause))
    #:do [(define threading-side (syntax-property this-syntax 'threading-side))]
    (if (and threading-side (eq? threading-side 'right))
-       #'(flow (esc (λ args
-                      (flow (~> (-< _ (~> (gen args) △))
-                                flo)))))
-       #'(flow (esc (λ args
-                      (flow (~> (-< (~> (gen args) △) _)
-                                flo))))))]
+       #'(λ args
+           (flow (~> (-< _ (~> (gen args) △))
+                     flo)))
+       #'(λ args
+           (flow (~> (-< (~> (gen args) △) _)
+                     flo))))]
 
   ;;; Miscellaneous
 
@@ -440,8 +466,7 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~datum esc) ex:expr))
    #'ex]
 
-  ;; form to allow extension of the Qi language, to be
-  ;; "passed through"
+  ;; backwards compat macro extensibility via Racket macros
   [(_ ((~var ext-form (starts-with "qi:")) expr ...))
    #'(ext-form expr ...)]
 
@@ -505,9 +530,9 @@ provide appropriate error messages at the level of the DSL.
   [(_) #'values]
 
   [(flow expr0 expr ...+)  ; error handling catch-all
-   #'(report-syntax-error
-      'flow
-      (list 'expr0 'expr ...)
-      (string-append "(" (symbol->string 'flow) " flo)")
-      (string-append (symbol->string 'flow)
-                     " expects a single flow specification, but it received many."))])
+   (report-syntax-error
+    'flow
+    (syntax->datum #'(expr0 expr ...))
+    (string-append "(" (symbol->string 'flow) " flo)")
+    (string-append (symbol->string 'flow)
+                   " expects a single flow specification, but it received many."))])

@@ -4,6 +4,7 @@
 
 (require qi
          rackunit
+         rackunit/text-ui
          (only-in math sqr)
          (only-in adjutor values->list)
          racket/list
@@ -18,6 +19,9 @@
 (define tests
   (test-suite
    "flow tests"
+   ;; (check-equal? ((☯ (~>> (sort < #:key identity)))
+   ;;                2 1 3)
+   ;;               (list 1 2 3))
 
    (test-suite
     "core language"
@@ -759,12 +763,13 @@
                           [else 'hi]))
                      2 3)
                     5)
-      (check-equal? ((☯ (switch
-                            [(~>> △ (sort < #:key identity)) (=> 1>)]
-                          [else 'no]))
-                     (list 2 1 3))
-                    (list 1 2 3)
-                    "apply in predicate with non-tail arguments")))
+      ;; (check-equal? ((☯ (switch
+      ;;                       [(~>> △ (sort < #:key identity)) (=> 1>)]
+      ;;                     [else 'no]))
+      ;;                (list 2 1 3))
+      ;;               (list 1 2 3)
+      ;;               "apply in predicate with non-tail arguments")
+      ))
     (test-suite
      "sieve"
      (check-equal? ((☯ (~> (sieve positive? add1 (const -1)) +))
@@ -1212,3 +1217,6 @@
                    1 -3 5)
                   6
                   "runtime arity changes in threading form"))))
+
+(module+ main
+  (void (run-tests tests)))

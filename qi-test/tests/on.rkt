@@ -4,6 +4,7 @@
 
 (require qi
          rackunit
+         rackunit/text-ui
          (only-in math sqr)
          (only-in adjutor values->list)
          racket/function)
@@ -31,3 +32,6 @@
     (check-true (on (2) (eq? 2)))
     (check-true (on (2 -3) (and% positive? negative?)))
     (check-equal? (on (2) (if positive? add1 sub1)) 3))))
+
+(module+ main
+  (void (run-tests tests)))

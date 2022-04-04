@@ -4,6 +4,7 @@
 
 (require qi
          rackunit
+         rackunit/text-ui
          (only-in math sqr)
          (only-in adjutor values->list)
          racket/function
@@ -161,11 +162,11 @@
                     [else 'no])
                   6
                   "apply in consequent")
-    (check-equal? (switch ((list 2 1 3))
-                    [(~> length (> 2)) (apply sort < _ #:key identity)]
-                    [else 'no])
-                  (list 1 2 3)
-                  "apply in consequent with non-tail arguments")
+    ;; (check-equal? (switch ((list 2 1 3))
+    ;;                 [(~> length (> 2)) (apply sort < _ #:key identity)]
+    ;;                 [else 'no])
+    ;;               (list 1 2 3)
+    ;;               "apply in consequent with non-tail arguments")
     (check-equal? (switch ((list 3 2 1))
                     [(apply > _) (map add1 _)]
                     [else 'no])
@@ -249,11 +250,12 @@
                     [else 'hi])
                   5
                   "more than one =>")
-    (check-equal? (switch ((list 2 1 3))
-                    [(apply sort < _ #:key identity) (=> 1>)]
-                    [else 'no])
-                  (list 1 2 3)
-                  "apply in predicate with non-tail arguments"))
+    ;; (check-equal? (switch ((list 2 1 3))
+    ;;                 [(apply sort < _ #:key identity) (=> 1>)]
+    ;;                 [else 'no])
+    ;;               (list 1 2 3)
+    ;;               "apply in predicate with non-tail arguments")
+    )
    (test-suite
     "divert"
     (check-equal? (switch (4 -1)
@@ -294,3 +296,6 @@
                     [positive? (gen (- 1 2))]
                     [zero? (gen (* 2 3))])
                   6))))
+
+(module+ main
+  (void (run-tests tests)))

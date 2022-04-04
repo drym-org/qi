@@ -20,6 +20,8 @@
                               qi/probe
                               (only-in racket/list range)
                               racket/string
+                              (for-syntax syntax/parse
+                                          racket/base)
                               relation)
                     '(define (sqr x)
                        (* x x)))))
@@ -39,6 +41,10 @@ Before you write a flow, consider drawing out a "circuit diagram" on paper. Star
 @subsection{Use Small Building Blocks}
 
 Decompose your flow into its smallest components, and name each so that they are independent flows. Qi flows, by virtue of being functions, are highly composable, and are, by the same token, eminently decomposable. This tends to make refactoring flows a much more reliable undertaking than it typically is in other languages.
+
+@subsection{Carry Your Toolbox}
+
+A journeyman of one's craft -- a woodworker, electrician, or a plumber, say -- always goes to work with a trusty toolbox that contains the tools of the trade, some perhaps even of their own design. An electrician, for instance, may have a voltage tester, a multimeter, and a continuity tester in her toolbox. Although these are "debugging" tools, they aren't just for identifying bugs -- by providing rapid feedback, they enable her to explore and find creative solutions quickly and reliably. It's the same with Qi. Learn to use the @seclink["Debugging"]{debugging tools}, and use them often.
 
 @section{Debugging}
 
@@ -64,26 +70,26 @@ Side effects are a natural fit for debugging functional code in general, as the 
 
 Qi includes a "circuit tester" style debugger, which you can use to check the values at arbitrary points in the flow. It can be used even if the flow is raising an error – the tester can help you find the error. It offers similar functionality to @other-doc['(lib "debug/scribblings/debug.scrbl")] but is specialized for functional debugging and Qi flows.
 
-To use it, first wrap the entire expression @emph{invoking} the flow with @racket[probe]. Then, if your flow happens to be defined inline with the invocation, you can simply place a literal @racket[readout] anywhere within the flow to cause the entire expression to evaluate to the values flowing at that point. See @racket[probe] for examples of this.
-
-If, on the other hand, your flow is defined elsewhere and only @emph{used} at the invocation site, then in addition to wrapping the invocation with @racket[probe], you'll need to wrap the body of the flow at the definition site with @racket[qi:probe], allowing you to place readouts there even if it happens to be in a separate file than the invocation site. See @racket[qi:probe] for examples of this.
+To use it, first wrap the entire expression @emph{invoking} the flow with a @racket[probe] form. Then, you can place a literal @racket[readout] anywhere within the flow definition to cause the entire expression to evaluate to the values flowing at that point. This works even if your flow is defined elsewhere (even in another file) and only @emph{used} at the invocation site by name.
 
 @deftogether[(
   @defform[(probe flo)]
   @defidform[readout]
 )]{
-  @racket[probe] simply marks a flow for debugging, and does not change its functionality. Then, when evaluation encounters the first occurrence of @racket[readout] within @racket[flo], the values at that point are immediately returned as the value of the entire @racket[flo]. This is done via a @tech/reference{continuation}, so that you may precede it with whatever flows you like that might help you understand what's happening at that point, and you don't have to worry about it affecting downstream flows during the process of debugging since those flows would simply never be hit. Additionally, readouts may be placed @emph{anywhere} within the flow, and not necessarily on the main stream -- it will always return the values observed at the specific point where you place the readout.
+  @racket[probe] simply marks a flow invocation for debugging, and does not change its functionality. Then, when evaluation encounters the first occurrence of @racket[readout] within @racket[flo], the values at that point are immediately returned as the value of the entire @racket[flo]. This is done via a @tech/reference{continuation}, so that you may precede it with whatever flows you like that might help you understand what's happening at that point, and you don't have to worry about it affecting downstream flows during the process of debugging since those flows would simply never be hit. Additionally, readouts may be placed @emph{anywhere} within the flow, and not necessarily on the main stream -- it will always return the values observed at the specific point where you place the readout.
 
-  When the flow you intend to debug is defined inline with the invocation (e.g. a flow defined and immediately applied to arguments, or an @racket[on] expression, or a toplevel @racket[~>] or @racket[switch] form), simply using a @racket[probe] together with a @racket[readout] does what you expect. But when you want to debug a named flow that has been defined elsewhere, you'll need to use @racket[qi:probe] at the definition site, in addition.
+  Note that @racket[probe] is a Racket (rather than Qi) form, and it must wrap a flow @emph{invocation} rather than a flow @emph{definition}. The @racket[readout], on the other hand, is a Qi expression and must be placed somewhere within the flow @emph{definition}.
 
-@examples[
-    #:eval eval-for-docs
+@racketblock[
     (~> (5) sqr (* 2) add1)
     (probe (~> (5) readout sqr (* 2) add1))
     (probe (~> (5) sqr readout (* 2) add1))
     (probe (~> (5) sqr (* 2) readout add1))
     (probe (~> (5) sqr (* 2) add1 readout))
     (probe (~> (5) sqr (if (~> (> 20) readout) _ (* 2)) add1))
+    (define-flow my-flow
+      (~> sqr readout (* 3) add1))
+    (probe (my-flow 5))
   ]
 }
 
@@ -93,14 +99,16 @@ If, on the other hand, your flow is defined elsewhere and only @emph{used} at th
   @defform[#:link-target? #f
            (define-probed-flow (name arg ...) body ...)]
 )]{
+
+@bold{NOTE}: This way to place readouts in the flow definition is intended for use in @bold{legacy versions of Racket only}, that is, versions 8.2 or earlier. @racket[qi:probe] and @racket[define-probed-flow] are @bold{no longer needed} in Qi (as of Racket 8.3). These forms should be considered @bold{deprecated} on versions 8.3 or later. On these recent versions of Racket, there is no difference in usage between inline and nonlocal flow definitions, and the @racket[readout] may simply be placed wherever you want it. The legacy documentation follows.
+
   When the flow you'd like to debug is a named flow that is not defined inline at the invocation site, you'll need to take some extra steps to ensure that you can place a @racket[readout] at the @emph{definition} site even though the @racket[probe] itself is placed at the @emph{invocation} site.
 
-  To do this, either wrap the entire body of the definition, or a subflow in the definition, with @racket[qi:probe]. Alternatively, you can use @racket[define-probed-flow] instead of @racket[define-flow], which transparently does this for you. Now, you can place a @racket[probe] at the invocation site, as usual, and it will receive the readout that you indicate at the definition site.
+  To do this, either wrap the entire body of the definition, or a subflow in the definition, with @racket[qi:probe], or alternatively, use @racket[define-probed-flow] instead of @racket[define-flow], which transparently does this for you. Now, you can place a (distinct) @racket[probe] at the invocation site, as usual, and it will receive the readout that you indicate at the definition site.
 
   @racket[(define-probed-flow name body)] is equivalent to @racket[(define-flow name (qi:probe body))] or @racket[(define name (flow (qi:probe body)))].
 
-@examples[
-    #:eval eval-for-docs
+@racketblock[
     (define-probed-flow my-flow
       (~> sqr readout (* 3) add1))
     (probe (my-flow 5))
@@ -134,7 +142,77 @@ If, on the other hand, your flow is defined elsewhere and only @emph{used} at th
 
 @bold{Meaning}: @racket[_] is a valid @emph{Qi} expression but an invalid @emph{Racket} expression. Somewhere in the course of evaluation of your code, the interpreter received @racket[_] and was asked to evaluate it as a @emph{Racket} expression. It doesn't like this.
 
-@bold{Common example}: This usually happens when you try to use a template inside a nested application, where it becomes Racket rather than Qi. For instance, @racket[(~> (1) (* 3 (+ _ 2)))] is invalid because, within the @racket[(* ...)] template, the language is @emph{Racket} rather than Qi, and you can't use a Qi template (i.e. @racket[(+ _ 2)]) there. You might try @seclink["Nested_Applications_are_Sequential_Flows"]{sequencing the flow}, something like @racket[(~> (1) (+ _ 2) (* 3))].
+@bold{Common example}: Trying to use a template inside a nested application. For instance, @racket[(~> (1) (* 3 (+ _ 2)))] is invalid because, within the @racket[(* ...)] template, the language is @emph{Racket} rather than Qi, and you can't use a Qi template (i.e. @racket[(+ _ 2)]) there. You might try @seclink["Nested_Applications_are_Sequential_Flows"]{sequencing the flow}, something like @racket[(~> (1) (+ _ 2) (* 3))].
+
+@bold{Common example}: Trying to use a Racket macro (rather than a function), or a macro from another DSL, as a flow without first registering it via @racket[define-qi-foreign-syntaxes]. In general, Qi expects flows to be functions unless otherwise explicitly signaled.
+
+@bold{Error}:
+
+@codeblock{
+; lambda: bad syntax
+;   in: lambda
+}
+
+@bold{Meaning}: The Racket interpreter received syntax, in this case simply "lambda", that it considers to be invalid. Note that if it received something it didn't know anything about, it would say "undefined" rather than "bad syntax." Bad syntax indicates known syntax used in an incorrect way.
+
+@bold{Common example}: A Racket expression has not been properly escaped within a Qi context. For instance, @racket[(flow (lambda (x) x))] is invalid because the wrapped expression is Racket rather than Qi. To fix this, use @racket[esc], as in @racket[(flow (esc (lambda (x) x)))].
+
+@bold{Common example}: Trying to use a Racket macro (rather than a function), or a macro from another DSL, as a flow without first registering it via @racket[define-qi-foreign-syntaxes]. In general, Qi expects flows to be functions unless otherwise explicitly signaled.
+
+@bold{Error}:
+
+@codeblock{
+; m: use does not match pattern: (m x y)
+;   in: m
+}
+
+@bold{Meaning}: A macro was used in a way that doesn't match any declared syntax patterns.
+
+@bold{Common example}: Trying to use a Racket macro (rather than a function), or a macro from another DSL, as a flow without first registering it via @racket[define-qi-foreign-syntaxes]. In general, Qi expects flows to be functions unless otherwise explicitly signaled.
+
+@bold{Error}:
+
+@codeblock{
+; syntax-parser: expected identifier not starting with ~ character
+;   at: ~optional
+}
+
+@bold{Meaning}: A macro attempted to use a @seclink["stxparse-patterns" #:doc '(lib "syntax/scribblings/syntax.scrbl")]{syntax pattern} (which are commonly prefixed with the @racket[~] character) but the parser thinks it's an identifier and doesn't like its name.
+
+@bold{Common example}: Syntax patterns are defined in the @seclink["stxparse" #:doc '(lib "syntax/scribblings/syntax.scrbl")]{syntax/parse} library. If you are using them in Qi macros, you will need to @racket[(require syntax/parse)] at the appropriate phase level.
+
+@bold{Error}:
+
+@codeblock{
+; syntax-parser: not defined as syntax class
+;   at: expr
+}
+
+@bold{Meaning}: A macro attempted to use a @seclink["Syntax_Classes" #:doc '(lib "syntax/scribblings/syntax.scrbl")]{syntax class} that the expander doesn't know about.
+
+@bold{Common example}: Common syntax classes are defined in the @seclink["stxparse" #:doc '(lib "syntax/scribblings/syntax.scrbl")]{syntax/parse} library. If you are using them in Qi macros, you will need to @racket[(require syntax/parse)] at the appropriate phase level (e.g. @racket[(require (for-syntax syntax/parse))].
+
+@bold{Error}:
+
+@codeblock{
+; syntax: unbound identifier;
+; also, no #%app syntax transformer is bound in the transformer phase
+}
+
+@bold{Meaning}: A macro attempted to manipulate a syntax object but the expander doesn't know what that even is.
+
+@bold{Common example}: When writing Qi macros, you will often need @racket[(require (for-syntax racket/base))], the same as when writing Racket macros.
+
+@bold{Error}:
+
+@codeblock{
+; mac: undefined;
+;  cannot reference an identifier before its definition
+}
+
+@bold{Meaning}: An identifier appears unbound in your code.
+
+@bold{Common example}: Attempting to use a Qi macro in one module without @racketlink[provide]{providing} it from the module where it is defined -- note that Qi macros must be provided as @racket[(provide (for-space qi mac))]. See @secref["Using_Macros" #:doc '(lib "qi/scribblings/qi.scrbl")] for more on this.
 
 @section{Effectively Using Feedback Loops}
 
@@ -173,6 +251,24 @@ A nested function application can always be converted to a sequential flow.
 @subsection{Converting a Function to a Closure}
 
 Sometimes you may find you want to go from something like @racket[(~> f1 f2)] to a similar flow except that one of the functions is itself parameterized by an input, i.e. it is a closure. If @racket[f1] is the one that needs to be a closure, you can do it like this: @racket[(~> (== (clos f1) f2) apply)], assuming that the closed-over argument to @racket[f1] is passed in as the first input. Closures are useful in a wide variety of situations, however, and this isn't a one-size-fits-all formula.
+
+@subsection{Converting a Macro to a Flow}
+
+Flows are expected to be @seclink["What_is_a_Flow_"]{function-valued} at runtime, and so you cannot naively use a macro as a flow. You can always convert a macro into a function by employing an @racket[esc] form and wrapping the macro in a lambda.
+
+@examples[
+    #:eval eval-for-docs
+    (define-syntax-rule (double-me x) (* 2 x))
+    (define-syntax-rule (subtract-two x y) (- x y))
+    (eval:error (~> (5) (subtract-two _ 4) double-me))
+    (~> (5)
+        (esc (λ (x) (subtract-two x 4)))
+        (esc (λ (x) (double-me x))))
+  ]
+
+But this can be cumbersome for anything other than a one-off use of a macro, and it also doesn't take advantage of the syntactic conveniences (such as templates) that Qi already offers. You could write Qi macros to wrap these "foreign" macros and provide all of Qi's usual syntactic behavior, but luckily, you don't need to! Simply use @racket[define-qi-foreign-syntaxes] to "register" any such foreign macros (i.e. macros in any language other than Qi, including Racket) as Qi forms, and then you can use them in the same way as any other function, except that the catch-all @racket[__] template isn't supported.
+
+Using this approach, you would need to register each such foreign macro using @racket[define-qi-foreign-syntaxes] prior to use. Even though you can register as many as you like with a single declaration, this may feel like an impedance, especially for deep integrations with other DSLs where there may be a large number of such forms. See @secref["Qi_Dialect_Interop"] for yet another approach.
 
 @subsection{Bindings are an Alternative to Nonlinearity}
 

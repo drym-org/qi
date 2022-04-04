@@ -5,6 +5,7 @@
          racket/sandbox
          @for-label[qi
                     racket
+                    syntax/parse/define
                     (only-in relation
                              ->number
                              ->string
@@ -24,11 +25,15 @@
 
 @title{Language Interface}
 
-The core entry-point to the flow language is the form @racket[☯]. In addition, other forms such as @racket[on], @racket[switch], and @racket[~>] build on top of @racket[☯] to provide convenient syntax in specialized cases. Together, these forms represent the interface between the host language (e.g. Racket) and Qi.
+The most common way to use Qi is via interface macros in a host language such as Racket. Qi may also be used in tandem with other embedded or hosted DSLs.
 
 @table-of-contents[]
 
-@section{Core}
+@section{Using Qi from the Host Language}
+
+The core entry-point to Qi from the host language is the form @racket[☯]. In addition, other forms such as @racket[on], @racket[switch], and @racket[~>] build on top of @racket[☯] to provide convenient syntax in specialized cases. Together, these forms represent the interface between the host language (e.g. Racket) and Qi.
+
+@subsection{Core}
 
 @deftogether[(
 @defform*/subs[[(☯ flow-expr)]
@@ -181,7 +186,7 @@ See also @racket[on] and @racket[~>], which are shorthands to invoke the flow wi
   ]
 }
 
-@section{Threading}
+@subsection{Threading}
 
 @deftogether[(
 @defform[(~> (args ...) flow-expr ...)]
@@ -209,7 +214,7 @@ See also @racket[on] and @racket[~>], which are shorthands to invoke the flow wi
   ]
 }
 
-@section[#:tag "interface-conditionals"]{Conditionals}
+@subsection[#:tag "interface-conditionals"]{Conditionals}
 
 @defform[(switch (arg ...)
            maybe-divert-clause
@@ -233,7 +238,7 @@ Each of the @racket[predicate] and @racket[consequent] expressions is a flow, an
   ]
 }
 
-@section{Lambdas}
+@subsection{Lambdas}
 
   These anonymous function forms may be used in cases where you need to explicitly @emph{name} the arguments for some reason. Otherwise, in most cases, just use @racket[☯] directly instead as it produces a function while avoiding the extraneous layer of bindings.
 
@@ -264,7 +269,7 @@ Each of the @racket[predicate] and @racket[consequent] expressions is a flow, an
   ]
 }
 
-@section{Definitions}
+@subsection{Definitions}
 
 The following definition forms may be used in place of the usual general-purpose @racket[define] form when defining flows.
 
@@ -293,8 +298,86 @@ The following definition forms may be used in place of the usual general-purpose
 
 The advantage of using these over the general-purpose @racket[define] form is that, as they express the definition at the appropriate level of abstraction and with the attendant constraints for the type of flow, they can be more clear and more robust, minimizing boilerplate while providing guardrails against programmer error.
 
-@section{Interoperating with the Host Language}
+@section{Using the Host Language from Qi}
 
-Arbitrary native (e.g. Racket) expressions can be used in flows in one of two ways. The first and most common way is to simply wrap the expression with a @racket[gen] form while within a flow context. This flow generates the @tech/reference{value} of the expression.
+Arbitrary native (e.g. Racket) expressions can be used in flows in one of two core ways. This section describes these two ways and also discusses other considerations regarding use of the host language alongside Qi.
 
-The second way is if you want to describe a flow using the native language instead of the flow language. In this case, use the @racket[esc] form. The wrapped expression in this case @emph{must} evaluate to a function, since functions are the only values describable in the native language that can be treated as flows. Note that use of @racket[esc] is unnecessary for function identifiers since these are usable as flows directly, and these can even be partially applied using standard application syntax, optionally with @racket[_] and @racket[__] to indicate argument placement. But you may still need it in the specific case where the identifier collides with a Qi form.
+@subsection{Using Racket Values in Qi Flows}
+
+The first and most common way is to simply wrap the expression with a @racket[gen] form while within a flow context. This flow generates the @tech/reference{value} of the expression.
+
+@examples[
+    #:eval eval-for-docs
+    (define v 2)
+    ((☯ (~> (gen (* 5 v) (* 3 v)) list)))
+]
+
+@subsection{Using Racket to Define Flows}
+
+The second way is if you want to describe a flow using the host language instead of Qi. In this case, use the @racket[esc] form. The wrapped expression in this case @emph{must} evaluate to a function, since functions are the only values describable in the host language that can be treated as flows. Note that use of @racket[esc] is unnecessary for function identifiers since these are usable as flows directly, and these can even be partially applied using standard application syntax, optionally with @racket[_] and @racket[__] to indicate argument placement. But you may still need it in the specific case where the identifier collides with a Qi form.
+
+@examples[
+    #:eval eval-for-docs
+    (define-flow add-two
+      (esc (λ (a b) (+ a b))))
+    (~> (3 5) add-two)
+]
+
+Finally, note that the following case works:
+
+@examples[
+    #:eval eval-for-docs
+    (define (get-flow v)
+      (☯ (~> sqr (+ v))))
+    (~> (5) (get-flow 3))
+]
+
+You might expect here that the expression @racket[(get-flow 3)] would be treated as a @seclink["Templates_and_Partial_Application"]{partial application template}, so that the value @racket[5] would be provided to it as @racket[(get-flow 5 3)], resulting in an error. The reason this isn't what happens is that the partial application behavior in Qi when no argument positions have been indicated is implemented using currying rather than as a template application, and Racket's @racket[curry] and @racket[curryr] functions happen to evaluate to a result immediately if the maximum expected arguments have been provided. Thus, in this case, the @racket[(get-flow 3)] expression is first evaluated to produce a resulting flow which then receives the value @racket[5].
+
+So, function applications where all of the arguments are provided syntactically, and which produce functions as their result, may be used as if they were simple function identifiers, and @racket[esc] may be left out.
+
+@subsection{Using Racket Macros as Flows}
+
+Flows are expected to be @seclink["What_is_a_Flow_"]{functions}, and so you cannot naively use a macro as a flow. But there are many ways in which you can. If you'd just like to use such a macro in a one-off manner, see @secref["Converting_a_Macro_to_a_Flow"] for an ad hoc way to do this. But a simpler and more complete way in many cases is to first register the macro (or any number of such macros) using @racket[define-qi-foreign-syntaxes] prior to use.
+
+@defform[(define-qi-foreign-syntaxes form ...)]{
+  This form allows you to "register foreign macros" for use with Qi. These could be Racket macros, or the forms of another DSL. By simply registering such forms by name using this form, you can for the most part use them just as if they were functions, except that the catch-all template @racket[__] isn't supported for such macros.
+
+@examples[
+    #:eval eval-for-docs
+    (define-syntax-rule (double-me x) (* 2 x))
+    (define-syntax-rule (subtract-two x y) (- x y))
+    (define-qi-foreign-syntaxes double-me subtract-two)
+    (~> (5) (subtract-two 4) double-me)
+    (~>> (5) (subtract-two 4) double-me)
+    (~> (5 4) (subtract-two _ _) double-me)
+  ]
+
+By doing this, you can thread multiple values through such syntaxes in the same manner as functions. The catch-all template @racket[__] isn't supported though, since macros (unlike functions) require all the "arguments" to be supplied syntactically at compile time. So while any number of arguments may be supplied to such macros, it must be a @emph{specific} rather than an @emph{arbitrary} number of them, which may be indicated syntactically via @racket[_] to indicate individual expected arguments and their positions.
+
+Note that for a foreign macro used in identifier form (such as @racket[double-me] in the example above), it assumes a @emph{single} argument. This is different from function identifiers where they receive as many values as may happen to be flowing at runtime. With macros, as we saw, we cannot provide them an arbitrary number of arguments. If more than one argument is anticipated, explicitly indicate them using a @racket[_] template.
+
+Finally, as macros "registered" in this way result in the implicit creation of @seclink["Qi_Macros"]{Qi macros} corresponding to each foreign macro, if you'd like to use these forms from another module, you'll need to provide them just like any other Qi macro, i.e. via @racket[(provide (for-space qi ...))].
+}
+
+@section{Using Qi with Another DSL}
+
+Qi may also be used in tandem with other DSLs in a few different ways -- either directly, if the DSL is implemented simply as functions without custom syntax, or via a one-to-one macro "bridge" between the two languages (if the interface between the languages is small), or potentially by implementing the DSL itself as a Qi dialect (if the languages interact extensively).
+
+@subsection{Using Qi Directly}
+
+If the forms of the DSL are callable, i.e. if they are functions, then you can just use Qi with them the same way as with any other function.
+
+@subsection{Using a Macro Bridge}
+
+See @secref["Converting_a_Macro_to_a_Flow"].
+
+Using the macro bridge approach, you would need to write a corresponding Qi macro for every form of your DSL that interacts with Qi (or use @racket[define-qi-foreign-syntaxes] to do this for you). If this interface between the two languages is large enough, and their use together frequent enough, this approach too may prove cumbersome. In such cases, it may be best to implement the DSL itself as a @seclink["Qi_Dialect_Interop"]{dialect of Qi}.
+
+@subsection[#:tag "Qi_Dialect_Interop"]{Writing a Qi Dialect}
+
+The problem with the @seclink["Using_a_Macro_Bridge"]{macro bridge approach} is that all paths between the two languages must go through a level of indirection in the host language. That is, the only way for Qi and the other DSL to interact is via Racket as an everpresent intermediary.
+
+To get around this, a final possibility to consider is to translate the DSL itself so that it's implemented in Qi rather than Racket. That is, instead of being specified using Racket macros via e.g. @racket[define-syntax-parse-rule] and @racket[define-syntax-parser], it would rather be defined using @racket[define-qi-syntax-rule] and @racket[define-qi-syntax-parser] so that the language expands to Qi rather than Racket (directly). This would allow your language to be used with Qi seamlessly since it would now be a dialect of Qi.
+
+There are many kinds of languages that you could write in Qi. See @secref["Writing_Languages_in_Qi"] for a view into the possibilities here, and what may be right for your language.

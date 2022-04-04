@@ -4,6 +4,7 @@
 
 (require qi
          rackunit
+         rackunit/text-ui
          (only-in math sqr)
          (only-in adjutor values->list)
          racket/function)
@@ -36,3 +37,6 @@
                       (>< number->string)
                       (string-append "a:" _ "b:" _))
                   "a:36b:60"))))
+
+(module+ main
+  (void (run-tests tests)))
