@@ -1,5 +1,6 @@
 #lang info
 
+(define version "1.0")
 (define collection "qi")
 (define deps '("base"))
 (define build-deps '("scribble-lib"
