@@ -141,6 +141,12 @@ For this very simple function, the input argument is mentioned @emph{four} times
 
 This uses the definition form of @racket[switch], which is a flow-oriented conditional analogous to @racket[cond]. The @racket[_] symbol here indicates that the input is to be passed through unchanged, i.e. it is the trivial or identity flow. The input argument is not mentioned; rather, the definition expresses @racket[abs] as a conditioned transformation of the input, that is, the essence of what this function is.
 
+Technically, as the @racket[switch] form transforms the input based on conditions, if none of the conditions match, no transformation is applied, and the inputs are produced, unchanged. So @racket[abs] could also be implemented simply as:
+
+@codeblock{
+  (define-switch abs [negative? -])
+}
+
 @section{The Structure and Interpretation of Flows}
 
 Sometimes, it is natural to express the entire computation as a flow, while at other times it may be better to express just a part of it as a flow. In either case, the most natural representation may not be apparent at the outset, by virtue of the fact that we don't always understand the computation at the outset. In such cases, it may make sense to take an incremental approach.
