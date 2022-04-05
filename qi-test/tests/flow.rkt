@@ -1133,14 +1133,9 @@
      (check-equal? ((☯ (~> (-< (gen +) 2 3)
                            apply)))
                    5)
-     (check-equal? (parameterize ([current-namespace (make-base-empty-namespace)])
-                     (namespace-require 'racket/base)
-                     (namespace-require 'math)
-                     (namespace-require 'qi)
-                     ((☯ (~> (-< (~> '(☯ (~> sqr add1))
-                                     (eval (current-namespace)))
-                                 3)
-                             apply))))
+     (check-equal? ((☯ (~> (-< (gen (☯ (~> sqr add1)))
+                               3)
+                           apply)))
                    10))
     (test-suite
      "clos"
