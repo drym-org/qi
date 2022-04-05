@@ -43,6 +43,11 @@
    (☯ count)
    vs))
 
+(run-benchmark "group"
+               check-values
+               (local group)
+               200000)
+
 (run-benchmark "count"
                check-values
                (local count)
