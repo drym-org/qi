@@ -248,6 +248,8 @@ You can always embed a hosted language into the host language by implementing a 
 
 And this would allow you to use Qi forms directly in Racket -- indeed, the forms in the @secref["Language_Interface"] are such embeddings of Qi into Racket. The same approach would also work to embed a hosted DSL into Qi, whether that DSL is hosted on Qi or Racket.
 
+@subsubsection{Example: Pattern Matching}
+
 Let's add some pattern matching to Qi by embedding Racket's pattern matching language into Qi, using this approach.
 
 First, the simplest possible embedding of @racket[match] is to just write a Qi macro corresponding to the Racket macro.
