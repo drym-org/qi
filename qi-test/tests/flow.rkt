@@ -19,10 +19,6 @@
 (define tests
   (test-suite
    "flow tests"
-   ;; (check-equal? ((☯ (~>> (sort < #:key identity)))
-   ;;                2 1 3)
-   ;;               (list 1 2 3))
-
    (test-suite
     "core language"
     (test-suite
@@ -763,13 +759,12 @@
                           [else 'hi]))
                      2 3)
                     5)
-      ;; (check-equal? ((☯ (switch
-      ;;                       [(~>> △ (sort < #:key identity)) (=> 1>)]
-      ;;                     [else 'no]))
-      ;;                (list 2 1 3))
-      ;;               (list 1 2 3)
-      ;;               "apply in predicate with non-tail arguments")
-      ))
+      (check-equal? ((☯ (switch
+                            [(~>> △ (sort < #:key identity)) (=> 1>)]
+                          [else 'no]))
+                     (list 2 1 3))
+                    (list 1 2 3)
+                    "apply in predicate with non-tail arguments")))
     (test-suite
      "sieve"
      (check-equal? ((☯ (~> (sieve positive? add1 (const -1)) +))
