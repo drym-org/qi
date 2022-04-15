@@ -35,6 +35,8 @@ This "first class" macro extensibility of Qi follows the general approach descri
 
 @section{Defining Macros}
 
+These Qi macro definition forms mirror the corresponding forms for defining Racket macros. Note that if you use @seclink["stxparse-patterns" #:doc '(lib "syntax/scribblings/syntax.scrbl")]{syntax patterns} or @seclink["stxparse-specifying" #:doc '(lib "syntax/scribblings/syntax.scrbl")]{syntax classes} in your macro definition, or if you are manipulating syntax objects directly, you may need to @racket[(require (for-syntax syntax/parse racket/base))], just as you would in writing similar Racket macros.
+
 @defform[(define-qi-syntax-rule (macro-id . pattern) pattern-directive ...
            template)]{
 
@@ -271,7 +273,7 @@ This @seclink["Converting_a_Macro_to_a_Flow"]{converts the foreign macro to a fl
       [(n (cons v vs)) 'something-else]))
 ]
 
-This is great, but in practice we are often interested in using pattern matching for @emph{destructuring} the input, and already know the pattern it is going to match. For such cases it would be nice to have a more convenient form to use. We can do this by writing a second macro to embed this narrower functionality into Qi.
+This is great, but in practice we are often interested in using pattern matching just for @emph{destructuring} the input, and already know the pattern it is going to match. It would be nice to have a more convenient form to use in such cases. We can do this by writing a second macro to embed this narrower functionality into Qi.
 
 @racketblock[
 (define-qi-syntax-rule (pat pat-clause body ...)

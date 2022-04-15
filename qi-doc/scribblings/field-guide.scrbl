@@ -194,6 +194,15 @@ To use it, first wrap the entire expression @emph{invoking} the flow with a @rac
 
 @bold{Common example}: Common syntax classes are defined in the @seclink["stxparse" #:doc '(lib "syntax/scribblings/syntax.scrbl")]{syntax/parse} library. If you are using them in Qi macros, you will need to @racket[(require syntax/parse)] at the appropriate phase level (e.g. @racket[(require (for-syntax syntax/parse))].
 
+@codeblock{
+; syntax: too many ellipses in template
+;   at: ...
+}
+
+@bold{Meaning}: A macro template attempted to refer to a syntax pattern matching many @tech/reference{datums} but the parser claims there is no such pattern.
+
+@bold{Common example}: Attempting to use a syntax pattern like @racket[...+] without requiring the @seclink["stxparse" #:doc '(lib "syntax/scribblings/syntax.scrbl")]{syntax/parse} library. When writing Qi macros, you will often need @racket[(require (for-syntax syntax/parse))], the same as when writing Racket macros.
+
 @bold{Error}:
 
 @codeblock{
