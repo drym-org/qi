@@ -24,7 +24,7 @@
 
 @title[#:tag "Qi_Forms"]{The Qi Language}
 
-The core syntax of the Qi language. These forms may be used in any flow.
+The core syntax of the Qi language. These forms may be used in any flow. Flows may be specified in Racket via the @seclink["Language_Interface"]{language interface}.
 
 @table-of-contents[]
 

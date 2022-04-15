@@ -341,7 +341,7 @@ So, function applications where all of the arguments are provided syntactically,
 Flows are expected to be @seclink["What_is_a_Flow_"]{functions}, and so you cannot naively use a macro as a flow. But there are many ways in which you can. If you'd just like to use such a macro in a one-off manner, see @secref["Converting_a_Macro_to_a_Flow"] for an ad hoc way to do this. But a simpler and more complete way in many cases is to first register the macro (or any number of such macros) using @racket[define-qi-foreign-syntaxes] prior to use.
 
 @defform[(define-qi-foreign-syntaxes form ...)]{
-  This form allows you to "register foreign macros" for use with Qi. These could be Racket macros, or the forms of another DSL. By simply registering such forms by name using this form, you can for the most part use them just as if they were functions, except that the catch-all template @racket[__] isn't supported for such macros.
+  This form allows you to register "foreign macros" for use with Qi. These could be Racket macros, or the forms of another DSL. By simply registering such forms by name using this form, you can for the most part use them just as if they were functions, except that the catch-all template @racket[__] isn't supported for such macros.
 
 @examples[
     #:eval eval-for-docs
