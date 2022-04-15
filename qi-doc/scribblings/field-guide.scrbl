@@ -133,6 +133,8 @@ To use it, first wrap the entire expression @emph{invoking} the flow with a @rac
 
 @bold{Common example}: Attempting to assign the result of a multi-valued flow to a single variable. Use @racket[define-values] instead of @racket[define] here, or consider decomposing the flow into multiple flows that each return a single value.
 
+@bold{Common example}: Using the threading form @racket[~>] without wrapping the input arguments in parentheses. Remember that, unlike Racket's usual threading macro, input arguments to Qi's threading form @seclink["Relationship_to_the_Threading_Macro"]{must be wrapped in parentheses}.
+
 @bold{Error}:
 
 @codeblock{

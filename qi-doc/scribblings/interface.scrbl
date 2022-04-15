@@ -196,6 +196,8 @@ See also @racket[on] and @racket[~>], which are shorthands to invoke the flow wi
 
   @margin-note{In these docs, we'll sometimes refer to the host language as "Racket" for convenience, but it should be understood that Qi may be used with any host language.}
 
+  Note that, as there may be any number of input arguments, they must be wrapped in parentheses in order to distinguish them from the flow specification -- @seclink["Relationship_to_the_Threading_Macro"]{unlike the usual threading macro} where the input is simply the first argument.
+
   As flows themselves can be nonlinear, these threading forms too support arbitrary arity changes along the way to generating the result.
 
   In the respect that these both define as well as invoke the flow, they have the same relationship to @racket[☯] as @racket[let] has to @racket[lambda], and can be used in analogous ways.
