@@ -225,6 +225,42 @@ To use it, first wrap the entire expression @emph{invoking} the flow with a @rac
 
 @bold{Common example}: Attempting to use a Qi macro in one module without @racketlink[provide]{providing} it from the module where it is defined -- note that Qi macros must be provided as @racket[(provide (for-space qi mac))]. See @secref["Using_Macros" #:doc '(lib "qi/scribblings/qi.scrbl")] for more on this.
 
+@subsection{Gotchas}
+
+@subsubsection{There's No Escaping @racket[esc]}
+
+If you have a function that returns another function that you'd like to use as a flow (e.g. perhaps parametrized by the first function over some argument), the usual way to do it is something like this:
+
+@racketblock[
+    (~> (3) (esc (get-f 1)))
+  ]
+
+But in an idle moment, this clever shortcut may tempt you:
+
+@racketblock[
+    (~> (3) ((get-f 1)))
+  ]
+
+That is, since Qi typically interprets parenthesized expressions as @seclink["Templates_and_Partial_Application"]{partial application templates}, you might expect that this would pass the value @racket[3] to the function resulting from @racket[(get-f 1)]. In fact, that isn't what happens, and an error is raised instead. As there is only one datum within the outer pair of parentheses in @racket[((get-f 1))], the usual interpretation as partial application would not be useful, and could even lead to unexpected behavior (at least, with the current implementation that uses Racket's @racket[curry]). So instead, Qi attempts to interpret the expression as written, that is, as if it were wrapped in @racket[esc]. As a result, it attempts to evaluate @racket[((get-f 1))] and expects to receive a value that can be used as a flow here. If, as in the above expression, the function resulting from @racket[(get-f 1)] expects a single argument, this is now an error as it is being invoked with none.
+
+One way to dodge this is by using an explicit template:
+
+@racketblock[
+    (~> (3) ((get-f 1) _))
+  ]
+
+This works in most cases, but it has different semantics than the version using @racket[esc], as that version evaluates the escaped expression first to yield the flow that will be applied to inputs, while this one only evaluates the (up to that point, incomplete) expression when it is actually invoked with arguments. In the most common cases there will be no difference to the result, but if the flow is invoked multiple times (for instance, if it were first defined as @racket[(define-flow my-flow (☯ ((get-f 1) _)))]), then the expression too would be evaluated multiple times, producing different functions each time. This may be computationally more expensive than using @racket[esc], and also, if either @racket[get-f] or the function it produces is stateful in any way (for instance, if it is a @hyperlink["https://www.gnu.org/software/guile/manual/html_node/Closure.html"]{closure} or if there is any randomness involved), then this version would also produce different results than the @racket[esc] version.
+
+Another way to do it is to simply promote the expression out of the nest:
+
+@racketblock[
+    (~> (3) (get-f 1))
+  ]
+
+Now, you might, once again, expect this to be treated as a partial application template, so that this would be equivalent to @racket[(get-f 3 1)] and would raise an error. But in fact, since the expression @racket[(get-f 1)] happens to be fully qualified with all the arguments it needs, the currying employed under the hood to implement partial application in this case @seclink["Using_Racket_to_Define_Flows"]{evaluates to a function result right away}. This then receives the value @racket[3], and consequently, this expression produces the correct result.
+
+So in sum, it's perhaps best to rely on @racket[esc] in such cases to be as explicit as possible about what you mean, rather than rely on the quirky implementation details revealed at this boundary between two languages.
+
 @section{Effectively Using Feedback Loops}
 
 @racket[feedback] is Qi's most powerful looping form, useful for arbitrary recursion. As it encourages quite a different way of thinking than Racket's usual looping forms do, here are some tips on "grokking" it.
