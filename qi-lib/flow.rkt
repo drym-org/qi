@@ -223,6 +223,9 @@ provide appropriate error messages at the level of the DSL.
    #'(loom-compose (flow selection-onex)
                    (flow remainder-onex)
                    n)]
+  [(_ (~datum group))
+   #'(λ (n selection-flo remainder-flo . vs)
+       (apply (flow (group n selection-flo remainder-flo)) vs))]
   [(_ ((~datum group) arg ...))  ; error handling catch-all
    (report-syntax-error 'group
                         (syntax->datum #'(arg ...))

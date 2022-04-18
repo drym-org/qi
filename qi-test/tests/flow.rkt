@@ -920,7 +920,14 @@
                            ▽))
                     1 3 5 7 9)
                    (list 1 3)
-                   "group with racket expression specifying the number"))
+                   "group with racket expression specifying the number")
+     (check-equal? ((☯ (~> (-< (gen 2 + (☯ _))
+                               _)
+                           group
+                           ▽))
+                    1 3 5 7 9)
+                   (list 4 5 7 9)
+                   "pure control form of group"))
     (test-suite
      "select"
      (check-equal? ((☯ (~> (select) +))
