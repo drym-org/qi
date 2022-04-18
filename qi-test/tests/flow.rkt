@@ -915,7 +915,12 @@
      (check-equal? ((☯ (~> (group 2 (>< sqr) _) +))
                     1 2 3)
                    8
-                   "group with don't-care"))
+                   "group with don't-care")
+     (check-equal? ((☯ (~> (group (add1 1) _ ⏚)
+                           ▽))
+                    1 3 5 7 9)
+                   (list 1 3)
+                   "group with racket expression specifying the number"))
     (test-suite
      "select"
      (check-equal? ((☯ (~> (select) +))

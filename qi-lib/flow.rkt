@@ -217,7 +217,7 @@ provide appropriate error messages at the level of the DSL.
                        remainder-onex:clause))
    #'(flow (-< (~> (select n ...) selection-onex)
                (~> (block n ...) remainder-onex)))]
-  [(_ ((~datum group) n:number
+  [(_ ((~datum group) n:expr
                       selection-onex:clause
                       remainder-onex:clause))
    #'(loom-compose (flow selection-onex)
