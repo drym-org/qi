@@ -147,6 +147,29 @@ Technically, as the @racket[switch] form transforms the input based on condition
   (define-switch abs [negative? -])
 }
 
+@subsection{Range}
+
+[@emph{This example was suggested by user Rubix on the Racket Discord}]
+
+We'd like to find the greatest difference in a set of values, which in statistical applications is called the @hyperlink["https://en.wikipedia.org/wiki/Range_(statistics)"]{range}. This is how we'd do it in Qi:
+
+@codeblock{
+    (define-flow range
+      (~> △ (-< max min) -))
+}
+
+This separates the input list into its component values and passes those values independently through the functions @racket[max] and @racket[min] before taking the difference between them.
+
+The code in Racket would be:
+
+@codeblock{
+    (define (range xs)
+      (- (apply max xs)
+         (apply min xs)))
+}
+
+The Racket versions mentions the input three times and needs to "lift" the @racket[max] and @racket[min] functions so that they are applicable to lists rather than values. The Qi version is about as economical an implementation as you will find, expressing the essential idea and nothing more.
+
 @section{The Structure and Interpretation of Flows}
 
 Sometimes, it is natural to express the entire computation as a flow, while at other times it may be better to express just a part of it as a flow. In either case, the most natural representation may not be apparent at the outset, by virtue of the fact that we don't always understand the computation at the outset. In such cases, it may make sense to take an incremental approach.
