@@ -1,15 +1,20 @@
+Contributing
+============
+
+.. contents:: :depth: 1
+
 Installing Qi Locally
-=====================
+---------------------
 
 Uninstall any version of Qi you already have
---------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
   raco pkg remove --force qi
 
 Install from source
--------------------
+~~~~~~~~~~~~~~~~~~~
 
 After cloning the repo and changing to the repo directory:
 
@@ -18,22 +23,22 @@ After cloning the repo and changing to the repo directory:
   make install
 
 Development Workflows
-=====================
+---------------------
 
 Run ``make help`` or simply ``make`` to see all of the options here. The main ones are summarized below.
 
 Dev Loop
---------
+~~~~~~~~
 
 Rebuilding
-~~~~~~~~~~
+^^^^^^^^^^
 
 .. code-block:: bash
 
   make build
 
 Running Tests
-~~~~~~~~~~~~~
+^^^^^^^^^^^^^
 
 Run all tests
 
@@ -48,7 +53,7 @@ Run tests for a specific module (example - run ``make help`` or simply ``make`` 
   make test-threading
 
 Running Profilers
-~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^
 
 You'd typically only need these when you're optimizing performance in general or the implementation of a particular form.
 
@@ -58,7 +63,7 @@ Run all profilers
 
   make profile
 
-Run just the profilers for the forms
+Run just the profilers for individual forms
 
 .. code-block:: bash
 
@@ -71,43 +76,43 @@ Run just the competitive benchmarks against Racket
   make profile-base
 
 Docs Loop
----------
+~~~~~~~~~
 
 The docs are in Scribble files in ``qi-doc/``. After making any additions or changes:
 
 Rebuilding
-~~~~~~~~~~
+^^^^^^^^^^
 
 .. code-block:: bash
 
   make build-docs
 
 Viewing Docs
-~~~~~~~~~~~~
+^^^^^^^^^^^^
 
 .. code-block:: bash
 
   make docs
 
 Release Workflow (Steps for Maintainer)
-=======================================
+---------------------------------------
 
 Build package, docs, and check dependencies
--------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
   make build-all
 
 Check dependencies
-------------------
+~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
   make check-deps
 
 Cutting a New Release
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 Bump the version in info.rkt and make a fresh commit
 
