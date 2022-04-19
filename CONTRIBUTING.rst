@@ -1,28 +1,89 @@
-Dev Workflow
-============
+Installing Qi Locally
+=====================
 
-1. Build source
+Uninstall any version of Qi you already have
+--------------------------------------------
+
+.. code-block:: bash
+
+  raco pkg remove --force qi
+
+Install from source
+-------------------
+
+After cloning the repo and changing to the repo directory:
+
+.. code-block:: bash
+
+  make install
+
+Development Workflows
+=====================
+
+Run ``make help`` or simply ``make`` to see all of the options here. The main ones are summarized below.
+
+Dev Loop
+--------
+
+Rebuilding
+~~~~~~~~~~
 
 .. code-block:: bash
 
   make build
 
-2. Run tests
+Running Tests
+~~~~~~~~~~~~~
+
+Run all tests
 
 .. code-block:: bash
 
   make test
 
-Docs Workflow
-=============
+Run tests for a specific module (example - run ``make help`` or simply ``make`` for more options)
 
-3. Build docs
+.. code-block:: bash
+
+  make test-threading
+
+Running Profilers
+~~~~~~~~~~~~~~~~~
+
+You'd typically only need these when you're optimizing performance in general or the implementation of a particular form.
+
+Run all profilers
+
+.. code-block:: bash
+
+  make profile
+
+Run just the profilers for the forms
+
+.. code-block:: bash
+
+  make profile-forms
+
+Run just the competitive benchmarks against Racket
+
+.. code-block:: bash
+
+  make profile-base
+
+Docs Loop
+---------
+
+The docs are in Scribble files in ``qi-doc/``. After making any additions or changes:
+
+Rebuilding
+~~~~~~~~~~
 
 .. code-block:: bash
 
   make build-docs
 
-4. View docs
+Viewing Docs
+~~~~~~~~~~~~
 
 .. code-block:: bash
 
@@ -31,32 +92,37 @@ Docs Workflow
 Release Workflow (Steps for Maintainer)
 =======================================
 
-5. Build package, docs, and check dependencies
+Build package, docs, and check dependencies
+-------------------------------------------
 
 .. code-block:: bash
 
   make build-all
 
-6. Check dependencies
+Check dependencies
+------------------
 
 .. code-block:: bash
 
   make check-deps
 
-7. When you're ready to cut a new release, bump the version in info.rkt and make a fresh commit
+Cutting a New Release
+---------------------
+
+Bump the version in info.rkt and make a fresh commit
 
 .. code-block:: racket
 
   (define version "i.j.k") ; numbers corresponding to major.minor.patch
 
-8. Tag the release commit
+Tag the release commit
 
 .. code-block:: bash
 
   git tag -n<NUM>  # list existing tags and annotations; if specified, NUM configures verbosity
   git tag -a <new version number> -m "<release message>"  # or leave out -m to enter it in Vim
 
-9. Push the changes including the new tag to origin
+Push the changes including the new tag to origin
 
 .. code-block:: bash
 
