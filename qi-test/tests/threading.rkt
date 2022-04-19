@@ -28,6 +28,8 @@
     (check-equal? (~>> (3) sqr add1) 10)
     (check-equal? (~> (3 4) + number->string (string-append "a")) "7a")
     (check-equal? (~>> (3 4) + number->string (string-append "a")) "a7")
+    (check-equal? (~> ((list 3 4 5)) △ (>< sqr) +) 50 "legitimate input to the sep form")
+    (check-equal? (~>> ((list 3 4 5)) △ (>< sqr) +) 50 "legitimate input to the sep form")
     (check-equal? (~> (5 20 3)
                       (group 1
                              (~>

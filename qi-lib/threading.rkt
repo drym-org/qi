@@ -12,10 +12,10 @@
          "on.rkt")
 
 (define-syntax-parser ~>
-  [(_ (arg ...+) (~or (~datum sep) (~datum △)) clause:clause ...)
+  [(_ (arg0 arg ...+) (~or (~datum sep) (~datum △)) clause:clause ...)
    ;; catch a common usage error
    (report-syntax-error '~>
-                        (syntax->datum #'((arg ...) sep clause ...))
+                        (syntax->datum #'((arg0 arg ...) sep clause ...))
                         "(~> (arg ...) flo ...)"
                         "Attempted to separate multiple values."
                         "Note that the inputs to ~> must be wrapped in parentheses.")]
@@ -24,10 +24,10 @@
    #'(on ags (~> clause ...))])
 
 (define-syntax-parser ~>>
-  [(_ (arg ...+) (~or (~datum sep) (~datum △)) clause:clause ...)
+  [(_ (arg0 arg ...+) (~or (~datum sep) (~datum △)) clause:clause ...)
    ;; catch a common usage error
    (report-syntax-error '~>>
-                        (syntax->datum #'((arg ...) sep clause ...))
+                        (syntax->datum #'((arg0 arg ...) sep clause ...))
                         "(~>> (arg ...) flo ...)"
                         "Attempted to separate multiple values."
                         "Note that the inputs to ~>> must be wrapped in parentheses.")]
