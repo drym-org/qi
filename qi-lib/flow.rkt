@@ -17,7 +17,8 @@
                      syntax/parse
                      racket/match
                      (only-in "private/util.rkt"
-                              repeat))
+                              repeat
+                              report-syntax-error))
          (only-in qi/macro
                   qi-macro?
                   qi-macro-transformer))
@@ -83,19 +84,6 @@ potentially inscrutable errors, the catch-all forms allow us to
 provide appropriate error messages at the level of the DSL.
 
 |#
-
-(begin-for-syntax
-  (require racket/format)
-  (define (report-syntax-error name args usage [msg ""])
-    (raise-syntax-error name
-                        (~a "Syntax error in "
-                            (list* name args)
-                            "\n"
-                            "Usage:\n"
-                            "  " usage
-                            (if (equal? "" msg)
-                                ""
-                                (string-append "\n" msg))))))
 
 (define-syntax-parser flow
 
@@ -536,6 +524,5 @@ provide appropriate error messages at the level of the DSL.
    (report-syntax-error
     'flow
     (syntax->datum #'(expr0 expr ...))
-    (string-append "(" (symbol->string 'flow) " flo)")
-    (string-append (symbol->string 'flow)
-                   " expects a single flow specification, but it received many."))])
+    "(flow flo)"
+    "flow expects a single flow specification, but it received many.")])

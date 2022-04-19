@@ -19,7 +19,8 @@
          repeat-values
          power
          foldl-values
-         foldr-values)
+         foldr-values
+         report-syntax-error)
 
 (require racket/match
          (only-in racket/function
@@ -28,8 +29,21 @@
          racket/bool
          racket/list
          racket/format
+         racket/string
          typed-stack
          (only-in adjutor values->list))
+
+(define (report-syntax-error name args usage . msgs)
+  (raise-syntax-error name
+                      (~a "Syntax error in "
+                          (list* name args)
+                          "\n"
+                          "Usage:\n"
+                          "  " usage
+                          (if (null? msgs)
+                              ""
+                              (string-append "\n"
+                                             (string-join msgs "\n"))))))
 
 ;; we use a lambda to capture the arguments at runtime
 ;; since they aren't available at compile time
