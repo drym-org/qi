@@ -165,12 +165,11 @@ provide appropriate error messages at the level of the DSL.
   [(_ (~or (~datum ⏚) (~datum ground)))
    #'(flow (select))]
   [(_ ((~or (~datum ~>) (~datum thread)) onex:clause ...))
-   (datum->syntax
-    this-syntax
-    (cons 'compose
-          (reverse
-           (syntax->list
-            #'((flow onex) ...)))))]
+   (datum->syntax this-syntax
+     (cons 'compose
+           (reverse
+            (syntax->list
+             #'((flow onex) ...)))))]
   [(_ ((~or (~datum ~>>) (~datum thread-right)) onex:clause ...))
    #'(flow (~> (esc (right-threading-clause onex)) ...))]
   [(_ (~or (~datum X) (~datum crossover)))
@@ -179,7 +178,7 @@ provide appropriate error messages at the level of the DSL.
    #'(relay (flow onex) ...)]
   [(_ ((~or (~datum ==*) (~datum relay*)) onex:clause ... rest-onex:clause))
    (with-syntax ([len (datum->syntax this-syntax
-                                     (length (syntax->list #'(onex ...))))])
+                        (length (syntax->list #'(onex ...))))])
      #'(flow (group len (== onex ...) rest-onex) ))]
   [(_ ((~or (~datum -<) (~datum tee)) onex:clause ...))
    #'(λ args
@@ -309,8 +308,9 @@ provide appropriate error messages at the level of the DSL.
                (~> (pass (not condition)) ronex)))]
   [(_ (~datum sieve))
    #'(λ (condition sonex ronex . args)
-       ((flow (~> △ (-< (~> (pass condition) sonex)
-                        (~> (pass (not condition)) ronex)))) args))]
+       (apply (flow (-< (~> (pass condition) sonex)
+                        (~> (pass (not condition)) ronex)))
+              args))]
   [(_ ((~datum sieve) arg ...))  ; error handling catch-all
    (report-syntax-error 'sieve
                         (syntax->datum #'(arg ...))
@@ -352,12 +352,11 @@ provide appropriate error messages at the level of the DSL.
   [(_ (~datum fanout))
    #'repeat-values]
   [(_ ((~datum fanout) n:number))
-   (datum->syntax
-    this-syntax
-    (list 'flow
-          (cons '-<
-                (repeat (syntax->datum #'n)
-                        '_))))]
+   (datum->syntax this-syntax
+     (list 'flow
+           (cons '-<
+                 (repeat (syntax->datum #'n)
+                         '_))))]
   [(_ ((~datum feedback) ((~datum while) tilex:clause)
                          ((~datum then) thenex:clause)
                          onex:clause))
