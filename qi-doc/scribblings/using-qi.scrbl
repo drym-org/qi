@@ -168,7 +168,7 @@ The code in Racket would be:
          (apply min xs)))
 }
 
-The Racket versions mentions the input three times and needs to "lift" the @racket[max] and @racket[min] functions so that they are applicable to lists rather than values. The Qi version is about as economical an implementation as you will find, expressing the essential idea and nothing more.
+The Racket version mentions the input three times and needs to "lift" the @racket[max] and @racket[min] functions so that they are applicable to lists rather than values. The Qi version is about as economical an implementation as you will find, expressing the essential idea and nothing more.
 
 @section{The Structure and Interpretation of Flows}
 
