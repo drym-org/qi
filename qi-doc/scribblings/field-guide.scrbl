@@ -225,6 +225,19 @@ To use it, first wrap the entire expression @emph{invoking} the flow with a @rac
 
 @bold{Common example}: Attempting to use a Qi macro in one module without @racketlink[provide]{providing} it from the module where it is defined -- note that Qi macros must be provided as @racket[(provide (for-space qi mac))]. See @secref["Using_Macros" #:doc '(lib "qi/scribblings/qi.scrbl")] for more on this.
 
+@bold{Error}:
+
+@codeblock{
+; .../fancy-app/main.rkt:28:19: arity mismatch;
+;  the expected number of arguments does not match the given number
+;   expected: 2
+;   given: 1
+}
+
+@bold{Meaning}: Qi uses @seclink["top" #:doc '(lib "fancy-app/main.scrbl")]{fancy-app} to handle @seclink["Templates_and_Partial_Application"]{partial application templates}. Fancy-app is complaining that it was told to expect a certain number of arguments in the function invocation but received a different number.
+
+@bold{Common example}: You have a template like @racket[(f _ _)] with a certain number of arguments indicated, but it was invoked with more or fewer arguments.
+
 @subsection{Gotchas}
 
 @subsubsection{There's No Escaping @racket[esc]}
