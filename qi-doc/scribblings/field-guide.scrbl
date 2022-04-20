@@ -120,7 +120,7 @@ To use it, first wrap the entire expression @emph{invoking} the flow with a @rac
 
 @subsection{Common Errors and What They Mean}
 
-@bold{Error}:
+@subsubsection{Expected Number of Values Not Received}
 
 @codeblock{
 ; result arity mismatch;
@@ -135,7 +135,7 @@ To use it, first wrap the entire expression @emph{invoking} the flow with a @rac
 
 @bold{Common example}: Using the threading form @racket[~>] without wrapping the input arguments in parentheses. Remember that, unlike Racket's usual threading macro, input arguments to Qi's threading form @seclink["Relationship_to_the_Threading_Macro"]{must be wrapped in parentheses}.
 
-@bold{Error}:
+@subsubsection{Wildcard Not Allowed as an Expression}
 
 @codeblock{
 ;  _: wildcard not allowed as an expression
@@ -148,7 +148,7 @@ To use it, first wrap the entire expression @emph{invoking} the flow with a @rac
 
 @bold{Common example}: Trying to use a Racket macro (rather than a function), or a macro from another DSL, as a flow without first registering it via @racket[define-qi-foreign-syntaxes]. In general, Qi expects flows to be functions unless otherwise explicitly signaled.
 
-@bold{Error}:
+@subsubsection{Bad Syntax}
 
 @codeblock{
 ; lambda: bad syntax
@@ -161,7 +161,7 @@ To use it, first wrap the entire expression @emph{invoking} the flow with a @rac
 
 @bold{Common example}: Trying to use a Racket macro (rather than a function), or a macro from another DSL, as a flow without first registering it via @racket[define-qi-foreign-syntaxes]. In general, Qi expects flows to be functions unless otherwise explicitly signaled.
 
-@bold{Error}:
+@subsubsection{Use Does Not Match Pattern}
 
 @codeblock{
 ; m: use does not match pattern: (m x y)
@@ -172,7 +172,7 @@ To use it, first wrap the entire expression @emph{invoking} the flow with a @rac
 
 @bold{Common example}: Trying to use a Racket macro (rather than a function), or a macro from another DSL, as a flow without first registering it via @racket[define-qi-foreign-syntaxes]. In general, Qi expects flows to be functions unless otherwise explicitly signaled.
 
-@bold{Error}:
+@subsubsection{Expected Identifier Not Starting With Character}
 
 @codeblock{
 ; syntax-parser: expected identifier not starting with ~ character
@@ -183,7 +183,7 @@ To use it, first wrap the entire expression @emph{invoking} the flow with a @rac
 
 @bold{Common example}: Syntax patterns are defined in the @seclink["stxparse" #:doc '(lib "syntax/scribblings/syntax.scrbl")]{syntax/parse} library. If you are using them in Qi macros, you will need to @racket[(require syntax/parse)] at the appropriate phase level.
 
-@bold{Error}:
+@subsubsection{Not Defined as Syntax Class}
 
 @codeblock{
 ; syntax-parser: not defined as syntax class
@@ -194,6 +194,8 @@ To use it, first wrap the entire expression @emph{invoking} the flow with a @rac
 
 @bold{Common example}: Common syntax classes are defined in the @seclink["stxparse" #:doc '(lib "syntax/scribblings/syntax.scrbl")]{syntax/parse} library. If you are using them in Qi macros, you will need to @racket[(require syntax/parse)] at the appropriate phase level (e.g. @racket[(require (for-syntax syntax/parse))].
 
+@subsubsection{Too Many Ellipses in Template}
+
 @codeblock{
 ; syntax: too many ellipses in template
 ;   at: ...
@@ -203,7 +205,7 @@ To use it, first wrap the entire expression @emph{invoking} the flow with a @rac
 
 @bold{Common example}: Attempting to use a syntax pattern like @racket[...+] without requiring the @seclink["stxparse" #:doc '(lib "syntax/scribblings/syntax.scrbl")]{syntax/parse} library. When writing Qi macros, you will often need @racket[(require (for-syntax syntax/parse))], the same as when writing Racket macros.
 
-@bold{Error}:
+@subsubsection{Syntax: Unbound Identifier}
 
 @codeblock{
 ; syntax: unbound identifier;
@@ -214,7 +216,7 @@ To use it, first wrap the entire expression @emph{invoking} the flow with a @rac
 
 @bold{Common example}: When writing Qi macros, you will often need @racket[(require (for-syntax racket/base))], the same as when writing Racket macros.
 
-@bold{Error}:
+@subsubsection{Undefined}
 
 @codeblock{
 ; mac: undefined;
@@ -225,7 +227,7 @@ To use it, first wrap the entire expression @emph{invoking} the flow with a @rac
 
 @bold{Common example}: Attempting to use a Qi macro in one module without @racketlink[provide]{providing} it from the module where it is defined -- note that Qi macros must be provided as @racket[(provide (for-space qi mac))]. See @secref["Using_Macros" #:doc '(lib "qi/scribblings/qi.scrbl")] for more on this.
 
-@bold{Error}:
+@subsubsection{Fancy-app Arity Mismatch}
 
 @codeblock{
 ; .../fancy-app/main.rkt:28:19: arity mismatch;
