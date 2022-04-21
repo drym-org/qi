@@ -6,17 +6,57 @@ Contributing
 Installing Qi Locally
 ---------------------
 
+You could install it either in a default scope such as User scope (meaning it will available to the current user of the operating system), or, if you prefer, you could also install it in a virtual environment specific to the project. These options are covered below, in turn.
+
+Installing in User Scope
+~~~~~~~~~~~~~~~~~~~~~~~~
+
 Uninstall any version of Qi you already have
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
 
   raco pkg remove --force qi
 
 Install from source
-~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^
 
 After cloning the repo and changing to the repo directory:
+
+.. code-block:: bash
+
+  make install
+
+Installing in a Virtual Environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You may prefer this option if you already have a version of Qi installed in the User scope and would prefer to do development in an isolated environment. Remember, if you go with this option, you will need to activate the virtual environment (described below) before you can use the development workflows below.
+
+Install raco-pkg-env
+^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: bash
+
+  raco pkg install raco-pkg-env
+
+Clone the Qi Repo
+^^^^^^^^^^^^^^^^^
+
+.. code-block:: bash
+
+  git clone git@github.com:countvajhula/qi.git
+  cd qi
+
+Create and Activate the Virtual Environment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: bash
+
+  raco pkg-env _env
+  source _env/activate.sh
+
+Install Qi Into the Virtual Environment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
 
