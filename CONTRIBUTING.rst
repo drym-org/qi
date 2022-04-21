@@ -30,7 +30,7 @@ After cloning the repo and changing to the repo directory:
 Installing in a Virtual Environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You may prefer this option if you already have a version of Qi installed in the User scope and would prefer to do development in an isolated environment. Remember, if you go with this option, you will need to activate the virtual environment (described below) before you can use the development workflows below.
+This uses the `raco-pkg-env <https://github.com/samdphillips/raco-pkg-env>`_ package to create and manage virtual environments in Racket. You may prefer this option if you already have a version of Qi installed in the User scope and would prefer to do development in an isolated environment. Remember, if you go with this option, you will need to activate the virtual environment (described below) before you can use the development workflows below.
 
 Install raco-pkg-env
 ^^^^^^^^^^^^^^^^^^^^
