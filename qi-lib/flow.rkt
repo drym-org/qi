@@ -397,6 +397,12 @@ provide appropriate error messages at the level of the DSL.
    #'map-values]
   [(_ ((~or (~datum ><) (~datum amp)) onex:clause))
    #'(curry map-values (flow onex))]
+  [(_ ((~or (~datum ><) (~datum amp)) onex0:clause onex:clause ...))
+   (report-syntax-error
+    'amp
+    (syntax->datum #'(onex0 onex ...))
+    "(>< flo)"
+    "amp expects a single flow specification, but it received many.")]
   [(_ (~datum pass))
    #'filter-values]
   [(_ ((~datum pass) onex:clause))
