@@ -149,13 +149,11 @@ Let's write each of these in turn and then put them together.
 For the first, we write a macro that wraps any Qi flow with the exception handling logic to generate no values.
 
 @racketblock[
-(define-qi-syntax-rule (try flo)
-  (esc (λ args
-         (with-handlers [(exn? (☯ ⏚))]
-           (apply (☯ flo) args)))))
+(define-qi-syntax-rule (get flo)
+  (try flo [exn? ⏚]))
 ]
 
-This form escapes to Racket in order to wrap the flow with exception handling. Any exceptions raised by execution of the flow result in the enclosing flow simply generating no values.
+This uses Qi's @racket[try] form to catch any exceptions raised during execution of the flow, handling them by simply generating no values as the result.
 
 Now for the second part, in the binary case of two flows @racket[f] and @racket[g], either of which may fail to produce values, the composition could be defined as:
 
@@ -169,19 +167,21 @@ Now for the second part, in the binary case of two flows @racket[f] and @racket[
 @racketblock[
 (define-qi-syntax-parser maybe~>
   [(_ flo)
-   #'(try flo)]
+   #'(get flo)]
   [(_ flo1 flo ...)
-   #'(mcomp (try flo1) (maybe~> flo ...))])
+   #'(mcomp (get flo1) (maybe~> flo ...))])
 ]
 
-This form is just like @racket[~>], except that it does two additional things: (1) It wraps each component flow with the @racket[try] macro so that an exception would result in the flow generating no values, and (2) it checks whether there are values flowing at all before attempting to invoke the next flow on the outputs. Thus, if there is a failure at any point, the entire rest of the computation is short-circuited.
+This form is just like @racket[~>], except that it does two additional things: (1) It wraps each component flow with the @racket[get] macro so that an exception would result in the flow generating no values, and (2) it checks whether there are values flowing at all before attempting to invoke the next flow on the outputs. Thus, if there is a failure at any point, the entire rest of the computation is short-circuited.
+
+Note that short-circuiting isn't essential here as long as our composition ensures that the result is still well-defined if downstream flow components are invoked with no values upon failure of an upstream component (and they should produce no values in this case). But as we already know the result at the first point of failure, it is more performant to avoid invoking subsequent flows at all rather than rely on repeated composition in a computation destined to produce no values, and indeed, most Maybe implementations do short-circuit in this manner.
 
 @racketblock[
 ((☯ (maybe~> (/ 2) sqr add1)) 10)
 ((☯ (maybe~> (/ 0) sqr add1)) 10)
 ]
 
-And there you have it, you've implemented the Maybe monad in about eleven lines of Qi macros.
+And there you have it, you've implemented the Maybe monad in about nine lines of Qi macros.
 
 @subsection{Translating Foreign Macros}
 

@@ -591,6 +591,22 @@ Note that the symbol form uses Unicode @code{0x2225} corresponding to LaTeX's @c
   ]
 }
 
+@section{Exceptions}
+
+@defform[(try flo [error-predicate-flo error-handler-flo] ...)]{
+  A dispatcher for handling exceptions that works similarly to @racket[switch], this attempts @racket[flo] and simply produces its results if successful. Otherwise, if an exception is raised, the exception is provided to each of the @racket[error-predicate-flo]'s in turn, and the corresponding @racket[error-handler-flo] is invoked with the input arguments for the first predicate that returns true.
+
+@examples[
+    #:eval eval-for-docs
+    (~> (9) (try (/ 3) [exn:fail? 0]) add1)
+    (~> (9)
+        (try (/ 0)
+          [exn:fail:contract:arity? 0]
+          [exn:fail:contract:divide-by-zero? _])
+        add1)
+  ]
+}
+
 @section{Higher-order Flows}
 
 @deftogether[(

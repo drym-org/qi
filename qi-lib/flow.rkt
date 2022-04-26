@@ -318,6 +318,24 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~datum gate) onex:clause))
    #'(flow (if onex _ ⏚))]
 
+  ;;; Exceptions
+
+  [(_ ((~datum try) flo
+                    [error-condition-flo error-handler-flo]
+                    ...+))
+   #'(λ args
+       (with-handlers ([(flow error-condition-flo)
+                        (λ (e)
+                          ;; TODO: may be good to support reference to the
+                          ;; error via a binding / syntax parameter
+                          (apply (flow error-handler-flo) args))]
+                       ...)
+         (apply (flow flo) args)))]
+  [(_ ((~datum try) arg ...))
+   (report-syntax-error 'try
+                        (syntax->datum #'(arg ...))
+                        "(try <flo> [error-predicate-flo error-handler-flo] ...)")]
+
   ;;; High level circuit elements
 
   ;; aliases for inputs

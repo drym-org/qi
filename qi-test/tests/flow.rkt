@@ -19,6 +19,7 @@
 (define tests
   (test-suite
    "flow tests"
+
    (test-suite
     "core language"
     (test-suite
@@ -491,6 +492,19 @@
                    6)))
 
    (test-suite
+    "Exceptions"
+    (check-equal? ((☯ (try (/ 3)
+                           [exn? 'hi])) 9)
+                  3)
+    (check-equal? ((☯ (try (/ 0)
+                           [exn? 'hi])) 9)
+                  'hi)
+    (check-equal? ((☯ (try (/ 0)
+                           [exn:fail:contract:arity? 'arity]
+                           [exn:fail:contract:divide-by-zero? 'divide-by-zero])) 9)
+                  'divide-by-zero))
+
+   (test-suite
     "partial application"
     (test-suite
      "implicitly curried forms"
@@ -798,6 +812,7 @@
      (check-equal? ((☯ (~> (gate <) ▽))
                     5 6)
                    (list 5 6))))
+
    (test-suite
     "high-level circuit elements"
     (test-suite
@@ -1148,6 +1163,7 @@
      "qi:"
      (check-equal? (~> (2 3) + (qi:square sqr))
                    625)))
+
    (test-suite
     "arity modulating forms"
     (check-true ((☯ (and% positive? even?))
