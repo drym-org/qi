@@ -43,6 +43,46 @@
    (☯ count)
    vs))
 
+(define (ground . vs)
+  (apply
+   (☯ ⏚)
+   vs))
+
+(define (thread . vs)
+  (apply
+   (☯ (~> (+ 5)
+          add1
+          sub1
+          sqr
+          add1
+          sub1
+          sqr
+          add1
+          sub1
+          sqr
+          add1))
+   vs))
+
+(define (thread-right . vs)
+  (apply
+   (☯ (~>> (+ 5)
+           add1
+           sub1
+           sqr
+           add1
+           sub1
+           sqr
+           add1
+           sub1
+           sqr
+           add1))
+   vs))
+
+(define (crossover . vs)
+  (apply
+   (☯ X)
+   vs))
+
 (run-benchmark "group"
                check-values
                (local group)
@@ -62,3 +102,23 @@
                check-values
                (local amp)
                300000)
+
+(run-benchmark "ground"
+               check-values
+               (local ground)
+               200000)
+
+(run-benchmark "thread"
+               check-values
+               (local thread)
+               200000)
+
+(run-benchmark "thread-right"
+               check-values
+               (local thread-right)
+               200000)
+
+(run-benchmark "crossover"
+               check-values
+               (local crossover)
+               200000)
