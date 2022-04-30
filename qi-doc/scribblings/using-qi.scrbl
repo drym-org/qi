@@ -170,6 +170,67 @@ The code in Racket would be:
 
 The Racket version mentions the input three times and needs to "lift" the @racket[max] and @racket[min] functions so that they are applicable to lists rather than values. The Qi version is about as economical an implementation as you will find, expressing the essential idea and nothing more.
 
+@section{Curbing Curries and Losing Lambdas}
+
+Since flows are just functions, you can use them anywhere that you would normally use a function. In particular, they are often a clearer alternative to using currying or lambdas. For instance, to double every number in a list, we could do:
+
+@codeblock{
+    (map (☯ (* 2)) (range 10))
+}
+
+... rather than use currying:
+
+@codeblock{
+    (map (curry * 2) (range 10))
+}
+
+... or a lambda:
+
+@codeblock{
+    (map (λ (v) (* v 2)) (range 10))
+}
+
+The Qi version expresses the essential idea without introducing arcane concepts (such as currying).
+
+@section{Making the Switch}
+
+Scheme code in the wild is littered with @racket[cond] expressions resembling these:
+
+@codeblock{
+    (cond [(positive? v) (add1 v)]
+          [(negative? v) (sub1 v)]
+          [else v])
+}
+
+@codeblock{
+    (cond [(>= a b) (- a b)]
+          [(< a b) (- b a)])
+}
+
+... or even @racket[if] expressions like these:
+
+@codeblock{
+    (if (>= a b)
+        (- a b)
+        (- b a))
+}
+
+Such expressions are conditional transformations of the inputs, but this idea is nowhere encoded in the expressions themselves, leading to repetition, duplication, recapitulation, and even redundancy. In such cases, switch to @racket[switch]:
+
+@codeblock{
+    (switch (v)
+      [positive? add1]
+      [negative? sub1])
+}
+
+@codeblock{
+    (switch (a b)
+      [>= -]
+      [< (~> X -)])
+}
+
+@racket[switch] is a versatile conditional form that can also express more complex flows, as we will see in the next example.
+
 @section{The Structure and Interpretation of Flows}
 
 Sometimes, it is natural to express the entire computation as a flow, while at other times it may be better to express just a part of it as a flow. In either case, the most natural representation may not be apparent at the outset, by virtue of the fact that we don't always understand the computation at the outset. In such cases, it may make sense to take an incremental approach.
