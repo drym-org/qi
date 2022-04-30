@@ -4,6 +4,7 @@
          check-value
          check-list
          check-values
+         check-two-values
          run-benchmark)
 
 (require (only-in racket/list
@@ -40,6 +41,14 @@
   ;; call a function with multiple values as independent arguments
   (for ([i (in-range how-many)])
     (let ([vs (range i (+ i 10))])
+      (call-with-values (λ ()
+                          (apply values vs))
+                        fn))))
+
+(define (check-two-values fn how-many)
+  ;; call a function with two values as arguments
+  (for ([i (in-range how-many)])
+    (let ([vs (range i (+ i 2))])
       (call-with-values (λ ()
                           (apply values vs))
                         fn))))

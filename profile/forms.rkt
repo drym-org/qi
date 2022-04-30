@@ -83,6 +83,60 @@
    (☯ X)
    vs))
 
+(define (one-of? v)
+  ((☯ (one-of? 3 5 7))
+   v))
+
+(define (and v)
+  ((☯ (and positive? integer?))
+   v))
+
+(define (or v)
+  ((☯ (or positive? integer?))
+   v))
+
+(define (not v)
+  ((☯ (not integer?))
+   v))
+
+(define (and% a b)
+  ((☯ (and% positive? integer?))
+   a b))
+
+(define (or% a b)
+  ((☯ (or% positive? integer?))
+   a b))
+
+(run-benchmark "one-of?"
+               check-value
+               (local one-of?)
+               100000)
+
+(run-benchmark "and"
+               check-value
+               (local and)
+               200000)
+
+(run-benchmark "or"
+               check-value
+               (local or)
+               200000)
+
+(run-benchmark "not"
+               check-value
+               (local not)
+               200000)
+
+(run-benchmark "and%"
+               check-two-values
+               (local and%)
+               200000)
+
+(run-benchmark "or%"
+               check-two-values
+               (local or%)
+               200000)
+
 (run-benchmark "group"
                check-values
                (local group)
