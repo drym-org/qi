@@ -227,6 +227,19 @@ To use it, first wrap the entire expression @emph{invoking} the flow with a @rac
 
 @bold{Common example}: Attempting to use a Qi macro in one module without @racketlink[provide]{providing} it from the module where it is defined -- note that Qi macros must be provided as @racket[(provide (for-space qi mac))]. See @secref["Using_Macros" #:doc '(lib "qi/scribblings/qi.scrbl")] for more on this.
 
+@subsubsection{List Arity Mismatch}
+
+@codeblock{
+; list?: arity mismatch;
+;  the expected number of arguments does not match the given number
+;   expected: 1
+;   given: 2
+}
+
+@bold{Meaning}: The predicate @racket[list?] was invoked, and it is complaining that it expects a single input argument but received many.
+
+@bold{Common example}: Attempting to separate multiple input values using @racket[△]. This form separates a single input list into component values, and will produce the above error if it receives more than one input.
+
 @subsubsection{Fancy-app Arity Mismatch}
 
 @codeblock{
