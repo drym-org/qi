@@ -118,6 +118,22 @@ To use it, first wrap the entire expression @emph{invoking} the flow with a @rac
   ]
 }
 
+@subsection{Using Fixtures}
+
+The @seclink["Using_a_Tester"]{probe debugger} allows you to check values at specific points in the flow, that is, essentially, the @emph{output} of the upstream components at that point. It is sometimes also useful to fix the @emph{input} to downstream components. In unit testing, fixing inputs to functions to test their behavior in a known environment is referred to as writing "fixtures." It's the same idea.
+
+The basic way to do it is to insert a @racket[gen] form at the point of interest in the flow, as @racket[gen] ignores its inputs and just produces whatever values you specify.
+
+@racketblock[
+  (~> (2) sqr (gen 9) add1 (* 2))
+]
+
+Methodical use of @racket[gen] together with the @seclink["Using_a_Tester"]{probe debugger} allows you to isolate bugs to specific sections of the flow, and then triangulate further using the same approach until you find the exact problem.
+
+@racketblock[
+  (probe (~> (3) (-< _ "5") (gen 3 5) + sqr readout (* 2) add1))
+]
+
 @subsection{Common Errors and What They Mean}
 
 @subsubsection{Expected Number of Values Not Received}
