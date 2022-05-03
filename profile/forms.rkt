@@ -107,6 +107,36 @@
   ((☯ (or% positive? integer?))
    a b))
 
+(define (all . vs)
+  (apply
+   (☯ (all positive?))
+   vs))
+
+(define (any . vs)
+  (apply
+   (☯ (any positive?))
+   vs))
+
+(define (none . vs)
+  (apply
+   (☯ (none positive?))
+   vs))
+
+(define (all? . vs)
+  (apply
+   (☯ all?)
+   vs))
+
+(define (any? . vs)
+  (apply
+   (☯ any?)
+   vs))
+
+(define (none? . vs)
+  (apply
+   (☯ none?)
+   vs))
+
 (run-benchmark "one-of?"
                check-value
                (local one-of?)
@@ -175,4 +205,34 @@
 (run-benchmark "crossover"
                check-values
                (local crossover)
+               200000)
+
+(run-benchmark "all"
+               check-values
+               (local all)
+               200000)
+
+(run-benchmark "any"
+               check-values
+               (local any)
+               200000)
+
+(run-benchmark "none"
+               check-values
+               (local none)
+               200000)
+
+(run-benchmark "all?"
+               check-values
+               (local all?)
+               100000)
+
+(run-benchmark "any?"
+               check-values
+               (local any?)
+               200000)
+
+(run-benchmark "none?"
+               check-values
+               (local none?)
                200000)
