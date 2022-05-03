@@ -137,6 +137,25 @@
    (☯ none?)
    vs))
 
+(define (collect . vs)
+  (apply
+   (☯ ▽)
+   vs))
+
+(define (sep v)
+  ((☯ △)
+   v))
+
+(define (gen . vs)
+  (apply
+   (☯ (gen 1 2 3))
+   vs))
+
+(define (esc . vs)
+  (apply
+   (☯ (esc (λ args args)))
+   vs))
+
 (run-benchmark "one-of?"
                check-value
                (local one-of?)
@@ -225,7 +244,7 @@
 (run-benchmark "all?"
                check-values
                (local all?)
-               100000)
+               200000)
 
 (run-benchmark "any?"
                check-values
@@ -236,3 +255,23 @@
                check-values
                (local none?)
                200000)
+
+(run-benchmark "collect"
+               check-values
+               (local collect)
+               1000000)
+
+(run-benchmark "sep"
+               check-list
+               (local sep)
+               1000000)
+
+(run-benchmark "gen"
+               check-values
+               (local gen)
+               1000000)
+
+(run-benchmark "esc"
+               check-values
+               (local esc)
+               1000000)
