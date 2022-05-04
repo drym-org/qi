@@ -156,6 +156,40 @@
    (☯ (esc (λ args args)))
    vs))
 
+(define (AND . vs)
+  (apply
+   (☯ AND)
+   vs))
+
+(define (OR . vs)
+  (apply
+   (☯ OR)
+   vs))
+
+(define (NOT v)
+  ((☯ NOT)
+   v))
+
+(define (NAND . vs)
+  (apply
+   (☯ NAND)
+   vs))
+
+(define (NOR . vs)
+  (apply
+   (☯ NOR)
+   vs))
+
+(define (XOR . vs)
+  (apply
+   (☯ XOR)
+   vs))
+
+(define (XNOR . vs)
+  (apply
+   (☯ XNOR)
+   vs))
+
 (run-benchmark "one-of?"
                check-value
                (local one-of?)
@@ -275,3 +309,38 @@
                check-values
                (local esc)
                1000000)
+
+(run-benchmark "AND"
+               check-values
+               (local AND)
+               200000)
+
+(run-benchmark "OR"
+               check-values
+               (local OR)
+               200000)
+
+(run-benchmark "NOT"
+               check-value
+               (local NOT)
+               200000)
+
+(run-benchmark "NAND"
+               check-values
+               (local NAND)
+               200000)
+
+(run-benchmark "NOR"
+               check-values
+               (local NOR)
+               200000)
+
+(run-benchmark "XOR"
+               check-values
+               (local XOR)
+               200000)
+
+(run-benchmark "XNOR"
+               check-values
+               (local XNOR)
+               200000)
