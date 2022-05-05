@@ -170,6 +170,32 @@ The code in Racket would be:
 
 The Racket version mentions the input three times and needs to "lift" the @racket[max] and @racket[min] functions so that they are applicable to lists rather than values. The Qi version is about as economical an implementation as you will find, expressing the essential idea and nothing more.
 
+@subsection{Length}
+
+Calculating the length of a list is a straightforward computation. Here are a few different ways to do it in Racket:
+
+@codeblock{
+(define (length lst)
+  (if (empty? lst)
+      0
+      (add1 (length (rest lst)))))
+
+(define (length lst)
+  (apply + (map (const 1) lst)))
+
+(define length
+  (compose (curry apply +) (curry map (const 1))))
+}
+
+And here it is in Qi:
+
+@codeblock{
+(define-flow length
+  (~> △ (>< 1) +))
+}
+
+This separates the input list into its component values, produces a @racket[1] corresponding to each value, and then adds these ones together to get the length. It is the same idea encoded (and indeed, hidden) in the latter two Racket implementations.
+
 @section{Curbing Curries and Losing Lambdas}
 
 Since flows are just functions, you can use them anywhere that you would normally use a function. In particular, they are often a clearer alternative to using currying or lambdas. For instance, to double every number in a list, we could do:
