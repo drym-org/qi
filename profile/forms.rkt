@@ -33,6 +33,14 @@
           add1))
    vs))
 
+(define (relay* . vs)
+  (apply
+   (☯ (==* add1
+           sub1
+           sqr
+           +))
+   vs))
+
 (define (amp . vs)
   (apply
    (☯ (>< sqr))
@@ -190,6 +198,22 @@
    (☯ XNOR)
    vs))
 
+(define (tee v)
+  ((☯ (-< add1 sub1 sqr))
+   v))
+
+(define (try . vs)
+  (apply
+   (☯ (try +
+        [exn:break? 10]
+        [exn:fail? 0]))
+   vs)
+  (apply
+   (☯ (try string-append
+        [exn:break? 10]
+        [exn:fail? 0]))
+   vs))
+
 (run-benchmark "one-of?"
                check-value
                (local one-of?)
@@ -233,6 +257,11 @@
 (run-benchmark "relay"
                check-values
                (local relay)
+               50000)
+
+(run-benchmark "relay*"
+               check-values
+               (local relay*)
                50000)
 
 (run-benchmark "amp"
@@ -344,3 +373,13 @@
                check-values
                (local XNOR)
                200000)
+
+(run-benchmark "tee"
+               check-value
+               (local tee)
+               200000)
+
+(run-benchmark "try"
+               check-values
+               (local try)
+               20000)
