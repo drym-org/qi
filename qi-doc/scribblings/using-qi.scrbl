@@ -185,6 +185,12 @@ Calculating the length of a list is a straightforward computation. Here are a fe
 
 (define length
   (compose (curry apply +) (curry map (const 1))))
+
+(define (length vs)
+  (foldl (λ (v acc) (add1 acc)) 0 vs))
+
+(define (length vs)
+  (for/sum ([_ vs]) 1))
 }
 
 And here it is in Qi:
@@ -194,13 +200,13 @@ And here it is in Qi:
   (~> △ (>< 1) +))
 }
 
-This separates the input list into its component values, produces a @racket[1] corresponding to each value, and then adds these ones together to get the length. It is the same idea encoded (and indeed, hidden) in the latter two Racket implementations.
+This separates the input list into its component values, produces a @racket[1] corresponding to each value, and then adds these ones together to get the length. It is the same idea encoded (and indeed, hidden) in some of the Racket implementations.
 
 This succinctness is possible because Qi reaps the twin benefits of (1) working directly with values (and not just collections of values), and (2) variadic functions that accept any number of inputs (in this case, @racket[+]).
 
 @section{Curbing Curries and Losing Lambdas}
 
-Since flows are just functions, you can use them anywhere that you would normally use a function. In particular, they are often a clearer alternative to using currying or lambdas. For instance, to double every number in a list, we could do:
+Since flows are just functions, you can use them anywhere that you would normally use a function. In particular, they are often a clearer alternative to using @hyperlink["https://en.wikipedia.org/wiki/Currying"]{currying} or @seclink["lambda"  #:doc '(lib "scribblings/guide/guide.scrbl")]{lambdas}. For instance, to double every number in a list, we could do:
 
 @codeblock{
     (map (☯ (* 2)) (range 10))
