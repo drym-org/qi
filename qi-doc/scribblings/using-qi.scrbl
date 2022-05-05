@@ -196,6 +196,8 @@ And here it is in Qi:
 
 This separates the input list into its component values, produces a @racket[1] corresponding to each value, and then adds these ones together to get the length. It is the same idea encoded (and indeed, hidden) in the latter two Racket implementations.
 
+This succinctness is possible because Qi reaps the twin benefits of (1) working directly with values (and not just collections of values), and (2) variadic functions that accept any number of inputs (in this case, @racket[+]).
+
 @section{Curbing Curries and Losing Lambdas}
 
 Since flows are just functions, you can use them anywhere that you would normally use a function. In particular, they are often a clearer alternative to using currying or lambdas. For instance, to double every number in a list, we could do:
