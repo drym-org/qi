@@ -243,6 +243,18 @@ Methodical use of @racket[gen] together with the @seclink["Using_a_Tester"]{prob
 
 @bold{Common example}: Attempting to use a Qi macro in one module without @racketlink[provide]{providing} it from the module where it is defined -- note that Qi macros must be provided as @racket[(provide (for-space qi mac))]. See @secref["Using_Macros" #:doc '(lib "qi/scribblings/qi.scrbl")] for more on this.
 
+@subsubsection{Compose: Contract Violation}
+
+@codeblock{
+; compose: contract violation
+;   expected: procedure?
+;   given: '()
+}
+
+@bold{Meaning}: The interpreter attempted to compose functions but encountered a value that was not a function.
+
+@bold{Common example}: Attempting to use @racket[null] as if it were a literal. Use @racket['()] or @racket[(gen null)] instead. See @secref["null_is_Not_a_Literal"] for more.
+
 @subsubsection{List Arity Mismatch}
 
 @codeblock{
