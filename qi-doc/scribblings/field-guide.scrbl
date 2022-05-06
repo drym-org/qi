@@ -48,6 +48,8 @@ A journeyman of one's craft -- a woodworker, electrician, or a plumber, say -- a
 
 @section{Debugging}
 
+There are three prominent debugging strategies which may be used independently or in tandem -- @seclink["Using_Side_Effects"]{side effects}, @seclink["Using_a_Probe"]{probing}, and @seclink["Using_Fixtures"]{fixtures}.
+
 @subsection{Using Side Effects}
 
 The most lightweight way to debug your code is to use side effects, as this allows you to check values at various points in flows without affecting their functioning in any way. You can use this debugging approach always, even in functional Racket code that isn't using Qi.
@@ -64,7 +66,7 @@ Side effects are a natural fit for debugging functional code in general, as the 
                    (☯ (ε (>< println) replace-rule)))
 }
 
-@subsection{Using a Tester}
+@subsection{Using a Probe}
 
 @defmodule[qi/probe]
 
@@ -120,7 +122,7 @@ To use it, first wrap the entire expression @emph{invoking} the flow with a @rac
 
 @subsection{Using Fixtures}
 
-The @seclink["Using_a_Tester"]{probe debugger} allows you to check values at specific points in the flow, that is, essentially, the @emph{output} of the upstream components at that point. It is sometimes also useful to fix the @emph{input} to downstream components. In unit testing, fixing inputs to functions to test their behavior in a known environment is referred to as writing "fixtures." It's the same idea.
+The @seclink["Using_a_Probe"]{probe debugger} allows you to check values at specific points in the flow, that is, essentially, the @emph{output} of the upstream components at that point. It is sometimes also useful to fix the @emph{input} to downstream components. In unit testing, fixing inputs to functions to test their behavior in a known environment is referred to as writing "fixtures." It's the same idea.
 
 The basic way to do it is to insert a @racket[gen] form at the point of interest in the flow, as @racket[gen] ignores its inputs and just produces whatever values you specify.
 
@@ -128,7 +130,7 @@ The basic way to do it is to insert a @racket[gen] form at the point of interest
   (~> (2) sqr (gen 9) add1 (* 2))
 ]
 
-Methodical use of @racket[gen] together with the @seclink["Using_a_Tester"]{probe debugger} allows you to isolate bugs to specific sections of the flow, and then triangulate further using the same approach until you find the exact problem.
+Methodical use of @racket[gen] together with the @seclink["Using_a_Probe"]{probe debugger} allows you to isolate bugs to specific sections of the flow, and then triangulate further using the same approach until you find the exact problem.
 
 @racketblock[
   (probe (~> (3) (-< _ "5") (gen 3 5) + sqr readout (* 2) add1))

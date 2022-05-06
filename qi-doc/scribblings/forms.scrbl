@@ -31,7 +31,7 @@ The core syntax of the Qi language. These forms may be used in any flow. Flows m
 @section{Basic}
 
 @defidform[_]{
-  The symbol @racket[_] means different things depending on the context, but when used on its own, it is the identity flow or trivial transformation, where the outputs are the same as the inputs.
+  The symbol @racket[_] means different things depending on the context, but when used on its own, it is the identity flow or trivial transformation, where the outputs are the same as the inputs. It is equivalent to Racket's @racket[values].
 
 @examples[
     #:eval eval-for-docs
@@ -45,6 +45,8 @@ The core syntax of the Qi language. These forms may be used in any flow. Flows m
   A flow that generates the @emph{values} of the provided Racket expressions @racket[expr], ignoring any input values provided to it at runtime. This is the most common way to translate an ordinary value into a flow.
 
   Note that @seclink["Literals"]{literals} are transparently wrapped with @racket[gen] during @tech/reference{expansion} and don't need to be explicitly wrapped.
+
+  @racket[gen] generalizes @racket[const] in the same way that @racket[values] generalizes @racket[identity].
 
   Also see @secref["Using_Racket_Values_in_Qi_Flows"].
 
