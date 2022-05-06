@@ -714,6 +714,16 @@ Note that the symbol form uses Unicode @code{0x2225} corresponding to LaTeX's @c
   ]
 }
 
+@section{Identifiers}
+
+Identifiers in a flow context are interpreted as @tech/reference{variables} whose @tech/reference{values} are expected to be @seclink["lambda" #:doc '(lib "scribblings/guide/guide.scrbl")]{functions}. In other words, any named function may be used directly as a flow.
+
+@examples[
+    #:eval eval-for-docs
+    ((☯ +) 1 2 3)
+    ((☯ add1) 3)
+  ]
+
 @section{Literals}
 
 Literals and quoted values (including syntax-quoted values) in a flow context are interpreted as flows generating them. That is, for instance, @racket[5] in a flow context is equivalent to @racket[(gen 5)].

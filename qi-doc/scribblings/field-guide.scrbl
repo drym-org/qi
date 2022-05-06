@@ -271,6 +271,10 @@ Methodical use of @racket[gen] together with the @seclink["Using_a_Tester"]{prob
 
 @subsection{Gotchas}
 
+@subsubsection{null is Not a Literal}
+
+In Racket, @racket[null] is another way to indicate the empty list @racket['()], so that @racket[null] and @racket['()] are typically interchangeable. But note that @racket['()] is a @seclink["quote" #:doc '(lib "scribblings/reference/reference.scrbl")]{literal}, while @racket[null] is an @tech/reference{identifier} whose value is @racket['()]. Therefore, as @seclink["Literals"]{Qi interprets literals} as functions generating them, @racket['()] in Qi is treated as a flow that produces the value @racket['()]. On the other hand, as @seclink["Identifiers"]{Qi expects identifiers to be function-valued}, and as @racket[null] isn't a function, using it on its own is an error.
+
 @subsubsection{There's No Escaping @racket[esc]}
 
 If you have a function that returns another function that you'd like to use as a flow (e.g. perhaps parametrized by the first function over some argument), the usual way to do it is something like this:
