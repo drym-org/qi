@@ -214,6 +214,15 @@
         [exn:fail? 0]))
    vs))
 
+(define (currying . vs)
+  (apply (☯ (+ 3)) vs))
+
+(define (template . vs)
+  (apply (☯ (+ _ 3 _ 5 _ _ _ _ _ _ _ _)) vs))
+
+(define (catchall-template . vs)
+  (apply (☯ (+ 3 __ 5)) vs))
+
 (run-benchmark "one-of?"
                check-value
                (local one-of?)
@@ -383,3 +392,18 @@
                check-values
                (local try)
                20000)
+
+(run-benchmark "currying"
+               check-values
+               (local currying)
+               200000)
+
+(run-benchmark "template"
+               check-values
+               (local template)
+               200000)
+
+(run-benchmark "catchall-template"
+               check-values
+               (local catchall-template)
+               200000)
