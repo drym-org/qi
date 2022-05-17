@@ -223,6 +223,24 @@
 (define (catchall-template . vs)
   (apply (☯ (+ 3 __ 5)) vs))
 
+(define (if . vs)
+  (apply (☯ (if < 'hi 'bye))
+         vs))
+
+(define (when . vs)
+  (apply (☯ (when < 'hi))
+         vs))
+
+(define (unless . vs)
+  (apply (☯ (unless < 'hi))
+         vs))
+
+(define (switch . vs)
+  (apply (☯ (switch
+              [< 'hi]
+              [> 'bye]))
+         vs))
+
 (run-benchmark "one-of?"
                check-value
                (local one-of?)
@@ -407,3 +425,23 @@
                check-values
                (local catchall-template)
                200000)
+
+(run-benchmark "if"
+               check-values
+               (local if)
+               500000)
+
+(run-benchmark "when"
+               check-values
+               (local when)
+               500000)
+
+(run-benchmark "unless"
+               check-values
+               (local unless)
+               500000)
+
+(run-benchmark "switch"
+               check-values
+               (local switch)
+               500000)
