@@ -508,7 +508,7 @@ Note that the symbol form uses Unicode @code{0x2225} corresponding to LaTeX's @c
 
   When the @racket[=>] form is used in a consequent flow, the consequent receives @emph{N + 1} inputs, where the first input is the result of the predicate flow, and the remaining @racket[N] inputs are the a priori inputs to the consequent flow (which are typically the original inputs to the switch, unless modulated with a @racket[divert] clause). This form is analogous to the @racket[=>] symbol when used in a @racket[cond]. Note that while switch can direct any number of values, we can unambiguously channel the result of the predicate to the first input of the consequent here because it is guaranteed to be a single value (otherwise it wouldn't be a predicate).
 
-  If none of the conditions are met, this flow produces @emph{the input values}, unchanged. If you need a specific value such as @racket[(void)] or would prefer to output no values, indicate this explicitly via e.g. @racket[[else void]] or @racket[[else ⏚]].
+  If none of the conditions are met, this flow produces @emph{the input values}, unchanged, except if a @racket[divert] clause is specified, in which case it produces the input values transformed under @racket[consequent-gate-flow]. If you need a specific value such as @racket[(void)] or would prefer to output no values, indicate this explicitly via e.g. @racket[[else void]] or @racket[[else ⏚]].
 
 @examples[
     #:eval eval-for-docs

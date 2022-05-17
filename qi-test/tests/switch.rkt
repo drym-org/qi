@@ -275,7 +275,13 @@
                     [negative? 'hi]
                     [else 'bye])
                   -1
-                  "diverting to consequent flows"))
+                  "diverting to consequent flows")
+    (check-equal? (switch (0 -1)
+                    (% 1> 2>)
+                    [positive? 'hi]
+                    [negative? 'bye])
+                  -1
+                  "diverting to consequent flows with no matching clauses"))
    (test-suite
     "heterogeneous clauses"
     (check-equal? (switch (-3 5)

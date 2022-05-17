@@ -245,18 +245,14 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~datum switch) ((~or (~datum divert) (~datum %))
                         condition-gate:clause
                         consequent-gate:clause)))
-   #'(flow)]
+   #'(flow consequent-gate)]
   [(_ ((~datum switch) [(~datum else) alternative:clause]))
-   #'(flow (if #t
-               alternative
-               ⏚))]
+   #'(flow alternative)]
   [(_ ((~datum switch) ((~or (~datum divert) (~datum %))
                         condition-gate:clause
                         consequent-gate:clause)
                        [(~datum else) alternative:clause]))
-   #'(flow (if #t
-               (~> consequent-gate alternative)
-               ⏚))]
+   #'(flow (~> consequent-gate alternative))]
   [(_ ((~datum switch) [condition0:clause ((~datum =>) consequent0:clause ...)]
                        [condition:clause consequent:clause]
                        ...))
