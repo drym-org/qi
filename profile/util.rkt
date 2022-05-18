@@ -5,7 +5,8 @@
          check-list
          check-values
          check-two-values
-         run-benchmark)
+         run-benchmark
+         run-competitive-benchmark)
 
 (require (only-in racket/list
                   range
@@ -55,23 +56,19 @@
   (let ([ms (measure runner f-name n-times)])
     (displayln (~a name ": " ms " ms"))))
 
-(define-syntax-parser run-benchmark
-  [(_ name runner ((~datum local) f-name) n-times)
-   #'(let ([ms (measure runner f-name n-times)])
-       (displayln (~a name ": " ms " ms")))]
-  [(_ name runner f-name n-times)
-   #:with f-builtin (datum->syntax #'name
-                                   (string->symbol
-                                    (string-append "b:"
-                                                   (symbol->string
-                                                    (syntax->datum #'f-name)))))
-   #:with f-qi (datum->syntax #'name
-                              (string->symbol
-                               (string-append "q:"
-                                              (symbol->string
-                                               (syntax->datum #'f-name)))))
-   #'(begin (displayln (~a name ":"))
-            (for ([f (list f-builtin f-qi)]
-                  [label (list "λ" "☯")])
-              (let ([ms (measure runner f n-times)])
-                (displayln (~a label ": " ms " ms")))))])
+(define-syntax-parse-rule (run-competitive-benchmark name runner f-name n-times)
+  #:with f-builtin (datum->syntax #'name
+                     (string->symbol
+                      (string-append "b:"
+                                     (symbol->string
+                                      (syntax->datum #'f-name)))))
+  #:with f-qi (datum->syntax #'name
+                (string->symbol
+                 (string-append "q:"
+                                (symbol->string
+                                 (syntax->datum #'f-name)))))
+  (begin (displayln (~a name ":"))
+         (for ([f (list f-builtin f-qi)]
+               [label (list "λ" "☯")])
+           (let ([ms (measure runner f n-times)])
+             (displayln (~a label ": " ms " ms"))))))

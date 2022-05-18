@@ -243,205 +243,205 @@
 
 (run-benchmark "one-of?"
                check-value
-               (local one-of?)
+               one-of?
                100000)
 
 (run-benchmark "and"
                check-value
-               (local and)
+               and
                200000)
 
 (run-benchmark "or"
                check-value
-               (local or)
+               or
                200000)
 
 (run-benchmark "not"
                check-value
-               (local not)
+               not
                200000)
 
 (run-benchmark "and%"
                check-two-values
-               (local and%)
+               and%
                200000)
 
 (run-benchmark "or%"
                check-two-values
-               (local or%)
+               or%
                200000)
 
 (run-benchmark "group"
                check-values
-               (local group)
+               group
                200000)
 
 (run-benchmark "count"
                check-values
-               (local count)
+               count
                1000000)
 
 (run-benchmark "relay"
                check-values
-               (local relay)
+               relay
                50000)
 
 (run-benchmark "relay*"
                check-values
-               (local relay*)
+               relay*
                50000)
 
 (run-benchmark "amp"
                check-values
-               (local amp)
+               amp
                300000)
 
 (run-benchmark "ground"
                check-values
-               (local ground)
+               ground
                200000)
 
 (run-benchmark "thread"
                check-values
-               (local thread)
+               thread
                200000)
 
 (run-benchmark "thread-right"
                check-values
-               (local thread-right)
+               thread-right
                200000)
 
 (run-benchmark "crossover"
                check-values
-               (local crossover)
+               crossover
                200000)
 
 (run-benchmark "all"
                check-values
-               (local all)
+               all
                200000)
 
 (run-benchmark "any"
                check-values
-               (local any)
+               any
                200000)
 
 (run-benchmark "none"
                check-values
-               (local none)
+               none
                200000)
 
 (run-benchmark "all?"
                check-values
-               (local all?)
+               all?
                200000)
 
 (run-benchmark "any?"
                check-values
-               (local any?)
+               any?
                200000)
 
 (run-benchmark "none?"
                check-values
-               (local none?)
+               none?
                200000)
 
 (run-benchmark "collect"
                check-values
-               (local collect)
+               collect
                1000000)
 
 (run-benchmark "sep"
                check-list
-               (local sep)
+               sep
                1000000)
 
 (run-benchmark "gen"
                check-values
-               (local gen)
+               gen
                1000000)
 
 (run-benchmark "esc"
                check-values
-               (local esc)
+               esc
                1000000)
 
 (run-benchmark "AND"
                check-values
-               (local AND)
+               AND
                200000)
 
 (run-benchmark "OR"
                check-values
-               (local OR)
+               OR
                200000)
 
 (run-benchmark "NOT"
                check-value
-               (local NOT)
+               NOT
                200000)
 
 (run-benchmark "NAND"
                check-values
-               (local NAND)
+               NAND
                200000)
 
 (run-benchmark "NOR"
                check-values
-               (local NOR)
+               NOR
                200000)
 
 (run-benchmark "XOR"
                check-values
-               (local XOR)
+               XOR
                200000)
 
 (run-benchmark "XNOR"
                check-values
-               (local XNOR)
+               XNOR
                200000)
 
 (run-benchmark "tee"
                check-value
-               (local tee)
+               tee
                200000)
 
 (run-benchmark "try"
                check-values
-               (local try)
+               try
                20000)
 
 (run-benchmark "currying"
                check-values
-               (local currying)
+               currying
                200000)
 
 (run-benchmark "template"
                check-values
-               (local template)
+               template
                200000)
 
 (run-benchmark "catchall-template"
                check-values
-               (local catchall-template)
+               catchall-template
                200000)
 
 (run-benchmark "if"
                check-values
-               (local if)
+               if
                500000)
 
 (run-benchmark "when"
                check-values
-               (local when)
+               when
                500000)
 
 (run-benchmark "unless"
                check-values
-               (local unless)
+               unless
                500000)
 
 (run-benchmark "switch"
                check-values
-               (local switch)
+               switch
                500000)
