@@ -7,10 +7,7 @@
          let/switch)
 
 (require syntax/parse/define
-         racket/stxparam
          mischief/shorthand
-         (only-in racket/function
-                  const)
          (for-syntax racket/base)
          "flow.rkt"
          "on.rkt")

@@ -19,8 +19,6 @@
          racket/function
          racket/format
          syntax/parse/define
-         version-case
-         mischief/shorthand
          (for-syntax racket/base))
 
 (define (measure fn . args)
@@ -53,9 +51,9 @@
                           (apply values vs))
                         fn))))
 
-(version-case
- [(version< (version) "7.9.0.22")
-  (define-alias define-syntax-parse-rule define-simple-macro)])
+(define-syntax-parse-rule (run-benchmark name runner f-name n-times)
+  (let ([ms (measure runner f-name n-times)])
+    (displayln (~a name ": " ms " ms"))))
 
 (define-syntax-parser run-benchmark
   [(_ name runner ((~datum local) f-name) n-times)

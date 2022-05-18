@@ -4,7 +4,6 @@
 (define collection "qi")
 (define deps '("base"
                "mischief"
-               "version-case"
                "qi-lib"))
 (define build-deps '())
 (define clean '("compiled" "private/compiled"))

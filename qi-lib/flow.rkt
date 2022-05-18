@@ -10,7 +10,6 @@
          (only-in adjutor
                   values->list)
          racket/function
-         racket/format
          mischief/shorthand
          (for-syntax racket/base
                      racket/string

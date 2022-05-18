@@ -5,13 +5,7 @@
 
 (require syntax/parse/define
          (for-syntax racket/base)
-         version-case
-         mischief/shorthand
          qi)
-
-(version-case
- [(version< (version) "7.9.0.22")
-  (define-alias define-syntax-parse-rule define-simple-macro)])
 
 #|
 We want to support debugging flow invocations of the kind:
