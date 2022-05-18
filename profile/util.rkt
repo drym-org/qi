@@ -52,7 +52,10 @@
                           (apply values vs))
                         fn))))
 
-(define-syntax-parse-rule (run-benchmark name runner f-name n-times)
+(define-syntax-parse-rule (run-benchmark f-name runner n-times)
+  #:with name (datum->syntax #'f-name
+                (symbol->string
+                 (syntax->datum #'f-name)))
   (let ([ms (measure runner f-name n-times)])
     (displayln (~a name ": " ms " ms"))))
 
@@ -67,8 +70,9 @@
                  (string-append "q:"
                                 (symbol->string
                                  (syntax->datum #'f-name)))))
-  (begin (displayln (~a name ":"))
-         (for ([f (list f-builtin f-qi)]
-               [label (list "λ" "☯")])
-           (let ([ms (measure runner f n-times)])
-             (displayln (~a label ": " ms " ms"))))))
+  (begin
+    (displayln (~a name ":"))
+    (for ([f (list f-builtin f-qi)]
+          [label (list "λ" "☯")])
+      (let ([ms (measure runner f n-times)])
+        (displayln (~a label ": " ms " ms"))))))

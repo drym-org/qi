@@ -241,207 +241,166 @@
               [> 'bye]))
          vs))
 
-(run-benchmark "one-of?"
+(run-benchmark one-of?
                check-value
-               one-of?
                100000)
 
-(run-benchmark "and"
+(run-benchmark and
                check-value
-               and
                200000)
 
-(run-benchmark "or"
+(run-benchmark or
                check-value
-               or
                200000)
 
-(run-benchmark "not"
+(run-benchmark not
                check-value
-               not
                200000)
 
-(run-benchmark "and%"
+(run-benchmark and%
                check-two-values
-               and%
                200000)
 
-(run-benchmark "or%"
+(run-benchmark or%
                check-two-values
-               or%
                200000)
 
-(run-benchmark "group"
+(run-benchmark group
                check-values
-               group
                200000)
 
-(run-benchmark "count"
+(run-benchmark count
                check-values
-               count
                1000000)
 
-(run-benchmark "relay"
+(run-benchmark relay
                check-values
-               relay
                50000)
 
-(run-benchmark "relay*"
+(run-benchmark relay*
                check-values
-               relay*
                50000)
 
-(run-benchmark "amp"
+(run-benchmark amp
                check-values
-               amp
                300000)
 
-(run-benchmark "ground"
+(run-benchmark ground
                check-values
-               ground
                200000)
 
-(run-benchmark "thread"
+(run-benchmark thread
                check-values
-               thread
                200000)
 
-(run-benchmark "thread-right"
+(run-benchmark thread-right
                check-values
-               thread-right
                200000)
 
-(run-benchmark "crossover"
+(run-benchmark crossover
                check-values
-               crossover
                200000)
 
-(run-benchmark "all"
+(run-benchmark all
                check-values
-               all
                200000)
 
-(run-benchmark "any"
+(run-benchmark any
                check-values
-               any
                200000)
 
-(run-benchmark "none"
+(run-benchmark none
                check-values
-               none
                200000)
 
-(run-benchmark "all?"
+(run-benchmark all?
                check-values
-               all?
                200000)
 
-(run-benchmark "any?"
+(run-benchmark any?
                check-values
-               any?
                200000)
 
-(run-benchmark "none?"
+(run-benchmark none?
                check-values
-               none?
                200000)
 
-(run-benchmark "collect"
+(run-benchmark collect
                check-values
-               collect
                1000000)
 
-(run-benchmark "sep"
+(run-benchmark sep
                check-list
-               sep
                1000000)
 
-(run-benchmark "gen"
+(run-benchmark gen
                check-values
-               gen
                1000000)
 
-(run-benchmark "esc"
+(run-benchmark esc
                check-values
-               esc
                1000000)
 
-(run-benchmark "AND"
+(run-benchmark AND
                check-values
-               AND
                200000)
 
-(run-benchmark "OR"
+(run-benchmark OR
                check-values
-               OR
                200000)
 
-(run-benchmark "NOT"
+(run-benchmark NOT
                check-value
-               NOT
                200000)
 
-(run-benchmark "NAND"
+(run-benchmark NAND
                check-values
-               NAND
                200000)
 
-(run-benchmark "NOR"
+(run-benchmark NOR
                check-values
-               NOR
                200000)
 
-(run-benchmark "XOR"
+(run-benchmark XOR
                check-values
-               XOR
                200000)
 
-(run-benchmark "XNOR"
+(run-benchmark XNOR
                check-values
-               XNOR
                200000)
 
-(run-benchmark "tee"
+(run-benchmark tee
                check-value
-               tee
                200000)
 
-(run-benchmark "try"
+(run-benchmark try
                check-values
-               try
                20000)
 
-(run-benchmark "currying"
+(run-benchmark currying
                check-values
-               currying
                200000)
 
-(run-benchmark "template"
+(run-benchmark template
                check-values
-               template
                200000)
 
-(run-benchmark "catchall-template"
+(run-benchmark catchall-template
                check-values
-               catchall-template
                200000)
 
-(run-benchmark "if"
+(run-benchmark if
                check-values
-               if
                500000)
 
-(run-benchmark "when"
+(run-benchmark when
                check-values
-               when
                500000)
 
-(run-benchmark "unless"
+(run-benchmark unless
                check-values
-               unless
                500000)
 
-(run-benchmark "switch"
+(run-benchmark switch
                check-values
-               switch
                500000)
