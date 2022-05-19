@@ -1,11 +1,13 @@
 #lang racket/base
 
-(provide measure
+(provide average
+         measure
          check-value
          check-list
          check-values
          check-two-values
          run-benchmark
+         run-summary-benchmark
          run-competitive-benchmark)
 
 (require (only-in racket/list
@@ -20,7 +22,11 @@
          racket/function
          racket/format
          syntax/parse/define
-         (for-syntax racket/base))
+         (for-syntax racket/base)
+         qi)
+
+(define-flow average
+  (~> (-< + count) / round))
 
 (define (measure fn . args)
   (second (values->list (time-apply fn args))))
@@ -52,6 +58,8 @@
                           (apply values vs))
                         fn))))
 
+;; Run a single benchmarking function a specified number of times
+;; and report the time taken.
 (define-syntax-parse-rule (run-benchmark f-name runner n-times)
   #:with name (datum->syntax #'f-name
                 (symbol->string
@@ -59,6 +67,22 @@
   (let ([ms (measure runner f-name n-times)])
     (displayln (~a name ": " ms " ms"))))
 
+;; Run many benchmarking functions (typically exercising a single form)
+;; a specified number of times and report the time taken using the
+;; provided summary function, e.g. sum or average
+(define-syntax-parse-rule (run-summary-benchmark name f-summary (f-name runner n-times) ...)
+  (let ([results null])
+    (for ([f (list f-name ...)]
+          [r (list runner ...)]
+          [n (list n-times ...)])
+      (let ([ms (measure r f n)])
+        (set! results (cons ms results))))
+    (let ([summarized-result (apply f-summary results)])
+      (displayln (~a name ": " summarized-result " ms")))))
+
+;; Run different implementations of the same benchmark (e.g. a Racket vs a Qi
+;; implementation) a specified number of times, and report the time taken
+;; by each implementation.
 (define-syntax-parse-rule (run-competitive-benchmark name runner f-name n-times)
   #:with f-builtin (datum->syntax #'name
                      (string->symbol
