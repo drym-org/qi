@@ -241,6 +241,26 @@
               [> 'bye]))
          vs))
 
+(define (sieve . vs)
+  (apply (☯ (sieve positive? 'hi 'bye))
+         vs))
+
+(define (gate . vs)
+  (apply (☯ (gate <))
+         vs))
+
+(define (input-alias-1 . vs)
+  (apply (☯ 1>)
+         vs))
+
+(define (input-alias-5 . vs)
+  (apply (☯ 5>)
+         vs))
+
+(define (input-alias-9 . vs)
+  (apply (☯ 9>)
+         vs))
+
 (run-benchmark one-of?
                check-value
                100000)
@@ -404,3 +424,23 @@
 (run-benchmark switch
                check-values
                500000)
+
+(run-benchmark sieve
+               check-values
+               100000)
+
+(run-benchmark gate
+               check-values
+               500000)
+
+(run-summary-benchmark "input aliases"
+                       +
+                       (input-alias-1
+                        check-values
+                        100000)
+                       (input-alias-5
+                        check-values
+                        100000)
+                       (input-alias-9
+                        check-values
+                        100000))
