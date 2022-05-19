@@ -361,23 +361,25 @@
                  check-value
                  200000))
 
-;; TODO: summary?
 (module+ try
-  (define (try . vs)
+  (define (try-happy . vs)
     (apply
      (☯ (try +
           [exn:break? 10]
           [exn:fail? 0]))
-     vs)
+     vs))
+
+  (define (try-error . vs)
     (apply
      (☯ (try string-append
           [exn:break? 10]
           [exn:fail? 0]))
      vs))
 
-  (run-benchmark try
-                 check-values
-                 20000))
+  (run-summary-benchmark "try"
+                         +
+                         (try-happy check-values 20000)
+                         (try-error check-values 20000)))
 
 (module+ currying
   (define (currying . vs)
@@ -433,13 +435,27 @@
 (module+ switch
   (define (switch . vs)
     (apply (☯ (switch
-                  [< 'hi]
+                [< 'hi]
                 [> 'bye]))
            vs))
 
-  (run-benchmark switch
-                 check-values
-                 500000))
+  (define (switch-else . vs)
+    (apply (☯ (switch
+                [> 'hi]
+                [else 'bye]))
+           vs))
+
+  (define (switch-divert . vs)
+    (apply (☯ (switch (% _ 2>)
+                [> 'hi]
+                [else 'bye]))
+           vs))
+
+  (run-summary-benchmark "switch"
+                         +
+                         (switch check-values 200000)
+                         (switch-else check-values 200000)
+                         (switch-divert check-values 200000)))
 
 (module+ sieve
   (define (sieve . vs)
