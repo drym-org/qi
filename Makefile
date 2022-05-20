@@ -24,6 +24,7 @@ help:
 	@echo "profile - Run comprehensive performance benchmarks"
 	@echo "profile-base - Run basic comparative benchmarks"
 	@echo "profile-forms - Run benchmarks for individual Qi forms"
+	@echo "profile-forms-individually - Run benchmarks for Qi forms by name (command only)"
 
 # Primarily for use by CI.
 # Installs dependencies as well as linking this as a package.
@@ -109,10 +110,13 @@ profile-forms:
 	echo "Profiling forms..."
 	racket profile/forms.rkt
 
+profile-forms-individually:
+	@echo "Use 'racket profile/forms.rkt' directly, with -f form-name for each form."
+
 profile-base:
 	echo "Running base smoke profilers..."
 	racket profile/base.rkt
 
 profile: profile-base profile-forms
 
-.PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-with-errortrace errortrace docs cover coverage-check coverage-report cover-coveralls profile-forms profile-base profile
+.PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-with-errortrace errortrace docs cover coverage-check coverage-report cover-coveralls profile-forms profile-forms-individually profile-base profile
