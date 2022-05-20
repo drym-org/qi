@@ -8,7 +8,9 @@
          check-two-values
          run-benchmark
          run-summary-benchmark
-         run-competitive-benchmark)
+         run-competitive-benchmark
+         (for-space qi only-if)
+         for/call)
 
 (require (only-in racket/list
                   range
@@ -27,6 +29,15 @@
 
 (define-flow average
   (~> (-< + count) / round))
+
+(define-qi-syntax-rule (only-if pred consequent)
+  (if pred consequent _))
+
+;; just like for/list, but instead of collecting results
+;; into a list, it invokes each result
+(define-syntax-parse-rule (for/call (binding ...) body)
+  (for (binding ...)
+    (body)))
 
 (define (measure fn . args)
   (second (values->list (time-apply fn args))))

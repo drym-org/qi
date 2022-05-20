@@ -1,65 +1,80 @@
 #lang racket/base
 
-(require (only-in math sqr)
-         qi)
+(module one-of? "forms-base.rkt"
+  (provide run)
 
-(require "util.rkt")
-
-(module+ one-of?
   (define (one-of? v)
     ((☯ (one-of? 3 5 7))
      v))
 
-  (run-benchmark one-of?
-                 check-value
-                 100000))
+  (define (run)
+    (run-benchmark one-of?
+                   check-value
+                   100000)))
 
-(module+ and
+(module and "forms-base.rkt"
+  (provide run)
+
   (define (and v)
     ((☯ (and positive? integer?))
      v))
 
-  (run-benchmark and
-                 check-value
-                 200000))
+  (define (run)
+    (run-benchmark and
+                   check-value
+                   200000)))
 
-(module+ or
+(module or "forms-base.rkt"
+  (provide run)
+
   (define (or v)
     ((☯ (or positive? integer?))
      v))
 
-  (run-benchmark or
-                 check-value
-                 200000))
+  (define (run)
+    (run-benchmark or
+                   check-value
+                   200000)))
 
-(module+ not
+(module not "forms-base.rkt"
+  (provide run)
+
   (define (not v)
     ((☯ (not integer?))
      v))
 
-  (run-benchmark not
-                 check-value
-                 200000))
+  (define (run)
+    (run-benchmark not
+                   check-value
+                   200000)))
 
-(module+ and%
+(module and% "forms-base.rkt"
+  (provide run)
+
   (define (and% a b)
     ((☯ (and% positive? integer?))
      a b))
 
-  (run-benchmark and%
-                 check-two-values
-                 200000))
+  (define (run)
+    (run-benchmark and%
+                   check-two-values
+                   200000)))
 
-(module+ or%
+(module or% "forms-base.rkt"
+  (provide run)
+
   (define (or% a b)
     ((☯ (or% positive? integer?))
      a b))
 
-  (run-benchmark or%
-                 check-two-values
-                 200000))
+  (define (run)
+    (run-benchmark or%
+                   check-two-values
+                   200000)))
 
-(module+ group
+(module group "forms-base.rkt"
+  (provide run)
+
   (define (group . vs)
     (apply
      (☯ (~> (group 2 + _)
@@ -68,21 +83,27 @@
             +))
      vs))
 
-  (run-benchmark group
-                 check-values
-                 200000))
+  (define (run)
+    (run-benchmark group
+                   check-values
+                   200000)))
 
-(module+ count
+(module count "forms-base.rkt"
+  (provide run)
+
   (define (count . vs)
     (apply
      (☯ count)
      vs))
 
-  (run-benchmark count
-                 check-values
-                 1000000))
+  (define (run)
+    (run-benchmark count
+                   check-values
+                   1000000)))
 
-(module+ relay
+(module relay "forms-base.rkt"
+  (provide run)
+
   (define (relay . vs)
     (apply
      (☯ (== add1
@@ -97,11 +118,14 @@
             add1))
      vs))
 
-  (run-benchmark relay
-                 check-values
-                 50000))
+  (define (run)
+    (run-benchmark relay
+                   check-values
+                   50000)))
 
-(module+ relay*
+(module relay* "forms-base.rkt"
+  (provide run)
+
   (define (relay* . vs)
     (apply
      (☯ (==* add1
@@ -110,31 +134,40 @@
              +))
      vs))
 
-  (run-benchmark relay*
-                 check-values
-                 50000))
+  (define (run)
+    (run-benchmark relay*
+                   check-values
+                   50000)))
 
-(module+ amp
+(module amp "forms-base.rkt"
+  (provide run)
+
   (define (amp . vs)
     (apply
      (☯ (>< sqr))
      vs))
 
-  (run-benchmark amp
-                 check-values
-                 300000))
+  (define (run)
+    (run-benchmark amp
+                   check-values
+                   300000)))
 
-(module+ ground
+(module ground "forms-base.rkt"
+  (provide run)
+
   (define (ground . vs)
     (apply
      (☯ ⏚)
      vs))
 
-  (run-benchmark ground
-                 check-values
-                 200000))
+  (define (run)
+    (run-benchmark ground
+                   check-values
+                   200000)))
 
-(module+ thread
+(module thread "forms-base.rkt"
+  (provide run)
+
   (define (thread . vs)
     (apply
      (☯ (~> (+ 5)
@@ -150,11 +183,14 @@
             add1))
      vs))
 
-  (run-benchmark thread
-                 check-values
-                 200000))
+  (define (run)
+    (run-benchmark thread
+                   check-values
+                   200000)))
 
-(module+ thread-right
+(module thread-right "forms-base.rkt"
+  (provide run)
+
   (define (thread-right . vs)
     (apply
      (☯ (~>> (+ 5)
@@ -170,198 +206,258 @@
              add1))
      vs))
 
-  (run-benchmark thread-right
-                 check-values
-                 200000))
+  (define (run)
+    (run-benchmark thread-right
+                   check-values
+                   200000)))
 
-(module+ crossover
+(module crossover "forms-base.rkt"
+  (provide run)
+
   (define (crossover . vs)
     (apply
      (☯ X)
      vs))
 
-  (run-benchmark crossover
-                 check-values
-                 200000))
+  (define (run)
+    (run-benchmark crossover
+                   check-values
+                   200000)))
 
-(module+ all
+(module all "forms-base.rkt"
+  (provide run)
+
   (define (all . vs)
     (apply
      (☯ (all positive?))
      vs))
 
-  (run-benchmark all
-                 check-values
-                 200000))
+  (define (run)
+    (run-benchmark all
+                   check-values
+                   200000)))
 
-(module+ any
+(module any "forms-base.rkt"
+  (provide run)
+
   (define (any . vs)
     (apply
      (☯ (any positive?))
      vs))
 
-  (run-benchmark any
-                 check-values
-                 200000))
+  (define (run)
+    (run-benchmark any
+                   check-values
+                   200000)))
 
-(module+ none
+(module none "forms-base.rkt"
+  (provide run)
+
   (define (none . vs)
     (apply
      (☯ (none positive?))
      vs))
 
-  (run-benchmark none
-                 check-values
-                 200000))
+  (define (run)
+    (run-benchmark none
+                   check-values
+                   200000)))
 
-(module+ all?
+(module all? "forms-base.rkt"
+  (provide run)
+
   (define (all? . vs)
     (apply
      (☯ all?)
      vs))
 
-  (run-benchmark all?
-                 check-values
-                 200000))
+  (define (run)
+    (run-benchmark all?
+                   check-values
+                   200000)))
 
-(module+ any?
+(module any? "forms-base.rkt"
+  (provide run)
+
   (define (any? . vs)
     (apply
      (☯ any?)
      vs))
 
-  (run-benchmark any?
-                 check-values
-                 200000))
+  (define (run)
+    (run-benchmark any?
+                   check-values
+                   200000)))
 
-(module+ none?
+(module none? "forms-base.rkt"
+  (provide run)
+
   (define (none? . vs)
     (apply
      (☯ none?)
      vs))
 
-  (run-benchmark none?
-                 check-values
-                 200000))
+  (define (run)
+    (run-benchmark none?
+                   check-values
+                   200000)))
 
-(module+ collect
+(module collect "forms-base.rkt"
+  (provide run)
+
   (define (collect . vs)
     (apply
      (☯ ▽)
      vs))
 
-  (run-benchmark collect
-                 check-values
-                 1000000))
+  (define (run)
+    (run-benchmark collect
+                   check-values
+                   1000000)))
 
-(module+ sep
+(module sep "forms-base.rkt"
+  (provide run)
+
   (define (sep v)
     ((☯ △)
      v))
 
-  (run-benchmark sep
-                 check-list
-                 1000000))
+  (define (run)
+    (run-benchmark sep
+                   check-list
+                   1000000)))
 
-(module+ gen
+(module gen "forms-base.rkt"
+  (provide run)
+
   (define (gen . vs)
     (apply
      (☯ (gen 1 2 3))
      vs))
 
-  (run-benchmark gen
-                 check-values
-                 1000000))
+  (define (run)
+    (run-benchmark gen
+                   check-values
+                   1000000)))
 
-(module+ esc
+(module esc "forms-base.rkt"
+  (provide run)
+
   (define (esc . vs)
     (apply
      (☯ (esc (λ args args)))
      vs))
 
-  (run-benchmark esc
-                 check-values
-                 1000000))
+  (define (run)
+    (run-benchmark esc
+                   check-values
+                   1000000)))
 
-(module+ AND
+(module AND "forms-base.rkt"
+  (provide run)
+
   (define (AND . vs)
     (apply
      (☯ AND)
      vs))
 
-  (run-benchmark AND
-                 check-values
-                 200000))
+  (define (run)
+    (run-benchmark AND
+                   check-values
+                   200000)))
 
-(module+ OR
+(module OR "forms-base.rkt"
+  (provide run)
+
   (define (OR . vs)
     (apply
      (☯ OR)
      vs))
 
-  (run-benchmark OR
-                 check-values
-                 200000))
+  (define (run)
+    (run-benchmark OR
+                   check-values
+                   200000)))
 
-(module+ NOT
+(module NOT "forms-base.rkt"
+  (provide run)
+
   (define (NOT v)
     ((☯ NOT)
      v))
 
-  (run-benchmark NOT
-                 check-value
-                 200000))
+  (define (run)
+    (run-benchmark NOT
+                   check-value
+                   200000)))
 
-(module+ NAND
+(module NAND "forms-base.rkt"
+  (provide run)
+
   (define (NAND . vs)
     (apply
      (☯ NAND)
      vs))
 
-  (run-benchmark NAND
-                 check-values
-                 200000))
+  (define (run)
+    (run-benchmark NAND
+                   check-values
+                   200000)))
 
-(module+ NOR
+(module NOR "forms-base.rkt"
+  (provide run)
+
   (define (NOR . vs)
     (apply
      (☯ NOR)
      vs))
 
-  (run-benchmark NOR
-                 check-values
-                 200000))
+  (define (run)
+    (run-benchmark NOR
+                   check-values
+                   200000)))
 
-(module+ XOR
+(module XOR "forms-base.rkt"
+  (provide run)
+
   (define (XOR . vs)
     (apply
      (☯ XOR)
      vs))
 
-  (run-benchmark XOR
-                 check-values
-                 200000))
+  (define (run)
+    (run-benchmark XOR
+                   check-values
+                   200000)))
 
-(module+ XNOR
+(module XNOR "forms-base.rkt"
+  (provide run)
+
   (define (XNOR . vs)
     (apply
      (☯ XNOR)
      vs))
 
-  (run-benchmark XNOR
-                 check-values
-                 200000))
+  (define (run)
+    (run-benchmark XNOR
+                   check-values
+                   200000)))
 
-(module+ tee
+(module tee "forms-base.rkt"
+  (provide run)
+
   (define (tee v)
     ((☯ (-< add1 sub1 sqr))
      v))
 
-  (run-benchmark tee
-                 check-value
-                 200000))
+  (define (run)
+    (run-benchmark tee
+                   check-value
+                   200000)))
 
-(module+ try
+(module try "forms-base.rkt"
+  (provide run)
+
   (define (try-happy . vs)
     (apply
      (☯ (try +
@@ -376,64 +472,85 @@
           [exn:fail? 0]))
      vs))
 
-  (run-summary-benchmark "try"
-                         +
-                         (try-happy check-values 20000)
-                         (try-error check-values 20000)))
+  (define (run)
+    (run-summary-benchmark "try"
+                           +
+                           (try-happy check-values 20000)
+                           (try-error check-values 20000))))
 
-(module+ currying
+(module currying "forms-base.rkt"
+  (provide run)
+
   (define (currying . vs)
     (apply (☯ (+ 3)) vs))
 
-  (run-benchmark currying
-                 check-values
-                 200000))
+  (define (run)
+    (run-benchmark currying
+                   check-values
+                   200000)))
 
-(module+ template
+(module template "forms-base.rkt"
+  (provide run)
+
   (define (template . vs)
     (apply (☯ (+ _ 3 _ 5 _ _ _ _ _ _ _ _)) vs))
 
-  (run-benchmark template
-                 check-values
-                 200000))
+  (define (run)
+    (run-benchmark template
+                   check-values
+                   200000)))
 
-(module+ catchall-template
+(module catchall-template "forms-base.rkt"
+  (provide run)
+
   (define (catchall-template . vs)
     (apply (☯ (+ 3 __ 5)) vs))
 
-  (run-benchmark catchall-template
-                 check-values
-                 200000))
+  (define (run)
+    (run-benchmark catchall-template
+                   check-values
+                   200000)))
 
-(module+ if
+(module if "forms-base.rkt"
+  (provide run)
+
   (define (if . vs)
     (apply (☯ (if < 'hi 'bye))
            vs))
 
-  (run-benchmark if
-                 check-values
-                 500000))
+  (define (run)
+    (run-benchmark if
+                   check-values
+                   500000)))
 
-(module+ when
+(module when "forms-base.rkt"
+  (provide run)
+
   (define (when . vs)
     (apply (☯ (when < 'hi))
            vs))
 
-  (run-benchmark when
-                 check-values
-                 500000))
+  (define (run)
+    (run-benchmark when
+                   check-values
+                   500000)))
 
-(module+ unless
+(module unless "forms-base.rkt"
+  (provide run)
+
   (define (unless . vs)
     (apply (☯ (unless < 'hi))
            vs))
 
-  (run-benchmark unless
-                 check-values
-                 500000))
+  (define (run)
+    (run-benchmark unless
+                   check-values
+                   500000)))
 
-(module+ switch
-  (define (switch . vs)
+(module switch "forms-base.rkt"
+  (provide run)
+
+  (define (switch-basic . vs)
     (apply (☯ (switch
                 [< 'hi]
                 [> 'bye]))
@@ -451,31 +568,40 @@
                 [else 'bye]))
            vs))
 
-  (run-summary-benchmark "switch"
-                         +
-                         (switch check-values 200000)
-                         (switch-else check-values 200000)
-                         (switch-divert check-values 200000)))
+  (define (run)
+    (run-summary-benchmark "switch"
+                           +
+                           (switch-basic check-values 200000)
+                           (switch-else check-values 200000)
+                           (switch-divert check-values 200000))))
 
-(module+ sieve
+(module sieve "forms-base.rkt"
+  (provide run)
+
   (define (sieve . vs)
     (apply (☯ (sieve positive? 'hi 'bye))
            vs))
 
-  (run-benchmark sieve
-                 check-values
-                 100000))
+  (define (run)
+    (run-benchmark sieve
+                   check-values
+                   100000)))
 
-(module+ gate
+(module gate "forms-base.rkt"
+  (provide run)
+
   (define (gate . vs)
     (apply (☯ (gate <))
            vs))
 
-  (run-benchmark gate
-                 check-values
-                 500000))
+  (define (run)
+    (run-benchmark gate
+                   check-values
+                   500000)))
 
-(module+ input-aliases
+(module input-aliases "forms-base.rkt"
+  (provide run)
+
   (define (input-alias-1 . vs)
     (apply (☯ 1>)
            vs))
@@ -488,60 +614,138 @@
     (apply (☯ 9>)
            vs))
 
-  (run-summary-benchmark "input aliases"
-                         +
-                         (input-alias-1
-                          check-values
-                          100000)
-                         (input-alias-5
-                          check-values
-                          100000)
-                         (input-alias-9
-                          check-values
-                          100000)))
+  (define (run)
+    (run-summary-benchmark "input aliases"
+                           +
+                           (input-alias-1
+                            check-values
+                            100000)
+                           (input-alias-5
+                            check-values
+                            100000)
+                           (input-alias-9
+                            check-values
+                            100000))))
 
-(module+ main
-  (require (submod ".." one-of?)
-           (submod ".." and)
-           (submod ".." or)
-           (submod ".." not)
-           (submod ".." and%)
-           (submod ".." or%)
-           (submod ".." group)
-           (submod ".." count)
-           (submod ".." relay)
-           (submod ".." relay*)
-           (submod ".." amp)
-           (submod ".." ground)
-           (submod ".." thread)
-           (submod ".." thread-right)
-           (submod ".." crossover)
-           (submod ".." all)
-           (submod ".." any)
-           (submod ".." none)
-           (submod ".." all?)
-           (submod ".." any?)
-           (submod ".." none?)
-           (submod ".." collect)
-           (submod ".." sep)
-           (submod ".." gen)
-           (submod ".." esc)
-           (submod ".." AND)
-           (submod ".." OR)
-           (submod ".." NOT)
-           (submod ".." NAND)
-           (submod ".." NOR)
-           (submod ".." XOR)
-           (submod ".." XNOR)
-           (submod ".." tee)
-           (submod ".." try)
-           (submod ".." currying)
-           (submod ".." template)
-           (submod ".." catchall-template)
-           (submod ".." if)
-           (submod ".." when)
-           (submod ".." unless)
-           (submod ".." switch)
-           (submod ".." sieve)
-           (submod ".." gate)
-           (submod ".." input-aliases)))
+(module* main cli
+
+  (require
+   (prefix-in one-of?: (submod ".." one-of?))
+   (prefix-in and: (submod ".." and))
+   (prefix-in or: (submod ".." or))
+   (prefix-in not: (submod ".." not))
+   (prefix-in and%: (submod ".." and%))
+   (prefix-in or%: (submod ".." or%))
+   (prefix-in group: (submod ".." group))
+   (prefix-in count: (submod ".." count))
+   (prefix-in relay: (submod ".." relay))
+   (prefix-in relay*: (submod ".." relay*))
+   (prefix-in amp: (submod ".." amp))
+   (prefix-in ground: (submod ".." ground))
+   (prefix-in thread: (submod ".." thread))
+   (prefix-in thread-right: (submod ".." thread-right))
+   (prefix-in crossover: (submod ".." crossover))
+   (prefix-in all: (submod ".." all))
+   (prefix-in any: (submod ".." any))
+   (prefix-in none: (submod ".." none))
+   (prefix-in all?: (submod ".." all?))
+   (prefix-in any?: (submod ".." any?))
+   (prefix-in none?: (submod ".." none?))
+   (prefix-in collect: (submod ".." collect))
+   (prefix-in sep: (submod ".." sep))
+   (prefix-in gen: (submod ".." gen))
+   (prefix-in esc: (submod ".." esc))
+   (prefix-in AND: (submod ".." AND))
+   (prefix-in OR: (submod ".." OR))
+   (prefix-in NOT: (submod ".." NOT))
+   (prefix-in NAND: (submod ".." NAND))
+   (prefix-in NOR: (submod ".." NOR))
+   (prefix-in XOR: (submod ".." XOR))
+   (prefix-in XNOR: (submod ".." XNOR))
+   (prefix-in tee: (submod ".." tee))
+   (prefix-in try: (submod ".." try))
+   (prefix-in currying: (submod ".." currying))
+   (prefix-in template: (submod ".." template))
+   (prefix-in catchall-template: (submod ".." catchall-template))
+   (prefix-in if: (submod ".." if))
+   (prefix-in when: (submod ".." when))
+   (prefix-in unless: (submod ".." unless))
+   (prefix-in switch: (submod ".." switch))
+   (prefix-in sieve: (submod ".." sieve))
+   (prefix-in gate: (submod ".." gate))
+   (prefix-in input-aliases: (submod ".." input-aliases)))
+
+  (require relation
+           qi
+           (only-in "util.rkt"
+                    only-if
+                    for/call))
+
+  ;; It would be great if we could get the value of a variable
+  ;; by using its (string) name, but (eval (string->symbol name))
+  ;; doesn't find it. So instead, we reify the "lexical environment"
+  ;; here manually, so that the values can be looked up at runtime
+  ;; based on the string names (note that the value is always the key
+  ;; + ":" + "run")
+  (define env
+    (hash
+     "one-of?" one-of?:run
+     "and" and:run
+     "or" or:run
+     "not" not:run
+     "and%" and%:run
+     "or%" or%:run
+     "group" group:run
+     "count" count:run
+     "relay" relay:run
+     "relay*" relay*:run
+     "amp" amp:run
+     "ground" ground:run
+     "thread" thread:run
+     "thread-right" thread-right:run
+     "crossover" crossover:run
+     "all" all:run
+     "any" any:run
+     "none" none:run
+     "all?" all?:run
+     "any?" any?:run
+     "none?" none?:run
+     "collect" collect:run
+     "sep" sep:run
+     "gen" gen:run
+     "esc" esc:run
+     "AND" AND:run
+     "OR" OR:run
+     "NOT" NOT:run
+     "NAND" NAND:run
+     "NOR" NOR:run
+     "XOR" XOR:run
+     "XNOR" XNOR:run
+     "tee" tee:run
+     "try" try:run
+     "currying" currying:run
+     "template" template:run
+     "catchall-template" catchall-template:run
+     "if" if:run
+     "when" when:run
+     "unless" unless:run
+     "switch" switch:run
+     "sieve" sieve:run
+     "gate" gate:run
+     "input-aliases" input-aliases:run))
+
+  (flag (forms #:param [forms null] name)
+    ("-f" "--form" "Forms to benchmark")
+    (forms (cons name (forms))))
+
+  (constraint (multi forms))
+
+  (program (main)
+    (let ([fs (~>> ((forms))
+                   (only-if null?
+                     (gen (hash-keys env)))
+                   (sort <))])
+      (for/call ([f fs])
+        (hash-ref env f))))
+
+  (run main))
