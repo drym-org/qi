@@ -120,19 +120,26 @@ Run all profilers
 
   make profile
 
-Run just the profilers for individual forms
-```````````````````````````````````````````
-
-.. code-block:: bash
-
-  make profile-forms
-
 Run just the competitive benchmarks against Racket
 ``````````````````````````````````````````````````
 
 .. code-block:: bash
 
   make profile-competitive
+
+Run just the profilers for forms of the language
+````````````````````````````````````````````````
+
+.. code-block:: bash
+
+  make profile-forms
+
+Run just the profilers for selected forms
+`````````````````````````````````````````
+
+.. code-block:: bash
+
+  make profile-selected-forms
 
 Docs Loop
 ~~~~~~~~~
