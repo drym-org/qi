@@ -132,7 +132,7 @@ Run just the competitive benchmarks against Racket
 
 .. code-block:: bash
 
-  make profile-base
+  make profile-competitive
 
 Docs Loop
 ~~~~~~~~~
