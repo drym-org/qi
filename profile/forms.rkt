@@ -672,6 +672,78 @@
                             check-value
                             20000))))
 
+(module select "forms-base.rkt"
+  (provide run)
+
+  (define (select . vs)
+    (apply (☯ (select 3 5 8))
+           vs))
+
+  (define (run)
+    (run-benchmark select
+                   check-values
+                   20000)))
+
+(module block "forms-base.rkt"
+  (provide run)
+
+  (define (block . vs)
+    (apply (☯ (block 3 5 8))
+           vs))
+
+  (define (run)
+    (run-benchmark block
+                   check-values
+                   20000)))
+
+(module bundle "forms-base.rkt"
+  (provide run)
+
+  (define (bundle . vs)
+    (apply (☯ (bundle (3 5 8) + -))
+           vs))
+
+  (define (run)
+    (run-benchmark bundle
+                   check-values
+                   20000)))
+
+(module effect "forms-base.rkt"
+  (provide run)
+
+  (define (effect . vs)
+    (apply (☯ (effect + +))
+           vs))
+
+  (define (run)
+    (run-benchmark effect
+                   check-values
+                   200000)))
+
+(module live? "forms-base.rkt"
+  (provide run)
+
+  (define (live? . vs)
+    (apply (☯ live?)
+           vs))
+
+  (define (run)
+    (run-benchmark live?
+                   check-values
+                   500000)))
+
+(module rectify "forms-base.rkt"
+  (provide run)
+
+  (define (rectify . vs)
+    (apply (☯ (rectify #f))
+           vs))
+
+  (define (run)
+    (run-benchmark rectify
+                   check-values
+                   500000)))
+
 ;; To run benchmarks for a form interactively, use e.g.:
 ;; (require (submod "." fanout))
 ;; (run)
@@ -725,7 +797,13 @@
    (prefix-in input-aliases: (submod ".." input-aliases))
    (prefix-in fanout: (submod ".." fanout))
    (prefix-in inverter: (submod ".." inverter))
-   (prefix-in feedback: (submod ".." feedback)))
+   (prefix-in feedback: (submod ".." feedback))
+   (prefix-in select: (submod ".." select))
+   (prefix-in block: (submod ".." block))
+   (prefix-in bundle: (submod ".." bundle))
+   (prefix-in effect: (submod ".." effect))
+   (prefix-in live?: (submod ".." live?))
+   (prefix-in rectify: (submod ".." rectify)))
 
   (require relation
            qi
@@ -787,7 +865,13 @@
      "input-aliases" input-aliases:run
      "fanout" fanout:run
      "inverter" inverter:run
-     "feedback" feedback:run))
+     "feedback" feedback:run
+     "select" select:run
+     "block" block:run
+     "bundle" bundle:run
+     "effect" effect:run
+     "live?" live?:run
+     "rectify" rectify:run))
 
   (flag (forms #:param [forms null] name)
     ("-f" "--form" "Forms to benchmark")
