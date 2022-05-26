@@ -627,6 +627,55 @@
                             check-values
                             100000))))
 
+(module fanout "forms-base.rkt"
+  (provide run)
+
+  (define (fanout . vs)
+    (apply (☯ (fanout 3))
+           vs))
+
+  (define (run)
+    (run-benchmark fanout
+                   check-values
+                   500000)))
+
+(module inverter "forms-base.rkt"
+  (provide run)
+
+  (define (inverter . vs)
+    (apply (☯ inverter)
+           vs))
+
+  (define (run)
+    (run-benchmark inverter
+                   check-values
+                   200000)))
+
+(module feedback "forms-base.rkt"
+  (provide run)
+
+  (define (feedback-number . vs)
+    (apply (☯ (feedback 5 _))
+           vs))
+
+  (define (feedback-while v)
+    ((☯ (feedback (while (< 1024)) (~> add1 (* 2))))
+     v))
+
+  (define (run)
+    (run-summary-benchmark "feedback"
+                           +
+                           (feedback-number
+                            check-values
+                            20000)
+                           (feedback-while
+                            check-value
+                            20000))))
+
+;; To run benchmarks for a form interactively, use e.g.:
+;; (require (submod "." fanout))
+;; (run)
+
 (module* main cli
 
   (require
@@ -673,7 +722,10 @@
    (prefix-in switch: (submod ".." switch))
    (prefix-in sieve: (submod ".." sieve))
    (prefix-in gate: (submod ".." gate))
-   (prefix-in input-aliases: (submod ".." input-aliases)))
+   (prefix-in input-aliases: (submod ".." input-aliases))
+   (prefix-in fanout: (submod ".." fanout))
+   (prefix-in inverter: (submod ".." inverter))
+   (prefix-in feedback: (submod ".." feedback)))
 
   (require relation
            qi
@@ -732,7 +784,10 @@
      "switch" switch:run
      "sieve" sieve:run
      "gate" gate:run
-     "input-aliases" input-aliases:run))
+     "input-aliases" input-aliases:run
+     "fanout" fanout:run
+     "inverter" inverter:run
+     "feedback" feedback:run))
 
   (flag (forms #:param [forms null] name)
     ("-f" "--form" "Forms to benchmark")
