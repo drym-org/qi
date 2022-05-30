@@ -744,6 +744,18 @@
                    check-values
                    500000)))
 
+(module pass "forms-base.rkt"
+  (provide run)
+
+  (define (pass . vs)
+    (apply (☯ (pass odd?))
+           vs))
+
+  (define (run)
+    (run-benchmark pass
+                   check-values
+                   200000)))
+
 ;; To run benchmarks for a form interactively, use e.g.:
 ;; (require (submod "." fanout))
 ;; (run)
@@ -803,7 +815,8 @@
    (prefix-in bundle: (submod ".." bundle))
    (prefix-in effect: (submod ".." effect))
    (prefix-in live?: (submod ".." live?))
-   (prefix-in rectify: (submod ".." rectify)))
+   (prefix-in rectify: (submod ".." rectify))
+   (prefix-in pass: (submod ".." pass)))
 
   (require relation
            qi
@@ -871,7 +884,8 @@
      "bundle" bundle:run
      "effect" effect:run
      "live?" live?:run
-     "rectify" rectify:run))
+     "rectify" rectify:run
+     "pass" pass:run))
 
   (flag (forms #:param [forms null] name)
     ("-f" "--form" "Forms to benchmark")
