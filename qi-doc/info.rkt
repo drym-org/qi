@@ -25,5 +25,5 @@
                      "qi-lib"
                      "qi-probe"
                      "relation"))
-(define scribblings '(("scribblings/qi.scrbl" (multi-page))))
+(define scribblings '(("scribblings/qi.scrbl" (multi-page) (language))))
 (define clean '("compiled" "doc" "doc/qi"))
