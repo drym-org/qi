@@ -147,9 +147,11 @@ Methodical use of @racket[gen] together with the @seclink["Using_a_Probe"]{probe
 ;   received: 2
 }
 
-@bold{Meaning}: A flow is either returning more or fewer values than the expression receiving the result of the flow is expecting.
+@bold{Meaning}: A flow is either returning more or fewer values than the expression receiving the result of the flow is expecting. See @secref["values-model" #:doc '(lib "scribblings/reference/reference.scrbl")] for general information about this.
 
 @bold{Common example}: Attempting to assign the result of a multi-valued flow to a single variable. Use @racket[define-values] instead of @racket[define] here, or consider decomposing the flow into multiple flows that each return a single value.
+
+@bold{Common example}: Attempting to invoke a function with arguments produced by a multi-valued flow, something like @racket[(+ (~> ((range 10)) △))]. Function application syntax in Racket expects a single argument in each argument position, and cannot receive them all from a flow in this way. You could use @racket[call-with-values] to do it, but it is much simpler to just use Qi's invocation syntax via a threading form, e.g. @racket[(~> ((range 10)) △ +)].
 
 @bold{Common example}: Using the threading form @racket[~>] without wrapping the input arguments in parentheses. Remember that, unlike Racket's usual threading macro, input arguments to Qi's threading form @seclink["Relationship_to_the_Threading_Macro"]{must be wrapped in parentheses}.
 
