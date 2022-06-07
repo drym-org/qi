@@ -10,6 +10,8 @@
          (only-in adjutor
                   values->list)
          racket/function
+         (only-in racket/list
+                  make-list)
          mischief/shorthand
          (for-syntax racket/base
                      racket/string
@@ -380,6 +382,11 @@ provide appropriate error messages at the level of the DSL.
        (apply values
               (apply append
                      (repeat n args))))]
+  ;; [(_ ({~datum fanout} n:expr))
+  ;;  #'(lambda args
+  ;;      (apply values
+  ;;             (apply append
+  ;;                    (make-list n args))))]
   ;; [(_ ({~datum fanout} n:expr))
   ;;  #'(lambda args (apply repeat-values n args))]
   ;; [(_ ({~datum fanout} n:expr))
