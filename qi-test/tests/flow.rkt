@@ -868,7 +868,14 @@
                    "control form of fanout")
      (check-equal? (~> (3 "a" "b") fanout string-append)
                    "ababab"
-                   "control form of fanout"))
+                   "control form of fanout")
+     (check-equal? (~> (5) (fanout (add1 2)) ▽)
+                   (list 5 5 5)
+                   "arbitrary racket expressions and not just literals")
+     (check-equal? (let ([n 3])
+                     (~> (5) (fanout n) ▽))
+                   (list 5 5 5)
+                   "arbitrary racket expressions and not just literals"))
     (test-suite
      "inverter"
      (check-false ((☯ (~> inverter
