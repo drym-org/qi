@@ -231,8 +231,7 @@
                    10)
      (check-exn exn:fail:contract?
                 (thunk ((☯ (~> △ +))
-                        #(1 2 3 4)))
-                10)
+                        #(1 2 3 4))))
      (check-equal? ((☯ (~> (△ +) ▽)) (list 1 2 3) 10)
                    (list 11 12 13)
                    "separate into a flow with presupplied values")
