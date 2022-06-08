@@ -366,33 +366,15 @@ provide appropriate error messages at the level of the DSL.
   ;; high level routing
   [(_ (~datum fanout))
    #'repeat-values]
-  ;; [(_ ((~datum fanout) n:number))
-  ;;  (datum->syntax this-syntax
-  ;;    (list 'flow
-  ;;          (cons '-<
-  ;;                (repeat (syntax->datum #'n)
-  ;;                        '_))))]
-  ;; [(_ ({~datum fanout} n:expr))
-  ;;  #'(lambda args
-  ;;      (apply values
-  ;;             (apply append
-  ;;                    (build-list n (thunk* args)))))]
-  [(_ ({~datum fanout} n:expr))
+  [(_ ((~datum fanout) n:number))
+   #`(λ args
+       (apply values
+              (append #,@(repeat (syntax->datum #'n) 'args))) )]
+  [(_ ((~datum fanout) n:expr))
    #'(lambda args
        (apply values
               (apply append
                      (repeat n args))))]
-  ;; [(_ ({~datum fanout} n:expr))
-  ;;  #'(lambda args
-  ;;      (apply values
-  ;;             (apply append
-  ;;                    (make-list n args))))]
-  ;; [(_ ({~datum fanout} n:expr))
-  ;;  #'(lambda args (apply repeat-values n args))]
-  ;; [(_ ({~datum fanout} n:expr))
-  ;;  #'(flow (repeat-values n __))]
-  ;; [(_ ({~datum fanout} n:expr))
-  ;;  #'(flow (~>> (repeat-values n)))]
   [(_ ((~datum feedback) ((~datum while) tilex:clause)
                          ((~datum then) thenex:clause)
                          onex:clause))
