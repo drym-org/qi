@@ -875,7 +875,16 @@
      (check-equal? (let ([n 3])
                      (~> (5) (fanout n) ▽))
                    (list 5 5 5)
-                   "arbitrary racket expressions and not just literals"))
+                   "arbitrary racket expressions and not just literals")
+     (check-equal? (~> (2 3) (fanout 0) ▽)
+                   null
+                   "N=0 produces no values.")
+     (check-equal? (~> () (fanout 3) ▽)
+                   null
+                   "No inputs produces no outputs.")
+     (check-exn exn:fail:contract?
+                (thunk (~> (-1 3) fanout ▽))
+                "Negative N signals an error."))
     (test-suite
      "inverter"
      (check-false ((☯ (~> inverter
