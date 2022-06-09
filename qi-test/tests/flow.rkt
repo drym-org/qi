@@ -573,7 +573,7 @@
                         5 7 8))
                 "function isn't curried when no arguments are provided"))
     (test-suite
-     "simple template"
+     "blanket template"
      (check-equal? ((☯ (+ __))) 0)
      (check-equal? ((☯ (string-append __))
                     "a" "b")
@@ -607,7 +607,16 @@
      (check-true ((☯ (< 1 _ 5 _ 10)) 3 7)
                  "template with multiple arguments")
      (check-false ((☯ (< 1 _ 5 _ 10)) 3 5)
-                  "template with multiple arguments")))
+                  "template with multiple arguments"))
+    (test-suite
+     "templating behavior is contained to intentional template syntax"
+     (check-exn exn:fail:syntax?
+                (thunk (parameterize ([current-namespace (make-base-empty-namespace)])
+                         (namespace-require 'racket/base)
+                         (namespace-require 'qi)
+                         (eval '(☯ (feedback _ add1))
+                               (current-namespace))))
+                "invalid syntax accepted on the basis of an assumed fancy-app template")))
 
    (test-suite
     "conditionals"
