@@ -614,7 +614,7 @@
                 (thunk (parameterize ([current-namespace (make-base-empty-namespace)])
                          (namespace-require 'racket/base)
                          (namespace-require 'qi)
-                         (eval (read (open-input-string "(☯ (feedback _ add1))"))
+                         (eval '(☯ (feedback _ add1))
                                (current-namespace))))
                 "invalid syntax accepted on the basis of an assumed fancy-app template")))
 
