@@ -8,7 +8,7 @@
     :target: https://docs.racket-lang.org/qi/index.html
 
 .. image:: https://img.shields.io/badge/wiki-%E2%98%AF-yellowgreen
-    :target: https://docs.racket-lang.org/qi/index.html
+    :target: https://github.com/countvajhula/qi/wiki
 
 qi
 ===
