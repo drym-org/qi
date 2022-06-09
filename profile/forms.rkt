@@ -630,14 +630,23 @@
 (module fanout "forms-base.rkt"
   (provide run)
 
-  (define (fanout . vs)
+  (define (fanout-small-n . vs)
     (apply (☯ (fanout 3))
            vs))
 
+  (define (fanout-large-n . vs)
+    (apply (☯ (fanout 100))
+           vs))
+
   (define (run)
-    (run-benchmark fanout
-                   check-values
-                   500000)))
+    (run-summary-benchmark "fanout"
+                           +
+                           (fanout-small-n
+                            check-values
+                            200000)
+                           (fanout-large-n
+                            check-values
+                            20000))))
 
 (module inverter "forms-base.rkt"
   (provide run)

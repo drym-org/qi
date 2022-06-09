@@ -15,7 +15,6 @@
          arg
          except-args
          call
-         repeat
          repeat-values
          power
          foldl-values
@@ -198,16 +197,11 @@
 
 (define none? (compose not not ~none?))
 
-(define (repeat n v)
-  (if (= 0 n)
-      null
-      (cons v (repeat (sub1 n) v))))
-
 (define (repeat-values n . vs)
-  (apply values (apply append (repeat n vs))))
+  (apply values (apply append (make-list n vs))))
 
 (define (power n f)
-  (apply compose (repeat n f)))
+  (apply compose (make-list n f)))
 
 (define (foldl-values f init . vs)
   (let loop ([vs vs]

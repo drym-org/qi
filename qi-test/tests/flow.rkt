@@ -231,8 +231,7 @@
                    10)
      (check-exn exn:fail:contract?
                 (thunk ((☯ (~> △ +))
-                        #(1 2 3 4)))
-                10)
+                        #(1 2 3 4))))
      (check-equal? ((☯ (~> (△ +) ▽)) (list 1 2 3) 10)
                    (list 11 12 13)
                    "separate into a flow with presupplied values")
@@ -868,7 +867,23 @@
                    "control form of fanout")
      (check-equal? (~> (3 "a" "b") fanout string-append)
                    "ababab"
-                   "control form of fanout"))
+                   "control form of fanout")
+     (check-equal? (~> (5) (fanout (add1 2)) ▽)
+                   (list 5 5 5)
+                   "arbitrary racket expressions and not just literals")
+     (check-equal? (let ([n 3])
+                     (~> (5) (fanout n) ▽))
+                   (list 5 5 5)
+                   "arbitrary racket expressions and not just literals")
+     (check-equal? (~> (2 3) (fanout 0) ▽)
+                   null
+                   "N=0 produces no values.")
+     (check-equal? (~> () (fanout 3) ▽)
+                   null
+                   "No inputs produces no outputs.")
+     (check-exn exn:fail:contract?
+                (thunk (~> (-1 3) fanout ▽))
+                "Negative N signals an error."))
     (test-suite
      "inverter"
      (check-false ((☯ (~> inverter

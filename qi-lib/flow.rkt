@@ -10,13 +10,16 @@
          (only-in adjutor
                   values->list)
          racket/function
+         (only-in racket/list
+                  make-list)
          mischief/shorthand
          (for-syntax racket/base
                      racket/string
                      syntax/parse
                      racket/match
+                     (only-in racket/list
+                              make-list)
                      (only-in "private/util.rkt"
-                              repeat
                               report-syntax-error))
          (only-in qi/macro
                   qi-macro?
@@ -365,11 +368,16 @@ provide appropriate error messages at the level of the DSL.
   [(_ (~datum fanout))
    #'repeat-values]
   [(_ ((~datum fanout) n:number))
-   (datum->syntax this-syntax
-     (list 'flow
-           (cons '-<
-                 (repeat (syntax->datum #'n)
-                         '_))))]
+   ;; a slightly more efficient compile-time implementation
+   ;; for literally indicated N
+   #`(λ args
+       (apply values
+              (append #,@(make-list (syntax->datum #'n) 'args))) )]
+  [(_ ((~datum fanout) n:expr))
+   #'(lambda args
+       (apply values
+              (apply append
+                     (make-list n args))))]
   [(_ ((~datum feedback) ((~datum while) tilex:clause)
                          ((~datum then) thenex:clause)
                          onex:clause))
