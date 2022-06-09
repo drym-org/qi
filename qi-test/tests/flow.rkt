@@ -169,12 +169,14 @@
                    3 5)))
     (test-suite
      "all?"
+     (check-true ((☯ all?)) "design: should this produce no values instead?")
      (check-true ((☯ all?) 3))
      (check-false ((☯ all?) #f))
      (check-true ((☯ all?) 3 5 7))
      (check-false ((☯ all?) 3 #f 5)))
     (test-suite
      "any?"
+     (check-false ((☯ any?)) "design: should this produce no values instead?")
      (check-true ((☯ any?) 3))
      (check-false ((☯ any?) #f))
      (check-true ((☯ any?) 3 5 7))
@@ -934,7 +936,12 @@
                            ▽))
                     1 3 5 7 9)
                    (list 4 5 7 9)
-                   "pure control form of group"))
+                   "pure control form of group")
+     (check-exn exn:fail?
+                (thunk ((☯ (~> (group 3 _ ⏚)
+                               ▽))
+                        1 3))
+                "grouping more inputs than are available shows a helpful error"))
     (test-suite
      "select"
      (check-equal? ((☯ (~> (select) ▽))
@@ -956,7 +963,15 @@
      (check-equal? ((☯ (~> (select 3 1)
                            string-append))
                     "1" "2" "3")
-                   "31"))
+                   "31")
+     (check-exn exn:fail?
+                (thunk ((☯ (select 3))
+                        1 3))
+                "selecting input with a higher index than available")
+     (check-exn exn:fail?
+                (thunk ((☯ (select 0))
+                        1 3))
+                "attempting to select index 0 (select is 1-indexed)"))
     (test-suite
      "block"
      (check-equal? ((☯ (~> (block) list))
@@ -976,7 +991,15 @@
                    (list 2))
      (check-equal? ((☯ (~> (block 3 1) list))
                     1 2 3)
-                   (list 2)))
+                   (list 2))
+     (check-exn exn:fail?
+                (thunk ((☯ (block 3))
+                        1 3))
+                "blocking input with a higher index than available")
+     (check-exn exn:fail?
+                (thunk ((☯ (block 0))
+                        1 3))
+                "attempting to block index 0 (block is 1-indexed)"))
     (test-suite
      "bundle"
      (check-equal? ((☯ (~> (bundle () + sqr) ▽))

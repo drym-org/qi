@@ -52,17 +52,17 @@
     (λ args
       (let ([num-args (length args)])
         (if (< num-args n)
-           (if (= 0 num-args)
-               (values)
-               (error 'group (~a "Can't select "
-                                 n
-                                 " arguments from "
-                                 args)))
-           (let ([sargs (take args n)]
-                 [rargs (drop args n)])
-             (apply values
-                    (append (values->list (apply f sargs))
-                            (values->list (apply g rargs))))))))))
+            (if (= 0 num-args)
+                (values)
+                (error 'group (~a "Can't select "
+                                  n
+                                  " arguments from "
+                                  args)))
+            (let ([sargs (take args n)]
+                  [rargs (drop args n)])
+              (apply values
+                     (append (values->list (apply f sargs))
+                             (values->list (apply g rargs))))))))))
 
 (define (parity-xor . args)
   (not
@@ -114,12 +114,10 @@
                                          " value in "
                                          args))]
                   [(cons v vs)
-                   (if (stack-empty? indices)
-                       rem-args
-                       (if (= cur-idx (top indices))
-                           (begin (pop! indices)
-                                  (loop vs (add1 cur-idx)))
-                           (cons v (loop vs (add1 cur-idx)))))])))))))
+                   (if (= cur-idx (top indices))
+                       (begin (pop! indices)
+                              (loop vs (add1 cur-idx)))
+                       (cons v (loop vs (add1 cur-idx))))])))))))
 
 ;; give a (list-)lifted function available arguments
 ;; directly instead of wrapping them with a list
@@ -183,9 +181,7 @@
   (match args
     ['() #t]
     [(cons v vs)
-     (match vs
-       ['() v]
-       [_ (and v (apply all? vs))])]))
+     (and v (apply all? vs))]))
 
 (define all? (compose not not ~all?))
 
@@ -193,9 +189,7 @@
   (match args
     ['() #f]
     [(cons v vs)
-     (match vs
-       ['() v]
-       [_ (or v (apply any? vs))])]))
+     (or v (apply any? vs))]))
 
 (define any? (compose not not ~any?))
 
