@@ -6,6 +6,7 @@
          rackunit
          rackunit/text-ui
          (only-in math sqr)
+         (only-in racket/function thunk)
          (for-syntax syntax/parse
                      racket/base)
          syntax/parse/define
@@ -76,11 +77,19 @@
     (check-equal? ((☯ (~>> (macreaux 1))) 2) 2)
     (check-equal? ((☯ (macreaux _ 1)) 2) 1)
     (check-equal? ((☯ (macreaux 1 _)) 2) 2)
-    ;; this is a compile-time error now:
-    ;; (check-exn exn:fail?
-    ;;            (λ () ((☯ (macreaux 1 __)) 2))
-    ;;            2
-    ;;            "__ templates used in foreign macros shows helpful error")
+    ;; note that this is a compile-time error now:
+    (check-exn exn:fail:syntax?
+               (thunk
+                (parameterize ([current-namespace (make-base-empty-namespace)])
+                  (namespace-require 'racket/base)
+                  (namespace-require 'syntax/parse/define)
+                  (namespace-require 'qi)
+                  (eval
+                   '(begin (define-syntax-parse-rule (macreaux x y) y)
+                           (define-qi-foreign-syntaxes macreaux)
+                           ((☯ (macreaux 1 __)) 2))
+                   (current-namespace))))
+               "__ template used in a foreign macro shows helpful error")
     (check-equal? ((☯ saints-macreaux) 5) 10 "can be used in identifier form")
     (check-equal? (~> (5) double-me) 10 "registered foreign syntax used in identifier form")
     (check-equal? (~> (5) (add-two 3)) 8 "registered foreign syntax using the default threading position")

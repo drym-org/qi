@@ -494,14 +494,14 @@
    (test-suite
     "Exceptions"
     (check-equal? ((☯ (try (/ 3)
-                           [exn? 'hi])) 9)
+                        [exn? 'hi])) 9)
                   3)
     (check-equal? ((☯ (try (/ 0)
-                           [exn? 'hi])) 9)
+                        [exn? 'hi])) 9)
                   'hi)
     (check-equal? ((☯ (try (/ 0)
-                           [exn:fail:contract:arity? 'arity]
-                           [exn:fail:contract:divide-by-zero? 'divide-by-zero])) 9)
+                        [exn:fail:contract:arity? 'arity]
+                        [exn:fail:contract:divide-by-zero? 'divide-by-zero])) 9)
                   'divide-by-zero))
 
    (test-suite
