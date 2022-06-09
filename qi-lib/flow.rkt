@@ -6,7 +6,7 @@
                      clause))
 
 (require syntax/parse/define
-         fancy-app
+         (prefix-in fancy: fancy-app)
          (only-in adjutor
                   values->list)
          racket/function
@@ -517,13 +517,13 @@ provide appropriate error messages at the level of the DSL.
   ;; Fine-grained template-based application
   ;; This handles templates that indicate a specific number of template
   ;; variables (i.e. expected arguments). The semantics of template-based
-  ;; application here is fulfilled by the fancy-app module and we don't
-  ;; need to do anything special to handle it, since the #%app macro
-  ;; in the present module's scope is the one provided by fancy-app
+  ;; application here is fulfilled by the fancy-app module. In order to use
+  ;; it, we simply use the #%app macro provided by fancy-app instead of the
+  ;; implicit one used for function application in racket/base.
   [(_ (natex prarg-pre ... (~datum _) prarg-post ...))
-   #'(natex prarg-pre ...
-            _
-            prarg-post ...)]
+   #'(fancy:#%app natex prarg-pre ...
+                  _
+                  prarg-post ...)]
 
   ;; Pre-supplied arguments without a template
   [(_ (natex prarg ...+))
