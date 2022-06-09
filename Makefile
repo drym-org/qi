@@ -16,6 +16,19 @@ help:
 	@echo "test - run tests"
 	@echo "test-with-errortrace - run tests with error tracing"
 	@echo "errortrace - alias for test-with-errortrace"
+	@echo "test-<module> - Run tests for <module>"
+	@echo "errortrace-<module> - Run tests for <module> with error tracing"
+	@echo "Modules:"
+	@echo "  flow"
+	@echo "  on"
+	@echo "  threading"
+	@echo "  switch"
+	@echo "  definitions"
+	@echo "  macro"
+	@echo "  util"
+	@echo "  probe"
+	@echo "    Note: As probe is not in qi-lib, it isn't part of"
+	@echo "    the tests run in the 'test' target."
 	@echo "cover - Run test coverage checker and view report"
 	@echo "cover-coveralls - Run test coverage and upload to Coveralls"
 	@echo "coverage-check - Run test coverage checker"
@@ -84,6 +97,9 @@ test-definitions:
 test-macro:
 	racket $(PACKAGE-NAME)-test/tests/macro.rkt
 
+test-util:
+	racket $(PACKAGE-NAME)-test/tests/util.rkt
+
 test-probe:
 	raco test -exp $(PACKAGE-NAME)-probe
 
@@ -91,6 +107,30 @@ test-with-errortrace:
 	racket -l errortrace -l racket -e '(require (submod "qi-test/tests/qi.rkt" test))'
 
 errortrace: test-with-errortrace
+
+errortrace-flow:
+	racket -l errortrace -l racket -e '(require (submod "qi-test/tests/flow.rkt" main))'
+
+errortrace-on:
+	racket -l errortrace -l racket -e '(require (submod "qi-test/tests/on.rkt" main))'
+
+errortrace-threading:
+	racket -l errortrace -l racket -e '(require (submod "qi-test/tests/threading.rkt" main))'
+
+errortrace-switch:
+	racket -l errortrace -l racket -e '(require (submod "qi-test/tests/switch.rkt" main))'
+
+errortrace-definitions:
+	racket -l errortrace -l racket -e '(require (submod "qi-test/tests/definitions.rkt" main))'
+
+errortrace-macro:
+	racket -l errortrace -l racket -e '(require (submod "qi-test/tests/macro.rkt" main))'
+
+errortrace-util:
+	racket -l errortrace -l racket -e '(require (submod "qi-test/tests/util.rkt" main))'
+
+errortrace-probe:
+	racket -l errortrace -l racket -e '(require (submod "qi-probe/tests/qi-probe.rkt" test))'
 
 docs:
 	raco docs $(PACKAGE-NAME)
