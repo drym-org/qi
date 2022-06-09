@@ -16,6 +16,10 @@
 (define-syntax-rule (qi:square flo)
   (☯ (feedback 2 flo)))
 
+(define (get-f n)
+  (λ (v)
+    (+ v n)))
+
 (define tests
   (test-suite
    "flow tests"
@@ -29,14 +33,21 @@
      (check-equal? (values->list ((☯) 1 2)) (list 1 2) "empty flow with multiple inputs")
      (check-equal? ((☯ (const 3))) 3 "no arguments")
      (check-equal? ((flow add1) 2) 3 "simple function")
-     (check-equal? ((flow 0) 2) 0 "literal (number)")
-     (check-equal? ((flow "hi") 5) "hi" "literal (string)")
-     (check-equal? ((flow 'hi) 5) 'hi "literal (symbol)")
-     (check-equal? ((flow '(+ 1 2)) 5) '(+ 1 2) "literal (quoted list)")
-     (check-equal? ((flow `(+ 1 ,(* 2 3))) 5) '(+ 1 6) "literal (quasiquoted list)")
-     (check-equal? (syntax->datum ((flow #'(+ 1 2)) 5)) '(+ 1 2) "syntax quoted list")
+     (check-equal? ((flow (get-f 1)) 2) 3 "fully qualified function")
      (check-equal? ((flow _) 5) 5 "identity flow")
      (check-equal? ((flow (~> _ ▽)) 5 6) (list 5 6) "identity flow"))
+    (test-suite
+     "Literals"
+     (check-equal? ((flow 0) 2) 0 "literal number")
+     (check-equal? ((flow #\q) 5) #\q "literal character")
+     (check-equal? ((flow "hi") 5) "hi" "literal string")
+     (check-equal? ((flow #"hi") 5) #"hi" "literal byte string")
+     (check-equal? ((flow #px"hi") 5) #px"hi" "literal regexp")
+     (check-equal? ((flow #rx"hi") 5) #rx"hi" "literal regexp")
+     (check-equal? ((flow 'hi) 5) 'hi "literal symbol")
+     (check-equal? ((flow '(+ 1 2)) 5) '(+ 1 2) "literal quoted list")
+     (check-equal? ((flow `(+ 1 ,(* 2 3))) 5) '(+ 1 6) "literal quasiquoted list")
+     (check-equal? (syntax->datum ((flow #'(+ 1 2)) 5)) '(+ 1 2) "Literal syntax quoted list"))
     (test-suite
      "unary predicate"
      (check-false ((☯ negative?) 5))

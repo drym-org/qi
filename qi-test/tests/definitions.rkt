@@ -7,15 +7,41 @@
          rackunit/text-ui
          (only-in math sqr))
 
+(define-flow my-flow (~> sqr add1))
+
+(define-flow (my-flow2 v)
+  (~> (gen v) add1))
+
+(define-switch my-switch
+  [positive? add1]
+  [else sub1])
+
+(define-switch (my-switch2 v w)
+  [< (~> X -)]
+  [else -])
+
 (define tests
+
   (test-suite
    "definition forms"
+
+   (test-suite
+    "define-flow"
+    (check-equal? (my-flow 5) 26)
+    (check-equal? (my-flow2 5) 6))
+
+   (test-suite
+    "define-switch"
+    (check-equal? (my-switch 5) 6)
+    (check-equal? (my-switch2 5 6) 1))
+
    (test-suite
     "let/flow"
     (check-equal? (let/flow ([x 5]
                              [y 3])
                             (~> + sqr add1))
                   65))
+
    (test-suite
     "let/switch"
     (check-equal? (let/switch ([x 5]
@@ -23,6 +49,7 @@
                               [(~> + (> 10)) 'hi]
                               [else 'bye])
                   'bye))
+
    (test-suite
     "predicate lambda"
     (check-true ((π (x)
@@ -51,6 +78,7 @@
     (check-true ((π args (~> length (> 3))) 1 2 3 4) "packed args")
     (check-false ((π args (apply > _)) 1 2 3) "apply with packed args")
     (check-true ((π args (apply > _)) 3 2 1) "apply with packed args"))
+
    (test-suite
     "switch lambda"
     (check-equal? ((switch-lambda (x)
