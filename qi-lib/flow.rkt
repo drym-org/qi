@@ -109,7 +109,7 @@ provide appropriate error messages at the level of the DSL.
   [(_ (~datum none?)) #'none?]
   [(_ (~or (~datum ▽) (~datum collect)))
    #'list]
-  [(_ e:sep-form) (sep-parser #'e.form)]
+  [(_ e:sep-form) (sep-parser #'e)]
 
   ;;; Core routing elements
 
@@ -155,7 +155,7 @@ provide appropriate error messages at the level of the DSL.
                        remainder-onex:clause))
    #'(flow (-< (~> (select n ...) selection-onex)
                (~> (block n ...) remainder-onex)))]
-  [(_ e:group-form) (group-parser #'e.form)]
+  [(_ e:group-form) (group-parser #'e)]
 
   ;;; Conditionals
 
@@ -179,7 +179,7 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~datum unless) condition:clause
                        alternative:clause))
    #'(flow (if condition ⏚ alternative))]
-  [(_ e:switch-form) (switch-parser #'e.form)]
+  [(_ e:switch-form) (switch-parser #'e)]
   [(_ e:sieve-form) (sieve-parser #'e)]
   [(_ ({~datum partition}))
    #'(flow ground)]
@@ -193,29 +193,12 @@ provide appropriate error messages at the level of the DSL.
 
   ;;; Exceptions
 
-  [(_ e:try-form) (try-parser #'e.form)]
+  [(_ e:try-form) (try-parser #'e)]
 
   ;;; High level circuit elements
 
   ;; aliases for inputs
-  [(_ (~datum 1>))
-   #'(flow (select 1))]
-  [(_ (~datum 2>))
-   #'(flow (select 2))]
-  [(_ (~datum 3>))
-   #'(flow (select 3))]
-  [(_ (~datum 4>))
-   #'(flow (select 4))]
-  [(_ (~datum 5>))
-   #'(flow (select 5))]
-  [(_ (~datum 6>))
-   #'(flow (select 6))]
-  [(_ (~datum 7>))
-   #'(flow (select 7))]
-  [(_ (~datum 8>))
-   #'(flow (select 8))]
-  [(_ (~datum 9>))
-   #'(flow (select 9))]
+  [(_ e:input-alias) (input-alias-parser #'e)]
 
   ;; common utilities
   [(_ (~datum count))
@@ -226,19 +209,7 @@ provide appropriate error messages at the level of the DSL.
    #'(flow (if live? _ (gen v ...)))]
 
   ;; high level routing
-  [(_ (~datum fanout))
-   #'repeat-values]
-  [(_ ((~datum fanout) n:number))
-   ;; a slightly more efficient compile-time implementation
-   ;; for literally indicated N
-   #`(λ args
-       (apply values
-              (append #,@(make-list (syntax->datum #'n) 'args))) )]
-  [(_ ((~datum fanout) n:expr))
-   #'(lambda args
-       (apply values
-              (apply append
-                     (make-list n args))))]
+  [(_ e:fanout-form) (fanout-parser #'e)]
   [(_ ((~datum feedback) ((~datum while) tilex:clause)
                          ((~datum then) thenex:clause)
                          onex:clause))
@@ -443,13 +414,13 @@ provide appropriate error messages at the level of the DSL.
 
   (define (sep-parser stx)
     (syntax-parse stx
-      [(~or (~datum △) (~datum sep))
+      [_:id
        #'(flow (if list?
                    (apply values _)
                    (raise-argument-error '△
                                          "list?"
                                          _)))]
-      [((~or (~datum △) (~datum sep)) onex:clause)
+      [(_ onex:clause)
        #'(λ (v . vs)
            ((flow (~> △ (>< (apply (flow onex) _ vs)))) v))]))
 
@@ -461,7 +432,7 @@ provide appropriate error messages at the level of the DSL.
        #'(loom-compose (flow selection-onex)
                        (flow remainder-onex)
                        n)]
-      [(~datum group)
+      [_:id
        #'(λ (n selection-flo remainder-flo . vs)
            (apply (flow (group n selection-flo remainder-flo)) vs))]
       [(_ arg ...) ; error handling catch-all
@@ -535,7 +506,7 @@ provide appropriate error messages at the level of the DSL.
           ronex:clause)
        #'(flow (-< (~> (pass condition) sonex)
                    (~> (pass (not condition)) ronex)))]
-      [(~datum sieve)
+      [_:id
        #'(λ (condition sonex ronex . args)
            (apply (flow (-< (~> (pass condition) sonex)
                             (~> (pass (not condition)) ronex)))
@@ -561,4 +532,40 @@ provide appropriate error messages at the level of the DSL.
       [(_ arg ...)
        (report-syntax-error 'try
                             (syntax->datum #'(arg ...))
-                            "(try <flo> [error-predicate-flo error-handler-flo] ...)")])))
+                            "(try <flo> [error-predicate-flo error-handler-flo] ...)")]))
+
+  (define (input-alias-parser stx)
+    (syntax-parse stx
+      [(~datum 1>)
+       #'(flow (select 1))]
+      [(~datum 2>)
+       #'(flow (select 2))]
+      [(~datum 3>)
+       #'(flow (select 3))]
+      [(~datum 4>)
+       #'(flow (select 4))]
+      [(~datum 5>)
+       #'(flow (select 5))]
+      [(~datum 6>)
+       #'(flow (select 6))]
+      [(~datum 7>)
+       #'(flow (select 7))]
+      [(~datum 8>)
+       #'(flow (select 8))]
+      [(~datum 9>)
+       #'(flow (select 9))]))
+
+  (define (fanout-parser stx)
+    (syntax-parse stx
+      [_:id #'repeat-values]
+      [(_ n:number)
+       ;; a slightly more efficient compile-time implementation
+       ;; for literally indicated N
+       #`(λ args
+           (apply values
+                  (append #,@(make-list (syntax->datum #'n) 'args))) )]
+      [(_ n:expr)
+       #'(lambda args
+           (apply values
+                  (apply append
+                         (make-list n args))))])))
