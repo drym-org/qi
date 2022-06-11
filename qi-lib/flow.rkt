@@ -246,31 +246,11 @@ provide appropriate error messages at the level of the DSL.
    #'(ext-form expr ...)]
 
   ;; a literal is interpreted as a flow generating it
-  [(_ val:literal) #'(flow (gen val))]
-
-  ;; We'd like to treat quoted forms as literals as well.
-  ;; This includes symbols, and would also include, for instance, syntactic
-  ;; specifications of flows, since flows are syntactically lists as
-  ;; they inherit the elementary syntax of the underlying language (Racket).
-  ;; Quoted forms are read as (quote ...), so we match against this
-  [(_ ((~datum quote) val)) #'(flow (gen 'val))]
-  [(_ ((~datum quasiquote) val)) #'(flow (gen `val))]
-  [(_ ((~datum quote-syntax) val)) #'(flow (gen (quote-syntax val)))]
-  [(_ ((~datum syntax) val)) #'(flow (gen (syntax val)))]
+  [(_ e:literal) (literal-parser #'e)]
 
   ;; Partial application with syntactically pre-supplied arguments
-  ;; in a simple template
-  ;; "prarg" = "pre-supplied argument"
-  [(_ (natex prarg-pre ...+ (~datum __) prarg-post ...+))
-   #'(curry (curryr natex
-                    prarg-post ...)
-            prarg-pre ...)]
-  [(_ (natex prarg-pre ...+ (~datum __)))
-   #'(curry natex prarg-pre ...)]
-  [(_ (natex (~datum __) prarg-post ...+))
-   #'(curryr natex prarg-post ...)]
-  [(_ (natex (~datum __)))
-   #'natex]
+  ;; in a blanket template
+  [(_ e:blanket-template-form) (blanket-template-form-parser #'e)]
 
   ;; Fine-grained template-based application
   ;; This handles templates that indicate a specific number of template
@@ -278,6 +258,7 @@ provide appropriate error messages at the level of the DSL.
   ;; application here is fulfilled by the fancy-app module. In order to use
   ;; it, we simply use the #%app macro provided by fancy-app instead of the
   ;; implicit one used for function application in racket/base.
+  ;; "prarg" = "pre-supplied argument"
   [(_ (natex prarg-pre ... (~datum _) prarg-post ...))
    #'(fancy:#%app natex prarg-pre ...
                   _
@@ -599,4 +580,22 @@ provide appropriate error messages at the level of the DSL.
       [((~datum loop) pred:clause mapex:clause)
        #'(flow (loop pred mapex _ ⏚))]
       [((~datum loop) mapex:clause)
-       #'(flow (loop #t mapex _ ⏚))])))
+       #'(flow (loop #t mapex _ ⏚))]))
+
+  (define (literal-parser stx)
+    (syntax-parse stx
+      [val:literal #'(flow (gen val))]))
+
+  (define (blanket-template-form-parser stx)
+    (syntax-parse stx
+      ;; "prarg" = "pre-supplied argument"
+      [(natex prarg-pre ...+ (~datum __) prarg-post ...+)
+       #'(curry (curryr natex
+                        prarg-post ...)
+                prarg-pre ...)]
+      [(natex prarg-pre ...+ (~datum __))
+       #'(curry natex prarg-pre ...)]
+      [(natex (~datum __) prarg-post ...+)
+       #'(curryr natex prarg-post ...)]
+      [(natex (~datum __))
+       #'natex])))

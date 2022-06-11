@@ -18,7 +18,8 @@
          pass-form
          fold-left-form
          fold-right-form
-         loop-form)
+         loop-form
+         blanket-template-form)
 
 (require syntax/parse
          racket/string)
@@ -31,7 +32,17 @@
         expr:bytes
         expr:number
         expr:regexp
-        expr:byte-regexp)))
+        expr:byte-regexp
+        ;; We'd like to treat quoted forms as literals as well. This
+        ;; includes symbols, and would also include, for instance,
+        ;; syntactic specifications of flows, since flows are
+        ;; syntactically lists as they inherit the elementary syntax of
+        ;; the underlying language (Racket). Quoted forms are read as
+        ;; (quote ...), so we match against this
+        ((~datum quote) expr:expr)
+        ((~datum quasiquote) expr:expr)
+        ((~datum quote-syntax) expr:expr)
+        ((~datum syntax) expr:expr))))
 
 (define-syntax-class subject
   #:attributes (args arity)
@@ -210,3 +221,14 @@
    ((~datum loop) pred:clause mapex:clause))
   (pattern
    ((~datum loop) mapex:clause)))
+
+(define-syntax-class blanket-template-form
+  ;; "prarg" = "pre-supplied argument"
+  (pattern
+   (natex prarg-pre ...+ (~datum __) prarg-post ...+))
+  (pattern
+   (natex prarg-pre ...+ (~datum __)))
+  (pattern
+   (natex (~datum __) prarg-post ...+))
+  (pattern
+   (natex (~datum __))))
