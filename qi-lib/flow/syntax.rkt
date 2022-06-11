@@ -8,6 +8,8 @@
          switch-form
          sieve-form
          try-form
+         fanout-form
+         input-alias
          starts-with)
 
 (require syntax/parse
@@ -35,74 +37,87 @@
    expr:expr))
 
 (define-syntax-class sep-form
-  #:attributes (form)
   (pattern
    (~or (~or (~datum △) (~datum sep))
-        ((~or (~datum △) (~datum sep)) onex:clause))
-   #:with form this-syntax))
+        ((~or (~datum △) (~datum sep)) onex:clause))))
 
 (define-syntax-class group-form
-  #:attributes (form)
   (pattern
    (~or ((~datum group) n:expr
                         selection-onex:clause
                         remainder-onex:clause)
         (~datum group)
-        ((~datum group) arg ...))
-   #:with form this-syntax))
+        ((~datum group) arg ...))))
 
 (define-syntax-class switch-form
-  #:attributes (form)
   (pattern
-   (~or ((~datum switch))
-        ((~datum switch) ((~or (~datum divert) (~datum %))
-                          condition-gate:clause
-                          consequent-gate:clause))
-        ((~datum switch) [(~datum else) alternative:clause])
-        ((~datum switch) ((~or (~datum divert) (~datum %))
-                          condition-gate:clause
-                          consequent-gate:clause)
-                         [(~datum else) alternative:clause])
-        ((~datum switch) [condition0:clause ((~datum =>) consequent0:clause ...)]
-                         [condition:clause consequent:clause]
-                         ...)
-        ((~datum switch) ((~or (~datum divert) (~datum %))
-                          condition-gate:clause
-                          consequent-gate:clause)
-                         [condition0:clause ((~datum =>) consequent0:clause ...)]
-                         [condition:clause consequent:clause]
-                         ...)
-        ;; consequent0 renamed to consequent2 below, because otherwise
-        ;; the syntax class complains about "different nesting depths"
-        ((~datum switch) [condition0:clause consequent2:clause]
-                         [condition:clause consequent:clause]
-                         ...)
-        ((~datum switch) ((~or (~datum divert) (~datum %))
-                          condition-gate:clause
-                          consequent-gate:clause)
-                         [condition0:clause consequent2:clause]
-                         [condition:clause consequent:clause]
-                         ...))
-   #:with form this-syntax))
+   ((~datum switch)))
+  (pattern
+   ((~datum switch) ((~or (~datum divert) (~datum %))
+                     condition-gate:clause
+                     consequent-gate:clause)))
+  (pattern
+   ((~datum switch) [(~datum else) alternative:clause]))
+  (pattern
+   ((~datum switch) ((~or (~datum divert) (~datum %))
+                     condition-gate:clause
+                     consequent-gate:clause)
+                    [(~datum else) alternative:clause]))
+  (pattern
+   ((~datum switch) [condition0:clause ((~datum =>) consequent0:clause ...)]
+                    [condition:clause consequent:clause]
+                    ...))
+  (pattern
+   ((~datum switch) ((~or (~datum divert) (~datum %))
+                     condition-gate:clause
+                     consequent-gate:clause)
+                    [condition0:clause ((~datum =>) consequent0:clause ...)]
+                    [condition:clause consequent:clause]
+                    ...))
+  (pattern
+   ((~datum switch) [condition0:clause consequent0:clause]
+                    [condition:clause consequent:clause]
+                    ...))
+  (pattern
+   ((~datum switch) ((~or (~datum divert) (~datum %))
+                     condition-gate:clause
+                     consequent-gate:clause)
+                    [condition0:clause consequent0:clause]
+                    [condition:clause consequent:clause]
+                    ...)))
 
 (define-syntax-class sieve-form
-  #:attributes (form)
   (pattern
    (~or ((~datum sieve) condition:clause
                         sonex:clause
                         ronex:clause)
         (~datum sieve)
-        ((~datum sieve) arg ...))
-   #:with form this-syntax))
+        ((~datum sieve) arg ...))))
 
 (define-syntax-class try-form
-  #:attributes (form)
   (pattern
    (~or ((~datum try) flo
                       [error-condition-flo error-handler-flo]
                       ...+)
-        ((~datum try) arg ...))
-   #:with form this-syntax))
+        ((~datum try) arg ...))))
+
+(define-syntax-class input-alias
+  (pattern
+   (~or (~datum 1>)
+        (~datum 2>)
+        (~datum 3>)
+        (~datum 4>)
+        (~datum 5>)
+        (~datum 6>)
+        (~datum 7>)
+        (~datum 8>)
+        (~datum 9>))))
+
+(define-syntax-class fanout-form
+  (pattern
+   (~or (~datum fanout)
+        ((~datum fanout) n:number)
+        ((~datum fanout) n:expr))))
 
 (define-syntax-class (starts-with pfx)
   (pattern
