@@ -3,7 +3,11 @@
 (provide literal
          subject
          clause
+         sep-form
+         group-form
+         switch-form
          sieve-form
+         try-form
          starts-with)
 
 (require syntax/parse
@@ -30,25 +34,75 @@
   (pattern
    expr:expr))
 
-;; Note that in these syntax classes, we reintroduce the name of the form
-;; in the leading position in the constructed syntax attributes. Since we
-;; match as ~datum in the form parsers this should be fine, but if that
-;; ever changes it might make sense to propagate the input syntax
-;; itself instead, e.g. with a #:when check instead of using ~datum to
-;; match here.
+(define-syntax-class sep-form
+  #:attributes (form)
+  (pattern
+   (~or (~or (~datum △) (~datum sep))
+        ((~or (~datum △) (~datum sep)) onex:clause))
+   #:with form this-syntax))
+
+(define-syntax-class group-form
+  #:attributes (form)
+  (pattern
+   (~or ((~datum group) n:expr
+                        selection-onex:clause
+                        remainder-onex:clause)
+        (~datum group)
+        ((~datum group) arg ...))
+   #:with form this-syntax))
+
+(define-syntax-class switch-form
+  #:attributes (form)
+  (pattern
+   (~or ((~datum switch))
+        ((~datum switch) ((~or (~datum divert) (~datum %))
+                          condition-gate:clause
+                          consequent-gate:clause))
+        ((~datum switch) [(~datum else) alternative:clause])
+        ((~datum switch) ((~or (~datum divert) (~datum %))
+                          condition-gate:clause
+                          consequent-gate:clause)
+                         [(~datum else) alternative:clause])
+        ((~datum switch) [condition0:clause ((~datum =>) consequent0:clause ...)]
+                         [condition:clause consequent:clause]
+                         ...)
+        ((~datum switch) ((~or (~datum divert) (~datum %))
+                          condition-gate:clause
+                          consequent-gate:clause)
+                         [condition0:clause ((~datum =>) consequent0:clause ...)]
+                         [condition:clause consequent:clause]
+                         ...)
+        ;; consequent0 renamed to consequent2 below, because otherwise
+        ;; the syntax class complains about "different nesting depths"
+        ((~datum switch) [condition0:clause consequent2:clause]
+                         [condition:clause consequent:clause]
+                         ...)
+        ((~datum switch) ((~or (~datum divert) (~datum %))
+                          condition-gate:clause
+                          consequent-gate:clause)
+                         [condition0:clause consequent2:clause]
+                         [condition:clause consequent:clause]
+                         ...))
+   #:with form this-syntax))
+
 (define-syntax-class sieve-form
   #:attributes (form)
   (pattern
-   ((~datum sieve) condition:clause
-                   sonex:clause
-                   ronex:clause)
-   #:with form #'(sieve condition sonex ronex))
+   (~or ((~datum sieve) condition:clause
+                        sonex:clause
+                        ronex:clause)
+        (~datum sieve)
+        ((~datum sieve) arg ...))
+   #:with form this-syntax))
+
+(define-syntax-class try-form
+  #:attributes (form)
   (pattern
-   (~datum sieve)
-   #:with form #'sieve)
-  (pattern
-   ((~datum sieve) arg ...)
-   #:with form #'(sieve arg ...)))
+   (~or ((~datum try) flo
+                      [error-condition-flo error-handler-flo]
+                      ...+)
+        ((~datum try) arg ...))
+   #:with form this-syntax))
 
 (define-syntax-class (starts-with pfx)
   (pattern

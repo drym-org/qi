@@ -109,15 +109,7 @@ provide appropriate error messages at the level of the DSL.
   [(_ (~datum none?)) #'none?]
   [(_ (~or (~datum ▽) (~datum collect)))
    #'list]
-  [(_ (~or (~datum △) (~datum sep)))
-   #'(flow (if list?
-               (apply values _)
-               (raise-argument-error '△
-                                     "list?"
-                                     _)))]
-  [(_ ((~or (~datum △) (~datum sep)) onex:clause))
-   #'(λ (v . vs)
-       ((flow (~> △ (>< (apply (flow onex) _ vs)))) v))]
+  [(_ e:sep-form) (sep-parser #'e.form)]
 
   ;;; Core routing elements
 
@@ -163,19 +155,7 @@ provide appropriate error messages at the level of the DSL.
                        remainder-onex:clause))
    #'(flow (-< (~> (select n ...) selection-onex)
                (~> (block n ...) remainder-onex)))]
-  [(_ ((~datum group) n:expr
-                      selection-onex:clause
-                      remainder-onex:clause))
-   #'(loom-compose (flow selection-onex)
-                   (flow remainder-onex)
-                   n)]
-  [(_ (~datum group))
-   #'(λ (n selection-flo remainder-flo . vs)
-       (apply (flow (group n selection-flo remainder-flo)) vs))]
-  [(_ ((~datum group) arg ...))  ; error handling catch-all
-   (report-syntax-error 'group
-                        (syntax->datum #'(arg ...))
-                        "(group <number> <selection flow> <remainder flow>)")]
+  [(_ e:group-form) (group-parser #'e.form)]
 
   ;;; Conditionals
 
@@ -199,10 +179,8 @@ provide appropriate error messages at the level of the DSL.
   [(_ ((~datum unless) condition:clause
                        alternative:clause))
    #'(flow (if condition ⏚ alternative))]
-  [(_ ((~datum switch) expr ...))
-   #'(switch-parser expr ...)]
-  [(_ e:sieve-form)
-   (sieve-parser #'e.form)]
+  [(_ e:switch-form) (switch-parser #'e.form)]
+  [(_ e:sieve-form) (sieve-parser #'e)]
   [(_ ({~datum partition}))
    #'(flow ground)]
   [(_ ({~datum partition} [cond:clause body:clause]))
@@ -215,21 +193,7 @@ provide appropriate error messages at the level of the DSL.
 
   ;;; Exceptions
 
-  [(_ ((~datum try) flo
-                    [error-condition-flo error-handler-flo]
-                    ...+))
-   #'(λ args
-       (with-handlers ([(flow error-condition-flo)
-                        (λ (e)
-                          ;; TODO: may be good to support reference to the
-                          ;; error via a binding / syntax parameter
-                          (apply (flow error-handler-flo) args))]
-                       ...)
-         (apply (flow flo) args)))]
-  [(_ ((~datum try) arg ...))
-   (report-syntax-error 'try
-                        (syntax->datum #'(arg ...))
-                        "(try <flo> [error-predicate-flo error-handler-flo] ...)")]
+  [(_ e:try-form) (try-parser #'e.form)]
 
   ;;; High level circuit elements
 
@@ -475,66 +439,95 @@ provide appropriate error messages at the level of the DSL.
    #'(flow (~> (== (esc (disjux-clause onex)) ...)
                any?))])
 
-(define-syntax-parser switch-parser
-  [(_)
-   #'(flow)]
-  [(_ ((~or (~datum divert) (~datum %))
-       condition-gate:clause
-       consequent-gate:clause))
-   #'(flow consequent-gate)]
-  [(_ [(~datum else) alternative:clause])
-   #'(flow alternative)]
-  [(_ ((~or (~datum divert) (~datum %))
-       condition-gate:clause
-       consequent-gate:clause)
-      [(~datum else) alternative:clause])
-   #'(flow (~> consequent-gate alternative))]
-  [(_ [condition0:clause ((~datum =>) consequent0:clause ...)]
-      [condition:clause consequent:clause]
-      ...)
-   ;; we split the flow ahead of time to avoid evaluating
-   ;; the condition more than once
-   #'(flow (~> (-< condition0 _)
-               (if 1>
-                   (~> consequent0 ...)
-                   (group 1 ⏚
-                          (switch [condition consequent]
-                            ...)))))]
-  [(_ ((~or (~datum divert) (~datum %))
-       condition-gate:clause
-       consequent-gate:clause)
-      [condition0:clause ((~datum =>) consequent0:clause ...)]
-      [condition:clause consequent:clause]
-      ...)
-   ;; we split the flow ahead of time to avoid evaluating
-   ;; the condition more than once
-   #'(flow (~> (-< (~> condition-gate condition0) _)
-               (if 1>
-                   (~> consequent-gate consequent0 ...)
-                   (group 1 ⏚
-                          (switch (divert condition-gate consequent-gate)
-                            [condition consequent]
-                            ...)))))]
-  [(_ [condition0:clause consequent0:clause]
-      [condition:clause consequent:clause]
-      ...)
-   #'(flow (if condition0
-               consequent0
-               (switch [condition consequent]
-                 ...)))]
-  [(_ ((~or (~datum divert) (~datum %))
-       condition-gate:clause
-       consequent-gate:clause)
-      [condition0:clause consequent0:clause]
-      [condition:clause consequent:clause]
-      ...)
-   #'(flow (if (~> condition-gate condition0)
-               (~> consequent-gate consequent0)
-               (switch (divert condition-gate consequent-gate)
-                 [condition consequent]
-                 ...)))])
-
 (begin-for-syntax
+
+  (define (sep-parser stx)
+    (syntax-parse stx
+      [(~or (~datum △) (~datum sep))
+       #'(flow (if list?
+                   (apply values _)
+                   (raise-argument-error '△
+                                         "list?"
+                                         _)))]
+      [((~or (~datum △) (~datum sep)) onex:clause)
+       #'(λ (v . vs)
+           ((flow (~> △ (>< (apply (flow onex) _ vs)))) v))]))
+
+  (define (group-parser stx)
+    (syntax-parse stx
+      [(_ n:expr
+          selection-onex:clause
+          remainder-onex:clause)
+       #'(loom-compose (flow selection-onex)
+                       (flow remainder-onex)
+                       n)]
+      [(~datum group)
+       #'(λ (n selection-flo remainder-flo . vs)
+           (apply (flow (group n selection-flo remainder-flo)) vs))]
+      [(_ arg ...) ; error handling catch-all
+       (report-syntax-error 'group
+                            (syntax->datum #'(arg ...))
+                            "(group <number> <selection flow> <remainder flow>)")]))
+
+  (define (switch-parser stx)
+    (syntax-parse stx
+      [(_) #'(flow)]
+      [(_ ((~or (~datum divert) (~datum %))
+           condition-gate:clause
+           consequent-gate:clause))
+       #'(flow consequent-gate)]
+      [(_ [(~datum else) alternative:clause])
+       #'(flow alternative)]
+      [(_ ((~or (~datum divert) (~datum %))
+           condition-gate:clause
+           consequent-gate:clause)
+          [(~datum else) alternative:clause])
+       #'(flow (~> consequent-gate alternative))]
+      [(_ [condition0:clause ((~datum =>) consequent0:clause ...)]
+          [condition:clause consequent:clause]
+          ...)
+       ;; we split the flow ahead of time to avoid evaluating
+       ;; the condition more than once
+       #'(flow (~> (-< condition0 _)
+                   (if 1>
+                       (~> consequent0 ...)
+                       (group 1 ⏚
+                              (switch [condition consequent]
+                                ...)))))]
+      [(_ ((~or (~datum divert) (~datum %))
+           condition-gate:clause
+           consequent-gate:clause)
+          [condition0:clause ((~datum =>) consequent0:clause ...)]
+          [condition:clause consequent:clause]
+          ...)
+       ;; we split the flow ahead of time to avoid evaluating
+       ;; the condition more than once
+       #'(flow (~> (-< (~> condition-gate condition0) _)
+                   (if 1>
+                       (~> consequent-gate consequent0 ...)
+                       (group 1 ⏚
+                              (switch (divert condition-gate consequent-gate)
+                                [condition consequent]
+                                ...)))))]
+      [(_ [condition0:clause consequent0:clause]
+          [condition:clause consequent:clause]
+          ...)
+       #'(flow (if condition0
+                   consequent0
+                   (switch [condition consequent]
+                     ...)))]
+      [(_ ((~or (~datum divert) (~datum %))
+           condition-gate:clause
+           consequent-gate:clause)
+          [condition0:clause consequent0:clause]
+          [condition:clause consequent:clause]
+          ...)
+       #'(flow (if (~> condition-gate condition0)
+                   (~> consequent-gate consequent0)
+                   (switch (divert condition-gate consequent-gate)
+                     [condition consequent]
+                     ...)))]))
+
   (define (sieve-parser stx)
     (syntax-parse stx
       [(_ condition:clause
@@ -550,4 +543,22 @@ provide appropriate error messages at the level of the DSL.
       [(_ arg ...) ; error handling catch-all
        (report-syntax-error 'sieve
                             (syntax->datum #'(arg ...))
-                            "(sieve <predicate flow> <selection flow> <remainder flow>)")])))
+                            "(sieve <predicate flow> <selection flow> <remainder flow>)")]))
+
+  (define (try-parser stx)
+    (syntax-parse stx
+      [(_ flo
+          [error-condition-flo error-handler-flo]
+          ...+)
+       #'(λ args
+           (with-handlers ([(flow error-condition-flo)
+                            (λ (e)
+                              ;; TODO: may be good to support reference to the
+                              ;; error via a binding / syntax parameter
+                              (apply (flow error-handler-flo) args))]
+                           ...)
+             (apply (flow flo) args)))]
+      [(_ arg ...)
+       (report-syntax-error 'try
+                            (syntax->datum #'(arg ...))
+                            "(try <flo> [error-predicate-flo error-handler-flo] ...)")])))
