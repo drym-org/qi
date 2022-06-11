@@ -17,7 +17,8 @@
          if-form
          pass-form
          fold-left-form
-         fold-right-form)
+         fold-right-form
+         loop-form)
 
 (require syntax/parse
          racket/string)
@@ -199,3 +200,13 @@
    ((~datum <<) fn init))
   (pattern
    ((~datum <<) fn)))
+
+(define-syntax-class loop-form
+  (pattern
+   ((~datum loop) pred:clause mapex:clause combex:clause retex:clause))
+  (pattern
+   ((~datum loop) pred:clause mapex:clause combex:clause))
+  (pattern
+   ((~datum loop) pred:clause mapex:clause))
+  (pattern
+   ((~datum loop) mapex:clause)))

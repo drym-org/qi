@@ -211,18 +211,7 @@ provide appropriate error messages at the level of the DSL.
   [(_ e:fold-right-form) (fold-right-parser #'e)]
 
   ;; looping
-  [(_ ((~datum loop) pred:clause mapex:clause combex:clause retex:clause))
-   #'(letrec ([loop (☯ (if pred
-                           (~> (group 1 mapex loop)
-                               combex)
-                           retex))])
-       loop)]
-  [(_ ((~datum loop) pred:clause mapex:clause combex:clause))
-   #'(flow (loop pred mapex combex ⏚))]
-  [(_ ((~datum loop) pred:clause mapex:clause))
-   #'(flow (loop pred mapex _ ⏚))]
-  [(_ ((~datum loop) mapex:clause))
-   #'(flow (loop #t mapex _ ⏚))]
+  [(_ e:loop-form) (loop-parser #'e)]
   [(_ ((~datum loop2) pred:clause mapex:clause combex:clause))
    #'(letrec ([loop2 (☯ (if pred
                             (~> (== (-< cdr
@@ -595,4 +584,19 @@ provide appropriate error messages at the level of the DSL.
       [((~datum <<) fn init)
        #'(flow (~> (-< (gen (flow fn)) (gen (flow init)) _) <<))]
       [((~datum <<) fn)
-       #'(flow (<< fn (gen ((flow fn)))))])))
+       #'(flow (<< fn (gen ((flow fn)))))]))
+
+  (define (loop-parser stx)
+    (syntax-parse stx
+      [((~datum loop) pred:clause mapex:clause combex:clause retex:clause)
+       #'(letrec ([loop (☯ (if pred
+                               (~> (group 1 mapex loop)
+                                   combex)
+                               retex))])
+           loop)]
+      [((~datum loop) pred:clause mapex:clause combex:clause)
+       #'(flow (loop pred mapex combex ⏚))]
+      [((~datum loop) pred:clause mapex:clause)
+       #'(flow (loop pred mapex _ ⏚))]
+      [((~datum loop) mapex:clause)
+       #'(flow (loop #t mapex _ ⏚))])))
