@@ -3,14 +3,21 @@
 (provide literal
          subject
          clause
+         starts-with
          sep-form
          group-form
          switch-form
          sieve-form
          try-form
          fanout-form
+         feedback-form
+         side-effect-form
+         amp-form
          input-alias
-         starts-with)
+         if-form
+         pass-form
+         fold-left-form
+         fold-right-form)
 
 (require syntax/parse
          racket/string)
@@ -36,18 +43,26 @@
   (pattern
    expr:expr))
 
+(define-syntax-class (starts-with pfx)
+  (pattern
+   i:id #:when (string-prefix? (symbol->string
+                                (syntax-e #'i)) pfx)))
+
 (define-syntax-class sep-form
   (pattern
-   (~or (~or (~datum △) (~datum sep))
-        ((~or (~datum △) (~datum sep)) onex:clause))))
+   (~or (~datum △) (~datum sep)))
+  (pattern
+   ((~or (~datum △) (~datum sep)) onex:clause)))
 
 (define-syntax-class group-form
   (pattern
-   (~or ((~datum group) n:expr
-                        selection-onex:clause
-                        remainder-onex:clause)
-        (~datum group)
-        ((~datum group) arg ...))))
+   ((~datum group) n:expr
+                   selection-onex:clause
+                   remainder-onex:clause))
+  (pattern
+   (~datum group))
+  (pattern
+   ((~datum group) arg ...)))
 
 (define-syntax-class switch-form
   (pattern
@@ -88,18 +103,21 @@
 
 (define-syntax-class sieve-form
   (pattern
-   (~or ((~datum sieve) condition:clause
-                        sonex:clause
-                        ronex:clause)
-        (~datum sieve)
-        ((~datum sieve) arg ...))))
+   ((~datum sieve) condition:clause
+                   sonex:clause
+                   ronex:clause))
+  (pattern
+   (~datum sieve))
+  (pattern
+   ((~datum sieve) arg ...)))
 
 (define-syntax-class try-form
   (pattern
-   (~or ((~datum try) flo
-                      [error-condition-flo error-handler-flo]
-                      ...+)
-        ((~datum try) arg ...))))
+   ((~datum try) flo
+                 [error-condition-flo error-handler-flo]
+                 ...+))
+  (pattern
+   ((~datum try) arg ...)))
 
 (define-syntax-class input-alias
   (pattern
@@ -113,13 +131,71 @@
         (~datum 8>)
         (~datum 9>))))
 
+(define-syntax-class if-form
+  (pattern
+   ((~datum if) consequent:clause
+                alternative:clause))
+  (pattern
+   ((~datum if) condition:clause
+                consequent:clause
+                alternative:clause)))
+
 (define-syntax-class fanout-form
   (pattern
-   (~or (~datum fanout)
-        ((~datum fanout) n:number)
-        ((~datum fanout) n:expr))))
-
-(define-syntax-class (starts-with pfx)
+   (~datum fanout))
   (pattern
-   i:id #:when (string-prefix? (symbol->string
-                                (syntax-e #'i)) pfx)))
+   ((~datum fanout) n:number))
+  (pattern
+   ((~datum fanout) n:expr)))
+
+(define-syntax-class feedback-form
+  (pattern
+   ((~datum feedback) ((~datum while) tilex:clause)
+                      ((~datum then) thenex:clause)
+                      onex:clause))
+  (pattern
+   ((~datum feedback) ((~datum while) tilex:clause) onex:clause))
+  (pattern
+   ((~datum feedback) n:expr
+                      ((~datum then) thenex:clause)
+                      onex:clause))
+  (pattern
+   ((~datum feedback) n:expr onex:clause))
+  (pattern
+   (~datum feedback)))
+
+(define-syntax-class side-effect-form
+  (pattern
+   ((~or (~datum ε) (~datum effect)) sidex:clause onex:clause))
+  (pattern
+   ((~or (~datum ε) (~datum effect)) sidex:clause)))
+
+(define-syntax-class amp-form
+  (pattern
+   (~or (~datum ><) (~datum amp)))
+  (pattern
+   ((~or (~datum ><) (~datum amp)) onex:clause))
+  (pattern
+   ((~or (~datum ><) (~datum amp)) onex0:clause onex:clause ...)))
+
+(define-syntax-class pass-form
+  (pattern
+   (~datum pass))
+  (pattern
+   ((~datum pass) onex:clause)))
+
+(define-syntax-class fold-left-form
+  (pattern
+   (~datum >>))
+  (pattern
+   ((~datum >>) fn init))
+  (pattern
+   ((~datum >>) fn)))
+
+(define-syntax-class fold-right-form
+  (pattern
+   (~datum <<))
+  (pattern
+   ((~datum <<) fn init))
+  (pattern
+   ((~datum <<) fn)))

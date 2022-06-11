@@ -159,20 +159,7 @@ provide appropriate error messages at the level of the DSL.
 
   ;;; Conditionals
 
-  [(_ ((~datum if) consequent:clause
-                   alternative:clause))
-   #'(λ args
-       ;; the first argument is the predicate flow here
-       (if (apply (car args) (cdr args))
-           (apply (flow consequent) (cdr args))
-           (apply (flow alternative) (cdr args))))]
-  [(_ ((~datum if) condition:clause
-                   consequent:clause
-                   alternative:clause))
-   #'(λ args
-       (if (apply (flow condition) args)
-           (apply (flow consequent) args)
-           (apply (flow alternative) args)))]
+  [(_ e:if-form) (if-parser #'e)]
   [(_ ((~datum when) condition:clause
                      consequent:clause))
    #'(flow (if condition consequent ⏚))]
@@ -210,68 +197,18 @@ provide appropriate error messages at the level of the DSL.
 
   ;; high level routing
   [(_ e:fanout-form) (fanout-parser #'e)]
-  [(_ ((~datum feedback) ((~datum while) tilex:clause)
-                         ((~datum then) thenex:clause)
-                         onex:clause))
-   #'(letrec ([loop (☯ (~> (if tilex
-                               (~> onex loop)
-                               thenex)))])
-       loop)]
-  [(_ ((~datum feedback) ((~datum while) tilex:clause) onex:clause))
-   #'(flow (feedback (while tilex) (then _) onex))]
-  [(_ ((~datum feedback) n:expr
-                         ((~datum then) thenex:clause)
-                         onex:clause))
-   #'(flow (~> (esc (power n (flow onex))) thenex))]
-  [(_ ((~datum feedback) n:expr onex:clause))
-   #'(flow (feedback n (then _) onex))]
-  [(_ (~datum feedback))
-   #'(letrec ([loop (☯ (~> (if (~> (-< 1> (block 1 2 3)) apply)
-                               (~> (-< (select 1 2 3)
-                                       (~> (block 1 2)
-                                           apply))
-                                   loop)
-                               (~> (-< 2> (block 1 2 3))
-                                   apply))))])
-       loop)]
+  [(_ e:feedback-form) (feedback-parser #'e)]
   [(_ (~datum inverter))
    #'(flow (>< NOT))]
-  [(_ ((~or (~datum ε) (~datum effect)) sidex:clause onex:clause))
-   #'(flow (-< (~> sidex ⏚)
-               onex))]
-  [(_ ((~or (~datum ε) (~datum effect)) sidex:clause))
-   #'(flow (-< (~> sidex ⏚)
-               _))]
+  [(_ e:side-effect-form) (side-effect-parser #'e)]
 
   ;;; Higher-order flows
 
   ;; map, filter, and fold
-  [(_ (~or (~datum ><) (~datum amp)))
-   #'map-values]
-  [(_ ((~or (~datum ><) (~datum amp)) onex:clause))
-   #'(curry map-values (flow onex))]
-  [(_ ((~or (~datum ><) (~datum amp)) onex0:clause onex:clause ...))
-   (report-syntax-error
-    'amp
-    (syntax->datum #'(onex0 onex ...))
-    "(>< flo)"
-    "amp expects a single flow specification, but it received many.")]
-  [(_ (~datum pass))
-   #'filter-values]
-  [(_ ((~datum pass) onex:clause))
-   #'(curry filter-values (flow onex))]
-  [(_ (~datum <<))
-   #'foldr-values]
-  [(_ ((~datum <<) fn init))
-   #'(flow (~> (-< (gen (flow fn)) (gen (flow init)) _) <<))]
-  [(_ ((~datum <<) fn))
-   #'(flow (<< fn (gen ((flow fn)))))]
-  [(_ (~datum >>))
-   #'foldl-values]
-  [(_ ((~datum >>) fn init))
-   #'(flow (~> (-< (gen (flow fn)) (gen (flow init)) _) >>))]
-  [(_ ((~datum >>) fn))
-   #'(flow (>> fn (gen ((flow fn)))))]
+  [(_ e:amp-form) (amp-parser #'e)]
+  [(_ e:pass-form) (pass-parser #'e)]
+  [(_ e:fold-left-form) (fold-left-parser #'e)]
+  [(_ e:fold-right-form) (fold-right-parser #'e)]
 
   ;; looping
   [(_ ((~datum loop) pred:clause mapex:clause combex:clause retex:clause))
@@ -555,6 +492,23 @@ provide appropriate error messages at the level of the DSL.
       [(~datum 9>)
        #'(flow (select 9))]))
 
+  (define (if-parser stx)
+    (syntax-parse stx
+      [(_ consequent:clause
+          alternative:clause)
+       #'(λ args
+           ;; the first argument is the predicate flow here
+           (if (apply (car args) (cdr args))
+               (apply (flow consequent) (cdr args))
+               (apply (flow alternative) (cdr args))))]
+      [(_ condition:clause
+          consequent:clause
+          alternative:clause)
+       #'(λ args
+           (if (apply (flow condition) args)
+               (apply (flow consequent) args)
+               (apply (flow alternative) args)))]))
+
   (define (fanout-parser stx)
     (syntax-parse stx
       [_:id #'repeat-values]
@@ -568,4 +522,77 @@ provide appropriate error messages at the level of the DSL.
        #'(lambda args
            (apply values
                   (apply append
-                         (make-list n args))))])))
+                         (make-list n args))))]))
+  (define (feedback-parser stx)
+    (syntax-parse stx
+      [(_ ((~datum while) tilex:clause)
+          ((~datum then) thenex:clause)
+          onex:clause)
+       #'(letrec ([loop (☯ (~> (if tilex
+                                   (~> onex loop)
+                                   thenex)))])
+           loop)]
+      [(_ ((~datum while) tilex:clause) onex:clause)
+       #'(flow (feedback (while tilex) (then _) onex))]
+      [(_ n:expr
+          ((~datum then) thenex:clause)
+          onex:clause)
+       #'(flow (~> (esc (power n (flow onex))) thenex))]
+      [(_ n:expr onex:clause)
+       #'(flow (feedback n (then _) onex))]
+      [_:id
+       #'(letrec ([loop (☯ (~> (if (~> (-< 1> (block 1 2 3)) apply)
+                                   (~> (-< (select 1 2 3)
+                                           (~> (block 1 2)
+                                               apply))
+                                       loop)
+                                   (~> (-< 2> (block 1 2 3))
+                                       apply))))])
+           loop)]))
+
+  (define (side-effect-parser stx)
+    (syntax-parse stx
+      [((~or (~datum ε) (~datum effect)) sidex:clause onex:clause)
+       #'(flow (-< (~> sidex ⏚)
+                   onex))]
+      [((~or (~datum ε) (~datum effect)) sidex:clause)
+       #'(flow (-< (~> sidex ⏚)
+                   _))]))
+
+  (define (amp-parser stx)
+    (syntax-parse stx
+      [(~or (~datum ><) (~datum amp))
+       #'map-values]
+      [((~or (~datum ><) (~datum amp)) onex:clause)
+       #'(curry map-values (flow onex))]
+      [((~or (~datum ><) (~datum amp)) onex0:clause onex:clause ...)
+       (report-syntax-error
+        'amp
+        (syntax->datum #'(onex0 onex ...))
+        "(>< flo)"
+        "amp expects a single flow specification, but it received many.")]))
+
+  (define (pass-parser stx)
+    (syntax-parse stx
+      [_:id
+       #'filter-values]
+      [(_ onex:clause)
+       #'(curry filter-values (flow onex))]))
+
+  (define (fold-left-parser stx)
+    (syntax-parse stx
+      [(~datum >>)
+       #'foldl-values]
+      [((~datum >>) fn init)
+       #'(flow (~> (-< (gen (flow fn)) (gen (flow init)) _) >>))]
+      [((~datum >>) fn)
+       #'(flow (>> fn (gen ((flow fn)))))]))
+
+  (define (fold-right-parser stx)
+    (syntax-parse stx
+      [(~datum <<)
+       #'foldr-values]
+      [((~datum <<) fn init)
+       #'(flow (~> (-< (gen (flow fn)) (gen (flow init)) _) <<))]
+      [((~datum <<) fn)
+       #'(flow (<< fn (gen ((flow fn)))))])))
