@@ -53,18 +53,14 @@ provide appropriate error messages at the level of the DSL.
   ;; override built-in Qi forms.
   [(_ stx)
    #:with (~or (m:id expr ...) m:id) #'stx
-   #:do [(define space-m ((make-interned-syntax-introducer 'qi) #'m))
-         (define threading-side (syntax-property this-syntax 'threading-side))]
+   #:do [(define space-m ((make-interned-syntax-introducer 'qi) #'m))]
    #:when (qi-macro? (syntax-local-value space-m (λ () #f)))
    #:with expanded (syntax-local-apply-transformer
                     (qi-macro-transformer (syntax-local-value space-m))
                     space-m
                     'expression
                     #f
-                    ;; propagate the side on which arguments are to
-                    ;; be threaded, so that foreign macro expansion
-                    ;; is aware of it.
-                    (syntax-property #'stx 'threading-side threading-side))
+                    #'stx)
    #'(flow expanded)]
 
   ;;; Special words
@@ -100,10 +96,8 @@ provide appropriate error messages at the level of the DSL.
    #'parity-xor]
   [(_ (~datum XNOR))
    #'(flow (~> XOR NOT))]
-  [(_ ((~datum and%) expr ...))
-   #'(and%-parser expr ...)]
-  [(_ ((~datum or%) expr ...))
-   #'(or%-parser expr ...)]
+  [(_ e:and%-form) (and%-parser #'e)]
+  [(_ e:or%-form) (or%-parser #'e)]
   [(_ (~datum any?)) #'any?]
   [(_ (~datum all?)) #'all?]
   [(_ (~datum none?)) #'none?]
@@ -121,8 +115,7 @@ provide appropriate error messages at the level of the DSL.
            (reverse
             (syntax->list
              #'((flow onex) ...)))))]
-  [(_ ((~or (~datum ~>>) (~datum thread-right)) onex:clause ...))
-   #'(flow (~> (esc (right-threading-clause onex)) ...))]
+  [(_ e:right-threading-form) (right-threading-parser #'e)]
   [(_ (~or (~datum X) (~datum crossover)))
    #'(flow (~> ▽ reverse △))]
   [(_ ((~or (~datum ==) (~datum relay)) onex:clause ...))
@@ -225,7 +218,7 @@ provide appropriate error messages at the level of the DSL.
   [(_ (~datum apply))
    #'call]
   [(_ ((~datum clos) flo:clause))
-   #:do [(define threading-side (syntax-property this-syntax 'threading-side))]
+   #:do [(define threading-side (syntax-property (cadr (syntax->list this-syntax)) 'threading-side))]
    (if (and threading-side (eq? threading-side 'right))
        #'(λ args
            (flow (~> (-< _ (~> (gen args) △))
@@ -271,7 +264,7 @@ provide appropriate error messages at the level of the DSL.
    ;; always infer the appropriate arity for a template (e.g. it
    ;; may change under composition within the form), while a
    ;; curried function will accept any number of arguments
-   #:do [(define threading-side (syntax-property this-syntax 'threading-side))]
+   #:do [(define threading-side (syntax-property (cadr (syntax->list this-syntax)) 'threading-side))]
    (if (and threading-side (eq? threading-side 'right))
        #'(curry natex prarg ...)
        #'(curryr natex prarg ...))]
@@ -292,32 +285,50 @@ provide appropriate error messages at the level of the DSL.
     "(flow flo)"
     "flow expects a single flow specification, but it received many.")])
 
-(define-syntax-parser right-threading-clause
-  [(_ onex:clause)
-   (datum->syntax this-syntax
-     (list 'flow #'onex)
-     #f
-     (syntax-property this-syntax 'threading-side 'right))])
-
-(define-syntax-parser conjux-clause  ; "juxtaposed" conjoin
-  [(_ (~datum _)) #'true.]
-  [(_ onex:clause) #'(flow onex)])
-
-(define-syntax-parser disjux-clause  ; "juxtaposed" disjoin
-  [(_ (~datum _)) #'false.]
-  [(_ onex:clause) #'(flow onex)])
-
-(define-syntax-parser and%-parser
-  [(_ onex:clause ...)
-   #'(flow (~> (== (esc (conjux-clause onex)) ...)
-               all?))])
-
-(define-syntax-parser or%-parser
-  [(_ onex:clause ...)
-   #'(flow (~> (== (esc (disjux-clause onex)) ...)
-               any?))])
-
 (begin-for-syntax
+
+  (define (conjux-clause stx)  ; "juxtaposed" conjoin
+    (syntax-parse stx
+      [(~datum _) #'true.]
+      [onex:clause #'onex]))
+
+  (define (disjux-clause stx)  ; "juxtaposed" disjoin
+    (syntax-parse stx
+      [(~datum _) #'false.]
+      [onex:clause #'onex]))
+
+  ;; should and%, or% and right-threading use syntax classes?
+  ;; also, use attribute syntax here
+  (define (and%-parser stx)
+    (syntax-parse stx
+      [(_ onex:clause ...)
+       #:with clauses (datum->syntax stx
+                        (map conjux-clause
+                             (syntax->list #'(onex ...))))
+       #`(flow (~> (== . clauses)
+                   all?))]))
+
+  (define (or%-parser stx)
+    (syntax-parse stx
+      [(_ onex:clause ...)
+       #:with clauses (datum->syntax stx
+                        (map disjux-clause
+                             (syntax->list #'(onex ...))))
+       #'(flow (~> (== . clauses)
+                   any?))]))
+
+  (define (right-threading-clause stx)
+    (syntax-property stx 'threading-side 'right))
+
+  (define (right-threading-parser stx)
+    ;; right-threading is just normal threading
+    ;; but with a syntax property attached to
+    ;; the components indicating the chirality
+    (syntax-parse stx
+      [(_ onex:clause ...)
+       #:with (clauses ...) (map right-threading-clause
+                                 (attribute onex))
+       #'(flow (~> clauses ...))]))
 
   (define (sep-parser stx)
     (syntax-parse stx

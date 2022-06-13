@@ -19,7 +19,10 @@
          fold-left-form
          fold-right-form
          loop-form
-         blanket-template-form)
+         blanket-template-form
+         and%-form
+         or%-form
+         right-threading-form)
 
 (require syntax/parse
          racket/string)
@@ -232,3 +235,15 @@
    (natex (~datum __) prarg-post ...+))
   (pattern
    (natex (~datum __))))
+
+(define-syntax-class and%-form
+  (pattern
+   ((~datum and%) onex:clause ...)))
+
+(define-syntax-class or%-form
+  (pattern
+   ((~datum or%) onex:clause ...)))
+
+(define-syntax-class right-threading-form
+  (pattern
+   ((~or (~datum ~>>) (~datum thread-right)) onex:clause ...)))

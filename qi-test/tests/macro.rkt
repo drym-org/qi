@@ -49,6 +49,7 @@
 (define tests
   (test-suite
    "macro tests"
+
    (test-suite
     "base"
     (check-equal? ((☯ (square sqr)) 2) 16)
@@ -71,12 +72,14 @@
                   "macro defined in another module and provided 'for space'")
     (check-equal? (also-and 5 6) 6
                   "macro defined in another module and provided 'for space'"))
+
    (test-suite
     "interaction with foreign-language macros"
     (check-equal? ((☯ (macreaux 1)) 2) 1)
     (check-equal? ((☯ (~>> (macreaux 1))) 2) 2)
     (check-equal? ((☯ (macreaux _ 1)) 2) 1)
     (check-equal? ((☯ (macreaux 1 _)) 2) 2)
+    (check-equal? ((☯ (~>> (macreaux _ 1))) 2) 1)
     ;; note that this is a compile-time error now:
     (check-exn exn:fail:syntax?
                (thunk
