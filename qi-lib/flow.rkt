@@ -302,19 +302,15 @@ provide appropriate error messages at the level of the DSL.
   (define (and%-parser stx)
     (syntax-parse stx
       [(_ onex:clause ...)
-       #:with clauses (datum->syntax stx
-                        (map conjux-clause
-                             (syntax->list #'(onex ...))))
-       #`(flow (~> (== . clauses)
+       #:with (clauses ...) (map conjux-clause (attribute onex))
+       #'(flow (~> (== clauses ...)
                    all?))]))
 
   (define (or%-parser stx)
     (syntax-parse stx
       [(_ onex:clause ...)
-       #:with clauses (datum->syntax stx
-                        (map disjux-clause
-                             (syntax->list #'(onex ...))))
-       #'(flow (~> (== . clauses)
+       #:with (clauses ...) (map disjux-clause (attribute onex))
+       #'(flow (~> (== clauses ...)
                    any?))]))
 
   (define (right-threading-clause stx)
@@ -326,8 +322,7 @@ provide appropriate error messages at the level of the DSL.
     ;; the components indicating the chirality
     (syntax-parse stx
       [(_ onex:clause ...)
-       #:with (clauses ...) (map right-threading-clause
-                                 (attribute onex))
+       #:with (clauses ...) (map right-threading-clause (attribute onex))
        #'(flow (~> clauses ...))]))
 
   (define (sep-parser stx)
