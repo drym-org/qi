@@ -325,6 +325,23 @@ Now, you might, once again, expect this to be treated as a partial application t
 
 So in sum, it's perhaps best to rely on @racket[esc] in such cases to be as explicit as possible about what you mean, rather than rely on quirks of the implementation that are revealed at this boundary between two languages.
 
+@subsubsection{Mutable Values Defy the Laws of Flows}
+
+Qi is designed to model flows of @emph{immutable} values. Using a mutable value in a flow is fine as long as you don't mutate it, or if you mutate it only in a side effect. Otherwise, such values can produce unexpected behavior. For instance, consider the following flow involving a mutable vector:
+
+@racketblock[
+    (define vv (vector 1 2 3))
+    (~> (vv) (-< _ _) (== (vector-set! 0 5) (vector-set! 2 10)) vector-append)
+  ]
+
+You might expect this flow to produce a vector @racket[(vector 5 2 3 1 2 10)], but in fact, it raises an error.
+
+This is because @racket[vector-set!] mutates the vector and produces not the result of the operation but @racket[(void)], since the mutation that is the intent of the function has been performed and there is no need to produce a fresh value. Indeed, mutating interfaces typically produce @racket[(void)], which is not a useful value that could be used in a flow. As a result, the output of the relay is two values, but not the ones we expect, but rather, values that are both @racket[(void)]. These are received by @racket[vector-append], which then complains that it expects vectors but was given @racket[(void)].
+
+Worse still, even though this computation raises an error, we find that the original vector that we started with, @racket[vv], has been mutated to @racket[(vector 5 2 10)], since the same vector is operated on in both channels of the relay prior to the error being encountered.
+
+So in general, use mutable values with caution. Such values can be useful as side effects, for instance to capture some idea of statefulness, perhaps keeping track of the number of times a flow was invoked. But they should generally not be used as inputs to a flow, especially if they are to be mutated.
+
 @section{Effectively Using Feedback Loops}
 
 @racket[feedback] is Qi's most powerful looping form, useful for arbitrary recursion. As it encourages quite a different way of thinking than Racket's usual looping forms do, here are some tips on "grokking" it.
