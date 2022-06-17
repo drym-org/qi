@@ -14,12 +14,8 @@ jobs:
       fail-fast: true
       matrix:
         racket-variant: ['BC', 'CS']
-        racket-version: ['8.1', 'stable']
+        racket-version: ['7.8', '7.9', '8.0']
         experimental: [false]
-        include:
-          - racket-version: 'current'
-            racket-variant: 'CS'
-            experimental: true
     name: Test on Racket ${{ matrix.racket-variant }} ${{ matrix.racket-version }}
     steps:
       - name: Checkout
