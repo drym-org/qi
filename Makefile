@@ -7,6 +7,7 @@ DEPS-FLAGS=--check-pkg-deps --unused-pkg-deps
 
 help:
 	@echo "install - install package along with dependencies"
+	@echo "remove - remove package"
 	@echo "build - Compile libraries"
 	@echo "build-docs - Build docs"
 	@echo "build-all - Compile libraries, build docs, and check dependencies"
