@@ -14,7 +14,7 @@ jobs:
       fail-fast: true
       matrix:
         racket-variant: ['BC', 'CS']
-        racket-version: ['7.8', '7.9', '8.0']
+        racket-version: ['7.8', '7.9', '8.0', '8.1', '8.2']
         experimental: [false]
     name: Test on Racket ${{ matrix.racket-variant }} ${{ matrix.racket-version }}
     steps:
