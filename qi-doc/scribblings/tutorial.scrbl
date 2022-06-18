@@ -62,7 +62,7 @@ And then, downloading the tutorial is as simple as:
 
 @subsubsection[#:tag "drracket-tutorial"]{DrRacket}
 
-  Laurent Orseau's @code{select-send-sexpr} @seclink["top" #:doc '(lib "quickscript/scribblings/quickscript.scrbl")]{quickscript} allows you to evaluate expressions on-demand in a context-sensitive way. It is essential for the interactive experience. Follow the instructions @hyperlink["https://github.com/countvajhula/qi-tutorial"]{in the README} to install it. Once installed, you can use @code{Control-Shift-Enter} (customizable) to evaluate the expression indicated (and usually highlighted) by your cursor position.
+  Laurent Orseau's @code{select-send-sexpr} @hyperlink["https://docs.racket-lang.org/quickscript/index.html"]{quickscript} allows you to evaluate expressions on-demand in a context-sensitive way. It is essential for the interactive experience. Follow the instructions @hyperlink["https://github.com/countvajhula/qi-tutorial"]{in the README} to install it. Once installed, you can use @code{Control-Shift-Enter} (customizable) to evaluate the expression indicated (and usually highlighted) by your cursor position.
 
 @subsubsection{Emacs}
 
