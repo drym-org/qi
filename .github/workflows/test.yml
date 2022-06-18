@@ -77,8 +77,3 @@ jobs:
         run: make install
       - name: Build docs
         run: make build-docs
-      - name: Push to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@4.1.4
-        with:
-          folder: qi-doc/doc
-          branch: gh-pages
