@@ -93,7 +93,7 @@ Some specific suggestions are included below for commonly used editors.
 
 @subsection{DrRacket}
 
-Stephen De Gabrielle created a @hyperlink["https://docs.racket-lang.org/quickscript/index.html"]{quickscript} for convenient entry of Qi forms: @hyperlink[https://docs.racket-lang.org/qi-quickscripts/index.html]{Qi-Quickscripts}. This option is based on using keyboard shortcuts to enter exactly the form you need.
+Stephen De Gabrielle created a @hyperlink["https://docs.racket-lang.org/quickscript/index.html"]{quickscript} for convenient entry of Qi forms: @hyperlink["https://docs.racket-lang.org/qi-quickscripts/index.html"]{Qi-Quickscripts}. This option is based on using keyboard shortcuts to enter exactly the form you need.
 
 Laurent Orseau's @hyperlink["https://docs.racket-lang.org/quickscript-extra/index.html"]{Quickscript Extra} library includes the @hyperlink["https://github.com/Metaxal/quickscript-extra/blob/master/scripts/complete-word.rkt"]{complete-word} script that allows you to define shorthands that expand into pre-written templates (e.g. @racket[(☯ \|)], with @racket[\|] indicating the cursor position), and includes some Qi templates with defaults that you could @hyperlink["https://docs.racket-lang.org/quickscript/index.html#%28part._.Shadow_scripts%29"]{customize further}. This option is based on short textual aliases with a common keyboard shortcut.
 
