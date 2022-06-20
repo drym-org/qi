@@ -1,9 +1,6 @@
 name: docs
 
-on:
-  workflow_run:
-    workflows: [build]
-    types: [completed]
+on: [push, pull_request]
 
 defaults:
   run:
@@ -14,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and deploy backup docs
     environment: test-env
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout
         uses: actions/checkout@master
