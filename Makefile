@@ -50,18 +50,18 @@ remove:
 # Primarily for day-to-day dev.
 # Build libraries from source.
 build:
-	raco setup --no-docs --tidy --pkgs $(PACKAGE-NAME)-lib
+	raco setup --no-docs --tidy --avoid-main --pkgs $(PACKAGE-NAME)-lib
 
 # Primarily for day-to-day dev.
 # Build docs (if any).
 build-docs:
 	raco setup --no-launcher --no-foreign-libs --no-info-domain --no-pkg-deps \
-	--no-install --no-post-install --tidy --pkgs $(PACKAGE-NAME)-doc
+	--no-install --no-post-install --tidy --avoid-main --pkgs $(PACKAGE-NAME)-doc
 
 # Primarily for day-to-day dev.
 # Build libraries from source, build docs (if any), and check dependencies.
 build-all:
-	raco setup --tidy $(DEPS-FLAGS) --pkgs $(PACKAGE-NAME)-{lib,test,doc,probe} $(PACKAGE-NAME)
+	raco setup --tidy --avoid-main $(DEPS-FLAGS) --pkgs $(PACKAGE-NAME)-{lib,test,doc,probe} $(PACKAGE-NAME)
 
 # Note: Each collection's info.rkt can say what to clean, for example
 # (define clean '("compiled" "doc" "doc/<collect>")) to clean
