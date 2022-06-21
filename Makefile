@@ -10,7 +10,7 @@ help:
 	@echo "remove - remove package"
 	@echo "build - Compile libraries"
 	@echo "build-docs - Build docs"
-	@echo "build-packaged-docs - Build self-contained docs that could be hosted somewhere"
+	@echo "build-standalone-docs - Build self-contained docs that could be hosted somewhere"
 	@echo "build-all - Compile libraries, build docs, and check dependencies"
 	@echo "clean - remove all build artifacts"
 	@echo "check-deps - check dependencies"
@@ -66,7 +66,7 @@ build-all:
 
 # Primarily for CI, for building backup docs that could be used in case
 # the main docs at docs.racket-lang.org become unavailable.
-build-packaged-docs:
+build-standalone-docs:
 	scribble +m --redirect-main http://pkg-build.racket-lang.org/doc/ --htmls --dest ./docs ./qi-doc/scribblings/qi.scrbl
 
 # Note: Each collection's info.rkt can say what to clean, for example

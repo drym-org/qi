@@ -28,7 +28,7 @@ jobs:
       - name: Install Package and its Dependencies
         run: make install
       - name: Build docs for hosting
-        run: make build-packaged-docs
+        run: make build-standalone-docs
       - name: Push to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
