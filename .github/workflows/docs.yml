@@ -1,9 +1,12 @@
 name: docs
 
 on:
-  workflow_run:
-    workflows: [build]
-    types: [completed]
+  push:
+    branches:
+      - main
+    paths:
+      - 'qi-doc/scribblings/**'
+      - '.github/workflows/docs.yml'
 
 defaults:
   run:
@@ -14,7 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and deploy backup docs
     environment: test-env
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout
         uses: actions/checkout@master
@@ -27,10 +29,10 @@ jobs:
           version: 'stable'
       - name: Install Package and its Dependencies
         run: make install
-      - name: Build docs
-        run: make build-docs
+      - name: Build docs for hosting
+        run: make build-packaged-docs
       - name: Push to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
-          folder: qi-doc/doc
+          folder: docs/qi
           branch: gh-pages
