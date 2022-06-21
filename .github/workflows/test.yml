@@ -25,7 +25,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
       - name: Install Racket
-        uses: Bogdanp/setup-racket@v1.3.1
+        uses: Bogdanp/setup-racket@v1.8.1
         with:
           architecture: 'x64'
           distribution: 'full'
@@ -48,7 +48,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
       - name: Install Racket
-        uses: Bogdanp/setup-racket@v1.3.1
+        uses: Bogdanp/setup-racket@v1.8.1
         with:
           architecture: 'x64'
           distribution: 'full'
