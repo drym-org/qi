@@ -1,0 +1,37 @@
+name: docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'qi-doc/scribblings/**'
+      - '.github/workflows/docs.yml'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  deploy-docs:
+    runs-on: ubuntu-latest
+    name: Build and deploy backup docs
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Install Racket
+        uses: Bogdanp/setup-racket@v1.8.1
+        with:
+          architecture: 'x64'
+          distribution: 'full'
+          variant: 'CS'
+          version: 'stable'
+      - name: Install Package and its Dependencies
+        run: make install
+      - name: Build docs for hosting
+        run: make build-standalone-docs
+      - name: Push to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4.3.3
+        with:
+          folder: docs/qi
+          branch: gh-pages
