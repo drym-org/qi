@@ -66,6 +66,7 @@
          racket/format
          relation
          qi
+         json
          (only-in "util.rkt"
                   only-if
                   for/call))
@@ -140,6 +141,11 @@
    "clos" clos:run))
 
 (program (main)
-  (displayln "Hello!"))
+  (let* ([forms (hash-keys env)]
+         [fs (~>> (forms)
+                  (sort <))])
+    (write-json (for/list ([f fs])
+                  (match-let ([(list name ms) ((hash-ref env f))])
+                    (hash 'name name 'unit "ms" 'value ms))))))
 
 (run main)
