@@ -836,6 +836,21 @@ for the forms are run.
                    check-values
                    100000)))
 
+(module apply "forms-base.rkt"
+  (provide run)
+
+  (require (only-in racket/base
+                    [apply b:apply]))
+
+  (define (apply . vs)
+    (b:apply (☯ apply)
+             (cons + vs)))
+
+  (define (run)
+    (run-benchmark apply
+                   check-values
+                   300000)))
+
 ;; To run benchmarks for a form interactively, use e.g.:
 ;; (require (submod "." fanout))
 ;; (run)
@@ -900,7 +915,8 @@ for the forms are run.
    (prefix-in foldl: (submod ".." foldl))
    (prefix-in foldr: (submod ".." foldr))
    (prefix-in loop: (submod ".." loop))
-   (prefix-in loop2: (submod ".." loop2)))
+   (prefix-in loop2: (submod ".." loop2))
+   (prefix-in apply: (submod ".." apply)))
 
   (require relation
            qi
@@ -973,7 +989,8 @@ for the forms are run.
      "foldl" foldl:run
      "foldr" foldr:run
      "loop" loop:run
-     "loop2" loop2:run))
+     "loop2" loop2:run
+     "apply" apply:run))
 
   (flag (forms #:param [forms null] name)
     ("-f" "--form" "Forms to benchmark")
