@@ -1,5 +1,25 @@
 #lang racket/base
 
+#|
+To add a benchmark for a new form:
+
+1. Add a submodule for it which provides a `run` function taking no
+arguments. This function will be expected to exercise the new form and
+return a time taken. The `run` function typically uses one of the
+utility macros `run-benchmark` or `run-summary-benchmark`, and
+provides it one of the helper functions `check-value` (to invoke the
+form with a single value each time during benchmarking) or
+`check-values` (to invoke the form with multiple values each time
+during benchmarking).
+
+2. Require the submodule in the `main` submodule with an appropriate
+prefix (see other examples)
+
+3. Add the required `run` function to the `env` hash in the main
+submodule. This will ensure that it gets picked up when the benchmarks
+for the forms are run.
+|#
+
 (module one-of? "forms-base.rkt"
   (provide run)
 
