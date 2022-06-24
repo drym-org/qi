@@ -141,7 +141,8 @@
    "clos" clos:run))
 
 (program (main)
-  (let* ([forms (hash-keys env)]
+  (let* ([forms (list "pass") ;; (hash-keys env)
+                ]
          [fs (~>> (forms)
                   (sort <))])
     (write-json (for/list ([f fs])
