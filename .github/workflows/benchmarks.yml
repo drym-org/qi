@@ -26,7 +26,7 @@ jobs:
           name: Qi Forms Benchmarks
           tool: 'customSmallerIsBetter'
           gh-pages-branch: gh-pages
-          benchmark-data-dir-path: dev/bench
+          benchmark-data-dir-path: benchmarks
           output-file-path: benchmarks.txt
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true
