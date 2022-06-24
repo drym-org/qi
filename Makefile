@@ -39,6 +39,7 @@ help:
 	@echo "profile-competitive - Run competitive benchmarks"
 	@echo "profile-forms - Run benchmarks for individual Qi forms"
 	@echo "profile-selected-forms - Run benchmarks for Qi forms by name (command only)"
+	@echo "report-benchmarks - Run benchmarks for Qi forms and produce results for use in CI"
 
 # Primarily for use by CI.
 # Installs dependencies as well as linking this as a package.
@@ -165,4 +166,7 @@ profile-competitive:
 
 profile: profile-competitive profile-forms
 
-.PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile-forms profile-selected-forms profile-competitive profile
+report-benchmarks:
+	@racket profile/report.rkt
+
+.PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile-forms profile-selected-forms profile-competitive profile report-benchmarks

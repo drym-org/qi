@@ -76,7 +76,7 @@
                 (symbol->string
                  (syntax->datum #'f-name)))
   (let ([ms (measure runner f-name n-times)])
-    (displayln (~a name ": " ms " ms"))))
+    (list name ms)))
 
 ;; Run many benchmarking functions (typically exercising a single form)
 ;; a specified number of times and report the time taken using the
@@ -89,7 +89,7 @@
       (let ([ms (measure r f n)])
         (set! results (cons ms results))))
     (let ([summarized-result (apply f-summary results)])
-      (displayln (~a name ": " summarized-result " ms")))))
+      (list name summarized-result))))
 
 ;; Run different implementations of the same benchmark (e.g. a Racket vs a Qi
 ;; implementation) a specified number of times, and report the time taken

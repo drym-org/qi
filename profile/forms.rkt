@@ -934,7 +934,9 @@ for the forms are run.
    (prefix-in apply: (submod ".." apply))
    (prefix-in clos: (submod ".." clos)))
 
-  (require relation
+  (require racket/match
+           racket/format
+           relation
            qi
            (only-in "util.rkt"
                     only-if
@@ -1020,7 +1022,8 @@ for the forms are run.
                    (only-if null?
                      (gen (hash-keys env)))
                    (sort <))])
-      (for/call ([f fs])
-        (hash-ref env f))))
+      (for ([f fs])
+        (match-let ([(list name ms) ((hash-ref env f))])
+          (displayln (~a name ": " ms " ms"))))))
 
   (run main))
