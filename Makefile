@@ -167,6 +167,6 @@ profile-competitive:
 profile: profile-competitive profile-forms
 
 report-benchmarks:
-	racket profile/report.rkt
+	@racket profile/report.rkt
 
 .PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile-forms profile-selected-forms profile-competitive profile report-benchmarks
