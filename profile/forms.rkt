@@ -851,6 +851,21 @@ for the forms are run.
                    check-values
                    300000)))
 
+(module clos "forms-base.rkt"
+  (provide run)
+
+  ;; TODO: this uses a lot of other things besides `clos` and is
+  ;; likely not a reliable indicator
+  (define (clos . vs)
+    (apply (☯ (~> (-< (~> 5 (clos *)) _)
+                  apply))
+           vs))
+
+  (define (run)
+    (run-benchmark clos
+                   check-values
+                   100000)))
+
 ;; To run benchmarks for a form interactively, use e.g.:
 ;; (require (submod "." fanout))
 ;; (run)
@@ -916,7 +931,8 @@ for the forms are run.
    (prefix-in foldr: (submod ".." foldr))
    (prefix-in loop: (submod ".." loop))
    (prefix-in loop2: (submod ".." loop2))
-   (prefix-in apply: (submod ".." apply)))
+   (prefix-in apply: (submod ".." apply))
+   (prefix-in clos: (submod ".." clos)))
 
   (require relation
            qi
@@ -990,7 +1006,8 @@ for the forms are run.
      "foldr" foldr:run
      "loop" loop:run
      "loop2" loop2:run
-     "apply" apply:run))
+     "apply" apply:run
+     "clos" clos:run))
 
   (flag (forms #:param [forms null] name)
     ("-f" "--form" "Forms to benchmark")
