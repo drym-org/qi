@@ -809,6 +809,33 @@ for the forms are run.
                    check-values
                    200000)))
 
+(module loop "forms-base.rkt"
+  (provide run)
+
+  (define (loop . vs)
+    (apply (☯ (loop live? sqr))
+           vs))
+
+  (define (run)
+    (run-benchmark loop
+                   check-values
+                   100000)))
+
+(module loop2 "forms-base.rkt"
+  (provide run)
+
+  (define (loop2 . vs)
+    ((☯ (~> (loop2 (~> 1> (not null?))
+                   sqr
+                   +)))
+     vs
+     0))
+
+  (define (run)
+    (run-benchmark loop2
+                   check-values
+                   100000)))
+
 ;; To run benchmarks for a form interactively, use e.g.:
 ;; (require (submod "." fanout))
 ;; (run)
@@ -871,7 +898,9 @@ for the forms are run.
    (prefix-in rectify: (submod ".." rectify))
    (prefix-in pass: (submod ".." pass))
    (prefix-in foldl: (submod ".." foldl))
-   (prefix-in foldr: (submod ".." foldr)))
+   (prefix-in foldr: (submod ".." foldr))
+   (prefix-in loop: (submod ".." loop))
+   (prefix-in loop2: (submod ".." loop2)))
 
   (require relation
            qi
@@ -942,7 +971,9 @@ for the forms are run.
      "rectify" rectify:run
      "pass" pass:run
      "foldl" foldl:run
-     "foldr" foldr:run))
+     "foldr" foldr:run
+     "loop" loop:run
+     "loop2" loop2:run))
 
   (flag (forms #:param [forms null] name)
     ("-f" "--form" "Forms to benchmark")
