@@ -46,14 +46,13 @@
                             (block 1 2)) pass)))))
 
 (define-flow collatz
-  (~> (-< _ list)
-      (feedback (while (not (~> 1> (<= 1))))
-                (then (~> 2> reverse))
-                (~> (== (switch
-                          [odd? (~> (* 3) (+ 1))]
-                          [even? (~> (quotient 2))])
-                        _)
-                    (-< 1> cons)))))
+  (switch
+    [(<= 1) list]
+    [odd? (~> (-< _ (~> (* 3) (+ 1) collatz))
+              cons)]
+    [even? (~> (-< _ (~> (quotient 2) collatz))
+               cons)]))
+
 
 (define-flow filter-map-fn
   (~> △ (>< (if odd? sqr ⏚)) ▽))
