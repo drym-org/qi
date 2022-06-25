@@ -82,8 +82,8 @@
            (cons #'original-macro
                  (cdr (syntax->list this-syntax)))))]
        [(name form ...)
-        #:do [(define threading-side (syntax-property this-syntax 'threading-side))]
-        (if (and threading-side (eq? threading-side 'right))
+        #:do [(define chirality (syntax-property this-syntax 'chirality))]
+        (if (and chirality (eq? chirality 'right))
             #'(esc (lambda (v) (original-macro form ... v)))
             #'(esc (lambda (v) (original-macro v form ...))))]
        [name:id #'(esc (lambda (v) (original-macro v)))]))))

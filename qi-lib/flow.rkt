@@ -218,8 +218,8 @@ provide appropriate error messages at the level of the DSL.
   [(_ (~datum apply))
    #'call]
   [(_ ((~datum clos) flo:clause))
-   #:do [(define threading-side (syntax-property (cadr (syntax->list this-syntax)) 'threading-side))]
-   (if (and threading-side (eq? threading-side 'right))
+   #:do [(define chirality (syntax-property (cadr (syntax->list this-syntax)) 'chirality))]
+   (if (and chirality (eq? chirality 'right))
        #'(λ args
            (flow (~> (-< _ (~> (gen args) △))
                      flo)))
@@ -264,8 +264,8 @@ provide appropriate error messages at the level of the DSL.
    ;; always infer the appropriate arity for a template (e.g. it
    ;; may change under composition within the form), while a
    ;; curried function will accept any number of arguments
-   #:do [(define threading-side (syntax-property (cadr (syntax->list this-syntax)) 'threading-side))]
-   (if (and threading-side (eq? threading-side 'right))
+   #:do [(define chirality (syntax-property (cadr (syntax->list this-syntax)) 'chirality))]
+   (if (and chirality (eq? chirality 'right))
        #'(curry natex prarg ...)
        #'(curryr natex prarg ...))]
 
@@ -316,7 +316,7 @@ provide appropriate error messages at the level of the DSL.
                    any?))]))
 
   (define (make-right-chiral stx)
-    (syntax-property stx 'threading-side 'right))
+    (syntax-property stx 'chirality 'right))
 
   (define-syntax-class right-threading-clause
     (pattern
