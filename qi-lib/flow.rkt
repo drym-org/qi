@@ -287,30 +287,34 @@ provide appropriate error messages at the level of the DSL.
 
 (begin-for-syntax
 
-  (define (conjux-clause stx)  ; "juxtaposed" conjoin
-    (syntax-parse stx
-      [(~datum _) #'true.]
-      [onex:clause #'onex]))
+  (define-syntax-class disjux-clause ; "juxtaposed" disjoin
+    (pattern
+     (~datum _)
+     #:with parsed #'false.)
+    (pattern
+     onex:clause
+     #:with parsed #'onex))
 
-  (define (disjux-clause stx)  ; "juxtaposed" disjoin
-    (syntax-parse stx
-      [(~datum _) #'false.]
-      [onex:clause #'onex]))
+  (define-syntax-class conjux-clause ; "juxtaposed" conjoin
+    (pattern
+     (~datum _)
+     #:with parsed #'true.)
+    (pattern
+     onex:clause
+     #:with parsed #'onex))
 
   ;; should and%, or% and right-threading use syntax classes?
   ;; also, use attribute syntax here
   (define (and%-parser stx)
     (syntax-parse stx
-      [(_ onex:clause ...)
-       #:with (clauses ...) (map conjux-clause (attribute onex))
-       #'(flow (~> (== clauses ...)
+      [(_ onex:conjux-clause ...)
+       #'(flow (~> (== onex.parsed ...)
                    all?))]))
 
   (define (or%-parser stx)
     (syntax-parse stx
-      [(_ onex:clause ...)
-       #:with (clauses ...) (map disjux-clause (attribute onex))
-       #'(flow (~> (== clauses ...)
+      [(_ onex:disjux-clause ...)
+       #'(flow (~> (== onex.parsed ...)
                    any?))]))
 
   (define (right-threading-clause stx)
