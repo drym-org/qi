@@ -303,8 +303,6 @@ provide appropriate error messages at the level of the DSL.
      onex:clause
      #:with parsed #'onex))
 
-  ;; should and%, or% and right-threading use syntax classes?
-  ;; also, use attribute syntax here
   (define (and%-parser stx)
     (syntax-parse stx
       [(_ onex:conjux-clause ...)
@@ -317,17 +315,21 @@ provide appropriate error messages at the level of the DSL.
        #'(flow (~> (== onex.parsed ...)
                    any?))]))
 
-  (define (right-threading-clause stx)
+  (define (make-right-chiral stx)
     (syntax-property stx 'threading-side 'right))
+
+  (define-syntax-class right-threading-clause
+    (pattern
+     onex:clause
+     #:with chiral (make-right-chiral #'onex)))
 
   (define (right-threading-parser stx)
     ;; right-threading is just normal threading
     ;; but with a syntax property attached to
     ;; the components indicating the chirality
     (syntax-parse stx
-      [(_ onex:clause ...)
-       #:with (clauses ...) (map right-threading-clause (attribute onex))
-       #'(flow (~> clauses ...))]))
+      [(_ onex:right-threading-clause ...)
+       #'(flow (~> onex.chiral ...))]))
 
   (define (sep-parser stx)
     (syntax-parse stx
