@@ -6,6 +6,7 @@
          fact
          ping
          eratos
+         collatz
          filter-map-fn
          filter-map-values
          double-list
@@ -43,6 +44,16 @@
                 (-< (~> (select 1 2) X cons)
                     (~> (-< (~>> 2> (clos (~> remainder (not (= 0)))))
                             (block 1 2)) pass)))))
+
+(define-flow collatz
+  (~> (-< _ list)
+      (feedback (while (not (~> 1> (<= 1))))
+                (then (~> 2> reverse))
+                (~> (== (switch
+                          [odd? (~> (* 3) (+ 1))]
+                          [even? (~> (quotient 2))])
+                        _)
+                    (-< 1> cons)))))
 
 (define-flow filter-map-fn
   (~> △ (>< (if odd? sqr ⏚)) ▽))

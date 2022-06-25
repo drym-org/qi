@@ -68,3 +68,9 @@
                            check-value-primes
                            eratos
                            100)
+
+;; See https://en.wikipedia.org/wiki/Collatz_conjecture
+(run-competitive-benchmark "Collatz"
+                           check-value
+                           collatz
+                           10000)

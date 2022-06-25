@@ -6,6 +6,7 @@
          fact
          ping
          eratos
+         collatz
          filter-map-fn
          filter-map-values
          double-list
@@ -48,6 +49,11 @@
                                      (not (= 0 (remainder n v))))
                                    vs)
                            (cons v result))]))))
+
+(define (collatz n)
+  (cond [(<= n 1) (list n)]
+        [(odd? n) (cons n (collatz (+ (* 3 n) 1)))]
+        [(even? n) (cons n (collatz (quotient n 2)))]))
 
 (define (filter-map-fn lst)
   (map sqr (filter odd? lst)))
