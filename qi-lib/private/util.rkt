@@ -9,6 +9,7 @@
          none?
          map-values
          filter-values
+         partition-values
          relay
          loom-compose
          parity-xor
@@ -136,6 +137,31 @@
 
 (define (filter-values f . args)
   (apply values (filter f args)))
+
+(define (partition-values c+bs . args)
+  (define acc0
+    (for/hasheq ([c+b (in-list c+bs)])
+      (values (car c+b) empty)))
+  (define by-cs
+    (for/fold ([acc acc0]
+               #:result (for/hash ([(c args) (in-hash acc)])
+                          (values c (reverse args))))
+      ([arg (in-list args)])
+      (define matching-c
+        (for*/first ([c+b (in-list c+bs)]
+                     [c (in-value (car c+b))]
+                     #:when (c arg))
+          c))
+      (if matching-c
+        (hash-update acc matching-c (λ (acc-at-c) (cons arg acc-at-c)))
+        acc)))
+  (define results
+    (for*/list ([c+b (in-list c+bs)]
+                [c (in-value (car c+b))]
+                [b (in-value (cdr c+b))]
+                [args (in-value (hash-ref by-cs c))])
+      (call-with-values (λ () (apply b args)) list)))
+  (apply values (apply append results)))
 
 (define (->boolean v)
   (not (not v)))
