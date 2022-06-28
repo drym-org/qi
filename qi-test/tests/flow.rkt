@@ -823,6 +823,31 @@
                    (list 7 -1)
                    "pure control form of sieve"))
     (test-suite
+      "partition"
+      (check-equal? ((flow (~> (partition) collect)))
+                    (list)
+                    "base partition case")
+      (check-equal? ((flow (partition [positive? +]))
+                     -1 2 1 1 -2 2)
+                    6
+                    "partition composes ~> and pass")
+      (check-equal? ((flow (~> (partition [positive? +]
+                                          [zero? (-< count (gen "zero"))]
+                                          [negative? *]) collect))
+                     -1 0 2 1 1 -2 0 0 2)
+                    (list 6 3 "zero" 2))
+      (check-equal? ((flow (~> (partition [positive? +]
+                                          [zero? (-< count (gen "zero"))]
+                                          [negative? *]) collect))
+                     -1 2 1 1 -2 2)
+                    (list 6 0 "zero" 2)
+                    "some partition bodies have no inputs")
+      (check-equal? ((flow (~> (partition [(and positive? (> 1)) +]
+                                          [_ list]) collect))
+                     -1 2 1 1 -2 2)
+                    (list 4 (list -1 1 1 -2))
+                    "partition bodies can be flows"))
+    (test-suite
      "gate"
      (check-equal? ((☯ (gate positive?))
                     5)
