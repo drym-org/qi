@@ -217,15 +217,7 @@ provide appropriate error messages at the level of the DSL.
   ;; towards universality
   [(_ (~datum apply))
    #'call]
-  [(_ ((~datum clos) flo:clause))
-   #:do [(define chirality (syntax-property (cadr (syntax->list this-syntax)) 'chirality))]
-   (if (and chirality (eq? chirality 'right))
-       #'(λ args
-           (flow (~> (-< _ (~> (gen args) △))
-                     flo)))
-       #'(λ args
-           (flow (~> (-< (~> (gen args) △) _)
-                     flo))))]
+  [(_ e:clos-form) (clos-parser #'e)]
 
   ;;; Miscellaneous
 
@@ -593,6 +585,18 @@ provide appropriate error messages at the level of the DSL.
        #'(flow (loop pred mapex _ ⏚))]
       [((~datum loop) mapex:clause)
        #'(flow (loop #t mapex _ ⏚))]))
+
+  (define (clos-parser stx)
+    (syntax-parse stx
+      [(_ onex:clause)
+       #:do [(define chirality (syntax-property stx 'chirality))]
+       (if (and chirality (eq? chirality 'right))
+           #'(λ args
+               (flow (~> (-< _ (~> (gen args) △))
+                         onex)))
+           #'(λ args
+               (flow (~> (-< (~> (gen args) △) _)
+                         onex))))]))
 
   (define (literal-parser stx)
     (syntax-parse stx

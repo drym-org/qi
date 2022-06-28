@@ -22,7 +22,8 @@
          blanket-template-form
          and%-form
          or%-form
-         right-threading-form)
+         right-threading-form
+         clos-form)
 
 (require syntax/parse
          racket/string)
@@ -247,3 +248,7 @@
 (define-syntax-class right-threading-form
   (pattern
    ((~or (~datum ~>>) (~datum thread-right)) onex:clause ...)))
+
+(define-syntax-class clos-form
+  (pattern
+   ((~datum clos) onex:clause)))
