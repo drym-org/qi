@@ -9,6 +9,7 @@
          none?
          map-values
          filter-values
+         partition-values
          relay
          loom-compose
          parity-xor
@@ -136,6 +137,47 @@
 
 (define (filter-values f . args)
   (apply values (filter f args)))
+
+;; partition arguments by the first matching condition, then feed the
+;; accumulated subsequences into associated bodies.
+;; - c+bs is a list of pair?
+;; - each car is a condition-flow (c) and each cdr a body-flow (b)
+(define (partition-values c+bs . args)
+  ;; The accumulator type is {condition-flow → [args]}. The first
+  ;; accumulator, acc₀, maps conditions to empty args.
+  (define acc0
+    (for/hasheq ([c+b (in-list c+bs)])
+      (values (car c+b) empty)))
+  ;; Partition the arguments by first matching condition.
+  (define by-cs
+    ;; Accumulates result lists in reverse…
+    (for/fold ([acc acc0]
+               ;; …then reverses them.
+               #:result (for/hash ([(c args) (in-hash acc)])
+                          (values c (reverse args))))
+      ([arg (in-list args)])
+      (define matching-c
+        ;; first condition…
+        (for*/first ([c+b (in-list c+bs)]
+                     [c (in-value (car c+b))]
+                     ;; …that holds
+                     #:when (c arg))
+          c))
+      (if matching-c
+        (hash-update acc matching-c (λ (acc-at-c) (cons arg acc-at-c)))
+        acc)))
+  ;; Apply bodies to partitioned arguments. Each body's return values are
+  ;; collected in a list, and all return-lists are collected in order of
+  ;; appearance. The resulting list is flattened twice, once by apply and once
+  ;; by append, to remove the lists introduced by this function. The resulting
+  ;; list is the sequence of return values.
+  (define results
+    (for*/list ([c+b (in-list c+bs)]
+                [c (in-value (car c+b))]
+                [b (in-value (cdr c+b))]
+                [args (in-value (hash-ref by-cs c))])
+      (call-with-values (λ () (apply b args)) list)))
+  (apply values (apply append results)))
 
 (define (->boolean v)
   (not (not v)))
