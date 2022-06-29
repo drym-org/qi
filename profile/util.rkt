@@ -76,8 +76,8 @@
 
 (define (check-two-values fn how-many)
   ;; call a function with two values as arguments
-  (for ([i (in-range how-many)])
-    (let ([vs (range i (+ i 2))])
+  (let ([vs (list 5 7)])
+    (for ([i (in-range how-many)])
       (call-with-values (λ ()
                           (apply values vs))
                         fn))))
