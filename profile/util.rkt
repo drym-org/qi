@@ -42,10 +42,15 @@
 (define (measure fn . args)
   (second (values->list (time-apply fn args))))
 
-(define (check-value fn how-many [inputs (range 10)])
+;; This uses a vector of inputs so that indexing into it
+;; is constant time and doesn't factor prominently in the
+;; overall time taken.
+(define (check-value fn how-many [inputs #(0 1 2 3 4 5 6 7 8 9)])
   ;; call a function with a single (numeric) argument
-  (for ([i (take how-many (cycle inputs))])
-    (fn i)))
+  (let ([i 0])
+    (for ([j how-many])
+      (set! i (remainder (add1 i) 10))
+      (fn (vector-ref inputs i)))))
 
 (define (check-list fn how-many)
   ;; call a function with a single list argument
