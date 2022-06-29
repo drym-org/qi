@@ -607,6 +607,16 @@ for the forms are run.
                    check-values
                    100000)))
 
+(module partition "forms-base.rkt"
+  (provide run)
+  (define (partition . vs)
+    (apply (flow (partition [negative? *]
+                            [zero? count]
+                            [positive? +]))
+           vs))
+  (define (run)
+    (run-benchmark partition check-values 100000)))
+
 (module gate "forms-base.rkt"
   (provide run)
 
@@ -915,6 +925,7 @@ for the forms are run.
    (prefix-in unless: (submod ".." unless))
    (prefix-in switch: (submod ".." switch))
    (prefix-in sieve: (submod ".." sieve))
+   (prefix-in partition: (submod ".." partition))
    (prefix-in gate: (submod ".." gate))
    (prefix-in input-aliases: (submod ".." input-aliases))
    (prefix-in fanout: (submod ".." fanout))
@@ -992,6 +1003,7 @@ for the forms are run.
      "unless" unless:run
      "switch" switch:run
      "sieve" sieve:run
+     "partition" partition:run
      "gate" gate:run
      "input-aliases" input-aliases:run
      "fanout" fanout:run
