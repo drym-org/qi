@@ -53,16 +53,23 @@
       (set! i (remainder (add1 i) len))
       (fn (vector-ref inputs i)))))
 
+;; This uses the same list input each time. Not sure if that
+;; may end up being cached at some level and thus obfuscate
+;; the results? On the other hand,
+;; the cost of constructing a varying list each time ends up
+;; taking up a nontrivial fraction of the total time spent
 (define (check-list fn how-many)
   ;; call a function with a single list argument
-  (for ([i (in-range how-many)])
-    (let ([vs (range i (+ i 10))])
+  (let ([vs (range 10)])
+    (for ([i how-many])
       (fn vs))))
 
+;; This uses the same input values each time. See the note
+;; above for check-list in this connection.
 (define (check-values fn how-many)
   ;; call a function with multiple values as independent arguments
-  (for ([i (in-range how-many)])
-    (let ([vs (range i (+ i 10))])
+  (let ([vs (range 10)])
+    (for ([i how-many])
       (call-with-values (λ ()
                           (apply values vs))
                         fn))))
