@@ -47,9 +47,10 @@
 ;; overall time taken.
 (define (check-value fn how-many [inputs #(0 1 2 3 4 5 6 7 8 9)])
   ;; call a function with a single (numeric) argument
-  (let ([i 0])
+  (let ([i 0]
+        [len (vector-length inputs)])
     (for ([j how-many])
-      (set! i (remainder (add1 i) 10))
+      (set! i (remainder (add1 i) len))
       (fn (vector-ref inputs i)))))
 
 (define (check-list fn how-many)
