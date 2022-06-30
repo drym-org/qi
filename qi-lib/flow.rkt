@@ -130,19 +130,8 @@ provide appropriate error messages at the level of the DSL.
               (append (values->list
                        (apply (flow onex) args))
                       ...)))]
-  [(_ ((~datum select) n:number ...))
-   #'(flow (-< (esc (arg n)) ...))]
-  [(_ ((~datum select) arg ...))  ; error handling catch-all
-   (report-syntax-error 'select
-                        (syntax->datum #'(arg ...))
-                        "(select <number> ...)")]
-  [(_ ((~datum block) n:number ...))
-   #'(flow (~> (esc (except-args n ...))
-               △))]
-  [(_ ((~datum block) arg ...))  ; error handling catch-all
-   (report-syntax-error 'block
-                        (syntax->datum #'(arg ...))
-                        "(block <number> ...)")]
+  [(_ e:select-form) (select-parser #'e)]
+  [(_ e:block-form) (block-parser #'e)]
   [(_ ((~datum bundle) (n:number ...)
                        selection-onex:clause
                        remainder-onex:clause))
@@ -334,6 +323,24 @@ provide appropriate error messages at the level of the DSL.
       [(_ onex:clause)
        #'(λ (v . vs)
            ((flow (~> △ (>< (apply (flow onex) _ vs)))) v))]))
+
+  (define (select-parser stx)
+    (syntax-parse stx
+      [(_ n:number ...) #'(flow (-< (esc (arg n)) ...))]
+      [(_ arg ...) ; error handling catch-all
+       (report-syntax-error 'select
+                            (syntax->datum #'(arg ...))
+                            "(select <number> ...)")]))
+
+  (define (block-parser stx)
+    (syntax-parse stx
+      [(_ n:number ...)
+       #'(flow (~> (esc (except-args n ...))
+                   △))]
+      [(_ arg ...) ; error handling catch-all
+       (report-syntax-error 'block
+                            (syntax->datum #'(arg ...))
+                            "(block <number> ...)")]))
 
   (define (group-parser stx)
     (syntax-parse stx

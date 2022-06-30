@@ -5,6 +5,8 @@
          clause
          starts-with
          sep-form
+         select-form
+         block-form
          group-form
          switch-form
          sieve-form
@@ -69,6 +71,14 @@
    (~or (~datum △) (~datum sep)))
   (pattern
    ((~or (~datum △) (~datum sep)) onex:clause)))
+
+(define-syntax-class select-form
+  (pattern
+   ((~datum select) arg ...)))
+
+(define-syntax-class block-form
+  (pattern
+   ((~datum block) arg ...)))
 
 (define-syntax-class group-form
   (pattern
