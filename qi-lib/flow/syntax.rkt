@@ -229,13 +229,7 @@
 (define-syntax-class blanket-template-form
   ;; "prarg" = "pre-supplied argument"
   (pattern
-   (natex prarg-pre ...+ (~datum __) prarg-post ...+))
-  (pattern
-   (natex prarg-pre ...+ (~datum __)))
-  (pattern
-   (natex (~datum __) prarg-post ...+))
-  (pattern
-   (natex (~datum __))))
+   (natex prarg-pre ... (~datum __) prarg-post ...)))
 
 (define-syntax-class and%-form
   (pattern
