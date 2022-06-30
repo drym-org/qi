@@ -31,19 +31,17 @@
 (define-alias ☯ flow)
 
 #|
-A note on error handling:
+The `flow` macro specifies the Qi language. In cases where there is
+more than one expansion rule for a particular form of the language,
+the expansion is delegated to a syntax class and a parser dedicated to
+that form, so that the form is still represented as a single rule in
+the flow macro, with the nuanced handling defined in the form-specific
+parser.
 
-The `flow` macro specifies the forms of the DSL. Some forms, in
-addition to handling legitimate syntax, also have catch-all versions
-that exist purely to provide a helpful message indicating a syntax
-error. We do this since a priori the macro would ignore syntax that
-doesn't match the pattern. Yet, for all of these named forms, we know
-that (or at least, it is prudent to assume that) the user intended to
-employ that particular form of the DSL. So instead of allowing it to
-fall through for interpretation as Racket code, which would yield
-potentially inscrutable errors, the catch-all forms allow us to
-provide appropriate error messages at the level of the DSL.
-
+The syntax classes for matching individual forms are in the
+flow/syntax module, while the form-specific parsers are in the present
+module, defined after the flow macro. They are all invoked as needed
+in the flow macro.
 |#
 
 (define-syntax-parser flow
@@ -266,7 +264,26 @@ provide appropriate error messages at the level of the DSL.
     "(flow flo)"
     "flow expects a single flow specification, but it received many.")])
 
+#|
+A note on error handling:
+
+Some forms, in addition to handling legitimate syntax, also have
+catch-all versions that exist purely to provide a helpful message
+indicating a syntax error. We do this since a priori the flow macro
+would ignore syntax that doesn't match any pattern. Yet, for all of
+these named forms, we know that (or at least, it is prudent to assume
+that) the user intended to employ that particular form of the DSL. So
+instead of allowing it to fall through for interpretation as Racket
+code, which would yield potentially inscrutable errors, the catch-all
+forms allow us to provide appropriate error messages at the level of
+the DSL.
+
+|#
+
 (begin-for-syntax
+
+  ;; The form-specific parsers, which are delegated to from
+  ;; the flow macro:
 
   (define-syntax-class disjux-clause ; "juxtaposed" disjoin
     (pattern
