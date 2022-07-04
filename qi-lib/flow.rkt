@@ -313,6 +313,12 @@ provide appropriate error messages at the level of the DSL.
    (report-syntax-error 'sieve
                         (syntax->datum #'(arg ...))
                         "(sieve <predicate flow> <selection flow> <remainder flow>)")]
+  [(_ ({~datum partition}))
+   #'(flow ground)]
+  [(_ ({~datum partition} [cond:clause body:clause]))
+   #'(flow (~> (pass cond) body))]
+  [(_ ({~datum partition} [cond:clause body:clause] [conds:clause bodies:clause] ...+))
+   #'(flow (sieve cond body (partition [conds bodies] ...)))]
   [(_ ((~datum gate) onex:clause))
    #'(flow (if onex _ ⏚))]
 

@@ -43,6 +43,7 @@
  (prefix-in unless: (submod "forms.rkt" unless))
  (prefix-in switch: (submod "forms.rkt" switch))
  (prefix-in sieve: (submod "forms.rkt" sieve))
+ (prefix-in partition: (submod "forms.rkt" partition))
  (prefix-in gate: (submod "forms.rkt" gate))
  (prefix-in input-aliases: (submod "forms.rkt" input-aliases))
  (prefix-in fanout: (submod "forms.rkt" fanout))
@@ -121,6 +122,7 @@
    "unless" unless:run
    "switch" switch:run
    "sieve" sieve:run
+   "partition" partition:run
    "gate" gate:run
    "input-aliases" input-aliases:run
    "fanout" fanout:run

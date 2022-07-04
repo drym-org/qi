@@ -476,6 +476,29 @@ Note that the symbol form uses Unicode @code{0x2225} corresponding to LaTeX's @c
   ]
 }
 
+@defform[(partition [condition-flo body-flo] ...)]{
+A form of generalized @racket[sieve], passing all the inputs that satisfy each
+@racket[condition-flo] to the corresponding @racket[body-flo].
+
+@examples[
+          #:eval eval-for-docs
+          ((☯ (partition)))
+          ((☯ (partition [positive? max])) 1 -2 3 -4 5)
+          ((☯ (partition [positive? max]
+                         [negative? min]))
+              1 -2 3 -4 5)
+          ((☯ (partition [positive? max]
+                         [negative? min]))
+              1 -2 3 -4 5)
+          ((☯ (partition [positive? max]
+                         [zero? (-< count (gen "zero"))]
+                         [negative? min]))
+              1 -2 3 -4 5)
+          ((☯ (partition [(and positive? (> 1)) max]))
+              1 -2 3 -4 5)
+          ]
+}
+
 @section{Conditionals}
 
 @deftogether[(
