@@ -3,4 +3,5 @@
 *.sw?
 compiled
 doc
+docs
 coverage
