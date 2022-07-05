@@ -1,6 +1,8 @@
 Contributing
 ============
 
+*Note*: The present document will eventually be incorporated into the `Developer's Guide <https://github.com/countvajhula/qi/wiki/Developer%27s-Guide>`_, which, at the moment, contains distinct documentation of components like performance benchmarking, but doesn't yet include the contents of the present document.
+
 .. contents:: :depth: 2
 
 Installing Qi Locally
