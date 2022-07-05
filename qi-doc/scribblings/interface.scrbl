@@ -105,6 +105,7 @@ The core entry-point to Qi from the host language is the form @racket[☯]. In a
                            (group number flow-expr flow-expr)
                            sieve
                            (sieve flow-expr flow-expr flow-expr)
+                           (partition [flow-expr flow-expr] ...)
                            (if flow-expr flow-expr)
                            (if flow-expr flow-expr flow-expr)
                            (when flow-expr flow-expr)
