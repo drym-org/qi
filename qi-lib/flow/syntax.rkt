@@ -10,6 +10,7 @@
          group-form
          switch-form
          sieve-form
+         partition-form
          try-form
          fanout-form
          feedback-form
@@ -136,6 +137,14 @@
    (~datum sieve))
   (pattern
    ((~datum sieve) arg ...)))
+
+(define-syntax-class partition-form
+  (pattern
+   ({~datum partition}))
+  (pattern
+   ({~datum partition} [cond:clause body:clause]))
+  (pattern
+   ({~datum partition} [cond:clause body:clause]  ...+)))
 
 (define-syntax-class try-form
   (pattern

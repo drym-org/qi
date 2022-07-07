@@ -148,13 +148,7 @@ in the flow macro.
    #'(flow (if condition ⏚ alternative))]
   [(_ e:switch-form) (switch-parser #'e)]
   [(_ e:sieve-form) (sieve-parser #'e)]
-  [(_ ({~datum partition}))
-   #'(flow ground)]
-  [(_ ({~datum partition} [cond:clause body:clause]))
-   #'(flow (~> (pass cond) body))]
-  [(_ ({~datum partition} [cond:clause body:clause]  ...+))
-   #:with c+bs #'(list (cons (flow cond) (flow body)) ...)
-   #'(flow (~>> (partition-values c+bs)))]
+  [(_ e:partition-form) (partition-parser #'e)]
   [(_ ((~datum gate) onex:clause))
    #'(flow (if onex _ ⏚))]
 
@@ -450,6 +444,16 @@ the DSL.
        (report-syntax-error 'sieve
                             (syntax->datum #'(arg ...))
                             "(sieve <predicate flow> <selection flow> <remainder flow>)")]))
+
+  (define (partition-parser stx)
+    (syntax-parse stx
+      [(_:id)
+       #'(flow ground)]
+      [(_ [cond:clause body:clause])
+       #'(flow (~> (pass cond) body))]
+      [(_ [cond:clause body:clause]  ...+)
+       #:with c+bs #'(list (cons (flow cond) (flow body)) ...)
+       #'(flow (~>> (partition-values c+bs)))]))
 
   (define (try-parser stx)
     (syntax-parse stx
