@@ -67,6 +67,19 @@
    i:id #:when (string-prefix? (symbol->string
                                 (syntax-e #'i)) pfx)))
 
+#|
+These syntax classes are used in the flow macro to handle matching of
+the input syntax to valid Qi syntax. Typically, _matching_ is the only
+function these syntax classes fulfill, and once matched, the input
+syntax is typically handed over to dedicated parsers that
+independently parse and expand the input. It's done this way to keep
+the clauses of the flow macro specific to individual forms, instead of
+these forms appearing in multiple clauses, so that the code for each
+form is decoupled from the rest of the flow macro.
+
+See comments in flow.rkt for more details.
+|#
+
 (define-syntax-class sep-form
   (pattern
    (~or (~datum △) (~datum sep)))
