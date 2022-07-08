@@ -67,7 +67,7 @@ in the flow macro.
           ->boolean
           (curryr member (list v ...)))]
       [((~datum all) onex:clause)
-       #'(give (curry andmap (flow onex)))]
+       #`(give (curry andmap #,(compile-flow #'onex)))]
       [((~datum any) onex:clause)
        #'(give (curry ormap (flow onex)))]
       [((~datum none) onex:clause)
