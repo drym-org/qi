@@ -280,6 +280,7 @@ the DSL.
   ;; the flow macro:
 
   (define-syntax-class disjux-clause ; "juxtaposed" disjoin
+    #:attributes (parsed)
     (pattern
      (~datum _)
      #:with parsed #'false.)
@@ -288,6 +289,7 @@ the DSL.
      #:with parsed #'onex))
 
   (define-syntax-class conjux-clause ; "juxtaposed" conjoin
+    #:attributes (parsed)
     (pattern
      (~datum _)
      #:with parsed #'true.)
