@@ -42,29 +42,42 @@
 (define (measure fn . args)
   (second (values->list (time-apply fn args))))
 
-(define (check-value fn how-many [inputs (range 10)])
+;; This uses a vector of inputs so that indexing into it
+;; is constant time and doesn't factor prominently in the
+;; overall time taken.
+(define (check-value fn how-many [inputs #(0 1 2 3 4 5 6 7 8 9)])
   ;; call a function with a single (numeric) argument
-  (for ([i (take how-many (cycle inputs))])
-    (fn i)))
+  (let ([i 0]
+        [len (vector-length inputs)])
+    (for ([j how-many])
+      (set! i (remainder (add1 i) len))
+      (fn (vector-ref inputs i)))))
 
+;; This uses the same list input each time. Not sure if that
+;; may end up being cached at some level and thus obfuscate
+;; the results? On the other hand,
+;; the cost of constructing a varying list each time ends up
+;; taking up a nontrivial fraction of the total time spent
 (define (check-list fn how-many)
   ;; call a function with a single list argument
-  (for ([i (in-range how-many)])
-    (let ([vs (range i (+ i 10))])
+  (let ([vs (range 10)])
+    (for ([i how-many])
       (fn vs))))
 
+;; This uses the same input values each time. See the note
+;; above for check-list in this connection.
 (define (check-values fn how-many)
   ;; call a function with multiple values as independent arguments
-  (for ([i (in-range how-many)])
-    (let ([vs (range i (+ i 10))])
+  (let ([vs (range 10)])
+    (for ([i how-many])
       (call-with-values (λ ()
                           (apply values vs))
                         fn))))
 
 (define (check-two-values fn how-many)
   ;; call a function with two values as arguments
-  (for ([i (in-range how-many)])
-    (let ([vs (range i (+ i 2))])
+  (let ([vs (list 5 7)])
+    (for ([i (in-range how-many)])
       (call-with-values (λ ()
                           (apply values vs))
                         fn))))

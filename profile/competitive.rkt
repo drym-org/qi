@@ -62,7 +62,7 @@
                            ping
                            10000)
 
-(define check-value-primes (curryr check-value (list 100 200 300)))
+(define check-value-primes (curryr check-value #(100 200 300)))
 
 (run-competitive-benchmark "Eratosthenes"
                            check-value-primes
