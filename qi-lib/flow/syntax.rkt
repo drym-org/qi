@@ -24,8 +24,7 @@
          right-threading-form
          clos-form)
 
-(require "aux-syntax.rkt"
-         syntax/parse)
+(require syntax/parse)
 
 #|
 These syntax classes are used in the flow macro to handle matching of

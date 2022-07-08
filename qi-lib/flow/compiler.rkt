@@ -4,32 +4,32 @@
 
 (require (for-syntax racket/base
                      syntax/parse
-                     "syntax.rkt"
-                     "aux-syntax.rkt"
-                     ;; (only-in "../macro.rkt"
-                     ;;          qi-macro?
-                     ;;          qi-macro-transformer)
-                     (only-in "../private/util.rkt"
-                              report-syntax-error))
-         "../macro.rkt"
-         "../private/util.rkt"
-         racket/function
-         (prefix-in fancy: fancy-app)
-         syntax/parse/define
-         (only-in adjutor
-                  values->list)
-         racket/function
-         (only-in racket/list
-                  make-list)
-         mischief/shorthand
-         (for-syntax racket/base
-                     racket/string
-                     syntax/parse
                      racket/match
                      (only-in racket/list
                               make-list)
+                     "syntax.rkt"
                      "aux-syntax.rkt"
-                     "syntax.rkt"))
+                     (only-in "../private/util.rkt"
+                              report-syntax-error))
+         (only-in "../macro.rkt"
+                  qi-macro?
+                  qi-macro-transformer)
+         "../private/util.rkt"
+         racket/function
+         (prefix-in fancy: fancy-app)
+         (only-in adjutor
+                  values->list)
+         (only-in racket/list
+                  make-list))
+
+(begin-for-syntax
+  ;; note: this does not return compiled code but instead,
+  ;; syntax whose expansion compiles the code
+  (define (compile-flow stx)
+    #`(qi0->racket #,(optimize-flow stx)))
+
+  (define (optimize-flow stx)
+    stx))
 
 (define-syntax (qi0->racket stx)
   (syntax-parse (cadr (syntax->list stx))
@@ -234,16 +234,6 @@
 
     ;; literally indicated function identifier
     [natex:expr #'natex]))
-
-(begin-for-syntax
-
-  ;; does not return compiled code but instead,
-  ;; syntax whose expansion compiled the code
-  (define (compile-flow stx)
-    #`(qi0->racket #,(optimize-flow stx)))
-
-  (define (optimize-flow stx)
-    stx))
 
 ;; The form-specific parsers, which are delegated to from
 ;; the qi0->racket macro:

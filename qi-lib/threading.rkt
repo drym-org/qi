@@ -5,10 +5,9 @@
 
 (require syntax/parse/define
          (for-syntax racket/base
-                     "flow.rkt"
                      (only-in "private/util.rkt"
-                              report-syntax-error))
-         "flow.rkt"
+                              report-syntax-error)
+                     "flow/aux-syntax.rkt")
          "on.rkt")
 
 (define-syntax-parser ~>

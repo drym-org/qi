@@ -8,7 +8,8 @@
 
 (require syntax/parse/define
          (only-in "private/util.rkt" define-alias)
-         (for-syntax racket/base)
+         (for-syntax racket/base
+                     "flow/aux-syntax.rkt")
          "flow.rkt"
          "on.rkt")
 
