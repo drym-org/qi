@@ -40,212 +40,226 @@ module, defined after the flow macro. They are all invoked as needed
 in the flow macro.
 |#
 
+(begin-for-syntax
+  (define (optimize-flow stx)
+    stx)
+
+  (define (qi0->racket stx)
+    (syntax-parse stx
+      ;; Check first whether the form is a macro. If it is, expand it.
+      ;; This is prioritized over other forms so that extensions may
+      ;; override built-in Qi forms.
+      [stx
+       #:with (~or* (m:id expr ...) m:id) #'stx
+       #:do [(define space-m ((make-interned-syntax-introducer 'qi) #'m))]
+       #:when (qi-macro? (syntax-local-value space-m (λ () #f)))
+       #:with expanded (syntax-local-apply-transformer
+                        (qi-macro-transformer (syntax-local-value space-m))
+                        space-m
+                        'expression
+                        #f
+                        #'stx)
+       #'(flow expanded)]
+
+      ;;; Special words
+      [((~datum one-of?) v:expr ...)
+       #'(compose
+          ->boolean
+          (curryr member (list v ...)))]
+      [((~datum all) onex:clause)
+       #'(give (curry andmap (flow onex)))]
+      [((~datum any) onex:clause)
+       #'(give (curry ormap (flow onex)))]
+      [((~datum none) onex:clause)
+       #'(flow (not (any onex)))]
+      [((~datum and) onex:clause ...)
+       #'(conjoin (flow onex) ...)]
+      [((~datum or) onex:clause ...)
+       #'(disjoin (flow onex) ...)]
+      [((~datum not) onex:clause)
+       #'(negate (flow onex))]
+      [((~datum gen) ex:expr ...)
+       #'(λ _ (values ex ...))]
+      [(~or* (~datum NOT) (~datum !))
+       #'not]
+      [(~or* (~datum AND) (~datum &))
+       #'all?]
+      [(~or* (~datum OR) (~datum ∥))
+       #'any?]
+      [(~datum NOR)
+       #'(flow (~> OR NOT))]
+      [(~datum NAND)
+       #'(flow (~> AND NOT))]
+      [(~datum XOR)
+       #'parity-xor]
+      [(~datum XNOR)
+       #'(flow (~> XOR NOT))]
+      [e:and%-form (and%-parser #'e)]
+      [e:or%-form (or%-parser #'e)]
+      [(~datum any?) #'any?]
+      [(~datum all?) #'all?]
+      [(~datum none?) #'none?]
+      [(~or* (~datum ▽) (~datum collect))
+       #'list]
+      [e:sep-form (sep-parser #'e)]
+
+      ;;; Core routing elements
+
+      [(~or* (~datum ⏚) (~datum ground))
+       #'(flow (select))]
+      [((~or* (~datum ~>) (~datum thread)) onex:clause ...)
+       (datum->syntax this-syntax
+         (cons 'compose
+               (reverse
+                (syntax->list
+                 #'((flow onex) ...)))))]
+      [e:right-threading-form (right-threading-parser #'e)]
+      [(~or* (~datum X) (~datum crossover))
+       #'(flow (~> ▽ reverse △))]
+      [((~or* (~datum ==) (~datum relay)) onex:clause ...)
+       #'(relay (flow onex) ...)]
+      [((~or* (~datum ==*) (~datum relay*)) onex:clause ... rest-onex:clause)
+       (with-syntax ([len (datum->syntax this-syntax
+                            (length (syntax->list #'(onex ...))))])
+         #'(flow (group len (== onex ...) rest-onex) ))]
+      [((~or* (~datum -<) (~datum tee)) onex:clause ...)
+       #'(λ args
+           (apply values
+                  (append (values->list
+                           (apply (flow onex) args))
+                          ...)))]
+      [e:select-form (select-parser #'e)]
+      [e:block-form (block-parser #'e)]
+      [((~datum bundle) (n:number ...)
+                        selection-onex:clause
+                        remainder-onex:clause)
+       #'(flow (-< (~> (select n ...) selection-onex)
+                   (~> (block n ...) remainder-onex)))]
+      [e:group-form (group-parser #'e)]
+
+      ;;; Conditionals
+
+      [e:if-form (if-parser #'e)]
+      [((~datum when) condition:clause
+                      consequent:clause)
+       #'(flow (if condition consequent ⏚))]
+      [((~datum unless) condition:clause
+                        alternative:clause)
+       #'(flow (if condition ⏚ alternative))]
+      [e:switch-form (switch-parser #'e)]
+      [e:sieve-form (sieve-parser #'e)]
+      [e:partition-form (partition-parser #'e)]
+      [((~datum gate) onex:clause)
+       #'(flow (if onex _ ⏚))]
+
+      ;;; Exceptions
+
+      [e:try-form (try-parser #'e)]
+
+      ;;; High level circuit elements
+
+      ;; aliases for inputs
+      [e:input-alias (input-alias-parser #'e)]
+
+      ;; common utilities
+      [(~datum count)
+       #'(λ args (length args))]
+      [(~datum live?)
+       #'(λ args (not (null? args)))]
+      [((~datum rectify) v:expr ...)
+       #'(flow (if live? _ (gen v ...)))]
+
+      ;; high level routing
+      [e:fanout-form (fanout-parser #'e)]
+      [e:feedback-form (feedback-parser #'e)]
+      [(~datum inverter)
+       #'(flow (>< NOT))]
+      [e:side-effect-form (side-effect-parser #'e)]
+
+      ;;; Higher-order flows
+
+      ;; map, filter, and fold
+      [e:amp-form (amp-parser #'e)]
+      [e:pass-form (pass-parser #'e)]
+      [e:fold-left-form (fold-left-parser #'e)]
+      [e:fold-right-form (fold-right-parser #'e)]
+
+      ;; looping
+      [e:loop-form (loop-parser #'e)]
+      [((~datum loop2) pred:clause mapex:clause combex:clause)
+       #'(letrec ([loop2 (☯ (if pred
+                                (~> (== (-< cdr
+                                            (~> car mapex)) _)
+                                    (group 1 _ combex)
+                                    loop2)
+                                2>))])
+           loop2)]
+
+      ;; towards universality
+      [(~datum apply)
+       #'call]
+      [e:clos-form (clos-parser #'e)]
+
+      ;;; Miscellaneous
+
+      ;; escape hatch for racket expressions or anything
+      ;; to be "passed through"
+      [((~datum esc) ex:expr)
+       #'ex]
+
+      ;; backwards compat macro extensibility via Racket macros
+      [((~var ext-form (starts-with "qi:")) expr ...)
+       #'(ext-form expr ...)]
+
+      ;; a literal is interpreted as a flow generating it
+      [e:literal (literal-parser #'e)]
+
+      ;; Partial application with syntactically pre-supplied arguments
+      ;; in a blanket template
+      [e:blanket-template-form (blanket-template-form-parser #'e)]
+
+      ;; Fine-grained template-based application
+      ;; This handles templates that indicate a specific number of template
+      ;; variables (i.e. expected arguments). The semantics of template-based
+      ;; application here is fulfilled by the fancy-app module. In order to use
+      ;; it, we simply use the #%app macro provided by fancy-app instead of the
+      ;; implicit one used for function application in racket/base.
+      ;; "prarg" = "pre-supplied argument"
+      [(prarg-pre ... (~datum _) prarg-post ...)
+       #'(fancy:#%app prarg-pre ...
+                      _
+                      prarg-post ...)]
+
+      ;; Pre-supplied arguments without a template
+      [(natex prarg ...+)
+       ;; we use currying instead of templates when a template hasn't
+       ;; explicitly been indicated since in such cases, we cannot
+       ;; always infer the appropriate arity for a template (e.g. it
+       ;; may change under composition within the form), while a
+       ;; curried function will accept any number of arguments
+       #:do [(define chirality (syntax-property this-syntax 'chirality))]
+       (if (and chirality (eq? chirality 'right))
+           #'(curry natex prarg ...)
+           #'(curryr natex prarg ...))]
+
+      ;; pass-through (identity flow)
+      [(~datum _) #'values]
+
+      ;; literally indicated function identifier
+      [natex:expr #'natex]))
+
+  (define (compile-flow stx)
+    ((compose qi0->racket optimize-flow) stx))
+
+  (define (expand-flow stx)
+    stx))
+
 (define-syntax-parser flow
-
-  ;; Check first whether the form is a macro. If it is, expand it.
-  ;; This is prioritized over other forms so that extensions may
-  ;; override built-in Qi forms.
-  [(_ stx)
-   #:with (~or* (m:id expr ...) m:id) #'stx
-   #:do [(define space-m ((make-interned-syntax-introducer 'qi) #'m))]
-   #:when (qi-macro? (syntax-local-value space-m (λ () #f)))
-   #:with expanded (syntax-local-apply-transformer
-                    (qi-macro-transformer (syntax-local-value space-m))
-                    space-m
-                    'expression
-                    #f
-                    #'stx)
-   #'(flow expanded)]
-
-  ;;; Special words
-  [(_ ((~datum one-of?) v:expr ...))
-   #'(compose
-      ->boolean
-      (curryr member (list v ...)))]
-  [(_ ((~datum all) onex:clause))
-   #'(give (curry andmap (flow onex)))]
-  [(_ ((~datum any) onex:clause))
-   #'(give (curry ormap (flow onex)))]
-  [(_ ((~datum none) onex:clause))
-   #'(flow (not (any onex)))]
-  [(_ ((~datum and) onex:clause ...))
-   #'(conjoin (flow onex) ...)]
-  [(_ ((~datum or) onex:clause ...))
-   #'(disjoin (flow onex) ...)]
-  [(_ ((~datum not) onex:clause))
-   #'(negate (flow onex))]
-  [(_ ((~datum gen) ex:expr ...))
-   #'(λ _ (values ex ...))]
-  [(_ (~or* (~datum NOT) (~datum !)))
-   #'not]
-  [(_ (~or* (~datum AND) (~datum &)))
-   #'all?]
-  [(_ (~or* (~datum OR) (~datum ∥)))
-   #'any?]
-  [(_ (~datum NOR))
-   #'(flow (~> OR NOT))]
-  [(_ (~datum NAND))
-   #'(flow (~> AND NOT))]
-  [(_ (~datum XOR))
-   #'parity-xor]
-  [(_ (~datum XNOR))
-   #'(flow (~> XOR NOT))]
-  [(_ e:and%-form) (and%-parser #'e)]
-  [(_ e:or%-form) (or%-parser #'e)]
-  [(_ (~datum any?)) #'any?]
-  [(_ (~datum all?)) #'all?]
-  [(_ (~datum none?)) #'none?]
-  [(_ (~or* (~datum ▽) (~datum collect)))
-   #'list]
-  [(_ e:sep-form) (sep-parser #'e)]
-
-  ;;; Core routing elements
-
-  [(_ (~or* (~datum ⏚) (~datum ground)))
-   #'(flow (select))]
-  [(_ ((~or* (~datum ~>) (~datum thread)) onex:clause ...))
-   (datum->syntax this-syntax
-     (cons 'compose
-           (reverse
-            (syntax->list
-             #'((flow onex) ...)))))]
-  [(_ e:right-threading-form) (right-threading-parser #'e)]
-  [(_ (~or* (~datum X) (~datum crossover)))
-   #'(flow (~> ▽ reverse △))]
-  [(_ ((~or* (~datum ==) (~datum relay)) onex:clause ...))
-   #'(relay (flow onex) ...)]
-  [(_ ((~or* (~datum ==*) (~datum relay*)) onex:clause ... rest-onex:clause))
-   (with-syntax ([len (datum->syntax this-syntax
-                        (length (syntax->list #'(onex ...))))])
-     #'(flow (group len (== onex ...) rest-onex) ))]
-  [(_ ((~or* (~datum -<) (~datum tee)) onex:clause ...))
-   #'(λ args
-       (apply values
-              (append (values->list
-                       (apply (flow onex) args))
-                      ...)))]
-  [(_ e:select-form) (select-parser #'e)]
-  [(_ e:block-form) (block-parser #'e)]
-  [(_ ((~datum bundle) (n:number ...)
-                       selection-onex:clause
-                       remainder-onex:clause))
-   #'(flow (-< (~> (select n ...) selection-onex)
-               (~> (block n ...) remainder-onex)))]
-  [(_ e:group-form) (group-parser #'e)]
-
-  ;;; Conditionals
-
-  [(_ e:if-form) (if-parser #'e)]
-  [(_ ((~datum when) condition:clause
-                     consequent:clause))
-   #'(flow (if condition consequent ⏚))]
-  [(_ ((~datum unless) condition:clause
-                       alternative:clause))
-   #'(flow (if condition ⏚ alternative))]
-  [(_ e:switch-form) (switch-parser #'e)]
-  [(_ e:sieve-form) (sieve-parser #'e)]
-  [(_ e:partition-form) (partition-parser #'e)]
-  [(_ ((~datum gate) onex:clause))
-   #'(flow (if onex _ ⏚))]
-
-  ;;; Exceptions
-
-  [(_ e:try-form) (try-parser #'e)]
-
-  ;;; High level circuit elements
-
-  ;; aliases for inputs
-  [(_ e:input-alias) (input-alias-parser #'e)]
-
-  ;; common utilities
-  [(_ (~datum count))
-   #'(λ args (length args))]
-  [(_ (~datum live?))
-   #'(λ args (not (null? args)))]
-  [(_ ((~datum rectify) v:expr ...))
-   #'(flow (if live? _ (gen v ...)))]
-
-  ;; high level routing
-  [(_ e:fanout-form) (fanout-parser #'e)]
-  [(_ e:feedback-form) (feedback-parser #'e)]
-  [(_ (~datum inverter))
-   #'(flow (>< NOT))]
-  [(_ e:side-effect-form) (side-effect-parser #'e)]
-
-  ;;; Higher-order flows
-
-  ;; map, filter, and fold
-  [(_ e:amp-form) (amp-parser #'e)]
-  [(_ e:pass-form) (pass-parser #'e)]
-  [(_ e:fold-left-form) (fold-left-parser #'e)]
-  [(_ e:fold-right-form) (fold-right-parser #'e)]
-
-  ;; looping
-  [(_ e:loop-form) (loop-parser #'e)]
-  [(_ ((~datum loop2) pred:clause mapex:clause combex:clause))
-   #'(letrec ([loop2 (☯ (if pred
-                            (~> (== (-< cdr
-                                        (~> car mapex)) _)
-                                (group 1 _ combex)
-                                loop2)
-                            2>))])
-       loop2)]
-
-  ;; towards universality
-  [(_ (~datum apply))
-   #'call]
-  [(_ e:clos-form) (clos-parser #'e)]
-
-  ;;; Miscellaneous
-
-  ;; escape hatch for racket expressions or anything
-  ;; to be "passed through"
-  [(_ ((~datum esc) ex:expr))
-   #'ex]
-
-  ;; backwards compat macro extensibility via Racket macros
-  [(_ ((~var ext-form (starts-with "qi:")) expr ...))
-   #'(ext-form expr ...)]
-
-  ;; a literal is interpreted as a flow generating it
-  [(_ e:literal) (literal-parser #'e)]
-
-  ;; Partial application with syntactically pre-supplied arguments
-  ;; in a blanket template
-  [(_ e:blanket-template-form) (blanket-template-form-parser #'e)]
-
-  ;; Fine-grained template-based application
-  ;; This handles templates that indicate a specific number of template
-  ;; variables (i.e. expected arguments). The semantics of template-based
-  ;; application here is fulfilled by the fancy-app module. In order to use
-  ;; it, we simply use the #%app macro provided by fancy-app instead of the
-  ;; implicit one used for function application in racket/base.
-  ;; "prarg" = "pre-supplied argument"
-  [(_ (prarg-pre ... (~datum _) prarg-post ...))
-   #'(fancy:#%app prarg-pre ... _ prarg-post ...)]
-
-  ;; Pre-supplied arguments without a template
-  [(_ (natex prarg ...+))
-   ;; we use currying instead of templates when a template hasn't
-   ;; explicitly been indicated since in such cases, we cannot
-   ;; always infer the appropriate arity for a template (e.g. it
-   ;; may change under composition within the form), while a
-   ;; curried function will accept any number of arguments
-   #:do [(define chirality (syntax-property (cadr (syntax->list this-syntax)) 'chirality))]
-   (if (and chirality (eq? chirality 'right))
-       #'(curry natex prarg ...)
-       #'(curryr natex prarg ...))]
-
-  ;; pass-through (identity flow)
-  [(_ (~datum _)) #'values]
-
-  ;; literally indicated function identifier
-  [(_ natex:expr) #'natex]
-
+  [(_ onex) ((compose compile-flow expand-flow) #'onex)]
   ;; a non-flow
-  [(_) #'values]
-
-  [(flow expr0 expr ...+)  ; error handling catch-all
+  [_ #'values]
+  ;; error handling catch-all
+  [(_ expr0 expr ...+)
    (report-syntax-error
     'flow
     (syntax->datum #'(expr0 expr ...))
