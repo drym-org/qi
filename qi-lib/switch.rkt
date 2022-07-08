@@ -7,8 +7,10 @@
          define-switch)
 
 (require syntax/parse/define
+         (only-in "private/util.rkt" define-alias)
          (for-syntax racket/base
-                     syntax/parse/lib/function-header)
+                     syntax/parse/lib/function-header
+                     "flow/aux-syntax.rkt")
          "flow.rkt"
          "on.rkt"
          (only-in "private/util.rkt"

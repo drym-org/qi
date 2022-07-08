@@ -1,9 +1,7 @@
 #lang racket/base
 
 (provide flow
-         ☯
-         (for-syntax subject ; TODO: remove
-                     clause))
+         ☯)
 
 (require syntax/parse/define
          (prefix-in fancy: fancy-app)
@@ -12,20 +10,10 @@
                   make-list)
          (for-syntax racket/base
                      syntax/parse
-                     racket/match
-                     (only-in racket/list
-                              make-list)
                      (only-in "private/util.rkt"
                               report-syntax-error)
-                     "flow/aux-syntax.rkt"
-                     "flow/syntax.rkt"
                      "flow/expander.rkt")
-         "flow/compiler.rkt"
-         (only-in qi/macro
-                  qi-macro?
-                  qi-macro-transformer))
-
-(require "private/util.rkt")
+         "flow/compiler.rkt")
 
 (define-alias ☯ flow)
 
