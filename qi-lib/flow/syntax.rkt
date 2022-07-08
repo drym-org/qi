@@ -84,7 +84,7 @@ See comments in flow.rkt for more details.
   (pattern
    (~or (~datum △) (~datum sep)))
   (pattern
-   ((~or (~datum △) (~datum sep)) onex:clause)))
+   ((~or (~datum △) (~datum sep)) arg ...)))
 
 (define-syntax-class select-form
   (pattern
@@ -96,56 +96,15 @@ See comments in flow.rkt for more details.
 
 (define-syntax-class group-form
   (pattern
-   ((~datum group) n:expr
-                   selection-onex:clause
-                   remainder-onex:clause))
-  (pattern
    (~datum group))
   (pattern
    ((~datum group) arg ...)))
 
 (define-syntax-class switch-form
   (pattern
-   ((~datum switch)))
-  (pattern
-   ((~datum switch) ((~or (~datum divert) (~datum %))
-                     condition-gate:clause
-                     consequent-gate:clause)))
-  (pattern
-   ((~datum switch) [(~datum else) alternative:clause]))
-  (pattern
-   ((~datum switch) ((~or (~datum divert) (~datum %))
-                     condition-gate:clause
-                     consequent-gate:clause)
-                    [(~datum else) alternative:clause]))
-  (pattern
-   ((~datum switch) [condition0:clause ((~datum =>) consequent0:clause ...)]
-                    [condition:clause consequent:clause]
-                    ...))
-  (pattern
-   ((~datum switch) ((~or (~datum divert) (~datum %))
-                     condition-gate:clause
-                     consequent-gate:clause)
-                    [condition0:clause ((~datum =>) consequent0:clause ...)]
-                    [condition:clause consequent:clause]
-                    ...))
-  (pattern
-   ((~datum switch) [condition0:clause consequent0:clause]
-                    [condition:clause consequent:clause]
-                    ...))
-  (pattern
-   ((~datum switch) ((~or (~datum divert) (~datum %))
-                     condition-gate:clause
-                     consequent-gate:clause)
-                    [condition0:clause consequent0:clause]
-                    [condition:clause consequent:clause]
-                    ...)))
+   ((~datum switch) arg ...)))
 
 (define-syntax-class sieve-form
-  (pattern
-   ((~datum sieve) condition:clause
-                   sonex:clause
-                   ronex:clause))
   (pattern
    (~datum sieve))
   (pattern
@@ -153,17 +112,9 @@ See comments in flow.rkt for more details.
 
 (define-syntax-class partition-form
   (pattern
-   ({~datum partition}))
-  (pattern
-   ({~datum partition} [cond:clause body:clause]))
-  (pattern
-   ({~datum partition} [cond:clause body:clause]  ...+)))
+   ({~datum partition} arg ...)))
 
 (define-syntax-class try-form
-  (pattern
-   ((~datum try) flo
-                 [error-condition-flo error-handler-flo]
-                 ...+))
   (pattern
    ((~datum try) arg ...)))
 
@@ -181,82 +132,51 @@ See comments in flow.rkt for more details.
 
 (define-syntax-class if-form
   (pattern
-   ((~datum if) consequent:clause
-                alternative:clause))
-  (pattern
-   ((~datum if) condition:clause
-                consequent:clause
-                alternative:clause)))
+   ((~datum if) arg ...)))
 
 (define-syntax-class fanout-form
   (pattern
    (~datum fanout))
   (pattern
-   ((~datum fanout) n:number))
-  (pattern
-   ((~datum fanout) n:expr)))
+   ((~datum fanout) arg ...)))
 
 (define-syntax-class feedback-form
   (pattern
-   ((~datum feedback) ((~datum while) tilex:clause)
-                      ((~datum then) thenex:clause)
-                      onex:clause))
+   (~datum feedback))
   (pattern
-   ((~datum feedback) ((~datum while) tilex:clause) onex:clause))
-  (pattern
-   ((~datum feedback) n:expr
-                      ((~datum then) thenex:clause)
-                      onex:clause))
-  (pattern
-   ((~datum feedback) n:expr onex:clause))
-  (pattern
-   (~datum feedback)))
+   ((~datum feedback) arg ...)))
 
 (define-syntax-class side-effect-form
   (pattern
-   ((~or (~datum ε) (~datum effect)) sidex:clause onex:clause))
-  (pattern
-   ((~or (~datum ε) (~datum effect)) sidex:clause)))
+   ((~or (~datum ε) (~datum effect)) arg ...)))
 
 (define-syntax-class amp-form
   (pattern
    (~or (~datum ><) (~datum amp)))
   (pattern
-   ((~or (~datum ><) (~datum amp)) onex:clause))
-  (pattern
-   ((~or (~datum ><) (~datum amp)) onex0:clause onex:clause ...)))
+   ((~or (~datum ><) (~datum amp)) arg ...)))
 
 (define-syntax-class pass-form
   (pattern
    (~datum pass))
   (pattern
-   ((~datum pass) onex:clause)))
+   ((~datum pass) arg ...)))
 
 (define-syntax-class fold-left-form
   (pattern
    (~datum >>))
   (pattern
-   ((~datum >>) fn init))
-  (pattern
-   ((~datum >>) fn)))
+   ((~datum >>) arg ...)))
 
 (define-syntax-class fold-right-form
   (pattern
    (~datum <<))
   (pattern
-   ((~datum <<) fn init))
-  (pattern
-   ((~datum <<) fn)))
+   ((~datum <<) arg ...)))
 
 (define-syntax-class loop-form
   (pattern
-   ((~datum loop) pred:clause mapex:clause combex:clause retex:clause))
-  (pattern
-   ((~datum loop) pred:clause mapex:clause combex:clause))
-  (pattern
-   ((~datum loop) pred:clause mapex:clause))
-  (pattern
-   ((~datum loop) mapex:clause)))
+   ((~datum loop) arg ...)))
 
 (define-syntax-class blanket-template-form
   ;; "prarg" = "pre-supplied argument"
@@ -265,16 +185,16 @@ See comments in flow.rkt for more details.
 
 (define-syntax-class and%-form
   (pattern
-   ((~datum and%) onex:clause ...)))
+   ((~datum and%) arg ...)))
 
 (define-syntax-class or%-form
   (pattern
-   ((~datum or%) onex:clause ...)))
+   ((~datum or%) arg ...)))
 
 (define-syntax-class right-threading-form
   (pattern
-   ((~or (~datum ~>>) (~datum thread-right)) onex:clause ...)))
+   ((~or (~datum ~>>) (~datum thread-right)) arg ...)))
 
 (define-syntax-class clos-form
   (pattern
-   ((~datum clos) onex:clause)))
+   ((~datum clos) arg ...)))
