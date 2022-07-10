@@ -14,7 +14,6 @@
                   make-list)
          mischief/shorthand
          (for-syntax racket/base
-                     racket/string
                      syntax/parse
                      racket/match
                      (only-in racket/list
