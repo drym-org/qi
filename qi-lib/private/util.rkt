@@ -20,7 +20,9 @@
          power
          foldl-values
          foldr-values
-         report-syntax-error)
+         report-syntax-error
+         values->list
+         define-alias)
 
 (require racket/match
          (only-in racket/function
@@ -30,8 +32,9 @@
          racket/list
          racket/format
          racket/string
-         typed-stack
-         (only-in adjutor values->list))
+         syntax/parse/define
+         (for-syntax racket/base)
+         typed-stack)
 
 (define (report-syntax-error name args usage . msgs)
   (raise-syntax-error name
@@ -44,6 +47,12 @@
                               ""
                               (string-append "\n"
                                              (string-join msgs "\n"))))))
+
+(define-syntax-parse-rule (values->list body:expr ...+)
+  (call-with-values (λ () body ...) list))
+
+(define-syntax-parse-rule (define-alias alias:id name:id)
+  (define-syntax alias (make-rename-transformer #'name)))
 
 ;; we use a lambda to capture the arguments at runtime
 ;; since they aren't available at compile time

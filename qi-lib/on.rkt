@@ -7,10 +7,10 @@
          let/flow)
 
 (require syntax/parse/define
-         mischief/shorthand
          (for-syntax racket/base
                      "flow.rkt")
-         "flow.rkt")
+         "flow.rkt"
+         (only-in "private/util.rkt" define-alias))
 
 (define-syntax-parser on
   [(_ args:subject)

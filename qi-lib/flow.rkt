@@ -7,12 +7,9 @@
 
 (require syntax/parse/define
          (prefix-in fancy: fancy-app)
-         (only-in adjutor
-                  values->list)
          racket/function
          (only-in racket/list
                   make-list)
-         mischief/shorthand
          (for-syntax racket/base
                      syntax/parse
                      racket/match

@@ -7,7 +7,7 @@
          let/switch)
 
 (require syntax/parse/define
-         mischief/shorthand
+         (only-in "private/util.rkt" define-alias)
          (for-syntax racket/base)
          "flow.rkt"
          "on.rkt")
