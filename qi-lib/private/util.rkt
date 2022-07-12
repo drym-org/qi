@@ -33,8 +33,7 @@
          racket/format
          racket/string
          syntax/parse/define
-         (for-syntax racket/base)
-         typed-stack)
+         (for-syntax racket/base))
 
 (define (report-syntax-error name args usage . msgs)
   (raise-syntax-error name
@@ -105,28 +104,28 @@
 
 (define (except-args . indices)
   (λ args
-    (let ([indices (apply make-stack (sort indices <))])
-      (if (and (not (stack-empty? indices))
-               (<= (top indices) 0))
+    (let ([indices (sort indices <)])
+      (if (and (not (empty? indices))
+               (<= (first indices) 0))
           (error 'block (~a "Can't block "
-                            (counting-string (top indices))
+                            (counting-string (first indices))
                             " value in "
                             args
                             " -- block is 1-indexed"))
-          (let loop ([rem-args args]
+          (let loop ([indices indices]
+                     [rem-args args]
                      [cur-idx 1])
-            (if (stack-empty? indices)
+            (if (empty? indices)
                 rem-args
                 (match rem-args
                   ['() (error 'block (~a "Can't block "
-                                         (counting-string (top indices))
+                                         (counting-string (first indices))
                                          " value in "
                                          args))]
                   [(cons v vs)
-                   (if (= cur-idx (top indices))
-                       (begin (pop! indices)
-                              (loop vs (add1 cur-idx)))
-                       (cons v (loop vs (add1 cur-idx))))])))))))
+                   (if (= cur-idx (first indices))
+                       (loop (rest indices) vs (add1 cur-idx))
+                       (cons v (loop indices vs (add1 cur-idx))))])))))))
 
 ;; give a (list-)lifted function available arguments
 ;; directly instead of wrapping them with a list
