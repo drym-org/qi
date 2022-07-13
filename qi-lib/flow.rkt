@@ -13,7 +13,9 @@
                      (only-in "private/util.rkt"
                               report-syntax-error)
                      "flow/expander.rkt")
-         "flow/compiler.rkt")
+         "flow/compiler.rkt"
+         (only-in "private/util.rkt"
+                  define-alias))
 
 (define-alias ☯ flow)
 

@@ -17,8 +17,6 @@
          "../private/util.rkt"
          racket/function
          (prefix-in fancy: fancy-app)
-         (only-in adjutor
-                  values->list)
          (only-in racket/list
                   make-list))
 
