@@ -523,6 +523,7 @@ the DSL.
            (apply values
                   (apply append
                          (make-list n args))))]))
+
   (define (feedback-parser stx)
     (syntax-parse stx
       [(_ ((~datum while) tilex:clause)
@@ -532,14 +533,29 @@ the DSL.
                                    (~> onex loop)
                                    thenex)))])
            loop)]
+      [(_ ((~datum while) tilex:clause)
+          ((~datum then) thenex:clause))
+       #'(letrec ([loop (☯ (~> (if (~> (block 1) tilex)
+                                   (~> (-< 1>
+                                           apply) loop)
+                                   (~> (block 1) thenex))))])
+           loop)]
       [(_ ((~datum while) tilex:clause) onex:clause)
        #'(flow (feedback (while tilex) (then _) onex))]
+      [(_ ((~datum while) tilex:clause))
+       #'(flow (feedback (while tilex) (then _)))]
       [(_ n:expr
           ((~datum then) thenex:clause)
           onex:clause)
        #'(flow (~> (esc (power n (flow onex))) thenex))]
+      [(_ n:expr
+          ((~datum then) thenex:clause))
+       #'(λ (f . args)
+           (apply (flow (~> (esc (power n f)) thenex)) args))]
       [(_ n:expr onex:clause)
        #'(flow (feedback n (then _) onex))]
+      [(_ n:expr)
+       #'(flow (feedback n (then _)))]
       [_:id
        #'(letrec ([loop (☯ (~> (if (~> (-< 1> (block 1 2 3)) apply)
                                    (~> (-< (select 1 2 3)

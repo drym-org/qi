@@ -599,13 +599,21 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
 @defform[#:link-target? #f
          (feedback N flo)]
 @defform[#:link-target? #f
+         (feedback N (then then-flo))]
+@defform[#:link-target? #f
          (feedback N (then then-flo) flo)]
+@defform[#:link-target? #f
+         (feedback (while cond-flo))]
+@defform[#:link-target? #f
+         (feedback (while cond-flo) flo)]
+@defform[#:link-target? #f
+         (feedback (while cond-flo) (then then-flo))]
 @defform[#:link-target? #f
          (feedback (while cond-flo) (then then-flo) flo)]
 )]{
   Pass the inputs @racket[N] times through @racket[flo] by "feeding back" the outputs each time. If a @racket[while] clause is specified in place of a value, then the outputs are fed back as long as @racket[cond-flo] is true. If the optional @racket[then] form is specified, @racket[then-flo] will be invoked on the outputs at the end after the loop has completed.
 
-  If used in identifier form simply as @racket[feedback], it treats the first three inputs as @racket[cond-flo], @racket[then-flo], and @racket[flo], respectively, and all three are expected. The remaining inputs are treated as the data inputs being acted upon.
+  If @racket[flo] is not specified, then it will be expected as the first input, with the remaining inputs being treated as the inputs being acted upon. If used in identifier form simply as @racket[feedback], it treats the first three inputs as @racket[cond-flo], @racket[then-flo], and @racket[flo], respectively, and all three are expected. The remaining inputs are treated as the data inputs being acted upon.
 
   For practical advice on using @racket[feedback], see @secref["Effectively_Using_Feedback_Loops"] in the field guide.
 
