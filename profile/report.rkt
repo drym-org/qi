@@ -63,6 +63,8 @@
  (prefix-in apply: (submod "forms.rkt" apply))
  (prefix-in clos: (submod "forms.rkt" clos)))
 
+(require "loadlib.rkt")
+
 (require racket/match
          racket/format
          relation
@@ -143,11 +145,13 @@
    "clos" clos:run))
 
 (program (main)
-  (let* ([forms (hash-keys env)]
-         [fs (~>> (forms)
-                  (sort <))])
-    (write-json (for/list ([f fs])
-                  (match-let ([(list name ms) ((hash-ref env f))])
-                    (hash 'name name 'unit "ms" 'value ms))))))
+  (define fs (~>> (env) hash-keys (sort <)))
+  (define forms-data (for/list ([f fs])
+                       (match-let ([(list name ms) ((hash-ref env f))])
+                         (hash 'name name 'unit "ms" 'value ms))))
+  (define require-data (list (hash 'name "(require qi)"
+                                   'unit "ms"
+                                   'value (time-module-ms "qi"))))
+  (write-json (append forms-data require-data)))
 
 (run main)
