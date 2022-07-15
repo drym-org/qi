@@ -630,6 +630,11 @@ the DSL.
 
   (define (clos-parser stx)
     (syntax-parse stx
+      [(~datum clos)
+       #:do [(define chirality (syntax-property stx 'chirality))]
+       (if (and chirality (eq? chirality 'right))
+           #'(λ (f . args) (apply curryr f args))
+           #'(λ (f . args) (apply curry f args)))]
       [(_ onex:clause)
        #:do [(define chirality (syntax-property stx 'chirality))]
        (if (and chirality (eq? chirality 'right))
