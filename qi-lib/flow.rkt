@@ -554,8 +554,9 @@ the DSL.
            (apply (flow (~> (esc (power n f)) thenex)) args))]
       [(_ n:expr onex:clause)
        #'(flow (feedback n (then _) onex))]
-      [(_ n:expr)
-       #'(flow (feedback n (then _)))]
+      [(_ onex:clause)
+       #'(λ (n . args)
+           (apply (flow (feedback n onex)) args))]
       [_:id
        #'(letrec ([loop (☯ (~> (if (~> (-< 1> (block 1 2 3)) apply)
                                    (~> (-< (select 1 2 3)

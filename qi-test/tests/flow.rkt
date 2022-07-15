@@ -932,10 +932,9 @@
                     5)
                    625
                    "(feedback N flo)")
-     (check-equal? ((☯ (feedback 5))
-                    add1 5)
-                   10
-                   "(feedback N)")
+     (check-equal? (~> (3 5) (feedback add1))
+                   8
+                   "(feedback flo) consumes the first input as N")
      (check-equal? ((☯ (feedback 5 (then sqr) add1))
                     11)
                    256
