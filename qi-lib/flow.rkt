@@ -496,11 +496,11 @@ the DSL.
     (syntax-parse stx
       [(_ consequent:clause
           alternative:clause)
-       #'(λ args
+       #'(λ (f . args)
            ;; the first argument is the predicate flow here
-           (if (apply (car args) (cdr args))
-               (apply (flow consequent) (cdr args))
-               (apply (flow alternative) (cdr args))))]
+           (if (apply f args)
+               (apply (flow consequent) args)
+               (apply (flow alternative) args)))]
       [(_ condition:clause
           consequent:clause
           alternative:clause)
