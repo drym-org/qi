@@ -701,6 +701,12 @@ for the forms are run.
     ((☯ (feedback (while (< 1024)) (~> add1 (* 2))))
      v))
 
+  (define (feedback-control v)
+    ((☯ (~> (-< (gen positive?) (gen sub1) (gen sub1)
+                10)
+            feedback))
+     v))
+
   (define (run)
     (run-summary-benchmark "feedback"
                            +
@@ -709,7 +715,10 @@ for the forms are run.
                             20000)
                            (feedback-while
                             check-value
-                            20000))))
+                            20000)
+                           (feedback-control
+                            check-value
+                            70000))))
 
 (module select "forms-base.rkt"
   (provide run)
