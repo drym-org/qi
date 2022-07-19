@@ -558,14 +558,11 @@ the DSL.
        #'(λ (n . args)
            (apply (flow (feedback n onex)) args))]
       [_:id
-       #'(letrec ([loop (☯ (~> (if (~> (-< 1> (block 1 2 3)) apply)
-                                   (~> (-< (select 1 2 3)
-                                           (~> (block 1 2)
-                                               apply))
-                                       loop)
-                                   (~> (-< 2> (block 1 2 3))
-                                       apply))))])
-           loop)]))
+       #'(λ (cond-flo then-flo flo . args)
+           (let loop ([args args])
+             (if (apply cond-flo args)
+                 (loop (values->list (apply flo args)))
+                 (apply then-flo args))))]))
 
   (define (side-effect-parser stx)
     (syntax-parse stx
