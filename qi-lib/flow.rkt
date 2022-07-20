@@ -558,10 +558,8 @@ the DSL.
        #'(λ (n . args)
            (apply (flow (feedback n onex)) args))]
       [_:id
-       #'(λ (n then-flo flo . args)
-           (apply (flow (feedback n
-                                  (then then-flo)
-                                  flo))
+       #'(λ (n flo . args)
+           (apply (flow (feedback n flo))
                   args))]))
 
   (define (side-effect-parser stx)

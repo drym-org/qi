@@ -968,12 +968,11 @@
                    100
                    "(feedback (while cond-flo) (then then-flo) flo)")
      (check-equal? ((☯ (~> (-< 3
-                               (gen (☯ (~> (-< _ _) *)))
                                (gen (☯ (- 1)))
                                _)
                            feedback))
                     5)
-                   4
+                   2
                    "pure control form of feedback"))
     (test-suite
      "group"
