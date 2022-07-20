@@ -955,6 +955,10 @@
                     (☯ (- 15)) 20)
                    -10
                    "(feedback (while cond-flo))")
+     (check-equal? ((☯ (feedback (while positive?) (- 15)))
+                    20)
+                   -10
+                   "(feedback (while cond-flo))")
      (check-equal? ((☯ (feedback (while positive?) (then (~> (-< _ _) *))))
                     (☯ (- 15)) 20)
                    100
