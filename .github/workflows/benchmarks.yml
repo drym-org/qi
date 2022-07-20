@@ -26,7 +26,7 @@ jobs:
       - name: Store benchmark result
         uses: benchmark-action/github-action-benchmark@v1
         with:
-          name: Qi Forms Benchmarks
+          name: Qi Benchmarks
           tool: 'customSmallerIsBetter'
           gh-pages-branch: gh-pages
           benchmark-data-dir-path: benchmarks
