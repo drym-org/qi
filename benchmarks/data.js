@@ -2,7 +2,7 @@ window.BENCHMARK_DATA = {
   "lastUpdate": 1658344198285,
   "repoUrl": "https://github.com/countvajhula/qi",
   "entries": {
-    "Qi Forms Benchmarks": [
+    "Qi Benchmarks": [
       {
         "commit": {
           "author": {
@@ -5930,9 +5930,7 @@ window.BENCHMARK_DATA = {
             "unit": "ms"
           }
         ]
-      }
-    ],
-    "Qi Benchmarks": [
+      },
       {
         "commit": {
           "author": {
