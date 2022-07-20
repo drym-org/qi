@@ -702,8 +702,7 @@ for the forms are run.
      v))
 
   (define (feedback-control v)
-    ((☯ (~> (-< (gen positive?) (gen sub1) (gen sub1)
-                10)
+    ((☯ (~> (-< 10 (gen sub1) 10)
             feedback))
      v))
 
