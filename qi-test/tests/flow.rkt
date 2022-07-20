@@ -1225,7 +1225,11 @@
                    14)
      (check-equal? ((☯ (~> (loop sqr) ▽))
                     1 2 3)
-                   (list 1 4 9)))
+                   (list 1 4 9))
+     (check-equal? ((☯ (~> (loop (~> ▽ (not null?))
+                                 sqr
+                                 +))) 1 2 3)
+                   14))
     (test-suite
      "loop2"
      (check-equal? ((☯ (~> (loop2 (~> 1> (not null?))
