@@ -529,17 +529,17 @@ the DSL.
       [(_ ((~datum while) tilex:clause)
           ((~datum then) thenex:clause)
           onex:clause)
-       #'(letrec ([loop (☯ (~> (if tilex
-                                   (~> onex loop)
-                                   thenex)))])
-           loop)]
+       #'(λ args
+           (let loop ([args args])
+             (if (apply (flow tilex) args)
+                 (loop (values->list
+                        (apply (flow onex) args)))
+                 (apply (flow thenex) args))))]
       [(_ ((~datum while) tilex:clause)
           ((~datum then) thenex:clause))
-       #'(letrec ([loop (☯ (~> (if (~> (block 1) tilex)
-                                   (~> (-< 1>
-                                           apply) loop)
-                                   (~> (block 1) thenex))))])
-           loop)]
+       #'(λ (f . args)
+           (apply (flow (feedback (while tilex) (then thenex) f))
+                  args))]
       [(_ ((~datum while) tilex:clause) onex:clause)
        #'(flow (feedback (while tilex) (then _) onex))]
       [(_ ((~datum while) tilex:clause))
@@ -551,7 +551,7 @@ the DSL.
       [(_ n:expr
           ((~datum then) thenex:clause))
        #'(λ (f . args)
-           (apply (flow (~> (esc (power n f)) thenex)) args))]
+           (apply (flow (feedback n (then thenex) f)) args))]
       [(_ n:expr onex:clause)
        #'(flow (feedback n (then _) onex))]
       [(_ onex:clause)
@@ -559,10 +559,10 @@ the DSL.
            (apply (flow (feedback n onex)) args))]
       [_:id
        #'(λ (cond-flo then-flo flo . args)
-           (let loop ([args args])
-             (if (apply cond-flo args)
-                 (loop (values->list (apply flo args)))
-                 (apply then-flo args))))]))
+           (apply (flow (feedback (while cond-flo)
+                                  (then then-flo)
+                                  flo))
+                  args))]))
 
   (define (side-effect-parser stx)
     (syntax-parse stx
