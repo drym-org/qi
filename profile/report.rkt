@@ -145,8 +145,9 @@
    "clos" clos:run))
 
 (program (main)
+  ;; Note: could use try-order? with hash-keys if support is dropped for Racket 8.3
   (define fs (~>> (env) hash-keys (sort <)))
-  (define forms-data (for/list ([f fs])
+  (define forms-data (for/list ([f (in-list fs)])
                        (match-let ([(list name ms) ((hash-ref env f))])
                          (hash 'name name 'unit "ms" 'value ms))))
   (define require-data (list (hash 'name "(require qi)"
