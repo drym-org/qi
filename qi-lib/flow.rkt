@@ -529,12 +529,7 @@ the DSL.
       [(_ ((~datum while) tilex:clause)
           ((~datum then) thenex:clause)
           onex:clause)
-       #'(λ args
-           (let loop ([args args])
-             (if (apply (flow tilex) args)
-                 (loop (values->list
-                        (apply (flow onex) args)))
-                 (apply (flow thenex) args))))]
+       #'(feedback-while (flow onex) (flow tilex) (flow thenex))]
       [(_ ((~datum while) tilex:clause)
           ((~datum then) thenex:clause))
        #'(λ (f . args)
@@ -547,7 +542,7 @@ the DSL.
       [(_ n:expr
           ((~datum then) thenex:clause)
           onex:clause)
-       #'(flow (~> (esc (power n (flow onex))) thenex))]
+       #'(feedback-times (flow onex) n (flow thenex))]
       [(_ n:expr
           ((~datum then) thenex:clause))
        #'(λ (f . args)
