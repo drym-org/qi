@@ -558,8 +558,8 @@ the DSL.
        #'(λ (n . args)
            (apply (flow (feedback n onex)) args))]
       [_:id
-       #'(λ (cond-flo then-flo flo . args)
-           (apply (flow (feedback (while cond-flo)
+       #'(λ (n then-flo flo . args)
+           (apply (flow (feedback n
                                   (then then-flo)
                                   flo))
                   args))]))

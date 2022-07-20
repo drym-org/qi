@@ -967,13 +967,13 @@
                     20)
                    100
                    "(feedback (while cond-flo) (then then-flo) flo)")
-     (check-equal? ((☯ (~> (-< (gen positive?)
+     (check-equal? ((☯ (~> (-< 3
                                (gen (☯ (~> (-< _ _) *)))
-                               (gen (☯ (- 15)))
+                               (gen (☯ (- 1)))
                                _)
                            feedback))
-                    20)
-                   100
+                    5)
+                   4
                    "pure control form of feedback"))
     (test-suite
      "group"
