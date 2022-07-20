@@ -197,4 +197,6 @@ See comments in flow.rkt for more details.
 
 (define-syntax-class clos-form
   (pattern
+   (~datum clos))
+  (pattern
    ((~datum clos) arg ...)))

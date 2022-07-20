@@ -22,7 +22,9 @@
          foldr-values
          report-syntax-error
          values->list
-         define-alias)
+         define-alias
+         feedback-times
+         feedback-while)
 
 (require racket/match
          (only-in racket/function
@@ -266,3 +268,14 @@
     (match vs
       ['() (apply values accs)]
       [(cons v rem-vs) (loop rem-vs (values->list (apply f v accs)))])))
+
+(define (feedback-times f n then-f)
+  (compose then-f (power n f)))
+
+(define (feedback-while f condition then-f)
+  (λ args
+    (let loop ([args args])
+      (if (apply condition args)
+          (loop (values->list
+                 (apply f args)))
+          (apply then-f args)))))

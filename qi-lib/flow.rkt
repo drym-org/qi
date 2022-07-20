@@ -496,11 +496,11 @@ the DSL.
     (syntax-parse stx
       [(_ consequent:clause
           alternative:clause)
-       #'(λ args
+       #'(λ (f . args)
            ;; the first argument is the predicate flow here
-           (if (apply (car args) (cdr args))
-               (apply (flow consequent) (cdr args))
-               (apply (flow alternative) (cdr args))))]
+           (if (apply f args)
+               (apply (flow consequent) args)
+               (apply (flow alternative) args)))]
       [(_ condition:clause
           consequent:clause
           alternative:clause)
@@ -523,32 +523,39 @@ the DSL.
            (apply values
                   (apply append
                          (make-list n args))))]))
+
   (define (feedback-parser stx)
     (syntax-parse stx
       [(_ ((~datum while) tilex:clause)
           ((~datum then) thenex:clause)
           onex:clause)
-       #'(letrec ([loop (☯ (~> (if tilex
-                                   (~> onex loop)
-                                   thenex)))])
-           loop)]
+       #'(feedback-while (flow onex) (flow tilex) (flow thenex))]
+      [(_ ((~datum while) tilex:clause)
+          ((~datum then) thenex:clause))
+       #'(λ (f . args)
+           (apply (flow (feedback (while tilex) (then thenex) f))
+                  args))]
       [(_ ((~datum while) tilex:clause) onex:clause)
        #'(flow (feedback (while tilex) (then _) onex))]
+      [(_ ((~datum while) tilex:clause))
+       #'(flow (feedback (while tilex) (then _)))]
       [(_ n:expr
           ((~datum then) thenex:clause)
           onex:clause)
-       #'(flow (~> (esc (power n (flow onex))) thenex))]
+       #'(feedback-times (flow onex) n (flow thenex))]
+      [(_ n:expr
+          ((~datum then) thenex:clause))
+       #'(λ (f . args)
+           (apply (flow (feedback n (then thenex) f)) args))]
       [(_ n:expr onex:clause)
        #'(flow (feedback n (then _) onex))]
+      [(_ onex:clause)
+       #'(λ (n . args)
+           (apply (flow (feedback n onex)) args))]
       [_:id
-       #'(letrec ([loop (☯ (~> (if (~> (-< 1> (block 1 2 3)) apply)
-                                   (~> (-< (select 1 2 3)
-                                           (~> (block 1 2)
-                                               apply))
-                                       loop)
-                                   (~> (-< 2> (block 1 2 3))
-                                       apply))))])
-           loop)]))
+       #'(λ (n flo . args)
+           (apply (flow (feedback n flo))
+                  args))]))
 
   (define (side-effect-parser stx)
     (syntax-parse stx
@@ -614,6 +621,11 @@ the DSL.
 
   (define (clos-parser stx)
     (syntax-parse stx
+      [(~datum clos)
+       #:do [(define chirality (syntax-property stx 'chirality))]
+       (if (and chirality (eq? chirality 'right))
+           #'(λ (f . args) (apply curryr f args))
+           #'(λ (f . args) (apply curry f args)))]
       [(_ onex:clause)
        #:do [(define chirality (syntax-property stx 'chirality))]
        (if (and chirality (eq? chirality 'right))
