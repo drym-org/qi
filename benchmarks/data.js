@@ -5933,6 +5933,11 @@ window.BENCHMARK_DATA = {
             "name": "when",
             "value": 86,
             "unit": "ms"
+          },
+          {
+            "name": "(require qi)",
+            "value": 187,
+            "unit": "ms"
           }
         ]
       },
