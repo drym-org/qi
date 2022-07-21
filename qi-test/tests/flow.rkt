@@ -749,11 +749,15 @@
                           [negative? 'hi]
                           [else 'bye])) 0 -1)
                     'bye)
-      (check-equal? ((☯ (switch (% 1> _)
+      (check-equal? ((☯ (switch (% 1> 2>)
+                          [negative? (=> 'hi)]
                           [add1 (=> + sqr)]
-                          [negative? 'hi]
-                          [else 'bye])) 4 -1)
-                    64)
+                          [else 'bye])) 4 -3)
+                    4)
+      (check-equal? ((☯ (switch (% 1> 2>)
+                          [add1 (=> + sqr)])) 4 -4)
+                    1
+                    "when both divert and => are present, divert operates only on the original inputs")
       (check-equal? ((☯ (switch (% 1> 2>)
                           [positive? _]
                           [negative? 'hi]

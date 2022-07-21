@@ -398,11 +398,15 @@ the DSL.
           [condition0:clause ((~datum =>) consequent0:clause ...)]
           [condition:clause consequent:clause]
           ...)
-       ;; we split the flow ahead of time to avoid evaluating
+       ;; both divert as well as => clauses. Here, the divert clause
+       ;; operates on the original inputs, not including the result
+       ;; of the condition flow.
+       ;; as before, we split the flow ahead of time to avoid evaluating
        ;; the condition more than once
        #'(flow (~> (-< (~> condition-gate condition0) _)
                    (if 1>
-                       (~> consequent-gate consequent0 ...)
+                       (~> (group 1 _ consequent-gate)
+                           consequent0 ...)
                        (group 1 ⏚
                               (switch (divert condition-gate consequent-gate)
                                 [condition consequent]
