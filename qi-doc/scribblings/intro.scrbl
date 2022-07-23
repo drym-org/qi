@@ -48,16 +48,6 @@ The former way is often necessary when writing functions at a low level, where t
     (root-mean-square (range 10))
   ]
 
-@section{What is a Flow?}
-
- A @deftech{flow} is either made up of flows, or is a native (e.g. Racket) function. Flows may be composed using a number of combinators that could yield either linear or nonlinear composite flows.
-
- A flow in general accepts @code{m} inputs and yields @code{n} outputs, for arbitrary non-negative integers @code{m} and @code{n}. We say that such a flow is @code{m × n}.
-
- The semantics of a flow is function invocation -- simply invoke a flow with inputs (i.e. ordinary arguments) to obtain the outputs.
-
- The Qi language allows you to describe and use flows in your code.
-
 @section{Usage}
 
  Qi may be used in normal (e.g. Racket) code simply by employing an appropriate @seclink["Language_Interface"]{interface} form. These forms embed the Qi language into the host language, that is, they allow you to use Qi anywhere in your program and provide shorthands for common cases.
