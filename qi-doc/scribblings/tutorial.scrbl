@@ -40,7 +40,7 @@ They contain similar material, but the interactive version includes additional s
 
 This tutorial is distributed using the @other-doc['(lib "from-template/scribblings/from-template.scrbl")] package, and contains the same material as the documentation-based tutorial, but also includes additional material such as exercises, all presented in an interactive format.
 
-@subsection{Installation}
+@subsection[#:tag "tutorial-installation"]{Installation}
 
 If you don't already have @other-doc['(lib "from-template/scribblings/from-template.scrbl")] installed, you'll need to run this first:
 

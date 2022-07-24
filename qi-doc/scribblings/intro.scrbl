@@ -32,35 +32,35 @@ One way to structure computations -- the one we typically employ when writing fu
 
 The former way is often necessary when writing functions at a low level, where the devil is in the details. But once these functional building blocks are available, the latter model is often more appropriate, allowing us to compose functions at a high level to derive complex and robust functional pipelines from simple components with a minimum of repetition and boilerplate, engendering @hyperlink["https://www.theschooloflife.com/thebookoflife/wu-wei-doing-nothing/"]{effortless clarity}. The facilities in the present module allow you to employ this flow-oriented model in any source program.
 
-@examples[
-    #:eval eval-for-docs
-    #:label #f
-    ((☯ (~> sqr add1)) 3)
-    (map (☯ (~> sqr add1)) (list 1 2 3 4))
-    (filter (☯ (< 5 _ 10)) (list 3 7 9 12))
-    (~> (2 3) (>< ->string) string-append)
-    (define-flow (≈ m n)
-      (~> - abs (< 1)))
-    (≈ 5 7)
-    (≈ 5 5.4)
-    (define-flow root-mean-square
-      (~>> (map sqr) (-< sum length) / sqrt))
-    (root-mean-square (range 10))
-  ]
+@section{Installation}
+
+Qi is a hosted language on the Racket platform. If you don't already have Racket installed, you will need to @hyperlink["https://download.racket-lang.org/"]{install it}. Then, install Qi at the command line using:
+
+@codeblock{
+    raco pkg install qi
+}
+
+ Qi is designed to be used in tandem with a host language, such as Racket itself. To use it in a Racket module, simply @racket[(require qi)].
 
 @section{Usage}
 
- Qi may be used in normal (e.g. Racket) code simply by employing an appropriate @seclink["Language_Interface"]{interface} form. These forms embed the Qi language into the host language, that is, they allow you to use Qi anywhere in your program and provide shorthands for common cases.
+ Qi may be used in normal (e.g. Racket) code by employing an appropriate @seclink["Language_Interface"]{interface} form. These forms embed the Qi language into the host language, that is, they allow you to use Qi anywhere in your program, and provide shorthands for common cases.
 
  Since some of the forms use and favor unicode characters (while also providing plain-English aliases), see @secref["Flowing_with_the_Flow"] for tips on entering these characters. Otherwise, if you're all set, head on over to the @seclink["Tutorial"]{tutorial}.
 
 @examples[
     #:eval eval-for-docs
-    ((☯ (~> sqr add1)) 3)
+    #:label #f
+    (require qi)
+    (map (☯ (~> sqr add1)) (list 1 2 3))
+    (filter (☯ (< 5 _ 10)) (list 3 7 9 12))
     (switch (2 3)
       [> -]
       [< +])
     (~> (3 4) (>< sqr) +)
+    (define-flow root-mean-square
+      (~> △ (>< sqr) (-< + count) / sqrt))
+    (root-mean-square (range 10))
   ]
 
 @section{Flowing with the Flow}
