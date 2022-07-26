@@ -221,10 +221,8 @@ in the flow macro.
   ;; it, we simply use the #%app macro provided by fancy-app instead of the
   ;; implicit one used for function application in racket/base.
   ;; "prarg" = "pre-supplied argument"
-  [(_ (natex prarg-pre ... (~datum _) prarg-post ...))
-   #'(fancy:#%app natex prarg-pre ...
-                  _
-                  prarg-post ...)]
+  [(_ (prarg-pre ... (~datum _) prarg-post ...))
+   #'(fancy:#%app prarg-pre ... _ prarg-post ...)]
 
   ;; Pre-supplied arguments without a template
   [(_ (natex prarg ...+))
