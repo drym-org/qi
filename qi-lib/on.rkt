@@ -22,28 +22,28 @@
    #`((flow clause) #,@(syntax->list #'ags))])
 
 (define-syntax-parser flow-lambda
-  [(_ (arg:id ...) expr:expr)
+  [(_ (arg:id ...) clause:clause)
    #'(lambda (arg ...)
        (on (arg ...)
-           expr))]
-  [(_ rest-args:id expr:expr)
+           clause))]
+  [(_ rest-args:id clause:clause)
    #'(lambda rest-args
        (on (rest-args)
-           expr))])
+           clause))])
 
 (define-alias π flow-lambda)
 
 (define-syntax-parser define-flow
-  [(_ (head . args:formals) expr:expr)
+  [(_ (head . args:formals) clause:clause)
    #'(define head
        (flow-lambda args
-         expr))]
-  [(_ name:id expr:expr)
+         clause))]
+  [(_ name:id clause:clause)
    #'(define name
-       (flow expr))])
+       (flow clause))])
 
 (define-syntax-parser let/flow
-  [(_ ([var:id val:expr] ...) expr:expr)
+  [(_ ([var:id val:expr] ...) clause:clause)
    #'((flow-lambda (var ...)
-        expr)
+        clause)
       val ...)])
