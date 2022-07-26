@@ -43,4 +43,8 @@
   [(_ ([var:id val:expr] ...) clause:clause)
    #'((flow-lambda (var ...)
         clause)
-      val ...)])
+      val ...)]
+  [(_ f:id ([var:id val:expr] ...) clause:clause)
+   #'(letrec ([f (flow-lambda (var ...)
+                   clause)])
+       (f val ...))])

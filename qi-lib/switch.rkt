@@ -41,4 +41,8 @@
   [(_ ([var:id val:expr] ...) expr:expr ...)
    #'((switch-lambda (var ...)
         expr ...)
-      val ...)])
+      val ...)]
+  [(_ f:id ([var:id val:expr] ...) expr:expr ...)
+   #'(letrec ([f (switch-lambda (var ...)
+                   expr ...)])
+      (f val ...))])

@@ -54,18 +54,19 @@
 
    (test-suite
     "let/flow"
-    (check-equal? (let/flow ([x 5]
-                             [y 3])
-                            (~> + sqr add1))
-                  65))
+    (check-equal? (let/flow ([x 5] [y 3]) (~> + sqr add1)) 65)
+    (check-equal? (let/flow my-flow2 ([v 5]) (~> (gen v) add1)) 6))
 
    (test-suite
     "let/switch"
-    (check-equal? (let/switch ([x 5]
-                               [y 3])
-                              [(~> + (> 10)) 'hi]
-                              [else 'bye])
-                  'bye))
+    (check-equal? (let/switch ([x 5] [y 3])
+                     [(~> + (> 10)) 'hi]
+                     [else 'bye])
+                  'bye)
+    (check-equal? (let/switch my-switch2 ([v 5] [w 6])
+                     [< (~> X -)]
+                     [else -])
+                  1))
 
    (test-suite
     "predicate lambda"
