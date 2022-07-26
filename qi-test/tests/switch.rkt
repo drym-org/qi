@@ -10,7 +10,7 @@
          racket/function
          "private/util.rkt")
 
-(define tests
+(define switch-tests
   (test-suite
    "switch tests"
    (test-suite
@@ -300,21 +300,29 @@
                     [negative? (gen (+ 1 2))]
                     [positive? (gen (- 1 2))]
                     [zero? (gen (* 2 3))])
-                  6))
+                  6))))
+
+(define switch-lambda-tests
+  (test-suite
+   "switch-lambda tests"
    (test-suite
-    "switch-lambda tests"
+    "header tests"
     (check-equal? ((switch-lambda a*
-                     [list? _]
-                     [else 'no])
+                                  [list? _]
+                                  [else 'no])
                    1 2 3 4)
                   '(1 2 3 4))
     (check-equal? ((switch-lambda (a . a*)
-                     [(memq _ _) 'yes]
-                     [else 'no])
+                                  [(memq _ _) 'yes]
+                                  [else 'no])
                    2 2 3 4)
-                  'yes))
+                  'yes))))
+
+(define define-switch-tests
+  (test-suite
+   "define-switch-tests"
    (test-suite
-    "define-switch tests"
+    "header tests"
     (check-equal? (let ()
                     (define-switch ((t n) . n*)
                       [(memq n _) 'yes]
@@ -322,6 +330,13 @@
                     (list ((t 1) 1 2 3)
                           ((t 0) 1 2 3)))
                   '(yes no)))))
+
+(define tests
+  (test-suite
+   "switch.rkt tests"
+   switch-tests
+   switch-lambda-tests
+   define-switch-tests))
 
 (module+ main
   (void (run-tests tests)))
