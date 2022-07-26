@@ -37,7 +37,8 @@ The core entry-point to Qi from the host language is the form @racket[☯]. In a
 
 @deftogether[(
 @defform*/subs[[(☯ flow-expr)]
-               ([flow-expr _
+               ([flow-expr (code:line)
+                           _
                            (gen expr ...)
                            △
                            sep
