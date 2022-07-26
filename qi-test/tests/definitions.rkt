@@ -155,7 +155,7 @@
                    1 2 3 4)
                   '(1 2 3 4))
     (check-equal? ((λ01 (a . a*)
-                        [(memq _ _) 'yes]
+                        [memq 'yes]
                         [else 'no])
                    2 2 3 4)
                   'yes))))
