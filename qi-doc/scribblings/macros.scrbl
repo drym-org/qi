@@ -238,14 +238,14 @@ If you are interested in writing a hosted language that you'd like to use from w
 You can always embed a hosted language into the host language by implementing a set of macros corresponding to each form of the language. For languages that are large enough, this may be the best option to gain the advantages of a hosted language while also retaining the convenience of an embedded one for special cases. For instance, for a small embedded version of Qi, you could do:
 
 @racketblock[
-(define-syntax-parse-rule (~> flo ...)
-  (flow (~> flo ...)))
-(define-syntax-parse-rule (>< flo)
-  (flow (>< flo)))
-(define-syntax-parse-rule (-< flo ...)
-  (flow (-< flo ...)))
-(define-syntax-parse-rule (== flo ...)
-  (flow (== flo ...)))
+(define-syntax-parse-rule (~> (arg ...) flo ...)
+  (on (arg ...) (~> flo ...)))
+(define-syntax-parse-rule (>< (arg ...) flo)
+  (on (arg ...) (>< flo)))
+(define-syntax-parse-rule (-< (arg ...) flo ...)
+  (on (arg ...) (-< flo ...)))
+(define-syntax-parse-rule (== (arg ...) flo ...)
+  (on (arg ...) (== flo ...)))
 ]
 
 And this would allow you to use Qi forms directly in Racket -- indeed, the forms in the @secref["Language_Interface"] are such embeddings of Qi into Racket. The same approach would also work to embed a hosted DSL into Qi, whether that DSL is hosted on Qi or Racket.
