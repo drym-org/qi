@@ -279,18 +279,25 @@ Each of the @racket[predicate] and @racket[consequent] expressions is a flow, an
 The following definition forms may be used in place of the usual general-purpose @racket[define] form when defining flows.
 
 @deftogether[(
-  @defform[(define-flow name body ...)]
+  @defform[(define-flow name flow-expr)]
   @defform[#:link-target? #f
-           (define-flow (name args) body ...)]
-)]{
-  Similiar to the function form of @racket[define] but constrained to the flow language. This is exactly equivalent to @racket[(define name (lambda/subject args body ...))].
+           (define-flow (head args) flow-expr)])]{
+  Similiar to the function form of @racket[define] but constrained to the flow language. This is exactly equivalent to @racket[(define head (flow-lambda args flow-expr))].
 }
 
-@defform[(define-switch (args ...)
-           [predicate consequent ...]
-           ...
-           [else consequent ...])]{
-  Similiar to the function form of @racket[define] but constrained to be a (predicate-based) dispatcher. This is exactly equivalent to @racket[(define name (switch-lambda args [predicate consequent ...] ... [else consequent ...]))].
+@deftogether[(
+  @defform[(define-switch name
+             maybe-divert-clause
+             [predicate consequent ...]
+             ...
+             [else consequent ...])]
+  @defform[#:link-target? #f
+           (define-switch (head args)
+             maybe-divert-clause
+             [predicate consequent ...]
+             ...
+             [else consequent ...])])]{
+  Similiar to the function form of @racket[define] but constrained to be a (predicate-based) dispatcher. This is exactly equivalent to @racket[(define head (switch-lambda args maybe-divert-clause [predicate consequent ...] ... [else consequent ...]))].
 
 @examples[
     #:eval eval-for-docs

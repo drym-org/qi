@@ -8,7 +8,8 @@
 
 (require syntax/parse/define
          (only-in "private/util.rkt" define-alias)
-         (for-syntax racket/base)
+         (for-syntax racket/base
+                     syntax/parse/lib/function-header)
          "flow.rkt"
          "on.rkt")
 
@@ -31,9 +32,9 @@
 (define-alias λ01 switch-lambda)
 
 (define-syntax-parser define-switch
-  [(_ (name:id arg:id ...) expr:expr ...)
-   #'(define name
-       (switch-lambda (arg ...)
+  [(_ (head . args:formals) expr:expr ...)
+   #'(define head
+       (switch-lambda args
          expr ...))]
   [(_ name:id expr:expr ...)
    #'(define name

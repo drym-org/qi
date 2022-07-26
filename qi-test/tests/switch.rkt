@@ -300,7 +300,16 @@
                     [negative? (gen (+ 1 2))]
                     [positive? (gen (- 1 2))]
                     [zero? (gen (* 2 3))])
-                  6))))
+                  6))
+   (test-suite
+    "define-switch tests"
+    (check-equal? (let ()
+                    (define-switch ((t n) . n*)
+                      [(memq n _) 'yes]
+                      [else 'no])
+                    (list ((t 1) 1 2 3)
+                          ((t 0) 1 2 3)))
+                  '(yes no)))))
 
 (module+ main
   (void (run-tests tests)))

@@ -8,6 +8,7 @@
 
 (require syntax/parse/define
          (for-syntax racket/base
+                     syntax/parse/lib/function-header
                      "flow.rkt")
          "flow.rkt"
          (only-in "private/util.rkt" define-alias))
@@ -33,9 +34,9 @@
 (define-alias π flow-lambda)
 
 (define-syntax-parser define-flow
-  [(_ (name:id arg:id ...) expr:expr)
-   #'(define name
-       (flow-lambda (arg ...)
+  [(_ (head . args:formals) expr:expr)
+   #'(define head
+       (flow-lambda args
          expr))]
   [(_ name:id expr:expr)
    #'(define name
