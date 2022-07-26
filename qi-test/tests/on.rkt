@@ -33,6 +33,11 @@
     (check-true (on (2 -3) (and% positive? negative?)))
     (check-equal? (on (2) (if positive? add1 sub1)) 3))
    (test-suite
+    "flow-lambda tests"
+    (check-equal? ((flow-lambda (a . a*) (~> list))
+                   1 2 3 4)
+                  '(1 (2 3 4))))
+   (test-suite
     "define-flow tests"
     (check-equal? (let ()
                     (define-flow ((t n) . n*)

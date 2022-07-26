@@ -302,6 +302,13 @@
                     [zero? (gen (* 2 3))])
                   6))
    (test-suite
+    "switch-lambda tests"
+    (check-equal? ((switch-lambda (a . a*)
+                     [(memq _ _) 'yes]
+                     [else 'no])
+                   2 2 3 4)
+                  'yes))
+   (test-suite
     "define-switch tests"
     (check-equal? (let ()
                     (define-switch ((t n) . n*)

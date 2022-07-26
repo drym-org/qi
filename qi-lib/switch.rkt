@@ -20,13 +20,14 @@
        (switch clause ...))])
 
 (define-syntax-parser switch-lambda
-  [(_ (arg:id ...) expr:expr ...)
-   #'(lambda (arg ...)
-       (switch (arg ...)
-         expr ...))]
   [(_ rest-args:id expr:expr ...)
    #'(lambda rest-args
        (switch (rest-args)
+               expr ...))]
+  [(_ args:formals expr:expr ...)
+   #:with ags (attribute args.params)
+   #'(lambda args
+       (switch ags
          expr ...))])
 
 (define-alias λ01 switch-lambda)
