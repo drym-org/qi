@@ -21,14 +21,14 @@
    #`((flow clause) #,@(syntax->list #'ags))])
 
 (define-syntax-parser flow-lambda
-  [(_ (arg:id ...) expr:expr ...)
+  [(_ (arg:id ...) expr:expr)
    #'(lambda (arg ...)
        (on (arg ...)
-           expr ...))]
-  [(_ rest-args:id expr:expr ...)
+           expr))]
+  [(_ rest-args:id expr:expr)
    #'(lambda rest-args
        (on (rest-args)
-           expr ...))])
+           expr))])
 
 (define-alias π flow-lambda)
 

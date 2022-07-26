@@ -246,10 +246,10 @@ Each of the @racket[predicate] and @racket[consequent] expressions is a flow, an
   These anonymous function forms may be used in cases where you need to explicitly @emph{name} the arguments for some reason. Otherwise, in most cases, just use @racket[☯] directly instead as it produces a function while avoiding the extraneous layer of bindings.
 
 @deftogether[(
-  @defform[(flow-lambda args body ...)]
-  @defform[(π args body ...)]
+  @defform[(flow-lambda args flow-expr)]
+  @defform[(π args flow-expr)]
 )]{
-  Similiar to @racket[lambda] but constrained to the flow language. This is exactly equivalent to @racket[(lambda args (on (args) body ...))]. @racket[π] is an alias for @racket[flow-lambda]. The present form mainly finds its use internally in @racket[define-flow], and in most cases you should use @racket[☯] directly.
+  Similiar to @racket[lambda] but constrained to the flow language. This is exactly equivalent to @racket[(lambda args (on (args) flow-expr))]. @racket[π] is an alias for @racket[flow-lambda]. The present form mainly finds its use internally in @racket[define-flow], and in most cases you should use @racket[☯] directly.
 }
 
 @deftogether[(
