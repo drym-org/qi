@@ -43,7 +43,7 @@
        (flow expr))])
 
 (define-syntax-parser let/flow
-  [(_ ([var:id val:expr] ...) body ...)
-   #'(let ([var val] ...)
-       (on (var ...)
-         body ...))])
+  [(_ ([var:id val:expr] ...) expr:expr)
+   #'((flow-lambda (var ...)
+        expr)
+      val ...)])

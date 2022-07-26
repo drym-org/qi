@@ -41,7 +41,7 @@
        (☯ (switch expr ...)))])
 
 (define-syntax-parser let/switch
-  [(_ ([var:id val:expr] ...) body ...)
-   #'(let ([var val] ...)
-       (switch (var ...)
-         body ...))])
+  [(_ ([var:id val:expr] ...) expr:expr ...)
+   #'((switch-lambda (var ...)
+        expr ...)
+      val ...)])
