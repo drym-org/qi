@@ -34,6 +34,9 @@
     (check-equal? (on (2) (if positive? add1 sub1)) 3))
    (test-suite
     "flow-lambda tests"
+    (check-equal? ((flow-lambda a* _)
+                   1 2 3 4)
+                  '(1 2 3 4))
     (check-equal? ((flow-lambda (a . a*) list)
                    1 2 3 4)
                   '(1 (2 3 4))))

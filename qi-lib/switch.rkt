@@ -20,10 +20,6 @@
        (switch clause ...))])
 
 (define-syntax-parser switch-lambda
-  [(_ rest-args:id expr:expr ...)
-   #'(lambda rest-args
-       (switch (rest-args)
-               expr ...))]
   [(_ args:formals expr:expr ...)
    #:with ags (attribute args.params)
    #'(lambda args

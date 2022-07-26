@@ -303,6 +303,11 @@
                   6))
    (test-suite
     "switch-lambda tests"
+    (check-equal? ((switch-lambda a*
+                     [list? _]
+                     [else 'no])
+                   1 2 3 4)
+                  '(1 2 3 4))
     (check-equal? ((switch-lambda (a . a*)
                      [(memq _ _) 'yes]
                      [else 'no])
