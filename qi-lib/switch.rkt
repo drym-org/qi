@@ -28,7 +28,8 @@
 (define-alias λ01 switch-lambda)
 
 (define-syntax-parser define-switch
-  [(_ (head . args:formals) expr:expr ...)
+  [(_ ((~or head:id head:function-header) . args:formals)
+      expr:expr ...)
    #'(define head
        (switch-lambda args
          expr ...))]

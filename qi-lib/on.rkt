@@ -30,7 +30,8 @@
 (define-alias π flow-lambda)
 
 (define-syntax-parser define-flow
-  [(_ (head . args:formals) clause:clause)
+  [(_ ((~or head:id head:function-header) . args:formals)
+      clause:clause)
    #'(define head
        (flow-lambda args
          clause))]
