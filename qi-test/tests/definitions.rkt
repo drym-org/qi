@@ -130,33 +130,33 @@
                   'b)
     (check-equal? ((λ01 args [list? 'a]) 1 2 3) 'a)
     (check-equal? ((λ01 args
-                        [(~> length (> 3)) 'a]
-                        [else 'b]) 1 2 3)
+                     [(~> length (> 3)) 'a]
+                     [else 'b]) 1 2 3)
                   'b
                   "packed args")
     (check-equal? ((λ01 args
-                        [(~> length (> 3)) 'a]
-                        [else 'b]) 1 2 3 4)
+                     [(~> length (> 3)) 'a]
+                     [else 'b]) 1 2 3 4)
                   'a
                   "packed args")
     (check-equal? ((λ01 args
-                        [(apply < _) 'a]
-                        [else 'b]) 1 2 3)
+                     [(apply < _) 'a]
+                     [else 'b]) 1 2 3)
                   'a
                   "apply with packed args")
     (check-equal? ((λ01 args
-                        [(apply < _) 'a]
-                        [else 'b]) 1 3 2)
+                     [(apply < _) 'a]
+                     [else 'b]) 1 3 2)
                   'b
                   "apply with packed args")
     (check-equal? ((λ01 a*
-                        [list? _]
-                        [else 'no])
+                     [list? _]
+                     [else 'no])
                    1 2 3 4)
                   '(1 2 3 4))
     (check-equal? ((λ01 (a . a*)
-                        [memq 'yes]
-                        [else 'no])
+                     [memq 'yes]
+                     [else 'no])
                    2 2 3 4)
                   'yes))))
 
