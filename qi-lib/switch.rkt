@@ -3,8 +3,7 @@
 (provide switch
          switch-lambda
          define-switch
-         λ01
-         #;let/switch)
+         λ01)
 
 (require syntax/parse/define
          (only-in "private/util.rkt" define-alias)
@@ -36,13 +35,3 @@
   [(_ name:id expr:expr ...)
    #'(define name
        (☯ (switch expr ...)))])
-
-#;(define-syntax-parser let/switch
-    [(_ ([var:id val:expr] ...) expr:expr ...)
-     #'((switch-lambda (var ...)
-          expr ...)
-        val ...)]
-    [(_ f:id ([var:id val:expr] ...) expr:expr ...)
-     #'(letrec ([f (switch-lambda (var ...)
-                     expr ...)])
-        (f val ...))])

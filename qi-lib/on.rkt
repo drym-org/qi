@@ -3,8 +3,7 @@
 (provide on
          flow-lambda
          define-flow
-         π
-         #;let/flow)
+         π)
 
 (require syntax/parse/define
          (for-syntax racket/base
@@ -38,13 +37,3 @@
   [(_ name:id clause:clause)
    #'(define name
        (flow clause))])
-
-#;(define-syntax-parser let/flow
-    [(_ ([var:id val:expr] ...) clause:clause)
-     #'((flow-lambda (var ...)
-          clause)
-        val ...)]
-    [(_ f:id ([var:id val:expr] ...) clause:clause)
-     #'(letrec ([f (flow-lambda (var ...)
-                     clause)])
-         (f val ...))])
