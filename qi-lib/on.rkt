@@ -2,8 +2,9 @@
 
 (provide on
          flow-lambda
-         define-flow
-         π)
+         flow-λ
+         π
+         define-flow)
 
 (require syntax/parse/define
          (for-syntax racket/base
@@ -28,6 +29,7 @@
            clause))])
 
 (define-alias π flow-lambda)
+(define-alias flow-λ flow-lambda)
 
 (define-syntax-parser define-flow
   [(_ ((~or head:id head:function-header) . args:formals)

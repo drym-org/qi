@@ -2,8 +2,9 @@
 
 (provide switch
          switch-lambda
-         define-switch
-         λ01)
+         switch-λ
+         λ01
+         define-switch)
 
 (require syntax/parse/define
          (only-in "private/util.rkt" define-alias)
@@ -26,6 +27,7 @@
          expr ...))])
 
 (define-alias λ01 switch-lambda)
+(define-alias switch-λ switch-lambda)
 
 (define-syntax-parser define-switch
   [(_ ((~or head:id head:function-header) . args:formals)

@@ -248,24 +248,30 @@ Each of the @racket[predicate] and @racket[consequent] expressions is a flow, an
 
 @deftogether[(
   @defform[(flow-lambda args flow-expr)]
+  @defform[(flow-λ args flow-expr)]
   @defform[(π args flow-expr)]
 )]{
-  Similiar to @racket[lambda] but constrained to the flow language. This is exactly equivalent to @racket[(lambda args (on (args) flow-expr))]. @racket[π] is an alias for @racket[flow-lambda]. The present form mainly finds its use internally in @racket[define-flow], and in most cases you should use @racket[☯] directly.
+  Similiar to @racket[lambda] but constrained to the flow language. This is exactly equivalent to @racket[(lambda args (on (args) flow-expr))]. @racket[flow-λ] and @racket[π] are aliases for @racket[flow-lambda]. The present form mainly finds its use internally in @racket[define-flow], and in most cases you should use @racket[☯] directly.
 }
 
 @deftogether[(
-@defform[(switch-lambda args
-           maybe-divert-clause
-           [predicate consequent ...]
-           ...
-           [else consequent ...])]
-@defform[(λ01 args
-           maybe-divert-clause
-           [predicate consequent ...]
-           ...
-           [else consequent ...])]
+  @defform[(switch-lambda args
+                          maybe-divert-clause
+                          [predicate consequent ...]
+                          ...
+                          [else consequent ...])]
+  @defform[(switch-λ args
+             maybe-divert-clause
+             [predicate consequent ...]
+             ...
+             [else consequent ...])]
+  @defform[(λ01 args
+             maybe-divert-clause
+             [predicate consequent ...]
+             ...
+             [else consequent ...])]
 )]{
-  Similar to @racket[lambda] but constrained to be a flow-based dispatcher. This is exactly equivalent to @racket[(lambda args (switch (args) maybe-divert-clause [predicate consequent ...] ... [else consequent ...]))]. @racket[λ01] is an alias for @racket[switch-lambda].
+  Similar to @racket[lambda] but constrained to be a flow-based dispatcher. This is exactly equivalent to @racket[(lambda args (switch (args) maybe-divert-clause [predicate consequent ...] ... [else consequent ...]))]. @racket[switch-λ] and @racket[λ01] are aliases for @racket[switch-lambda].
 
 @examples[
     #:eval eval-for-docs
