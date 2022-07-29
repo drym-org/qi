@@ -256,10 +256,10 @@ Each of the @racket[predicate] and @racket[consequent] expressions is a flow, an
 
 @deftogether[(
   @defform[(switch-lambda args
-                          maybe-divert-clause
-                          [predicate consequent ...]
-                          ...
-                          [else consequent ...])]
+             maybe-divert-clause
+             [predicate consequent ...]
+             ...
+             [else consequent ...])]
   @defform[(switch-λ args
              maybe-divert-clause
              [predicate consequent ...]
