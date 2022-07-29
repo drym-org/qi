@@ -688,11 +688,11 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
 @defform[#:link-target? #f
          (>> flo)]
 )]{
-  The flow analogues to @racket[foldr] and @racket[foldl] (respectively -- the side on which the symbols "fold" corresponds to the type of fold), these fold over input @emph{values} rather than an input list. The @racket[init-flo] is optional; if it isn't provided, @racket[flo] itself is invoked with no arguments to obtain the init value, to borrow a convention from the Clojure language.
+  The flow analogues to @racket[foldr] and @racket[foldl] (respectively -- the side on which the symbols "fold" corresponds to the type of fold), these fold over input @emph{values} rather than an input list.
 
   @racket[flo] receives the current input value in the first position, followed by the accumulated values, and may generate any number of output values. These output values are fed back as accumulated values for the next iteration if input values remain to be processed; otherwise, they are produced as the output of the flow.
 
-  @racket[init-flo] is expected to be a @emph{flow} that will generate the initial values for the fold, and will be invoked with no inputs for this purpose at runtime. It is done this way to support having multiple initial values or no initial values, rather than specifically one.
+  @racket[init-flo] is expected to be a @emph{flow} that will generate the initial values for the fold, and will be invoked with no inputs for this purpose at runtime. It is done this way to support having multiple initial values or no initial values, rather than specifically one. Specifying @racket[init-flo] is optional; if it isn't provided, @racket[flo] itself is invoked with no arguments to obtain the init value, to borrow a convention from the Clojure language.
 
 @examples[
     #:eval eval-for-docs
@@ -703,7 +703,7 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
     ((☯ (<< cons '())) 1 2 3 4)
     ((☯ (<< + (gen 2 3))) 1 2 3 4)
     ((☯ (>> (-< (block 1)
-                (~> 1> (-< _ _)))
+                (~> 1> (fanout 2)))
             ⏚)) 1 2 3)
   ]
 }
