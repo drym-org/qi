@@ -451,7 +451,7 @@ Note that the symbol form uses Unicode @code{0x2225} corresponding to LaTeX's @c
 )]{
   Divide the set of inputs into two groups @emph{by number}, passing the first @racket[number] inputs to @racket[selection-flo] and the remainder to @racket[remainder-flo].
 
-  In the context of a @racket[loop], this is a typical way to do "structural recursion" on flows, and in this respect it is the values analogue to @racket[car] and @racket[cdr] for lists.
+  In the context of a @racket[loop], this is a typical way to do "structural recursion" on flows (see @seclink["Phrases"]{"pare"}), and in this respect it is the values analogue to @racket[car] and @racket[cdr] for lists.
 
   When used in identifier form simply as @racket[group], it treats the first three inputs as @racket[number], @racket[selection-flo] and @racket[remainder-flo], respectively, and the remaining as the data inputs to be acted upon.
 

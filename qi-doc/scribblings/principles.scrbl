@@ -35,7 +35,7 @@
 
 @section{What is a Flow?}
 
- A @deftech{flow} is either made up of flows, or is a native (e.g. Racket) function. Flows may be composed using a number of combinators that could yield either linear or nonlinear composite flows.
+ A @deftech{flow} is either made up of flows, or is a native (e.g. Racket) @seclink["lambda" #:doc '(lib "scribblings/guide/guide.scrbl")]{function}. Flows may be composed using a number of combinators that could yield either linear or nonlinear composite flows.
 
  A flow in general accepts @code{m} inputs and yields @code{n} outputs, for arbitrary non-negative integers @code{m} and @code{n}. We say that such a flow is @code{m × n}.
 
@@ -59,7 +59,7 @@
 
 @section{Everything is a Function}
 
-Everything in Qi is a function. Programs are functions, they are made up of functions. Even @seclink["Literals"]{literals} are interpreted as functions generating them.
+Everything in Qi is a @seclink["lambda" #:doc '(lib "scribblings/guide/guide.scrbl")]{function}. Programs are functions, they are made up of functions. Even @seclink["Literals"]{literals} are interpreted as functions generating them.
 
 @section{Flowy Logic}
 
@@ -74,8 +74,8 @@ In practice, this means that Qi will often opt to either return or not return a 
 For example, the following would seem to be in accord with these principles:
 
 @itemlist[
-   @item{Variadic functions, on receiving no input, produce an nullary value (e.g. a monoid identity) if applicable, or no output otherwise, instead of raising an error. For instance, @racket[(max)] currently raises an error, and under this guideline would produce no output, instead.}
-   @item{Upon receiving multiple values in positions where a single value is expected, the evaluator "forks" the continuation so that each possibility is independently (combinatorially) evaluated. The results from these parallel computations could be "flattened" as multiple output values, but it may be more correct to evaluate them as completely independent computations, which could be manipulated distinctly -- for instance, each forked continuation could be fulfilled by a distinct process, and the evaluator could provide a means to refer to the output of these processes from within the language or in a metalanguage, while keeping the processes themselves abstracted. @racket[(cons (values 1 2) (list 3))] independently produces @racket[(list 1 3)] and @racket[(list 2 3)].}
+   @item{Variadic functions, on receiving no input, produce a nullary value (e.g. a monoid identity) if applicable, or no output otherwise, instead of raising an error. For instance, @racket[(max)] currently raises an error, and under this guideline would produce no output, instead.}
+   @item{Upon receiving multiple values in positions where a single value is expected, the evaluator "forks" the continuation so that each possibility is independently (combinatorially) evaluated. The results from these parallel computations could be "flattened" as multiple output values, but it may be more correct to evaluate them instead as completely independent computations. These could be manipulated distinctly -- for instance, each forked continuation could be fulfilled by a distinct process, and the evaluator could provide a means to refer to the output of these processes from within the language or in a metalanguage, while keeping the processes themselves abstracted. @racket[(cons (values 1 2) (list 3))] independently produces @racket[(list 1 3)] and @racket[(list 2 3)].}
    @item{Upon receiving @emph{no} values in positions where a single value is expected, there are a few cases to consider. If no values were received in a position corresponding to the "object" of the function, in the grammatical sense, then the function produces no values. If no values were received in another position, then the function produces the input object(s) (again, objects in the grammatical sense) -- which would be consistent with the expected output type. If there is more than one object position, then the result of the function is empty if @emph{any} of the object positions is. If no values were received in a position serving another grammatical role (e.g. a modifier or adverb such as a function-valued argument), the function generally produces nothing. In none of these cases does the function raise an error. @racket[(cons (values) (list 1 2 3))] produces @racket[(list 1 2 3)], while @racket[(cons 1 (values))], @racket[(add-two-numbers (values) 5)], and @racket[(sort (values) (list 2 3 1))] (where the first argument position indicates a comparator function to be used in sorting) produce nothing.}
    @item{If the function receives valid inputs but is unable to produce a valid result (for instance, if the inputs fail some runtime requirement), it produces nothing.}
    @item{If an @emph{invalid} input (such as one of an unexpected type) is received, the function raises an error.}

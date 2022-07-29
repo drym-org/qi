@@ -34,7 +34,7 @@ The former way is often necessary when writing functions at a low level, where t
 
 @section{Installation}
 
-Qi is a hosted language on the Racket platform. If you don't already have Racket installed, you will need to @hyperlink["https://download.racket-lang.org/"]{install it}. Then, install Qi at the command line using:
+Qi is a hosted language on the @hyperlink["https://racket-lang.org/"]{Racket platform}. If you don't already have Racket installed, you will need to @hyperlink["https://download.racket-lang.org/"]{install it}. Then, install Qi at the command line using:
 
 @codeblock{
     raco pkg install qi
@@ -54,10 +54,10 @@ Qi is a hosted language on the Racket platform. If you don't already have Racket
     (require qi)
     (map (☯ (~> sqr add1)) (list 1 2 3))
     (filter (☯ (< 5 _ 10)) (list 3 7 9 12))
+    (~> (3 4) (>< sqr) +)
     (switch (2 3)
       [> -]
       [< +])
-    (~> (3 4) (>< sqr) +)
     (define-flow root-mean-square
       (~> △ (>< sqr) (-< + count) / sqrt))
     (root-mean-square (range 10))
@@ -117,6 +117,7 @@ In Racket Mode for Emacs, use the following config to indent Qi forms correctly:
     (put 'switch-lambda 'racket-indent-function 1)
     (put 'on 'racket-indent-function 1)
     (put 'π 'racket-indent-function 1)
+    (put 'try 'racket-indent-function 1)
 }
 
 @section{Relationship to the Threading Macro}
