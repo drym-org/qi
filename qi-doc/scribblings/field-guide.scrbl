@@ -380,7 +380,7 @@ A nested function application can always be converted to a sequential flow.
 
 @subsection{Converting a Function to a Closure}
 
-Sometimes you may find you want to go from something like @racket[(~> f1 f2)] to a similar flow except that one of the functions is itself parameterized by an input, i.e. it is a closure. If @racket[f1] is the one that needs to be a closure, you can do it like this: @racket[(~> (== (clos f1) f2) apply)], assuming that the closed-over argument to @racket[f1] is passed in as the first input. Closures are useful in a wide variety of situations, however, and this isn't a one-size-fits-all formula.
+Sometimes you may find you want to go from something like @racket[(~> f1 f2)] to a similar flow except that one of the functions is itself parameterized by an input, i.e. it is a closure. If @racket[f1] is the one that needs to be a closure, you can do it like this: @racket[(~> (==* (clos f1) _) apply f2)], assuming that the closed-over argument to @racket[f1] is passed in as the first input, and the remaining inputs are the data inputs to the flow. Closures are useful in a wide variety of situations, however, and this isn't a one-size-fits-all formula.
 
 @subsection{Converting a Macro to a Flow}
 
