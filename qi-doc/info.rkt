@@ -22,6 +22,7 @@
                      "mischief"
                      "fancy-app"
                      "math-lib"
+                     "metapict"
                      "qi-lib"
                      "qi-probe"
                      "relation"))
