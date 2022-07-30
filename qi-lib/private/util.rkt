@@ -255,19 +255,18 @@
 (define (power n f)
   (apply compose (make-list n f)))
 
-(define (foldl-values f init . vs)
+(define (fold-values f init vs)
   (let loop ([vs vs]
              [accs (values->list (init))])
     (match vs
       ['() (apply values accs)]
       [(cons v rem-vs) (loop rem-vs (values->list (apply f v accs)))])))
 
+(define (foldl-values f init . vs)
+  (fold-values f init vs))
+
 (define (foldr-values f init . vs)
-  (let loop ([vs (reverse vs)]
-             [accs (values->list (init))])
-    (match vs
-      ['() (apply values accs)]
-      [(cons v rem-vs) (loop rem-vs (values->list (apply f v accs)))])))
+  (fold-values f init (reverse vs)))
 
 (define (feedback-times f n then-f)
   (compose then-f (power n f)))

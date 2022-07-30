@@ -593,7 +593,10 @@ the DSL.
       [(~datum >>)
        #'foldl-values]
       [((~datum >>) fn init)
-       #'(flow (~> (-< (gen (flow fn)) (gen (flow init)) _) >>))]
+       #'(flow (~> (-< (gen (flow fn))
+                       (gen (flow init))
+                       _)
+                   >>))]
       [((~datum >>) fn)
        #'(flow (>> fn (gen ((flow fn)))))]))
 
@@ -602,7 +605,10 @@ the DSL.
       [(~datum <<)
        #'foldr-values]
       [((~datum <<) fn init)
-       #'(flow (~> (-< (gen (flow fn)) (gen (flow init)) _) <<))]
+       #'(flow (~> (-< (gen (flow fn))
+                       (gen (flow init))
+                       _)
+                   <<))]
       [((~datum <<) fn)
        #'(flow (<< fn (gen ((flow fn)))))]))
 
