@@ -126,3 +126,4 @@ For macros, we cannot use them naively as flows because macros expect all of the
 The threading library also provides numerous shorthands for common cases, many of which don't have equivalents in Qi -- if you'd like to have these, please @hyperlink["https://github.com/countvajhula/qi/issues/"]{create an issue} on the source repo to register your interest.
 
 @close-eval[eval-for-docs]
+@(set! eval-for-docs #f)

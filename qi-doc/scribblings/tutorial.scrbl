@@ -479,3 +479,4 @@ Qi provides lots of other forms that allow you to express flows conveniently and
 Next, let's look at some examples to gain some insight into @seclink["When_Should_I_Use_Qi_"]{when to use Qi}.
 
 @close-eval[eval-for-docs]
+@(set! eval-for-docs #f)

@@ -123,3 +123,4 @@ So as should be perfectly clear by now, flows are just @hyperlink["https://www.s
 Therefore, any theoretical results about arrows should generally apply to Qi as well (but not necessarily, since Qi is not @emph{just} arrows).
 
 @close-eval[eval-for-docs]
+@(set! eval-for-docs #f)

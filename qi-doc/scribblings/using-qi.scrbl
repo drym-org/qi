@@ -347,3 +347,4 @@ The examples hopefully illustrate an age-old doctrine -- use the right tool for 
 Employing a potpourri of general purpose and specialized languages, perhaps, is the best way to flow!
 
 @close-eval[eval-for-docs]
+@(set! eval-for-docs #f)

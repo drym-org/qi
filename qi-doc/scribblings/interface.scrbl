@@ -384,3 +384,4 @@ To get around this, a final possibility to consider is to translate the DSL itse
 There are many kinds of languages that you could write in Qi. See @secref["Writing_Languages_in_Qi"] for a view into the possibilities here, and what may be right for your language.
 
 @close-eval[eval-for-docs]
+@(set! eval-for-docs #f)
