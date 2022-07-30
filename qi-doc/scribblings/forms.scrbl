@@ -22,6 +22,9 @@
                     '(define (sqr x)
                        (* x x)))))
 
+@(define diagram-eval (make-base-eval))
+@(diagram-eval '(require metapict))
+
 @title[#:tag "Qi_Forms"]{The Qi Language}
 
 The core syntax of the Qi language. These forms may be used in any flow. Flows may be specified in Racket via the @seclink["Language_Interface"]{language interface}.
@@ -690,7 +693,79 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
 )]{
   The flow analogues to @racket[foldr] and @racket[foldl] (respectively -- the side on which the symbols "fold" corresponds to the type of fold), these fold over input @emph{values} rather than an input list.
 
-  @racket[flo] receives the current input value in the first position, followed by the accumulated values, and may generate any number of output values. These output values are fed back as accumulated values for the next iteration if input values remain to be processed; otherwise, they are produced as the output of the flow.
+  @racket[flo] processes one input value at a time. It receives the current input value in the first position, followed by the accumulated values, and may generate any number of output values. These output values are fed back as accumulated values for the next iteration if input values remain to be processed; otherwise, they are produced as the output of the flow.
+
+@examples[
+    #:eval diagram-eval
+	#:result-only
+    (set-curve-pict-size 200 200)
+    (current-label-gap (px 8))
+
+    (define dim 100)
+
+    (define-values (w h)
+      (values dim dim))
+
+    (define-values (box-w box-h)
+      (values (/ w 3) (/ h 3)))
+
+    (define box-width (* 1/3 dim))
+    (define box-height (* 1/3 dim))
+
+    (with-window (window (- (* 1/2 w))
+                         (* 1/2 w)
+                         (- (* 1/2 h))
+                         (* 1/2 h))
+      (draw (rectangle (pt (- (* 1/2 box-width)) (- (* 1/2 box-height)))
+                       (pt (* 1/2 box-width) (* 1/2 box-height)))
+            (label-cnt "flo" origo)
+            ;; current value
+            (curve (pt (- (* 2 1/2 box-width)) (* 1/5 1/2 box-height))
+                   --
+                   (pt (- (* 1/2 box-width)) (* 1/5 1/2 box-height)))
+            (label-urt "v" (pt (- (* 2 1/2 box-width)) (* 1/5 1/2 box-height)))
+            ;; accumulated values
+            (curve (pt (- (* 2 1/2 box-width)) 0)
+                   --
+                   (pt (- (* 1/2 box-width)) 0))
+            (label-bot "acc" (pt (- (* 2 1/2 box-width)) 0))
+            ;; accumulated ...
+            (curve (pt (- (* 1.3 1/2 box-width)) (* -1 1/10 1/2 box-height))
+                   --
+                   (pt (- (* 1/2 box-width)) (* -1 1/10 1/2 box-height)))
+            (curve (pt (- (* 1.3 1/2 box-width)) (* -1 2/10 1/2 box-height))
+                   --
+                   (pt (- (* 1/2 box-width)) (* -1 2/10 1/2 box-height)))
+            (curve (pt (- (* 1.3 1/2 box-width)) (* -1 3/10 1/2 box-height))
+                   --
+                   (pt (- (* 1/2 box-width)) (* -1 3/10 1/2 box-height)))
+            ;; outputs
+            (curve (pt (* 1/2 box-width) 0)
+                   --
+                   (pt (* 1.5 1/2 box-width) 0))
+            (curve (pt (* 1/2 box-width) (* -1 1/10 1/2 box-height))
+                   --
+                   (pt (* 1.3 1/2 box-width) (* -1 1/10 1/2 box-height)))
+            (curve (pt (* 1/2 box-width) (* -1 2/10 1/2 box-height))
+                   --
+                   (pt (* 1.3 1/2 box-width) (* -1 2/10 1/2 box-height)))
+            (curve (pt (* 1/2 box-width) (* -1 3/10 1/2 box-height))
+                   --
+                   (pt (* 1.3 1/2 box-width) (* -1 3/10 1/2 box-height)))
+            ;; feedback
+            (curve (pt (* 1.5 1/2 box-width) 0)
+                   --
+                   (pt (* 1.5 1/2 box-width) (- (* 1.5 1/2 box-height)))
+                   --
+                   (pt (- (* 1.5 1/2 box-width)) (- (* 1.5 1/2 box-height)))
+                   --
+                   (pt (- (* 1.5 1/2 box-width)) 0))
+            ;; final output
+            (curve (pt (* 1.5 1/2 box-width) 0)
+                   --
+                   (pt (* 2 1/2 box-width) 0))
+            (label-rt "out" (pt (* 2 1/2 box-width) 0))))
+]
 
   @racket[init-flo] is expected to be a @emph{flow} that will generate the initial values for the fold, and will be invoked with no inputs for this purpose at runtime. It is done this way to support having multiple initial values or no initial values, rather than specifically one. Specifying @racket[init-flo] is optional; if it isn't provided, @racket[flo] itself is invoked with no arguments to obtain the init value, to borrow a convention from the Clojure language.
 
