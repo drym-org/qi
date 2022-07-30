@@ -425,3 +425,5 @@ For example, these are equivalent:
 }
 
 Adding bindings can eliminate nonlinearities, and by the same token, introducing nonlinearity can eliminate bindings.
+
+@close-eval[eval-for-docs]

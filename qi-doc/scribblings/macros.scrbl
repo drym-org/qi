@@ -289,3 +289,5 @@ And now:
 ]
 
 Similarly, we could write more such embeddings to simplify other common cases, such as matching against a single input value. Thus, the features provided by one language may be embedded into another language.
+
+@close-eval[eval-for-docs]

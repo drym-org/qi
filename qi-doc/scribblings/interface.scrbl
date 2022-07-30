@@ -384,3 +384,5 @@ The problem with the @seclink["Using_a_Macro_Bridge"]{macro bridge approach} is 
 To get around this, a final possibility to consider is to translate the DSL itself so that it's implemented in Qi rather than Racket. That is, instead of being specified using Racket macros via e.g. @racket[define-syntax-parse-rule] and @racket[define-syntax-parser], it would rather be defined using @racket[define-qi-syntax-rule] and @racket[define-qi-syntax-parser] so that the language expands to Qi rather than Racket (directly). This would allow your language to be used with Qi seamlessly since it would now be a dialect of Qi.
 
 There are many kinds of languages that you could write in Qi. See @secref["Writing_Languages_in_Qi"] for a view into the possibilities here, and what may be right for your language.
+
+@close-eval[eval-for-docs]

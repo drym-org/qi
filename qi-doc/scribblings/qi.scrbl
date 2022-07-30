@@ -10,18 +10,6 @@
                              ->string
                              sum)]]
 
-@(define eval-for-docs
-  (parameterize ([sandbox-output 'string]
-                 [sandbox-error-output 'string]
-                 [sandbox-memory-limit #f])
-    (make-evaluator 'racket/base
-                    '(require qi
-                              (only-in racket/list range)
-                              racket/string
-                              relation)
-                    '(define (sqr x)
-                       (* x x)))))
-
 @title{Qi: A Functional, Flow-Oriented DSL}
 @author{Siddhartha Kasivajhula}
 

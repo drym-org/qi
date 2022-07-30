@@ -482,3 +482,5 @@ We've also learned that we can give names to flows via @racket[define-flow], and
 Qi provides lots of other forms that allow you to express flows conveniently and elegantly in different contexts. You can see all of them in the grammar of the @racket[☯] form, and they are individually documented under @secref["Qi_Forms"].
 
 Next, let's look at some examples to gain some insight into @seclink["When_Should_I_Use_Qi_"]{when to use Qi}.
+
+@close-eval[eval-for-docs]

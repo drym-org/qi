@@ -344,3 +344,5 @@ We've seen a number of examples covering transformations, predicates, and condit
 The examples hopefully illustrate an age-old doctrine -- use the right tool for the job. A language is the best tool of all, so use the right language to express the task at hand. Sometimes, that language is Qi and sometimes it's Racket and sometimes it's a combination of the two, or something else. Don't try too hard to coerce the computation into one way of looking at things. It's less important to be consistent and more important to be fluent and clear. And by the same token, it's less important for you to fit your brain to the language and more important for the language to be apt to describe the computation, and consequently for it to encourage a way of thinking about the problem that fits your brain.
 
 Employing a potpourri of general purpose and specialized languages, perhaps, is the best way to flow!
+
+@close-eval[eval-for-docs]

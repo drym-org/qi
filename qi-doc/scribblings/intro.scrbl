@@ -129,3 +129,5 @@ In the most common case where you are threading functions, Qi's threading form @
 For macros, we cannot use them naively as flows because macros expect all of their "arguments" to be provided syntactically at compile time -- meaning that the number of arguments must be known at compile time. This is not in general possible with Qi since flows may consume and produce an arbitrary number of values, and this number is only determined at runtime. Depending on what you are trying to do, however, there are many ways in which you still can @seclink["Converting_a_Macro_to_a_Flow"]{treat macros as flows in Qi} -- from simple escapes into Racket to more structured approaches including @seclink["Qi_Dialect_Interop"]{writing a Qi dialect}.
 
 The threading library also provides numerous shorthands for common cases, many of which don't have equivalents in Qi -- if you'd like to have these, please @hyperlink["https://github.com/countvajhula/qi/issues/"]{create an issue} on the source repo to register your interest.
+
+@close-eval[eval-for-docs]

@@ -919,3 +919,6 @@ This way to extend the language is intended for use in @bold{legacy versions of 
     (~> (2 3) + (qi:square sqr))
   ]
 }
+
+@close-eval[eval-for-docs]
+@close-eval[diagram-eval]

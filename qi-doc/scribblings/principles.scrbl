@@ -126,3 +126,5 @@ It turns out that the core routing forms of Qi fulfill the definition of @hyperl
 So as should be perfectly clear by now, flows are just @hyperlink["https://www.sciencedirect.com/science/article/pii/S1571066106001666/pdf"]{monoids in suitable subcategories of bifunctors}, or, to put it more plainly, they are @hyperlink["https://bentnib.org/arrows.pdf"]{enriched Freyd categories} (healthy @emph{and} tasty!).
 
 Therefore, any theoretical results about arrows should generally apply to Qi as well (but not necessarily, since Qi is not @emph{just} arrows).
+
+@close-eval[eval-for-docs]
