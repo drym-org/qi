@@ -33,11 +33,11 @@ They contain similar material, but the interactive version includes additional s
 
 @section{Interactive Tutorial}
 
-This tutorial is distributed using the @other-doc['(lib "from-template/scribblings/from-template.scrbl")] package, and contains the same material as the documentation-based tutorial, but also includes additional material such as exercises, all presented in an interactive format.
+This tutorial is distributed using the @seclink["top" #:indirect? #t #:doc '(lib "from-template/scribblings/from-template.scrbl")]{Racket Templates} package, and contains the same material as the documentation-based tutorial, but also includes additional material such as exercises, all presented in an interactive format.
 
 @subsection[#:tag "tutorial-installation"]{Installation}
 
-If you don't already have @other-doc['(lib "from-template/scribblings/from-template.scrbl")] installed, you'll need to run this first:
+If you don't already have @seclink["top" #:indirect? #t #:doc '(lib "from-template/scribblings/from-template.scrbl")]{Racket Templates} installed, you'll need to run this first:
 
 @codeblock{
   raco pkg install from-template
@@ -57,7 +57,7 @@ And then, downloading the tutorial is as simple as:
 
 @subsubsection[#:tag "drracket-tutorial"]{DrRacket}
 
-  Laurent Orseau's @code{select-send-sexpr} @seclink["top" #:doc '(lib "quickscript/scribblings/quickscript.scrbl")]{quickscript} allows you to evaluate expressions on-demand in a context-sensitive way. It is essential for the interactive experience. Follow the instructions @hyperlink["https://github.com/countvajhula/qi-tutorial"]{in the README} to install it. Once installed, you can use @code{Control-Shift-Enter} (customizable) to evaluate the expression indicated (and usually highlighted) by your cursor position.
+  Laurent Orseau's @code{select-send-sexpr} @seclink["top" #:indirect? #t #:doc '(lib "quickscript/scribblings/quickscript.scrbl")]{quickscript} allows you to evaluate expressions on-demand in a context-sensitive way. It is essential for the interactive experience. Follow the instructions @hyperlink["https://github.com/countvajhula/qi-tutorial"]{in the README} to install it. Once installed, you can use @code{Control-Shift-Enter} (customizable) to evaluate the expression indicated (and usually highlighted) by your cursor position.
 
 @subsubsection{Emacs}
 
@@ -65,7 +65,7 @@ And then, downloading the tutorial is as simple as:
 
 @subsubsection{Vim}
 
-D. Ben Knoble's @other-doc['(lib "tmux-vim-demo/scribblings/tmux-vim-demo.scrbl")] allows you to run expressions on demand with a split-pane view of your Vim buffer and a tmux session containing a Racket REPL. See @hyperlink["https://github.com/countvajhula/qi-tutorial"]{the README} for additional setup instructions once the package is installed. Once set up, you can simply use @code{r} (in Normal mode) to send the current line or visual selection to the REPL.
+D. Ben Knoble's @seclink["top" #:indirect? #t #:doc '(lib "tmux-vim-demo/scribblings/tmux-vim-demo.scrbl")]{tmux-vim-demo} allows you to run expressions on demand with a split-pane view of your Vim buffer and a tmux session containing a Racket REPL. See @hyperlink["https://github.com/countvajhula/qi-tutorial"]{the README} for additional setup instructions once the package is installed. Once set up, you can simply use @code{r} (in Normal mode) to send the current line or visual selection to the REPL.
 
 @section{Online Tutorial}
 

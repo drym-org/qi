@@ -59,7 +59,7 @@ The Qi version uses @racket[><] to "map" all input values under the @racket[->st
 
 The Racket version needs to be parsed in detail in order to be understood, while the Qi version reads sequentially in the natural order of the transformations, and makes plain what these transformations are. Qi is the natural choice here.
 
-The documentation for the @seclink["top" #:doc '(lib "scribblings/threading.scrbl")]{threading macro} contains additional examples of such transformations which to a first approximation apply to Qi as well (see @secref["Relationship_to_the_Threading_Macro"]).
+The documentation for the @seclink["top" #:indirect? #t #:doc '(lib "scribblings/threading.scrbl")]{threading macro} contains additional examples of such transformations which to a first approximation apply to Qi as well (see @secref["Relationship_to_the_Threading_Macro"]).
 
 @subsection{Root-Mean-Square}
 

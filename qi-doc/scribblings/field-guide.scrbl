@@ -65,7 +65,7 @@ Side effects are a natural fit for debugging functional code in general, as the 
 
 @defmodule[qi/probe]
 
-Qi includes a "circuit tester" style debugger, which you can use to check the values at arbitrary points in the flow. It can be used even if the flow is raising an error – the tester can help you find the error. It offers similar functionality to @other-doc['(lib "debug/scribblings/debug.scrbl")] but is specialized for functional debugging and Qi flows.
+Qi includes a "circuit tester" style debugger, which you can use to check the values at arbitrary points in the flow. It can be used even if the flow is raising an error – the tester can help you find the error. It offers similar functionality to @seclink["top" #:indirect? #t #:doc '(lib "debug/scribblings/debug.scrbl")]{debug} but is specialized for functional debugging and Qi flows.
 
 To use it, first wrap the entire expression @emph{invoking} the flow with a @racket[probe] form. Then, you can place a literal @racket[readout] anywhere within the flow definition to cause the entire expression to evaluate to the values flowing at that point. This works even if your flow is defined elsewhere (even in another file) and only @emph{used} at the invocation site by name.
 
@@ -278,7 +278,7 @@ Methodical use of @racket[gen] together with the @seclink["Using_a_Probe"]{probe
 ;   given: 1
 }
 
-@bold{Meaning}: Qi uses @seclink["top" #:doc '(lib "fancy-app/main.scrbl")]{fancy-app} to handle @seclink["Templates_and_Partial_Application"]{partial application templates}. Fancy-app is complaining that it was told to expect a certain number of arguments in the function invocation but received a different number.
+@bold{Meaning}: Qi uses @seclink["top" #:indirect? #t #:doc '(lib "fancy-app/main.scrbl")]{fancy-app} to handle @seclink["Templates_and_Partial_Application"]{partial application templates}. Fancy-app is complaining that it was told to expect a certain number of arguments in the function invocation but received a different number.
 
 @bold{Common example}: You have a template like @racket[(f _ _)] with a certain number of arguments indicated, but it was invoked with more or fewer arguments.
 
