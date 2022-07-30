@@ -5,11 +5,7 @@
          racket/sandbox
          scribble-math
          @for-label[qi
-                    racket
-                    (only-in relation
-                             ->number
-                             ->string
-                             sum)]]
+                    racket]]
 
 @(define eval-for-docs
   (parameterize ([sandbox-output 'string]
@@ -18,8 +14,7 @@
     (make-evaluator 'racket/base
                     '(require qi
                               (only-in racket/list range)
-                              racket/string
-                              relation)
+                              racket/string)
                     '(define (sqr x)
                        (* x x)))))
 

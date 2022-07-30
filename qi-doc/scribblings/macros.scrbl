@@ -6,11 +6,7 @@
          @for-label[qi
                     racket
                     syntax/parse
-                    syntax/parse/define
-                    (only-in relation
-                             ->number
-                             ->string
-                             sum)]]
+                    syntax/parse/define]]
 
 @(define eval-for-docs
   (parameterize ([sandbox-output 'string]
@@ -20,8 +16,7 @@
                     '(require qi
                               (only-in racket/list range first rest)
                               (for-syntax syntax/parse racket/base)
-                              racket/string
-                              relation)
+                              racket/string)
                     '(define (sqr x)
                        (* x x)))))
 

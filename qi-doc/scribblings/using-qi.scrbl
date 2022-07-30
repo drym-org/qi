@@ -7,8 +7,7 @@
                     racket
                     (only-in relation
                              ->number
-                             ->string
-                             sum)]]
+                             ->string)]]
 
 @(define eval-for-docs
   (parameterize ([sandbox-output 'string]
@@ -19,6 +18,8 @@
                               (only-in racket/list range)
                               racket/string
                               relation)
+                              '(define ->number string->number)
+                              '(define ->string number->string)
                     '(define (sqr x)
                        (* x x)))))
 

@@ -1,14 +1,8 @@
 #lang scribble/doc
 @require[scribble/manual
          scribble-abbrevs/manual
-         scribble/example
-         racket/sandbox
          @for-label[qi
-                    racket
-                    (only-in relation
-                             ->number
-                             ->string
-                             sum)]]
+                    racket]]
 
 @title{Qi: A Functional, Flow-Oriented DSL}
 @author{Siddhartha Kasivajhula}
