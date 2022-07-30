@@ -5,7 +5,6 @@
                     racket]]
 
 @title{Qi: A Functional, Flow-Oriented DSL}
-@author{Siddhartha Kasivajhula}
 
 @defmodule[qi]
 
