@@ -6,11 +6,7 @@
          @for-label[qi
                     racket
                     syntax/parse
-                    syntax/parse/define
-                    (only-in relation
-                             ->number
-                             ->string
-                             sum)]]
+                    syntax/parse/define]]
 
 @(define eval-for-docs
   (parameterize ([sandbox-output 'string]
@@ -20,8 +16,7 @@
                     '(require qi
                               (only-in racket/list range first rest)
                               (for-syntax syntax/parse racket/base)
-                              racket/string
-                              relation)
+                              racket/string)
                     '(define (sqr x)
                        (* x x)))))
 
@@ -217,7 +212,7 @@ In general, macros that define new languages are called @deftech{interface macro
 
 @subsection{Embedded Languages}
 
-One class of language has as many @tech["interface macros"] as there are forms in the language, so that the language seamlessly extends the host language. Such languages are called embedded languages or @deftech{embedded DSLs}. Examples of embedded languages in the Racket ecosystem include @seclink["top" #:doc '(lib "deta/deta.scrbl")]{Deta}, @seclink["top" #:doc '(lib "sawzall-doc/sawzall.scrbl")]{Sawzall}, Racket's built-in @seclink["contracts" #:doc '(lib "scribblings/reference/reference.scrbl")]{contract DSL}, @seclink["top" #:doc '(lib "contract/social/scribblings/social-contract.scrbl")]{Social Contract}, and @seclink["top" #:doc '(lib "scribblings/megaparsack.scrbl")]{Megaparsack}.
+One class of language has as many @tech["interface macros"] as there are forms in the language, so that the language seamlessly extends the host language. Such languages are called embedded languages or @deftech{embedded DSLs}. Examples of embedded languages in the Racket ecosystem include @seclink["top" #:indirect? #t #:doc '(lib "deta/deta.scrbl")]{Deta}, @seclink["top" #:indirect? #t #:doc '(lib "sawzall-doc/sawzall.scrbl")]{Sawzall}, Racket's built-in @seclink["contracts" #:doc '(lib "scribblings/reference/reference.scrbl")]{contract DSL}, @seclink["top" #:indirect? #t #:doc '(lib "contract/social/scribblings/social-contract.scrbl")]{Social Contract}, and @seclink["top" #:indirect? #t #:doc '(lib "scribblings/megaparsack.scrbl")]{Megaparsack}.
 
 Embedded languages implicitly inherit the semantics of the host language (but may define and employ custom semantics, even predominantly). With Qi as the host language, this means that such languages are inherently flow-oriented, and could range from general-purpose "dialects" of Qi to specialized DSLs. They are perhaps the most common type of language one might write in Qi.
 
@@ -238,14 +233,14 @@ If you are interested in writing a hosted language that you'd like to use from w
 You can always embed a hosted language into the host language by implementing a set of macros corresponding to each form of the language. For languages that are large enough, this may be the best option to gain the advantages of a hosted language while also retaining the convenience of an embedded one for special cases. For instance, for a small embedded version of Qi, you could do:
 
 @racketblock[
-(define-syntax-parse-rule (~> flo ...)
-  (flow (~> flo ...)))
-(define-syntax-parse-rule (>< flo)
-  (flow (>< flo)))
-(define-syntax-parse-rule (-< flo ...)
-  (flow (-< flo ...)))
-(define-syntax-parse-rule (== flo ...)
-  (flow (== flo ...)))
+(define-syntax-parse-rule (~> (arg ...) flo ...)
+  (on (arg ...) (~> flo ...)))
+(define-syntax-parse-rule (>< (arg ...) flo)
+  (on (arg ...) (>< flo)))
+(define-syntax-parse-rule (-< (arg ...) flo ...)
+  (on (arg ...) (-< flo ...)))
+(define-syntax-parse-rule (== (arg ...) flo ...)
+  (on (arg ...) (== flo ...)))
 ]
 
 And this would allow you to use Qi forms directly in Racket -- indeed, the forms in the @secref["Language_Interface"] are such embeddings of Qi into Racket. The same approach would also work to embed a hosted DSL into Qi, whether that DSL is hosted on Qi or Racket.
@@ -289,3 +284,6 @@ And now:
 ]
 
 Similarly, we could write more such embeddings to simplify other common cases, such as matching against a single input value. Thus, the features provided by one language may be embedded into another language.
+
+@close-eval[eval-for-docs]
+@(set! eval-for-docs #f)

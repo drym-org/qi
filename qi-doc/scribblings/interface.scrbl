@@ -7,9 +7,7 @@
                     racket
                     syntax/parse/define
                     (only-in relation
-                             ->number
-                             ->string
-                             sum)]]
+                             ->string)]]
 
 @(define eval-for-docs
   (parameterize ([sandbox-output 'string]
@@ -18,8 +16,8 @@
     (make-evaluator 'racket/base
                     '(require qi
                               (only-in racket/list range)
-                              racket/string
-                              relation)
+                              racket/string)
+                    '(define ->string number->string)
                     '(define (sqr x)
                        (* x x)))))
 
@@ -333,7 +331,7 @@ The first and most common way is to simply wrap the expression with a @racket[ge
 
 @subsection{Using Racket to Define Flows}
 
-The second way is if you want to describe a flow using the host language instead of Qi. In this case, use the @racket[esc] form. The wrapped expression in this case @emph{must} evaluate to a function, since functions are the only values describable in the host language that can be treated as flows. Note that use of @racket[esc] is unnecessary for function identifiers since these are usable as flows directly, and these can even be partially applied using standard application syntax, optionally with @racket[_] and @racket[__] to indicate argument placement. But you may still need it in the specific case where the identifier collides with a Qi form.
+The second way is if you want to describe a flow using the host language instead of Qi. In this case, use the @racket[esc] form. The wrapped expression in this case @emph{must} evaluate to a function, since functions are the only values describable in the host language that can be treated as flows. Note that use of @racket[esc] is unnecessary for function identifiers since these are @seclink["Identifiers"]{usable as flows directly}, and these can even be @seclink["Templates_and_Partial_Application"]{partially applied using standard application syntax}, optionally with @racket[_] and @racket[__] to indicate argument placement. But you may still need @racket[esc] in the specific case where the identifier collides with a Qi form.
 
 @examples[
     #:eval eval-for-docs
@@ -400,3 +398,6 @@ The problem with the @seclink["Using_a_Macro_Bridge"]{macro bridge approach} is 
 To get around this, a final possibility to consider is to translate the DSL itself so that it's implemented in Qi rather than Racket. That is, instead of being specified using Racket macros via e.g. @racket[define-syntax-parse-rule] and @racket[define-syntax-parser], it would rather be defined using @racket[define-qi-syntax-rule] and @racket[define-qi-syntax-parser] so that the language expands to Qi rather than Racket (directly). This would allow your language to be used with Qi seamlessly since it would now be a dialect of Qi.
 
 There are many kinds of languages that you could write in Qi. See @secref["Writing_Languages_in_Qi"] for a view into the possibilities here, and what may be right for your language.
+
+@close-eval[eval-for-docs]
+@(set! eval-for-docs #f)

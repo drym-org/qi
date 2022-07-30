@@ -4,11 +4,7 @@
          scribble/example
          racket/sandbox
          @for-label[qi
-                    racket
-                    (only-in relation
-                             ->number
-                             ->string
-                             sum)]]
+                    racket]]
 
 @(define eval-for-docs
   (parameterize ([sandbox-output 'string]
@@ -17,10 +13,12 @@
     (make-evaluator 'racket/base
                     '(require qi
                               (only-in racket/list range first rest)
-                              racket/string
-                              relation)
+                              racket/string)
                     '(define (sqr x)
                        (* x x)))))
+
+@(define diagram-eval (make-base-eval))
+@(diagram-eval '(require metapict))
 
 @title[#:tag "Qi_Forms"]{The Qi Language}
 
@@ -451,7 +449,7 @@ Note that the symbol form uses Unicode @code{0x2225} corresponding to LaTeX's @c
 )]{
   Divide the set of inputs into two groups @emph{by number}, passing the first @racket[number] inputs to @racket[selection-flo] and the remainder to @racket[remainder-flo].
 
-  In the context of a @racket[loop], this is a typical way to do "structural recursion" on flows, and in this respect it is the values analogue to @racket[car] and @racket[cdr] for lists.
+  In the context of a @racket[loop], this is a typical way to do "structural recursion" on flows (see @seclink["Phrases"]{"pare"}), and in this respect it is the values analogue to @racket[car] and @racket[cdr] for lists.
 
   When used in identifier form simply as @racket[group], it treats the first three inputs as @racket[number], @racket[selection-flo] and @racket[remainder-flo], respectively, and the remaining as the data inputs to be acted upon.
 
@@ -688,11 +686,83 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
 @defform[#:link-target? #f
          (>> flo)]
 )]{
-  The flow analogues to @racket[foldr] and @racket[foldl] (respectively -- the side on which the symbols "fold" corresponds to the type of fold), these fold over input @emph{values} rather than an input list. The @racket[init-flo] is optional; if it isn't provided, @racket[flo] itself is invoked with no arguments to obtain the init value, to borrow a convention from the Clojure language.
+  The flow analogues to @racket[foldr] and @racket[foldl] (respectively -- the side on which the symbols "fold" corresponds to the type of fold), these fold over input @emph{values} rather than an input list.
 
-  @racket[flo] receives the current input value in the first position, followed by the accumulated values, and may generate any number of output values. These output values are fed back as accumulated values for the next iteration if input values remain to be processed; otherwise, they are produced as the output of the flow.
+  @racket[flo] processes one input value at a time. It receives the current input value in the first position, followed by the accumulated values, and may generate any number of output values. These output values are fed back as accumulated values for the next iteration if input values remain to be processed; otherwise, they are produced as the output of the flow.
 
-  @racket[init-flo] is expected to be a @emph{flow} that will generate the initial values for the fold, and will be invoked with no inputs for this purpose at runtime. It is done this way to support having multiple initial values or no initial values, rather than specifically one.
+@examples[
+    #:eval diagram-eval
+	#:result-only
+    (set-curve-pict-size 200 200)
+    (current-label-gap (px 8))
+
+    (define dim 100)
+
+    (define-values (w h)
+      (values dim dim))
+
+    (define-values (box-w box-h)
+      (values (/ w 3) (/ h 3)))
+
+    (define box-width (* 1/3 dim))
+    (define box-height (* 1/3 dim))
+
+    (with-window (window (- (* 1/2 w))
+                         (* 1/2 w)
+                         (- (* 1/2 h))
+                         (* 1/2 h))
+      (draw (rectangle (pt (- (* 1/2 box-width)) (- (* 1/2 box-height)))
+                       (pt (* 1/2 box-width) (* 1/2 box-height)))
+            (label-cnt "flo" origo)
+            ;; current value
+            (curve (pt (- (* 2 1/2 box-width)) (* 1/5 1/2 box-height))
+                   --
+                   (pt (- (* 1/2 box-width)) (* 1/5 1/2 box-height)))
+            (label-urt "v" (pt (- (* 2 1/2 box-width)) (* 1/5 1/2 box-height)))
+            ;; accumulated values
+            (curve (pt (- (* 2 1/2 box-width)) 0)
+                   --
+                   (pt (- (* 1/2 box-width)) 0))
+            (label-bot "acc" (pt (- (* 2 1/2 box-width)) 0))
+            ;; accumulated ...
+            (curve (pt (- (* 1.3 1/2 box-width)) (* -1 1/10 1/2 box-height))
+                   --
+                   (pt (- (* 1/2 box-width)) (* -1 1/10 1/2 box-height)))
+            (curve (pt (- (* 1.3 1/2 box-width)) (* -1 2/10 1/2 box-height))
+                   --
+                   (pt (- (* 1/2 box-width)) (* -1 2/10 1/2 box-height)))
+            (curve (pt (- (* 1.3 1/2 box-width)) (* -1 3/10 1/2 box-height))
+                   --
+                   (pt (- (* 1/2 box-width)) (* -1 3/10 1/2 box-height)))
+            ;; outputs
+            (curve (pt (* 1/2 box-width) 0)
+                   --
+                   (pt (* 1.5 1/2 box-width) 0))
+            (curve (pt (* 1/2 box-width) (* -1 1/10 1/2 box-height))
+                   --
+                   (pt (* 1.3 1/2 box-width) (* -1 1/10 1/2 box-height)))
+            (curve (pt (* 1/2 box-width) (* -1 2/10 1/2 box-height))
+                   --
+                   (pt (* 1.3 1/2 box-width) (* -1 2/10 1/2 box-height)))
+            (curve (pt (* 1/2 box-width) (* -1 3/10 1/2 box-height))
+                   --
+                   (pt (* 1.3 1/2 box-width) (* -1 3/10 1/2 box-height)))
+            ;; feedback
+            (curve (pt (* 1.5 1/2 box-width) 0)
+                   --
+                   (pt (* 1.5 1/2 box-width) (- (* 1.5 1/2 box-height)))
+                   --
+                   (pt (- (* 1.5 1/2 box-width)) (- (* 1.5 1/2 box-height)))
+                   --
+                   (pt (- (* 1.5 1/2 box-width)) 0))
+            ;; final output
+            (curve (pt (* 1.5 1/2 box-width) 0)
+                   --
+                   (pt (* 2 1/2 box-width) 0))
+            (label-rt "out" (pt (* 2 1/2 box-width) 0))))
+]
+
+  @racket[init-flo] is expected to be a @emph{flow} that will generate the initial values for the fold, and will be invoked with no inputs for this purpose at runtime. It is done this way to support having multiple initial values or no initial values, rather than specifically one. Specifying @racket[init-flo] is optional; if it isn't provided, @racket[flo] itself is invoked with no arguments to obtain the init value, to borrow a convention from the Clojure language.
 
 @examples[
     #:eval eval-for-docs
@@ -703,7 +773,7 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
     ((☯ (<< cons '())) 1 2 3 4)
     ((☯ (<< + (gen 2 3))) 1 2 3 4)
     ((☯ (>> (-< (block 1)
-                (~> 1> (-< _ _)))
+                (~> 1> (fanout 2)))
             ⏚)) 1 2 3)
   ]
 }
@@ -772,7 +842,7 @@ Literals and quoted values (including syntax-quoted values) in a flow context ar
 
 A parenthesized expression that isn't one of the Qi forms is treated as @emph{partial function application}, where the syntactically-indicated arguments are pre-supplied to yield a partially applied function that is applied to the input values at runtime.
 
-Usually, the @racket[_] symbol indicates the trivial or identity flow, simply passing the inputs through unchanged. Within a partial application, however, the underscore indicates argument positions. If the expression includes a double underscore, @racket[__], then it is treated as a simple template such that the runtime arguments (however many there may be) are passed at the position indicated by the placeholder. Another type of template is indicated by using one or more single underscores. In this case, a specific number of runtime arguments are expected (corresponding to the number of blanks indicated by underscores). This more fine-grained template is powered under the hood by @other-doc['(lib "fancy-app/main.scrbl")].
+Usually, the @racket[_] symbol indicates the trivial or identity flow, simply passing the inputs through unchanged. Within a partial application, however, the underscore indicates argument positions. If the expression includes a double underscore, @racket[__], then it is treated as a blanket template such that the runtime arguments (however many there may be) are passed starting at the position indicated by the placeholder. Another type of template is indicated by using one or more single underscores. In this case, a specific number of runtime arguments are expected (corresponding to the number of blanks indicated by underscores). Note that this could even include the function to be applied, if that position is templatized. This more fine-grained template is powered under the hood by @seclink["top" #:indirect? #t #:doc '(lib "fancy-app/main.scrbl")]{Fancy App: Scala-Style Magic Lambdas}.
 
 @bold{N.B.}: In the examples below, and elsewhere in these docs, for some reason the double underscore renders in such a way that it is indistinguishable from a single underscore. You will have to infer from context which one is being used, that is, if more than one argument is being passed to a position, it must be a double underscore!
 
@@ -784,6 +854,7 @@ Usually, the @racket[_] symbol indicates the trivial or identity flow, simply pa
     ((☯ (< 5 _ 10)) 7)
     ((☯ (< 5 _ 7 _ 10)) 6 9)
     ((☯ (< 5 _ 7 _ 10)) 6 11)
+    ((☯ (~> (clos *) (_ 3))) 10)
     ((☯ (< 5 __ 10)) 6 7 8)
     ((☯ (< 5 __ 10)) 6 7 11)
   ]
@@ -843,3 +914,8 @@ This way to extend the language is intended for use in @bold{legacy versions of 
     (~> (2 3) + (qi:square sqr))
   ]
 }
+
+@close-eval[eval-for-docs]
+@(set! eval-for-docs #f)
+@close-eval[diagram-eval]
+@(set! diagram-eval #f)

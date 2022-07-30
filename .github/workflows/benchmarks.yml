@@ -22,6 +22,7 @@ jobs:
       - name: Install Package and its Dependencies
         run: make install
       - name: Run benchmark
+        shell: 'bash --noprofile --norc -eo pipefail {0}'
         run: make report-benchmarks | tee benchmarks.txt
       - name: Store benchmark result
         uses: benchmark-action/github-action-benchmark@v1

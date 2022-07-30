@@ -5,3 +5,8 @@ compiled
 doc
 docs
 coverage
+
+# docs output
+*.html
+*.css
+*.js

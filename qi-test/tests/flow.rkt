@@ -590,6 +590,9 @@
                    (list 1 2 3)))
      (check-true ((☯ (apply > _))
                   (list 3 2 1)))
+     (check-equal? ((☯ (_ 3)) add1)
+                   4
+                   "templatizing the first (function) position")
      (check-equal? ((☯ (map add1 _))
                     (list 1 2 3))
                    (list 2 3 4)
