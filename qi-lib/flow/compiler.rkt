@@ -210,7 +210,7 @@
     ;; it, we simply use the #%app macro provided by fancy-app instead of the
     ;; implicit one used for function application in racket/base.
     ;; "prarg" = "pre-supplied argument"
-    [(natex prarg-pre ... (~datum _) prarg-post ...)
+    [(prarg-pre ... (~datum _) prarg-post ...)
      #'(fancy:#%app prarg-pre ... _ prarg-post ...)]
 
     ;; Pre-supplied arguments without a template
