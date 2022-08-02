@@ -161,7 +161,7 @@
      #'(qi0->racket (>< NOT))]
     [e:side-effect-form (side-effect-parser #'e)]
 
-    ;;; Higher-order qi0->rackets
+    ;;; Higher-order flows
 
     ;; map, filter, and fold
     [e:amp-form (amp-parser #'e)]
@@ -196,7 +196,7 @@
     [((~var ext-form (starts-with "qi:")) expr ...)
      #'(ext-form expr ...)]
 
-    ;; a literal is interpreted as a qi0->racket generating it
+    ;; a literal is interpreted as a flow generating it
     [e:literal (literal-parser #'e)]
 
     ;; Partial application with syntactically pre-supplied arguments
@@ -211,9 +211,7 @@
     ;; implicit one used for function application in racket/base.
     ;; "prarg" = "pre-supplied argument"
     [(prarg-pre ... (~datum _) prarg-post ...)
-     #'(fancy:#%app prarg-pre ...
-                    _
-                    prarg-post ...)]
+     #'(fancy:#%app prarg-pre ... _ prarg-post ...)]
 
     ;; Pre-supplied arguments without a template
     [(natex prarg ...+)
@@ -227,7 +225,7 @@
          #'(curry natex prarg ...)
          #'(curryr natex prarg ...))]
 
-    ;; pass-through (identity qi0->racket)
+    ;; pass-through (identity flow)
     [(~datum _) #'values]
 
     ;; literally indicated function identifier
@@ -362,7 +360,7 @@ the DSL.
       [(_ [condition0:clause ((~datum =>) consequent0:clause ...)]
           [condition:clause consequent:clause]
           ...)
-       ;; we split the qi0->racket ahead of time to avoid evaluating
+       ;; we split the flow ahead of time to avoid evaluating
        ;; the condition more than once
        #'(qi0->racket (~> (-< condition0 _)
                           (if 1>
@@ -376,11 +374,15 @@ the DSL.
           [condition0:clause ((~datum =>) consequent0:clause ...)]
           [condition:clause consequent:clause]
           ...)
-       ;; we split the qi0->racket ahead of time to avoid evaluating
+       ;; both divert as well as => clauses. Here, the divert clause
+       ;; operates on the original inputs, not including the result
+       ;; of the condition flow.
+       ;; as before, we split the flow ahead of time to avoid evaluating
        ;; the condition more than once
        #'(qi0->racket (~> (-< (~> condition-gate condition0) _)
                           (if 1>
-                              (~> consequent-gate consequent0 ...)
+                              (~> (group 1 _ consequent-gate)
+                                  consequent0 ...)
                               (group 1 ⏚
                                      (switch (divert condition-gate consequent-gate)
                                        [condition consequent]
@@ -474,11 +476,10 @@ the DSL.
     (syntax-parse stx
       [(_ consequent:clause
           alternative:clause)
-       #'(λ args
-           ;; the first argument is the predicate qi0->racket here
-           (if (apply (car args) (cdr args))
-               (apply (qi0->racket consequent) (cdr args))
-               (apply (qi0->racket alternative) (cdr args))))]
+       #'(λ (f . args)
+           (if (apply f args)
+               (apply (qi0->racket consequent) args)
+               (apply (qi0->racket alternative) args)))]
       [(_ condition:clause
           consequent:clause
           alternative:clause)
@@ -507,27 +508,35 @@ the DSL.
       [(_ ((~datum while) tilex:clause)
           ((~datum then) thenex:clause)
           onex:clause)
-       #'(letrec ([loop (qi0->racket (~> (if tilex
-                                             (~> onex loop)
-                                             thenex)))])
-           loop)]
+       #'(feedback-while (qi0->racket onex)
+                         (qi0->racket tilex)
+                         (qi0->racket thenex))]
+      [(_ ((~datum while) tilex:clause)
+          ((~datum then) thenex:clause))
+       #'(λ (f . args)
+           (apply (qi0->racket (feedback (while tilex) (then thenex) f))
+                  args))]
       [(_ ((~datum while) tilex:clause) onex:clause)
        #'(qi0->racket (feedback (while tilex) (then _) onex))]
+      [(_ ((~datum while) tilex:clause))
+       #'(qi0->racket (feedback (while tilex) (then _)))]
       [(_ n:expr
           ((~datum then) thenex:clause)
           onex:clause)
-       #'(qi0->racket (~> (esc (power n (qi0->racket onex))) thenex))]
+       #'(feedback-times (qi0->racket onex) n (qi0->racket thenex))]
+      [(_ n:expr
+          ((~datum then) thenex:clause))
+       #'(λ (f . args)
+           (apply (qi0->racket (feedback n (then thenex) f)) args))]
       [(_ n:expr onex:clause)
        #'(qi0->racket (feedback n (then _) onex))]
+      [(_ onex:clause)
+       #'(λ (n . args)
+           (apply (qi0->racket (feedback n onex)) args))]
       [_:id
-       #'(letrec ([loop (qi0->racket (~> (if (~> (-< 1> (block 1 2 3)) apply)
-                                             (~> (-< (select 1 2 3)
-                                                     (~> (block 1 2)
-                                                         apply))
-                                                 loop)
-                                             (~> (-< 2> (block 1 2 3))
-                                                 apply))))])
-           loop)]))
+       #'(λ (n flo . args)
+           (apply (qi0->racket (feedback n flo))
+                  args))]))
 
   (define (side-effect-parser stx)
     (syntax-parse stx
@@ -563,7 +572,10 @@ the DSL.
       [(~datum >>)
        #'foldl-values]
       [((~datum >>) fn init)
-       #'(qi0->racket (~> (-< (gen (qi0->racket fn)) (gen (qi0->racket init)) _) >>))]
+       #'(qi0->racket (~> (-< (gen (qi0->racket fn))
+                              (gen (qi0->racket init))
+                              _)
+                          >>))]
       [((~datum >>) fn)
        #'(qi0->racket (>> fn (gen ((qi0->racket fn)))))]))
 
@@ -572,7 +584,10 @@ the DSL.
       [(~datum <<)
        #'foldr-values]
       [((~datum <<) fn init)
-       #'(qi0->racket (~> (-< (gen (qi0->racket fn)) (gen (qi0->racket init)) _) <<))]
+       #'(qi0->racket (~> (-< (gen (qi0->racket fn))
+                              (gen (qi0->racket init))
+                              _)
+                          <<))]
       [((~datum <<) fn)
        #'(qi0->racket (<< fn (gen ((qi0->racket fn)))))]))
 
@@ -593,6 +608,11 @@ the DSL.
 
   (define (clos-parser stx)
     (syntax-parse stx
+      [(~datum clos)
+       #:do [(define chirality (syntax-property stx 'chirality))]
+       (if (and chirality (eq? chirality 'right))
+           #'(λ (f . args) (apply curryr f args))
+           #'(λ (f . args) (apply curry f args)))]
       [(_ onex:clause)
        #:do [(define chirality (syntax-property stx 'chirality))]
        (if (and chirality (eq? chirality 'right))
