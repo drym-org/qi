@@ -208,11 +208,11 @@ See also @racket[on] and @racket[~>], which are shorthands to invoke the flow wi
 
 @examples[
     #:eval eval-for-docs
-	(~> (3) sqr add1)
-	(~> (3) (-< sqr add1) +)
-	(~> ("a" "b") (string-append "c"))
-	(~>> ("b" "c") (string-append "a"))
-	(~> ("a" "b") (string-append _ "-" _))
+    (~> (3) sqr add1)
+    (~> (3) (-< sqr add1) +)
+    (~> ("a" "b") (string-append "c"))
+    (~>> ("b" "c") (string-append "a"))
+    (~> ("a" "b") (string-append _ "-" _))
   ]
 }
 
@@ -231,12 +231,12 @@ Each of the @racket[predicate] and @racket[consequent] expressions is a flow, an
 
 @examples[
     #:eval eval-for-docs
-	(switch (5)
-	  [(and positive? odd?) (~> sqr add1)]
-	  [else _])
-	(switch (2 3)
-	  [< +]
-	  [else min])
+    (switch (5)
+      [(and positive? odd?) (~> sqr add1)]
+      [else _])
+    (switch (2 3)
+      [< +]
+      [else min])
   ]
 }
 
@@ -252,13 +252,13 @@ Each of the @racket[predicate] and @racket[consequent] expressions is a flow, an
   Similiar to @racket[lambda] but constrained to the flow language. This is exactly equivalent to @racket[(lambda args (on (args) flow-expr))] except ignoring the keywords. @racket[flow-λ] and @racket[π] are aliases for @racket[flow-lambda]. The present form mainly finds its use internally in @racket[define-flow], and in most cases you should use @racket[☯] directly.
 
 @examples[
-   #:eval eval-for-docs
-   ((flow-lambda a* _) 1 2 3 4)
-   ((flow-lambda (a b c d) list) 1 2 3 4)
-   ((flow-lambda (a . a*) list) 1 2 3 4)
-   ((flow-lambda (a #:b b . a*) list) 1 2 3 4 #:b 'any)
-   ((flow-lambda (a #:b b c . a*) list) 1 2 3 4 #:b 'any)
-]
+    #:eval eval-for-docs
+    ((flow-lambda a* _) 1 2 3 4)
+    ((flow-lambda (a b c d) list) 1 2 3 4)
+    ((flow-lambda (a . a*) list) 1 2 3 4)
+    ((flow-lambda (a #:b b . a*) list) 1 2 3 4 #:b 'any)
+    ((flow-lambda (a #:b b c . a*) list) 1 2 3 4 #:b 'any)
+  ]
 }
 
 @deftogether[(
@@ -285,9 +285,9 @@ Each of the @racket[predicate] and @racket[consequent] expressions is a flow, an
     ((switch-lambda (a #:b b . a*)
        [memq 'yes]
        [else 'no]) 2 2 3 4 #:b 'any)
-	  ((switch-lambda (x)
-	     [(and positive? odd?) (~> sqr add1)]
-	     [else _]) 5)
+    ((switch-lambda (x)
+       [(and positive? odd?) (~> sqr add1)]
+       [else _]) 5)
   ]
 }
 
@@ -350,7 +350,7 @@ The second way is if you want to describe a flow using the host language instead
     (define-flow add-two
       (esc (λ (a b) (+ a b))))
     (~> (3 5) add-two)
-]
+  ]
 
 Finally, note that the following case works:
 
@@ -359,7 +359,7 @@ Finally, note that the following case works:
     (define (get-flow v)
       (☯ (~> sqr (+ v))))
     (~> (5) (get-flow 3))
-]
+  ]
 
 You might expect here that the expression @racket[(get-flow 3)] would be treated as a @seclink["Templates_and_Partial_Application"]{partial application template}, so that the value @racket[5] would be provided to it as @racket[(get-flow 5 3)], resulting in an error. The reason this isn't what happens is that the partial application behavior in Qi when no argument positions have been indicated is implemented using currying rather than as a template application, and Racket's @racket[curry] and @racket[curryr] functions happen to evaluate to a result immediately if the maximum expected arguments have been provided. Thus, in this case, the @racket[(get-flow 3)] expression is first evaluated to produce a resulting flow which then receives the value @racket[5].
 
