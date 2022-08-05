@@ -47,6 +47,27 @@ in the flow macro.
   (define (qi0->racket stx)
     (syntax-parse stx
 
+      ;;; Special words
+      [((~datum one-of?) v:expr ...)
+       #'(compose
+          ->boolean
+          (curryr member (list v ...)))]
+      [((~datum all) onex:clause)
+       #'(give (curry andmap (flow onex)))]
+      [((~datum any) onex:clause)
+       #'(give (curry ormap (flow onex)))]
+      [((~datum none) onex:clause)
+       #'(flow (not (any onex)))]
+      [((~datum and) onex:clause ...)
+       #'(conjoin (flow onex) ...)]
+      [((~datum or) onex:clause ...)
+       #'(disjoin (flow onex) ...)]
+      [((~datum not) onex:clause)
+       #'(negate (flow onex))]
+      [((~datum gen) ex:expr ...)
+       #'(λ _ (values ex ...))]
+
+
       [(~or (~datum ⏚) (~datum ground))
        #'(flow (select))]
 
@@ -239,26 +260,6 @@ in the flow macro.
                     #f
                     #'stx)
    #'(flow expanded)]
-
-  ;;; Special words
-  [(_ ((~datum one-of?) v:expr ...))
-   #'(compose
-      ->boolean
-      (curryr member (list v ...)))]
-  [(_ ((~datum all) onex:clause))
-   #'(give (curry andmap (flow onex)))]
-  [(_ ((~datum any) onex:clause))
-   #'(give (curry ormap (flow onex)))]
-  [(_ ((~datum none) onex:clause))
-   #'(flow (not (any onex)))]
-  [(_ ((~datum and) onex:clause ...))
-   #'(conjoin (flow onex) ...)]
-  [(_ ((~datum or) onex:clause ...))
-   #'(disjoin (flow onex) ...)]
-  [(_ ((~datum not) onex:clause))
-   #'(negate (flow onex))]
-  [(_ ((~datum gen) ex:expr ...))
-   #'(λ _ (values ex ...))]
 
   ;;; Core routing elements
 
