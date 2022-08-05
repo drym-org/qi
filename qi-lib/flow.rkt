@@ -47,21 +47,6 @@ in the flow macro.
   (define (qi0->racket stx)
     (syntax-parse stx
 
-      ;; Check first whether the form is a macro. If it is, expand it.
-      ;; This is prioritized over other forms so that extensions may
-      ;; override built-in Qi forms.
-      [stx
-       #:with (~or (m:id expr ...) m:id) #'stx
-       #:do [(define space-m ((make-interned-syntax-introducer 'qi) #'m))]
-       #:when (qi-macro? (syntax-local-value space-m (λ () #f)))
-       #:with expanded (syntax-local-apply-transformer
-                        (qi-macro-transformer (syntax-local-value space-m))
-                        space-m
-                        'expression
-                        #f
-                        #'stx)
-       #'(flow expanded)]
-
       ;;; Special words
       [((~datum one-of?) v:expr ...)
        #'(compose
@@ -264,6 +249,21 @@ in the flow macro.
 
 (define-syntax-parser flow
 
+
+  ;; Check first whether the form is a macro. If it is, expand it.
+  ;; This is prioritized over other forms so that extensions may
+  ;; override built-in Qi forms.
+  [(_ stx)
+   #:with (~or (m:id expr ...) m:id) #'stx
+   #:do [(define space-m ((make-interned-syntax-introducer 'qi) #'m))]
+   #:when (qi-macro? (syntax-local-value space-m (λ () #f)))
+   #:with expanded (syntax-local-apply-transformer
+                    (qi-macro-transformer (syntax-local-value space-m))
+                    space-m
+                    'expression
+                    #f
+                    #'stx)
+   #'(flow expanded)]
 
 
   ;; refactored way
