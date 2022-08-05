@@ -40,6 +40,17 @@ module, defined after the flow macro. They are all invoked as needed
 in the flow macro.
 |#
 
+
+(begin-for-syntax
+  (define (optimize-flow stx)
+    stx)
+  (define (qi0->racket stx)
+    stx)
+  (define (compile-flow stx)
+    ((compose qi0->racket optimize-flow) stx))
+  (define (expand-flow stx)
+    stx))
+
 (define-syntax-parser flow
 
   ;; Check first whether the form is a macro. If it is, expand it.
@@ -245,12 +256,17 @@ in the flow macro.
   ;; a non-flow
   [(_) #'values]
 
+  ;; refactored way
+  [(_ onex) ((compose compile-flow expand-flow) #'onex)]
+
   [(flow expr0 expr ...+)  ; error handling catch-all
    (report-syntax-error
     'flow
     (syntax->datum #'(expr0 expr ...))
     "(flow flo)"
-    "flow expects a single flow specification, but it received many.")])
+    "flow expects a single flow specification, but it received many.")]
+
+  )
 
 #|
 A note on error handling:
