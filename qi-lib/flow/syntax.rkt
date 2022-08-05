@@ -54,7 +54,7 @@
 (define-syntax-class subject
   #:attributes (args arity)
   (pattern
-   (arg ...)
+   (arg:expr ...)
    #:with args #'(arg ...)
    #:attr arity (length (syntax->list #'args))))
 
