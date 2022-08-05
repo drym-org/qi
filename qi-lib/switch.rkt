@@ -7,11 +7,13 @@
          define-switch)
 
 (require syntax/parse/define
-         (only-in "private/util.rkt" define-alias)
          (for-syntax racket/base
                      syntax/parse/lib/function-header)
          "flow.rkt"
-         "on.rkt")
+         "on.rkt"
+         (only-in "private/util.rkt"
+                  define-alias
+                  params-parser))
 
 (define-syntax-parser switch
   [(_ args:subject
@@ -21,7 +23,7 @@
 
 (define-syntax-parser switch-lambda
   [(_ args:formals expr:expr ...)
-   #:with ags (attribute args.params)
+   #:with ags (params-parser #'args)
    #'(lambda args
        (switch ags
          expr ...))])

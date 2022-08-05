@@ -53,7 +53,7 @@
                   '(yes no)))
 
    (test-suite
-    "predicate lambda"
+    "flow lambda"
     (check-true ((π (x)
                    (and positive? integer?))
                  5))
@@ -81,7 +81,9 @@
     (check-false ((π args (apply > _)) 1 2 3) "apply with packed args")
     (check-true ((π args (apply > _)) 3 2 1) "apply with packed args")
     (check-equal? ((π a* _) 1 2 3 4) '(1 2 3 4))
-    (check-equal? ((π (a . a*) list) 1 2 3 4) '(1 (2 3 4))))
+    (check-equal? ((π (a . a*) list) 1 2 3 4) '(1 (2 3 4)))
+    (check-equal? ((π (a #:b b . a*) list) 1 2 3 4 #:b 'any) '(1 (2 3 4)))
+    (check-equal? ((π (a #:b b c . a*) list) 1 2 3 4 #:b 'any) '(1 2 (3 4))))
 
    (test-suite
     "switch lambda"
@@ -138,10 +140,10 @@
                      [else 'no])
                    1 2 3 4)
                   '(1 2 3 4))
-    (check-equal? ((λ01 (a . a*)
+    (check-equal? ((λ01 (a #:b b . a*)
                      [memq 'yes]
                      [else 'no])
-                   2 2 3 4)
+                   2 2 3 4 #:b 'any)
                   'yes))))
 
 (module+ main

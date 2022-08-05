@@ -249,7 +249,16 @@ Each of the @racket[predicate] and @racket[consequent] expressions is a flow, an
   @defform[(flow-λ args flow-expr)]
   @defform[(π args flow-expr)]
 )]{
-  Similiar to @racket[lambda] but constrained to the flow language. This is exactly equivalent to @racket[(lambda args (on (args) flow-expr))]. @racket[flow-λ] and @racket[π] are aliases for @racket[flow-lambda]. The present form mainly finds its use internally in @racket[define-flow], and in most cases you should use @racket[☯] directly.
+  Similiar to @racket[lambda] but constrained to the flow language. This is exactly equivalent to @racket[(lambda args (on (args) flow-expr))] except ignoring the keywords. @racket[flow-λ] and @racket[π] are aliases for @racket[flow-lambda]. The present form mainly finds its use internally in @racket[define-flow], and in most cases you should use @racket[☯] directly.
+
+@examples[
+   #:eval eval-for-docs
+   ((flow-lambda a* _) 1 2 3 4)
+   ((flow-lambda (a b c d) list) 1 2 3 4)
+   ((flow-lambda (a . a*) list) 1 2 3 4)
+   ((flow-lambda (a #:b b . a*) list) 1 2 3 4 #:b 'any)
+   ((flow-lambda (a #:b b c . a*) list) 1 2 3 4 #:b 'any)
+]
 }
 
 @deftogether[(
@@ -269,13 +278,16 @@ Each of the @racket[predicate] and @racket[consequent] expressions is a flow, an
              ...
              [else consequent ...])]
 )]{
-  Similar to @racket[lambda] but constrained to be a flow-based dispatcher. This is exactly equivalent to @racket[(lambda args (switch (args) maybe-divert-clause [predicate consequent ...] ... [else consequent ...]))]. @racket[switch-λ] and @racket[λ01] are aliases for @racket[switch-lambda].
+  Similar to @racket[lambda] but constrained to be a flow-based dispatcher. This is exactly equivalent to @racket[(lambda args (switch (args) maybe-divert-clause [predicate consequent ...] ... [else consequent ...]))] except ignoring the keywords. @racket[switch-λ] and @racket[λ01] are aliases for @racket[switch-lambda].
 
 @examples[
     #:eval eval-for-docs
-	((switch-lambda (x)
-	   [(and positive? odd?) (~> sqr add1)]
-	   [else _]) 5)
+    ((switch-lambda (a #:b b . a*)
+       [memq 'yes]
+       [else 'no]) 2 2 3 4 #:b 'any)
+	  ((switch-lambda (x)
+	     [(and positive? odd?) (~> sqr add1)]
+	     [else _]) 5)
   ]
 }
 

@@ -11,7 +11,9 @@
                      syntax/parse/lib/function-header
                      "flow.rkt")
          "flow.rkt"
-         (only-in "private/util.rkt" define-alias))
+         (only-in "private/util.rkt"
+                  define-alias
+                  params-parser))
 
 (define-syntax-parser on
   [(_ args:subject)
@@ -23,7 +25,7 @@
 
 (define-syntax-parser flow-lambda
   [(_ args:formals clause:clause)
-   #:with ags (attribute args.params)
+   #:with ags (params-parser #'args)
    #'(lambda args
        (on ags
            clause))])
