@@ -47,6 +47,12 @@ in the flow macro.
   (define (qi0->racket stx)
     (syntax-parse stx
 
+      [e:right-threading-form (right-threading-parser #'e)]
+      [(~or (~datum X) (~datum crossover))
+       #'(flow (~> ▽ reverse △))]
+      [((~or (~datum ==) (~datum relay)) onex:clause ...)
+       #'(relay (flow onex) ...)]
+
       [((~or (~datum ==*) (~datum relay*)) onex:clause ... rest-onex:clause)
        (with-syntax ([len (datum->syntax this-syntax
                             (length (syntax->list #'(onex ...))))])
@@ -260,11 +266,6 @@ in the flow macro.
                (reverse
                 (syntax->list
                  #'((flow onex) ...)))))]
-  [(_ e:right-threading-form) (right-threading-parser #'e)]
-  [(_ (~or (~datum X) (~datum crossover)))
-       #'(flow (~> ▽ reverse △))]
-  [(_ ((~or (~datum ==) (~datum relay)) onex:clause ...))
-       #'(relay (flow onex) ...)]
 
 
 
