@@ -47,7 +47,30 @@ in the flow macro.
   (define (qi0->racket stx)
     (syntax-parse stx
 
-        ;; Pre-supplied arguments without a template
+      ;; backwards compat macro extensibility via Racket macros
+      [((~var ext-form (starts-with "qi:")) expr ...)
+       #'(ext-form expr ...)]
+
+      ;; a literal is interpreted as a flow generating it
+      [e:literal (literal-parser #'e)]
+
+      ;; Partial application with syntactically pre-supplied arguments
+      ;; in a blanket template
+      [e:blanket-template-form (blanket-template-form-parser #'e)]
+
+      ;; Fine-grained template-based application
+      ;; This handles templates that indicate a specific number of template
+      ;; variables (i.e. expected arguments). The semantics of template-based
+      ;; application here is fulfilled by the fancy-app module. In order to use
+      ;; it, we simply use the #%app macro provided by fancy-app instead of the
+      ;; implicit one used for function application in racket/base.
+      ;; "prarg" = "pre-supplied argument"
+      [(prarg-pre ... (~datum _) prarg-post ...)
+       #'(fancy:#%app prarg-pre ... _ prarg-post ...)]
+
+
+
+      ;; Pre-supplied arguments without a template
       [(natex prarg ...+)
        ;; we use currying instead of templates when a template hasn't
        ;; explicitly been indicated since in such cases, we cannot
@@ -236,26 +259,6 @@ in the flow macro.
   [(_ ((~datum esc) ex:expr))
    #'ex]
 
-  ;; backwards compat macro extensibility via Racket macros
-  [(_ ((~var ext-form (starts-with "qi:")) expr ...))
-   #'(ext-form expr ...)]
-
-  ;; a literal is interpreted as a flow generating it
-  [(_ e:literal) (literal-parser #'e)]
-
-  ;; Partial application with syntactically pre-supplied arguments
-  ;; in a blanket template
-  [(_ e:blanket-template-form) (blanket-template-form-parser #'e)]
-
-  ;; Fine-grained template-based application
-  ;; This handles templates that indicate a specific number of template
-  ;; variables (i.e. expected arguments). The semantics of template-based
-  ;; application here is fulfilled by the fancy-app module. In order to use
-  ;; it, we simply use the #%app macro provided by fancy-app instead of the
-  ;; implicit one used for function application in racket/base.
-  ;; "prarg" = "pre-supplied argument"
-  [(_ (prarg-pre ... (~datum _) prarg-post ...))
-   #'(fancy:#%app prarg-pre ... _ prarg-post ...)]
 
   ;; refactored way
   [(_ onex) ((compose compile-flow expand-flow) #'onex)]
