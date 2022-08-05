@@ -45,7 +45,14 @@ in the flow macro.
   (define (optimize-flow stx)
     stx)
   (define (qi0->racket stx)
-    stx)
+    (syntax-parse stx
+      ;; pass-through (identity flow)
+      [(~datum _) #'values]
+
+      ;; literally indicated function identifier
+      [natex:expr #'natex]
+
+      ))
   (define (compile-flow stx)
     ((compose qi0->racket optimize-flow) stx))
   (define (expand-flow stx)
@@ -247,17 +254,11 @@ in the flow macro.
        #'(curry natex prarg ...)
        #'(curryr natex prarg ...))]
 
-  ;; pass-through (identity flow)
-  [(_ (~datum _)) #'values]
-
-  ;; literally indicated function identifier
-  [(_ natex:expr) #'natex]
+  ;; refactored way
+  [(_ onex) ((compose compile-flow expand-flow) #'onex)]
 
   ;; a non-flow
   [(_) #'values]
-
-  ;; refactored way
-  [(_ onex) ((compose compile-flow expand-flow) #'onex)]
 
   [(flow expr0 expr ...+)  ; error handling catch-all
    (report-syntax-error
