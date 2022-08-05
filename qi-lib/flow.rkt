@@ -47,6 +47,78 @@ in the flow macro.
   (define (qi0->racket stx)
     (syntax-parse stx
 
+      ;;; Conditionals
+
+      [e:if-form (if-parser #'e)]
+      [((~datum when) condition:clause
+                      consequent:clause)
+       #'(flow (if condition consequent ⏚))]
+      [((~datum unless) condition:clause
+                        alternative:clause)
+       #'(flow (if condition ⏚ alternative))]
+      [e:switch-form (switch-parser #'e)]
+      [e:sieve-form (sieve-parser #'e)]
+      [e:partition-form (partition-parser #'e)]
+      [((~datum gate) onex:clause)
+       #'(flow (if onex _ ⏚))]
+
+      ;;; Exceptions
+
+      [e:try-form (try-parser #'e)]
+
+      ;;; High level circuit elements
+
+      ;; aliases for inputs
+      [e:input-alias (input-alias-parser #'e)]
+
+      ;; common utilities
+      [(~datum count)
+       #'(λ args (length args))]
+      [(~datum live?)
+       #'(λ args (not (null? args)))]
+      [((~datum rectify) v:expr ...)
+       #'(flow (if live? _ (gen v ...)))]
+
+      ;; high level routing
+      [e:fanout-form (fanout-parser #'e)]
+      [e:feedback-form (feedback-parser #'e)]
+      [(~datum inverter)
+       #'(flow (>< NOT))]
+      [e:side-effect-form (side-effect-parser #'e)]
+
+      ;;; Higher-order flows
+
+      ;; map, filter, and fold
+      [e:amp-form (amp-parser #'e)]
+      [e:pass-form (pass-parser #'e)]
+      [e:fold-left-form (fold-left-parser #'e)]
+      [e:fold-right-form (fold-right-parser #'e)]
+
+      ;; looping
+      [e:loop-form (loop-parser #'e)]
+      [((~datum loop2) pred:clause mapex:clause combex:clause)
+       #'(letrec ([loop2 (☯ (if pred
+                                (~> (== (-< cdr
+                                            (~> car mapex)) _)
+                                    (group 1 _ combex)
+                                    loop2)
+                                2>))])
+           loop2)]
+
+      ;; towards universality
+      [(~datum apply)
+       #'call]
+      [e:clos-form (clos-parser #'e)]
+
+      ;;; Miscellaneous
+
+      ;; escape hatch for racket expressions or anything
+      ;; to be "passed through"
+      [((~datum esc) ex:expr)
+       #'ex]
+
+
+
       ;; backwards compat macro extensibility via Racket macros
       [((~var ext-form (starts-with "qi:")) expr ...)
        #'(ext-form expr ...)]
@@ -189,75 +261,6 @@ in the flow macro.
                (~> (block n ...) remainder-onex)))]
   [(_ e:group-form) (group-parser #'e)]
 
-  ;;; Conditionals
-
-  [(_ e:if-form) (if-parser #'e)]
-  [(_ ((~datum when) condition:clause
-                     consequent:clause))
-   #'(flow (if condition consequent ⏚))]
-  [(_ ((~datum unless) condition:clause
-                       alternative:clause))
-   #'(flow (if condition ⏚ alternative))]
-  [(_ e:switch-form) (switch-parser #'e)]
-  [(_ e:sieve-form) (sieve-parser #'e)]
-  [(_ e:partition-form) (partition-parser #'e)]
-  [(_ ((~datum gate) onex:clause))
-   #'(flow (if onex _ ⏚))]
-
-  ;;; Exceptions
-
-  [(_ e:try-form) (try-parser #'e)]
-
-  ;;; High level circuit elements
-
-  ;; aliases for inputs
-  [(_ e:input-alias) (input-alias-parser #'e)]
-
-  ;; common utilities
-  [(_ (~datum count))
-   #'(λ args (length args))]
-  [(_ (~datum live?))
-   #'(λ args (not (null? args)))]
-  [(_ ((~datum rectify) v:expr ...))
-   #'(flow (if live? _ (gen v ...)))]
-
-  ;; high level routing
-  [(_ e:fanout-form) (fanout-parser #'e)]
-  [(_ e:feedback-form) (feedback-parser #'e)]
-  [(_ (~datum inverter))
-   #'(flow (>< NOT))]
-  [(_ e:side-effect-form) (side-effect-parser #'e)]
-
-  ;;; Higher-order flows
-
-  ;; map, filter, and fold
-  [(_ e:amp-form) (amp-parser #'e)]
-  [(_ e:pass-form) (pass-parser #'e)]
-  [(_ e:fold-left-form) (fold-left-parser #'e)]
-  [(_ e:fold-right-form) (fold-right-parser #'e)]
-
-  ;; looping
-  [(_ e:loop-form) (loop-parser #'e)]
-  [(_ ((~datum loop2) pred:clause mapex:clause combex:clause))
-   #'(letrec ([loop2 (☯ (if pred
-                            (~> (== (-< cdr
-                                        (~> car mapex)) _)
-                                (group 1 _ combex)
-                                loop2)
-                            2>))])
-       loop2)]
-
-  ;; towards universality
-  [(_ (~datum apply))
-   #'call]
-  [(_ e:clos-form) (clos-parser #'e)]
-
-  ;;; Miscellaneous
-
-  ;; escape hatch for racket expressions or anything
-  ;; to be "passed through"
-  [(_ ((~datum esc) ex:expr))
-   #'ex]
 
 
   ;; refactored way
