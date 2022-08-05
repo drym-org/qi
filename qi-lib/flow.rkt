@@ -47,6 +47,100 @@ in the flow macro.
   (define (qi0->racket stx)
     (syntax-parse stx
 
+      ;; Check first whether the form is a macro. If it is, expand it.
+      ;; This is prioritized over other forms so that extensions may
+      ;; override built-in Qi forms.
+      [stx
+       #:with (~or (m:id expr ...) m:id) #'stx
+       #:do [(define space-m ((make-interned-syntax-introducer 'qi) #'m))]
+       #:when (qi-macro? (syntax-local-value space-m (λ () #f)))
+       #:with expanded (syntax-local-apply-transformer
+                        (qi-macro-transformer (syntax-local-value space-m))
+                        space-m
+                        'expression
+                        #f
+                        #'stx)
+       #'(flow expanded)]
+
+      ;;; Special words
+      [((~datum one-of?) v:expr ...)
+       #'(compose
+          ->boolean
+          (curryr member (list v ...)))]
+      [((~datum all) onex:clause)
+       #'(give (curry andmap (flow onex)))]
+      [((~datum any) onex:clause)
+       #'(give (curry ormap (flow onex)))]
+      [((~datum none) onex:clause)
+       #'(flow (not (any onex)))]
+      [((~datum and) onex:clause ...)
+       #'(conjoin (flow onex) ...)]
+      [((~datum or) onex:clause ...)
+       #'(disjoin (flow onex) ...)]
+      [((~datum not) onex:clause)
+       #'(negate (flow onex))]
+      [((~datum gen) ex:expr ...)
+       #'(λ _ (values ex ...))]
+      [(~or (~datum NOT) (~datum !))
+       #'not]
+      [(~or (~datum AND) (~datum &))
+       #'all?]
+      [(~or (~datum OR) (~datum ∥))
+       #'any?]
+      [(~datum NOR)
+       #'(flow (~> OR NOT))]
+      [(~datum NAND)
+       #'(flow (~> AND NOT))]
+      [(~datum XOR)
+       #'parity-xor]
+      [(~datum XNOR)
+       #'(flow (~> XOR NOT))]
+      [e:and%-form (and%-parser #'e)]
+      [e:or%-form (or%-parser #'e)]
+      [(~datum any?) #'any?]
+      [(~datum all?) #'all?]
+      [(~datum none?) #'none?]
+      [(~or (~datum ▽) (~datum collect))
+       #'list]
+      [e:sep-form (sep-parser #'e)]
+
+      ;;; Core routing elements
+
+      [(~or (~datum ⏚) (~datum ground))
+       #'(flow (select))]
+      [((~or (~datum ~>) (~datum thread)) onex:clause ...)
+       (datum->syntax this-syntax
+         (cons 'compose
+               (reverse
+                (syntax->list
+                 #'((flow onex) ...)))))]
+      [e:right-threading-form (right-threading-parser #'e)]
+      [(~or (~datum X) (~datum crossover))
+       #'(flow (~> ▽ reverse △))]
+      [((~or (~datum ==) (~datum relay)) onex:clause ...)
+       #'(relay (flow onex) ...)]
+      [((~or (~datum ==*) (~datum relay*)) onex:clause ... rest-onex:clause)
+       (with-syntax ([len (datum->syntax this-syntax
+                            (length (syntax->list #'(onex ...))))])
+         #'(flow (group len (== onex ...) rest-onex) ))]
+      [((~or (~datum -<) (~datum tee)) onex:clause ...)
+       #'(λ args
+           (apply values
+                  (append (values->list
+                           (apply (flow onex) args))
+                          ...)))]
+      [e:select-form (select-parser #'e)]
+      [e:block-form (block-parser #'e)]
+      [((~datum bundle) (n:number ...)
+                        selection-onex:clause
+                        remainder-onex:clause)
+       #'(flow (-< (~> (select n ...) selection-onex)
+                   (~> (block n ...) remainder-onex)))]
+      [e:group-form (group-parser #'e)]
+
+
+
+
       ;;; Conditionals
 
       [e:if-form (if-parser #'e)]
@@ -169,97 +263,6 @@ in the flow macro.
     stx))
 
 (define-syntax-parser flow
-
-  ;; Check first whether the form is a macro. If it is, expand it.
-  ;; This is prioritized over other forms so that extensions may
-  ;; override built-in Qi forms.
-  [(_ stx)
-   #:with (~or (m:id expr ...) m:id) #'stx
-   #:do [(define space-m ((make-interned-syntax-introducer 'qi) #'m))]
-   #:when (qi-macro? (syntax-local-value space-m (λ () #f)))
-   #:with expanded (syntax-local-apply-transformer
-                    (qi-macro-transformer (syntax-local-value space-m))
-                    space-m
-                    'expression
-                    #f
-                    #'stx)
-   #'(flow expanded)]
-
-  ;;; Special words
-  [(_ ((~datum one-of?) v:expr ...))
-   #'(compose
-      ->boolean
-      (curryr member (list v ...)))]
-  [(_ ((~datum all) onex:clause))
-   #'(give (curry andmap (flow onex)))]
-  [(_ ((~datum any) onex:clause))
-   #'(give (curry ormap (flow onex)))]
-  [(_ ((~datum none) onex:clause))
-   #'(flow (not (any onex)))]
-  [(_ ((~datum and) onex:clause ...))
-   #'(conjoin (flow onex) ...)]
-  [(_ ((~datum or) onex:clause ...))
-   #'(disjoin (flow onex) ...)]
-  [(_ ((~datum not) onex:clause))
-   #'(negate (flow onex))]
-  [(_ ((~datum gen) ex:expr ...))
-   #'(λ _ (values ex ...))]
-  [(_ (~or (~datum NOT) (~datum !)))
-   #'not]
-  [(_ (~or (~datum AND) (~datum &)))
-   #'all?]
-  [(_ (~or (~datum OR) (~datum ∥)))
-   #'any?]
-  [(_ (~datum NOR))
-   #'(flow (~> OR NOT))]
-  [(_ (~datum NAND))
-   #'(flow (~> AND NOT))]
-  [(_ (~datum XOR))
-   #'parity-xor]
-  [(_ (~datum XNOR))
-   #'(flow (~> XOR NOT))]
-  [(_ e:and%-form) (and%-parser #'e)]
-  [(_ e:or%-form) (or%-parser #'e)]
-  [(_ (~datum any?)) #'any?]
-  [(_ (~datum all?)) #'all?]
-  [(_ (~datum none?)) #'none?]
-  [(_ (~or (~datum ▽) (~datum collect)))
-   #'list]
-  [(_ e:sep-form) (sep-parser #'e)]
-
-  ;;; Core routing elements
-
-  [(_ (~or (~datum ⏚) (~datum ground)))
-   #'(flow (select))]
-  [(_ ((~or (~datum ~>) (~datum thread)) onex:clause ...))
-   (datum->syntax this-syntax
-     (cons 'compose
-           (reverse
-            (syntax->list
-             #'((flow onex) ...)))))]
-  [(_ e:right-threading-form) (right-threading-parser #'e)]
-  [(_ (~or (~datum X) (~datum crossover)))
-   #'(flow (~> ▽ reverse △))]
-  [(_ ((~or (~datum ==) (~datum relay)) onex:clause ...))
-   #'(relay (flow onex) ...)]
-  [(_ ((~or (~datum ==*) (~datum relay*)) onex:clause ... rest-onex:clause))
-   (with-syntax ([len (datum->syntax this-syntax
-                        (length (syntax->list #'(onex ...))))])
-     #'(flow (group len (== onex ...) rest-onex) ))]
-  [(_ ((~or (~datum -<) (~datum tee)) onex:clause ...))
-   #'(λ args
-       (apply values
-              (append (values->list
-                       (apply (flow onex) args))
-                      ...)))]
-  [(_ e:select-form) (select-parser #'e)]
-  [(_ e:block-form) (block-parser #'e)]
-  [(_ ((~datum bundle) (n:number ...)
-                       selection-onex:clause
-                       remainder-onex:clause))
-   #'(flow (-< (~> (select n ...) selection-onex)
-               (~> (block n ...) remainder-onex)))]
-  [(_ e:group-form) (group-parser #'e)]
 
 
 
