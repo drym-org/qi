@@ -47,6 +47,25 @@ in the flow macro.
   (define (qi0->racket stx)
     (syntax-parse stx
 
+      [((~or (~datum ==*) (~datum relay*)) onex:clause ... rest-onex:clause)
+       (with-syntax ([len (datum->syntax this-syntax
+                            (length (syntax->list #'(onex ...))))])
+         #'(flow (group len (== onex ...) rest-onex) ))]
+      [((~or (~datum -<) (~datum tee)) onex:clause ...)
+       #'(λ args
+           (apply values
+                  (append (values->list
+                           (apply (flow onex) args))
+                          ...)))]
+      [e:select-form (select-parser #'e)]
+      [e:block-form (block-parser #'e)]
+      [((~datum bundle) (n:number ...)
+                        selection-onex:clause
+                        remainder-onex:clause)
+       #'(flow (-< (~> (select n ...) selection-onex)
+                   (~> (block n ...) remainder-onex)))]
+      [e:group-form (group-parser #'e)]
+
 
       [(~or (~datum NOT) (~datum !))
        #'not]
@@ -246,24 +265,6 @@ in the flow macro.
        #'(flow (~> ▽ reverse △))]
   [(_ ((~or (~datum ==) (~datum relay)) onex:clause ...))
        #'(relay (flow onex) ...)]
-  [(_ ((~or (~datum ==*) (~datum relay*)) onex:clause ... rest-onex:clause))
-       (with-syntax ([len (datum->syntax this-syntax
-                            (length (syntax->list #'(onex ...))))])
-         #'(flow (group len (== onex ...) rest-onex) ))]
-  [(_ ((~or (~datum -<) (~datum tee)) onex:clause ...))
-       #'(λ args
-           (apply values
-                  (append (values->list
-                           (apply (flow onex) args))
-                          ...)))]
-  [(_ e:select-form) (select-parser #'e)]
-  [(_ e:block-form) (block-parser #'e)]
-  [(_ ((~datum bundle) (n:number ...)
-                     selection-onex:clause
-                     remainder-onex:clause))
-       #'(flow (-< (~> (select n ...) selection-onex)
-                   (~> (block n ...) remainder-onex)))]
-  [(_ e:group-form) (group-parser #'e)]
 
 
 
