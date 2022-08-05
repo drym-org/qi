@@ -47,48 +47,6 @@ in the flow macro.
   (define (qi0->racket stx)
     (syntax-parse stx
 
-      ;;; Special words
-      [((~datum one-of?) v:expr ...)
-       #'(compose
-          ->boolean
-          (curryr member (list v ...)))]
-      [((~datum all) onex:clause)
-       #'(give (curry andmap (flow onex)))]
-      [((~datum any) onex:clause)
-       #'(give (curry ormap (flow onex)))]
-      [((~datum none) onex:clause)
-       #'(flow (not (any onex)))]
-      [((~datum and) onex:clause ...)
-       #'(conjoin (flow onex) ...)]
-      [((~datum or) onex:clause ...)
-       #'(disjoin (flow onex) ...)]
-      [((~datum not) onex:clause)
-       #'(negate (flow onex))]
-      [((~datum gen) ex:expr ...)
-       #'(λ _ (values ex ...))]
-      [(~or (~datum NOT) (~datum !))
-       #'not]
-      [(~or (~datum AND) (~datum &))
-       #'all?]
-      [(~or (~datum OR) (~datum ∥))
-       #'any?]
-      [(~datum NOR)
-       #'(flow (~> OR NOT))]
-      [(~datum NAND)
-       #'(flow (~> AND NOT))]
-      [(~datum XOR)
-       #'parity-xor]
-      [(~datum XNOR)
-       #'(flow (~> XOR NOT))]
-      [e:and%-form (and%-parser #'e)]
-      [e:or%-form (or%-parser #'e)]
-      [(~datum any?) #'any?]
-      [(~datum all?) #'all?]
-      [(~datum none?) #'none?]
-      [(~or (~datum ▽) (~datum collect))
-       #'list]
-      [e:sep-form (sep-parser #'e)]
-
       ;;; Core routing elements
 
       [(~or (~datum ⏚) (~datum ground))
@@ -264,6 +222,48 @@ in the flow macro.
                     #f
                     #'stx)
    #'(flow expanded)]
+
+  ;;; Special words
+  [(_ ((~datum one-of?) v:expr ...))
+   #'(compose
+      ->boolean
+      (curryr member (list v ...)))]
+  [(_ ((~datum all) onex:clause))
+   #'(give (curry andmap (flow onex)))]
+  [(_ ((~datum any) onex:clause))
+   #'(give (curry ormap (flow onex)))]
+  [(_ ((~datum none) onex:clause))
+   #'(flow (not (any onex)))]
+  [(_ ((~datum and) onex:clause ...))
+   #'(conjoin (flow onex) ...)]
+  [(_ ((~datum or) onex:clause ...))
+   #'(disjoin (flow onex) ...)]
+  [(_ ((~datum not) onex:clause))
+   #'(negate (flow onex))]
+  [(_ ((~datum gen) ex:expr ...))
+   #'(λ _ (values ex ...))]
+  [(_ (~or (~datum NOT) (~datum !)))
+   #'not]
+  [(_ (~or (~datum AND) (~datum &)))
+   #'all?]
+  [(_ (~or (~datum OR) (~datum ∥)))
+   #'any?]
+  [(_ (~datum NOR))
+   #'(flow (~> OR NOT))]
+  [(_ (~datum NAND))
+   #'(flow (~> AND NOT))]
+  [(_ (~datum XOR))
+   #'parity-xor]
+  [(_ (~datum XNOR))
+   #'(flow (~> XOR NOT))]
+  [(_ e:and%-form) (and%-parser #'e)]
+  [(_ e:or%-form) (or%-parser #'e)]
+  [(_ (~datum any?)) #'any?]
+  [(_ (~datum all?)) #'all?]
+  [(_ (~datum none?)) #'none?]
+  [(_ (~or (~datum ▽) (~datum collect)))
+   #'list]
+  [(_ e:sep-form) (sep-parser #'e)]
 
 
   ;; refactored way
