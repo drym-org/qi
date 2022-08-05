@@ -47,40 +47,6 @@ in the flow macro.
   (define (qi0->racket stx)
     (syntax-parse stx
 
-      ;;; Core routing elements
-
-      [(~or (~datum ⏚) (~datum ground))
-       #'(flow (select))]
-      [((~or (~datum ~>) (~datum thread)) onex:clause ...)
-       (datum->syntax this-syntax
-         (cons 'compose
-               (reverse
-                (syntax->list
-                 #'((flow onex) ...)))))]
-      [e:right-threading-form (right-threading-parser #'e)]
-      [(~or (~datum X) (~datum crossover))
-       #'(flow (~> ▽ reverse △))]
-      [((~or (~datum ==) (~datum relay)) onex:clause ...)
-       #'(relay (flow onex) ...)]
-      [((~or (~datum ==*) (~datum relay*)) onex:clause ... rest-onex:clause)
-       (with-syntax ([len (datum->syntax this-syntax
-                            (length (syntax->list #'(onex ...))))])
-         #'(flow (group len (== onex ...) rest-onex) ))]
-      [((~or (~datum -<) (~datum tee)) onex:clause ...)
-       #'(λ args
-           (apply values
-                  (append (values->list
-                           (apply (flow onex) args))
-                          ...)))]
-      [e:select-form (select-parser #'e)]
-      [e:block-form (block-parser #'e)]
-      [((~datum bundle) (n:number ...)
-                        selection-onex:clause
-                        remainder-onex:clause)
-       #'(flow (-< (~> (select n ...) selection-onex)
-                   (~> (block n ...) remainder-onex)))]
-      [e:group-form (group-parser #'e)]
-
 
 
 
@@ -264,6 +230,41 @@ in the flow macro.
   [(_ (~or (~datum ▽) (~datum collect)))
    #'list]
   [(_ e:sep-form) (sep-parser #'e)]
+
+  ;;; Core routing elements
+
+  [(_ (~or (~datum ⏚) (~datum ground)))
+       #'(flow (select))]
+  [(_ ((~or (~datum ~>) (~datum thread)) onex:clause ...))
+       (datum->syntax this-syntax
+         (cons 'compose
+               (reverse
+                (syntax->list
+                 #'((flow onex) ...)))))]
+  [(_ e:right-threading-form) (right-threading-parser #'e)]
+  [(_ (~or (~datum X) (~datum crossover)))
+       #'(flow (~> ▽ reverse △))]
+  [(_ ((~or (~datum ==) (~datum relay)) onex:clause ...))
+       #'(relay (flow onex) ...)]
+  [(_ ((~or (~datum ==*) (~datum relay*)) onex:clause ... rest-onex:clause))
+       (with-syntax ([len (datum->syntax this-syntax
+                            (length (syntax->list #'(onex ...))))])
+         #'(flow (group len (== onex ...) rest-onex) ))]
+  [(_ ((~or (~datum -<) (~datum tee)) onex:clause ...))
+       #'(λ args
+           (apply values
+                  (append (values->list
+                           (apply (flow onex) args))
+                          ...)))]
+  [(_ e:select-form) (select-parser #'e)]
+  [(_ e:block-form) (block-parser #'e)]
+  [(_ ((~datum bundle) (n:number ...)
+                     selection-onex:clause
+                     remainder-onex:clause))
+       #'(flow (-< (~> (select n ...) selection-onex)
+                   (~> (block n ...) remainder-onex)))]
+  [(_ e:group-form) (group-parser #'e)]
+
 
 
   ;; refactored way
