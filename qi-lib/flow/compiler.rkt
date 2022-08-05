@@ -29,6 +29,9 @@
   (define (optimize-flow stx)
     stx))
 
+(define (reverse-compose . fs)
+  (apply compose (reverse fs)))
+
 (define-syntax (qi0->racket stx)
   (syntax-parse (cadr (syntax->list stx))
     ;; Check first whether the form is a macro. If it is, expand it.
@@ -93,11 +96,7 @@
     [(~or* (~datum ⏚) (~datum ground))
      #'(qi0->racket (select))]
     [((~or* (~datum ~>) (~datum thread)) onex:clause ...)
-     (datum->syntax this-syntax
-       (cons 'compose
-             (reverse
-              (syntax->list
-               #'((qi0->racket onex) ...)))))]
+     #'(reverse-compose (qi0->racket onex) ...)]
     [e:right-threading-form (right-threading-parser #'e)]
     [(~or* (~datum X) (~datum crossover))
      #'(qi0->racket (~> ▽ reverse △))]
