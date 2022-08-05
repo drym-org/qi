@@ -46,6 +46,21 @@ in the flow macro.
     stx)
   (define (qi0->racket stx)
     (syntax-parse stx
+
+        ;; Pre-supplied arguments without a template
+      [(natex prarg ...+)
+       ;; we use currying instead of templates when a template hasn't
+       ;; explicitly been indicated since in such cases, we cannot
+       ;; always infer the appropriate arity for a template (e.g. it
+       ;; may change under composition within the form), while a
+       ;; curried function will accept any number of arguments
+       #:do [(define chirality (syntax-property this-syntax 'chirality))]
+       (if (and chirality (eq? chirality 'right))
+           #'(curry natex prarg ...)
+           #'(curryr natex prarg ...))]
+
+
+
       ;; pass-through (identity flow)
       [(~datum _) #'values]
 
@@ -241,18 +256,6 @@ in the flow macro.
   ;; "prarg" = "pre-supplied argument"
   [(_ (prarg-pre ... (~datum _) prarg-post ...))
    #'(fancy:#%app prarg-pre ... _ prarg-post ...)]
-
-  ;; Pre-supplied arguments without a template
-  [(_ (natex prarg ...+))
-   ;; we use currying instead of templates when a template hasn't
-   ;; explicitly been indicated since in such cases, we cannot
-   ;; always infer the appropriate arity for a template (e.g. it
-   ;; may change under composition within the form), while a
-   ;; curried function will accept any number of arguments
-   #:do [(define chirality (syntax-property (cadr (syntax->list this-syntax)) 'chirality))]
-   (if (and chirality (eq? chirality 'right))
-       #'(curry natex prarg ...)
-       #'(curryr natex prarg ...))]
 
   ;; refactored way
   [(_ onex) ((compose compile-flow expand-flow) #'onex)]
