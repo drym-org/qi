@@ -46,7 +46,7 @@ in the flow macro.
   ;; This is prioritized over other forms so that extensions may
   ;; override built-in Qi forms.
   [(_ stx)
-   #:with (~or (m:id expr ...) m:id) #'stx
+   #:with (~or* (m:id expr ...) m:id) #'stx
    #:do [(define space-m ((make-interned-syntax-introducer 'qi) #'m))]
    #:when (qi-macro? (syntax-local-value space-m (λ () #f)))
    #:with expanded (syntax-local-apply-transformer
@@ -76,11 +76,11 @@ in the flow macro.
    #'(negate (flow onex))]
   [(_ ((~datum gen) ex:expr ...))
    #'(λ _ (values ex ...))]
-  [(_ (~or (~datum NOT) (~datum !)))
+  [(_ (~or* (~datum NOT) (~datum !)))
    #'not]
-  [(_ (~or (~datum AND) (~datum &)))
+  [(_ (~or* (~datum AND) (~datum &)))
    #'all?]
-  [(_ (~or (~datum OR) (~datum ∥)))
+  [(_ (~or* (~datum OR) (~datum ∥)))
    #'any?]
   [(_ (~datum NOR))
    #'(flow (~> OR NOT))]
@@ -95,30 +95,30 @@ in the flow macro.
   [(_ (~datum any?)) #'any?]
   [(_ (~datum all?)) #'all?]
   [(_ (~datum none?)) #'none?]
-  [(_ (~or (~datum ▽) (~datum collect)))
+  [(_ (~or* (~datum ▽) (~datum collect)))
    #'list]
   [(_ e:sep-form) (sep-parser #'e)]
 
   ;;; Core routing elements
 
-  [(_ (~or (~datum ⏚) (~datum ground)))
+  [(_ (~or* (~datum ⏚) (~datum ground)))
    #'(flow (select))]
-  [(_ ((~or (~datum ~>) (~datum thread)) onex:clause ...))
+  [(_ ((~or* (~datum ~>) (~datum thread)) onex:clause ...))
    (datum->syntax this-syntax
      (cons 'compose
            (reverse
             (syntax->list
              #'((flow onex) ...)))))]
   [(_ e:right-threading-form) (right-threading-parser #'e)]
-  [(_ (~or (~datum X) (~datum crossover)))
+  [(_ (~or* (~datum X) (~datum crossover)))
    #'(flow (~> ▽ reverse △))]
-  [(_ ((~or (~datum ==) (~datum relay)) onex:clause ...))
+  [(_ ((~or* (~datum ==) (~datum relay)) onex:clause ...))
    #'(relay (flow onex) ...)]
-  [(_ ((~or (~datum ==*) (~datum relay*)) onex:clause ... rest-onex:clause))
+  [(_ ((~or* (~datum ==*) (~datum relay*)) onex:clause ... rest-onex:clause))
    (with-syntax ([len (datum->syntax this-syntax
                         (length (syntax->list #'(onex ...))))])
      #'(flow (group len (== onex ...) rest-onex) ))]
-  [(_ ((~or (~datum -<) (~datum tee)) onex:clause ...))
+  [(_ ((~or* (~datum -<) (~datum tee)) onex:clause ...))
    #'(λ args
        (apply values
               (append (values->list
@@ -368,13 +368,13 @@ the DSL.
   (define (switch-parser stx)
     (syntax-parse stx
       [(_) #'(flow)]
-      [(_ ((~or (~datum divert) (~datum %))
+      [(_ ((~or* (~datum divert) (~datum %))
            condition-gate:clause
            consequent-gate:clause))
        #'(flow consequent-gate)]
       [(_ [(~datum else) alternative:clause])
        #'(flow alternative)]
-      [(_ ((~or (~datum divert) (~datum %))
+      [(_ ((~or* (~datum divert) (~datum %))
            condition-gate:clause
            consequent-gate:clause)
           [(~datum else) alternative:clause])
@@ -390,7 +390,7 @@ the DSL.
                        (group 1 ⏚
                               (switch [condition consequent]
                                 ...)))))]
-      [(_ ((~or (~datum divert) (~datum %))
+      [(_ ((~or* (~datum divert) (~datum %))
            condition-gate:clause
            consequent-gate:clause)
           [condition0:clause ((~datum =>) consequent0:clause ...)]
@@ -416,7 +416,7 @@ the DSL.
                    consequent0
                    (switch [condition consequent]
                      ...)))]
-      [(_ ((~or (~datum divert) (~datum %))
+      [(_ ((~or* (~datum divert) (~datum %))
            condition-gate:clause
            consequent-gate:clause)
           [condition0:clause consequent0:clause]
@@ -561,20 +561,20 @@ the DSL.
 
   (define (side-effect-parser stx)
     (syntax-parse stx
-      [((~or (~datum ε) (~datum effect)) sidex:clause onex:clause)
+      [((~or* (~datum ε) (~datum effect)) sidex:clause onex:clause)
        #'(flow (-< (~> sidex ⏚)
                    onex))]
-      [((~or (~datum ε) (~datum effect)) sidex:clause)
+      [((~or* (~datum ε) (~datum effect)) sidex:clause)
        #'(flow (-< (~> sidex ⏚)
                    _))]))
 
   (define (amp-parser stx)
     (syntax-parse stx
-      [(~or (~datum ><) (~datum amp))
+      [(~or* (~datum ><) (~datum amp))
        #'map-values]
-      [((~or (~datum ><) (~datum amp)) onex:clause)
+      [((~or* (~datum ><) (~datum amp)) onex:clause)
        #'(curry map-values (flow onex))]
-      [((~or (~datum ><) (~datum amp)) onex0:clause onex:clause ...)
+      [((~or* (~datum ><) (~datum amp)) onex0:clause onex:clause ...)
        (report-syntax-error
         'amp
         (syntax->datum #'(onex0 onex ...))

@@ -32,7 +32,7 @@
 (define-alias switch-λ switch-lambda)
 
 (define-syntax-parser define-switch
-  [(_ ((~or head:id head:function-header) . args:formals)
+  [(_ ((~or* head:id head:function-header) . args:formals)
       expr:expr ...)
    #'(define head
        (switch-lambda args

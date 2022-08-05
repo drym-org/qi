@@ -33,23 +33,23 @@
 
 (define-syntax-class literal
   (pattern
-   (~or expr:boolean
-        expr:char
-        expr:string
-        expr:bytes
-        expr:number
-        expr:regexp
-        expr:byte-regexp
-        ;; We'd like to treat quoted forms as literals as well. This
-        ;; includes symbols, and would also include, for instance,
-        ;; syntactic specifications of flows, since flows are
-        ;; syntactically lists as they inherit the elementary syntax of
-        ;; the underlying language (Racket). Quoted forms are read as
-        ;; (quote ...), so we match against this
-        ((~datum quote) expr:expr)
-        ((~datum quasiquote) expr:expr)
-        ((~datum quote-syntax) expr:expr)
-        ((~datum syntax) expr:expr))))
+   (~or* expr:boolean
+         expr:char
+         expr:string
+         expr:bytes
+         expr:number
+         expr:regexp
+         expr:byte-regexp
+         ;; We'd like to treat quoted forms as literals as well. This
+         ;; includes symbols, and would also include, for instance,
+         ;; syntactic specifications of flows, since flows are
+         ;; syntactically lists as they inherit the elementary syntax of
+         ;; the underlying language (Racket). Quoted forms are read as
+         ;; (quote ...), so we match against this
+         ((~datum quote) expr:expr)
+         ((~datum quasiquote) expr:expr)
+         ((~datum quote-syntax) expr:expr)
+         ((~datum syntax) expr:expr))))
 
 (define-syntax-class subject
   #:attributes (args arity)
@@ -82,9 +82,9 @@ See comments in flow.rkt for more details.
 
 (define-syntax-class sep-form
   (pattern
-   (~or (~datum △) (~datum sep)))
+   (~or* (~datum △) (~datum sep)))
   (pattern
-   ((~or (~datum △) (~datum sep)) arg ...)))
+   ((~or* (~datum △) (~datum sep)) arg ...)))
 
 (define-syntax-class select-form
   (pattern
@@ -120,15 +120,15 @@ See comments in flow.rkt for more details.
 
 (define-syntax-class input-alias
   (pattern
-   (~or (~datum 1>)
-        (~datum 2>)
-        (~datum 3>)
-        (~datum 4>)
-        (~datum 5>)
-        (~datum 6>)
-        (~datum 7>)
-        (~datum 8>)
-        (~datum 9>))))
+   (~or* (~datum 1>)
+         (~datum 2>)
+         (~datum 3>)
+         (~datum 4>)
+         (~datum 5>)
+         (~datum 6>)
+         (~datum 7>)
+         (~datum 8>)
+         (~datum 9>))))
 
 (define-syntax-class if-form
   (pattern
@@ -148,13 +148,13 @@ See comments in flow.rkt for more details.
 
 (define-syntax-class side-effect-form
   (pattern
-   ((~or (~datum ε) (~datum effect)) arg ...)))
+   ((~or* (~datum ε) (~datum effect)) arg ...)))
 
 (define-syntax-class amp-form
   (pattern
-   (~or (~datum ><) (~datum amp)))
+   (~or* (~datum ><) (~datum amp)))
   (pattern
-   ((~or (~datum ><) (~datum amp)) arg ...)))
+   ((~or* (~datum ><) (~datum amp)) arg ...)))
 
 (define-syntax-class pass-form
   (pattern
@@ -193,7 +193,7 @@ See comments in flow.rkt for more details.
 
 (define-syntax-class right-threading-form
   (pattern
-   ((~or (~datum ~>>) (~datum thread-right)) arg ...)))
+   ((~or* (~datum ~>>) (~datum thread-right)) arg ...)))
 
 (define-syntax-class clos-form
   (pattern

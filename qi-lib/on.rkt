@@ -34,7 +34,7 @@
 (define-alias flow-λ flow-lambda)
 
 (define-syntax-parser define-flow
-  [(_ ((~or head:id head:function-header) . args:formals)
+  [(_ ((~or* head:id head:function-header) . args:formals)
       clause:clause)
    #'(define head
        (flow-lambda args
