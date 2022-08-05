@@ -48,6 +48,28 @@ in the flow macro.
     (syntax-parse stx
 
 
+      [(~or (~datum NOT) (~datum !))
+       #'not]
+      [(~or (~datum AND) (~datum &))
+       #'all?]
+      [(~or (~datum OR) (~datum ∥))
+       #'any?]
+      [(~datum NOR)
+       #'(flow (~> OR NOT))]
+      [(~datum NAND)
+       #'(flow (~> AND NOT))]
+      [(~datum XOR)
+       #'parity-xor]
+      [(~datum XNOR)
+       #'(flow (~> XOR NOT))]
+      [e:and%-form (and%-parser #'e)]
+      [e:or%-form (or%-parser #'e)]
+      [(~datum any?) #'any?]
+      [(~datum all?) #'all?]
+      [(~datum none?) #'none?]
+      [(~or (~datum ▽) (~datum collect))
+       #'list]
+      [e:sep-form (sep-parser #'e)]
 
 
       ;;; Conditionals
@@ -208,28 +230,6 @@ in the flow macro.
    #'(negate (flow onex))]
   [(_ ((~datum gen) ex:expr ...))
    #'(λ _ (values ex ...))]
-  [(_ (~or (~datum NOT) (~datum !)))
-   #'not]
-  [(_ (~or (~datum AND) (~datum &)))
-   #'all?]
-  [(_ (~or (~datum OR) (~datum ∥)))
-   #'any?]
-  [(_ (~datum NOR))
-   #'(flow (~> OR NOT))]
-  [(_ (~datum NAND))
-   #'(flow (~> AND NOT))]
-  [(_ (~datum XOR))
-   #'parity-xor]
-  [(_ (~datum XNOR))
-   #'(flow (~> XOR NOT))]
-  [(_ e:and%-form) (and%-parser #'e)]
-  [(_ e:or%-form) (or%-parser #'e)]
-  [(_ (~datum any?)) #'any?]
-  [(_ (~datum all?)) #'all?]
-  [(_ (~datum none?)) #'none?]
-  [(_ (~or (~datum ▽) (~datum collect)))
-   #'list]
-  [(_ e:sep-form) (sep-parser #'e)]
 
   ;;; Core routing elements
 
