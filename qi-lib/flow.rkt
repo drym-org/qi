@@ -47,6 +47,15 @@ in the flow macro.
   (define (qi0->racket stx)
     (syntax-parse stx
 
+      ;;; Core routing elements
+
+      [((~or (~datum ~>) (~datum thread)) onex:clause ...)
+       (datum->syntax this-syntax
+         (cons 'compose
+               (reverse
+                (syntax->list
+                 #'((flow onex) ...)))))]
+
       ;; Check first whether the form is a macro. If it is, expand it.
       ;; This is prioritized over other forms so that extensions may
       ;; override built-in Qi forms.
@@ -260,15 +269,6 @@ in the flow macro.
 
 (define-syntax-parser flow
 
-
-  ;;; Core routing elements
-
-  [(_ ((~or (~datum ~>) (~datum thread)) onex:clause ...))
-   (datum->syntax this-syntax
-     (cons 'compose
-           (reverse
-            (syntax->list
-             #'((flow onex) ...)))))]
 
 
 
