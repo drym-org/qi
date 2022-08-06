@@ -21,12 +21,9 @@
          power
          foldl-values
          foldr-values
-         report-syntax-error
          values->list
-         define-alias
          feedback-times
-         feedback-while
-         (for-syntax params-parser))
+         feedback-while)
 
 (require syntax/parse/define
          racket/match
@@ -38,37 +35,10 @@
          racket/format
          racket/string
          syntax/parse/define
-         (for-syntax racket/base
-                     syntax/parse/lib/function-header))
-
-(define (report-syntax-error name args usage . msgs)
-  (raise-syntax-error name
-                      (~a "Syntax error in "
-                          (list* name args)
-                          "\n"
-                          "Usage:\n"
-                          "  " usage
-                          (if (null? msgs)
-                              ""
-                              (string-append "\n"
-                                             (string-join msgs "\n"))))))
+         (for-syntax racket/base))
 
 (define-syntax-parse-rule (values->list body:expr ...+)
   (call-with-values (λ () body ...) list))
-
-(define-syntax-parse-rule (define-alias alias:id name:id)
-  (define-syntax alias (make-rename-transformer #'name)))
-
-
-(begin-for-syntax
-  (define (params-parser stx)
-    (syntax-parse stx
-      [((~or* 1st:id [1st:id _]) . rest:formals)
-       #`(1st . #,(params-parser #'rest))]
-      [(_:keyword _ . rest:formals)
-       (params-parser #'rest)]
-      [() stx]
-      [_:id #`(#,stx)])))
 
 (define (reverse-compose . fs)
   (apply compose (reverse fs)))

@@ -14,7 +14,7 @@
          (only-in "../macro.rkt"
                   qi-macro?
                   qi-macro-transformer)
-         "../private/util.rkt"
+         "impl.rkt"
          racket/function
          (prefix-in fancy: fancy-app)
          (only-in racket/list
