@@ -1,8 +1,6 @@
 #lang racket
 
-(provide do-with-value
-         just-do
-         sum
+(provide sum
          flip
          sort
          true.
@@ -17,16 +15,6 @@
 
 (require (prefix-in b: racket/base)
          qi)
-
-(define-syntax-rule (do-with-value value code ...)
-  (let ()
-    code
-    ...
-    value))
-
-(define-syntax-rule (just-do code ...)
-  ;; do and ignore the result
-  (do-with-value (void) code ...))
 
 (define (sum lst)
   (apply + lst))
