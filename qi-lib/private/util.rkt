@@ -11,6 +11,7 @@
          filter-values
          partition-values
          relay
+         reverse-compose
          loom-compose
          parity-xor
          arg
@@ -54,6 +55,9 @@
 
 (define-syntax-parse-rule (define-alias alias:id name:id)
   (define-syntax alias (make-rename-transformer #'name)))
+
+(define (reverse-compose . fs)
+  (apply compose (reverse fs)))
 
 ;; we use a lambda to capture the arguments at runtime
 ;; since they aren't available at compile time
