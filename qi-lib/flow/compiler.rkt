@@ -29,9 +29,6 @@
   (define (optimize-flow stx)
     stx))
 
-(define (reverse-compose . fs)
-  (apply compose (reverse fs)))
-
 (define-syntax (qi0->racket stx)
   (syntax-parse (cadr (syntax->list stx))
     ;; Check first whether the form is a macro. If it is, expand it.
