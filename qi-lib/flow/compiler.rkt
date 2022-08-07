@@ -93,7 +93,11 @@
     [(~or (~datum ⏚) (~datum ground))
      #'(qi0->racket (select))]
     [((~or (~datum ~>) (~datum thread)) onex:clause ...)
-     #'(reverse-compose (qi0->racket onex) ...)]
+     (datum->syntax this-syntax
+       (cons 'compose
+             (reverse
+              (syntax->list
+               #'((qi0->racket onex) ...)))))]
     [e:right-threading-form (right-threading-parser #'e)]
     [(~or (~datum X) (~datum crossover))
      #'(qi0->racket (~> ▽ reverse △))]
