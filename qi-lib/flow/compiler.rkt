@@ -94,7 +94,7 @@
      #'(qi0->racket (select))]
     [((~or (~datum ~>) (~datum thread)) onex:clause ...)
      (datum->syntax this-syntax
-       (cons 'compose
+       (cons #'compose
              (reverse
               (syntax->list
                #'((qi0->racket onex) ...)))))]
