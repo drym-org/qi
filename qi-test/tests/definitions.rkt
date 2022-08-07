@@ -83,8 +83,8 @@
     (check-equal? ((π a* _) 1 2 3 4) '(1 2 3 4))
     (check-equal? ((π (a . a*) list) 1 2 3 4) '(1 (2 3 4)))
     (check-equal? ((π (a #:b b . a*) list) 1 2 3 4 #:b 'any) '(1 (2 3 4)))
-    (check-equal? ((π (a #:b b c . a*) list) 1 2 3 4 #:b 'any) '(1 2 (3 4))))
-
+    (check-equal? ((π (a #:b b c . a*) list) 1 2 3 4 #:b 'any) '(1 2 (3 4)))
+    (check-equal? ((π (a b #:c c) (~> + (* c))) 2 3 #:c 10) 50))
    (test-suite
     "switch lambda"
     (check-equal? ((switch-lambda (x)
@@ -149,7 +149,12 @@
                      [memq 'yes]
                      [else 'no])
                    2 2 3 4 #:b 'any)
-                  'yes))))
+                  'yes))
+   (check-equal? ((λ01 (a b #:c c)
+                     [< (~> 2> (* c))]
+                     [else (~> 1> (* c))])
+                  2 3 #:c 10)
+                 30)))
 
 (module+ main
   (void (run-tests tests)))

@@ -1,6 +1,5 @@
 #lang racket/base
 
-(provide (for-syntax params-parser))
 (provide give
          ->boolean
          true.
@@ -25,7 +24,8 @@
          values->list
          define-alias
          feedback-times
-         feedback-while)
+         feedback-while
+         (for-syntax params-parser))
 
 (require syntax/parse/define
          racket/match

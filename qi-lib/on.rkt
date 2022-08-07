@@ -23,6 +23,10 @@
    #:with ags (attribute args.args)
    #`((flow clause) #,@(syntax->list #'ags))])
 
+;; The parsed `ags' is being passed to `on'
+;; while the unparsed `args' are passed to `lambda',
+;; so that `lambda' can bind keyword arguments in scope
+;; while the flow itself does not receive them directly.
 (define-syntax-parser flow-lambda
   [(_ args:formals clause:clause)
    #:with ags (params-parser #'args)

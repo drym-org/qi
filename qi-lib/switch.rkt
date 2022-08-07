@@ -21,6 +21,10 @@
    #'(on args
        (switch clause ...))])
 
+;; The parsed `ags' is being passed to `switch'
+;; while the unparsed `args' are passed to `lambda',
+;; so that `lambda' can bind keyword arguments in scope
+;; while the flow itself does not receive them directly.
 (define-syntax-parser switch-lambda
   [(_ args:formals expr:expr ...)
    #:with ags (params-parser #'args)
