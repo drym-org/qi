@@ -7,18 +7,6 @@
          rackunit/text-ui
          (only-in math sqr))
 
-(define-flow my-flow (~> sqr add1))
-
-(define-flow (my-flow2 v)
-  (~> (gen v) add1))
-
-(define-switch my-switch
-  [positive? add1]
-  [else sub1])
-
-(define-switch (my-switch2 v w)
-  [< (~> X -)]
-  [else -])
 
 (define tests
 
@@ -27,31 +15,45 @@
 
    (test-suite
     "define-flow"
-    (check-equal? (my-flow 5) 26)
-    (check-equal? (my-flow2 5) 6))
+    (check-equal? (let ()
+                    (define-flow my-flow (~> sqr add1))
+                    (my-flow 5))
+                  26)
+    (check-equal? (let ()
+                    (define-flow (my-flow2 v) (~> (gen v) add1))
+                    (my-flow2 5))
+                  6)
+    (check-equal? (let ()
+                    (define-flow ((t n) . n*)
+                      (~>> (memq n)))
+                    (list ((t 3) 1 2 3)
+                          ((t 0) 1 2 3)))
+                  '((3) #f)))
 
    (test-suite
     "define-switch"
-    (check-equal? (my-switch 5) 6)
-    (check-equal? (my-switch2 5 6) 1))
+    (check-equal? (let ()
+                    (define-switch my-switch
+                      [positive? add1]
+                      [else sub1])
+                    (my-switch 5))
+                  6)
+    (check-equal? (let ()
+                    (define-switch (my-switch2 v w)
+                      [< (~> X -)]
+                      [else -])
+                    (my-switch2 5 6))
+                  1)
+    (check-equal? (let ()
+                    (define-switch ((t n) . n*)
+                      [(memq n _) 'yes]
+                      [else 'no])
+                    (list ((t 1) 1 2 3)
+                          ((t 0) 1 2 3)))
+                  '(yes no)))
 
    (test-suite
-    "let/flow"
-    (check-equal? (let/flow ([x 5]
-                             [y 3])
-                            (~> + sqr add1))
-                  65))
-
-   (test-suite
-    "let/switch"
-    (check-equal? (let/switch ([x 5]
-                               [y 3])
-                              [(~> + (> 10)) 'hi]
-                              [else 'bye])
-                  'bye))
-
-   (test-suite
-    "predicate lambda"
+    "flow lambda"
     (check-true ((π (x)
                    (and positive? integer?))
                  5))
@@ -77,8 +79,12 @@
     (check-false ((π args (~> length (> 3))) 1 2 3) "packed args")
     (check-true ((π args (~> length (> 3))) 1 2 3 4) "packed args")
     (check-false ((π args (apply > _)) 1 2 3) "apply with packed args")
-    (check-true ((π args (apply > _)) 3 2 1) "apply with packed args"))
-
+    (check-true ((π args (apply > _)) 3 2 1) "apply with packed args")
+    (check-equal? ((π a* _) 1 2 3 4) '(1 2 3 4))
+    (check-equal? ((π (a . a*) list) 1 2 3 4) '(1 (2 3 4)))
+    (check-equal? ((π (a #:b b . a*) list) 1 2 3 4 #:b 'any) '(1 (2 3 4)))
+    (check-equal? ((π (a #:b b c . a*) list) 1 2 3 4 #:b 'any) '(1 2 (3 4)))
+    (check-equal? ((π (a b #:c c) (~> + (* c))) 2 3 #:c 10) 50))
    (test-suite
     "switch lambda"
     (check-equal? ((switch-lambda (x)
@@ -110,25 +116,45 @@
                   'b)
     (check-equal? ((λ01 args [list? 'a]) 1 2 3) 'a)
     (check-equal? ((λ01 args
-                        [(~> length (> 3)) 'a]
-                        [else 'b]) 1 2 3)
+                     [(~> length (> 3)) 'a]
+                     [else 'b]) 1 2 3)
                   'b
                   "packed args")
     (check-equal? ((λ01 args
-                        [(~> length (> 3)) 'a]
-                        [else 'b]) 1 2 3 4)
+                     [(~> length (> 3)) 'a]
+                     [else 'b]) 1 2 3 4)
                   'a
                   "packed args")
     (check-equal? ((λ01 args
-                        [(apply < _) 'a]
-                        [else 'b]) 1 2 3)
+                     [(apply < _) 'a]
+                     [else 'b]) 1 2 3)
                   'a
                   "apply with packed args")
     (check-equal? ((λ01 args
-                        [(apply < _) 'a]
-                        [else 'b]) 1 3 2)
+                     [(apply < _) 'a]
+                     [else 'b]) 1 3 2)
                   'b
-                  "apply with packed args"))))
+                  "apply with packed args")
+    (check-equal? ((λ01 a*
+                     [list? _]
+                     [else 'no])
+                   1 2 3 4)
+                  '(1 2 3 4))
+    (check-equal? ((λ01 (a . a*)
+                     [memq 'yes]
+                     [else 'no])
+                   2 2 3 4)
+                  'yes)
+    (check-equal? ((λ01 (a #:b b . a*)
+                     [memq 'yes]
+                     [else 'no])
+                   2 2 3 4 #:b 'any)
+                  'yes))
+   (check-equal? ((λ01 (a b #:c c)
+                     [< (~> 2> (* c))]
+                     [else (~> 1> (* c))])
+                  2 3 #:c 10)
+                 30)))
 
 (module+ main
   (void (run-tests tests)))

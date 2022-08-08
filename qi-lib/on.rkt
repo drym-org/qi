@@ -2,15 +2,18 @@
 
 (provide on
          flow-lambda
-         define-flow
+         flow-λ
          π
-         let/flow)
+         define-flow)
 
 (require syntax/parse/define
          (for-syntax racket/base
+                     syntax/parse/lib/function-header
                      "flow.rkt")
          "flow.rkt"
-         (only-in "private/util.rkt" define-alias))
+         (only-in "private/util.rkt"
+                  define-alias
+                  params-parser))
 
 (define-syntax-parser on
   [(_ args:subject)
@@ -20,29 +23,26 @@
    #:with ags (attribute args.args)
    #`((flow clause) #,@(syntax->list #'ags))])
 
+;; The parsed `ags' is being passed to `on'
+;; while the unparsed `args' are passed to `lambda',
+;; so that `lambda' can bind keyword arguments in scope
+;; while the flow itself does not receive them directly.
 (define-syntax-parser flow-lambda
-  [(_ (arg:id ...) expr:expr ...)
-   #'(lambda (arg ...)
-       (on (arg ...)
-           expr ...))]
-  [(_ rest-args:id expr:expr ...)
-   #'(lambda rest-args
-       (on (rest-args)
-           expr ...))])
+  [(_ args:formals clause:clause)
+   #:with ags (params-parser #'args)
+   #'(lambda args
+       (on ags
+           clause))])
 
 (define-alias π flow-lambda)
+(define-alias flow-λ flow-lambda)
 
 (define-syntax-parser define-flow
-  [(_ (name:id arg:id ...) expr:expr)
+  [(_ ((~or* head:id head:function-header) . args:formals)
+      clause:clause)
+   #'(define head
+       (flow-lambda args
+         clause))]
+  [(_ name:id clause:clause)
    #'(define name
-       (flow-lambda (arg ...)
-         expr))]
-  [(_ name:id expr:expr)
-   #'(define name
-       (flow expr))])
-
-(define-syntax-parser let/flow
-  [(_ ([var:id val:expr] ...) body ...)
-   #'(let ([var val] ...)
-       (on (var ...)
-         body ...))])
+       (flow clause))])

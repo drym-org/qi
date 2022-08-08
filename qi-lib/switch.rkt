@@ -2,15 +2,18 @@
 
 (provide switch
          switch-lambda
-         define-switch
+         switch-λ
          λ01
-         let/switch)
+         define-switch)
 
 (require syntax/parse/define
-         (only-in "private/util.rkt" define-alias)
-         (for-syntax racket/base)
+         (for-syntax racket/base
+                     syntax/parse/lib/function-header)
          "flow.rkt"
-         "on.rkt")
+         "on.rkt"
+         (only-in "private/util.rkt"
+                  define-alias
+                  params-parser))
 
 (define-syntax-parser switch
   [(_ args:subject
@@ -18,29 +21,26 @@
    #'(on args
        (switch clause ...))])
 
+;; The parsed `ags' is being passed to `switch'
+;; while the unparsed `args' are passed to `lambda',
+;; so that `lambda' can bind keyword arguments in scope
+;; while the flow itself does not receive them directly.
 (define-syntax-parser switch-lambda
-  [(_ (arg:id ...) expr:expr ...)
-   #'(lambda (arg ...)
-       (switch (arg ...)
-         expr ...))]
-  [(_ rest-args:id expr:expr ...)
-   #'(lambda rest-args
-       (switch (rest-args)
+  [(_ args:formals expr:expr ...)
+   #:with ags (params-parser #'args)
+   #'(lambda args
+       (switch ags
          expr ...))])
 
 (define-alias λ01 switch-lambda)
+(define-alias switch-λ switch-lambda)
 
 (define-syntax-parser define-switch
-  [(_ (name:id arg:id ...) expr:expr ...)
-   #'(define name
-       (switch-lambda (arg ...)
+  [(_ ((~or* head:id head:function-header) . args:formals)
+      expr:expr ...)
+   #'(define head
+       (switch-lambda args
          expr ...))]
   [(_ name:id expr:expr ...)
    #'(define name
        (☯ (switch expr ...)))])
-
-(define-syntax-parser let/switch
-  [(_ ([var:id val:expr] ...) body ...)
-   #'(let ([var val] ...)
-       (switch (var ...)
-         body ...))])

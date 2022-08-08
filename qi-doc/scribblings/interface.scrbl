@@ -35,7 +35,8 @@ The core entry-point to Qi from the host language is the form @racket[☯]. In a
 
 @deftogether[(
 @defform*/subs[[(☯ flow-expr)]
-               ([flow-expr _
+               ([flow-expr (code:line)
+                           _
                            (gen expr ...)
                            △
                            sep
@@ -207,11 +208,11 @@ See also @racket[on] and @racket[~>], which are shorthands to invoke the flow wi
 
 @examples[
     #:eval eval-for-docs
-	(~> (3) sqr add1)
-	(~> (3) (-< sqr add1) +)
-	(~> ("a" "b") (string-append "c"))
-	(~>> ("b" "c") (string-append "a"))
-	(~> ("a" "b") (string-append _ "-" _))
+    (~> (3) sqr add1)
+    (~> (3) (-< sqr add1) +)
+    (~> ("a" "b") (string-append "c"))
+    (~>> ("b" "c") (string-append "a"))
+    (~> ("a" "b") (string-append _ "-" _))
   ]
 }
 
@@ -230,12 +231,12 @@ Each of the @racket[predicate] and @racket[consequent] expressions is a flow, an
 
 @examples[
     #:eval eval-for-docs
-	(switch (5)
-	  [(and positive? odd?) (~> sqr add1)]
-	  [else _])
-	(switch (2 3)
-	  [< +]
-	  [else min])
+    (switch (5)
+      [(and positive? odd?) (~> sqr add1)]
+      [else _])
+    (switch (2 3)
+      [< +]
+      [else min])
   ]
 }
 
@@ -244,29 +245,53 @@ Each of the @racket[predicate] and @racket[consequent] expressions is a flow, an
   These anonymous function forms may be used in cases where you need to explicitly @emph{name} the arguments for some reason. Otherwise, in most cases, just use @racket[☯] directly instead as it produces a function while avoiding the extraneous layer of bindings.
 
 @deftogether[(
-  @defform[(flow-lambda args body ...)]
-  @defform[(π args body ...)]
+  @defform[(flow-lambda args flow-expr)]
+  @defform[(flow-λ args flow-expr)]
+  @defform[(π args flow-expr)]
 )]{
-  Similiar to @racket[lambda] but constrained to the flow language. This is exactly equivalent to @racket[(lambda args (on (args) body ...))]. @racket[π] is an alias for @racket[flow-lambda]. The present form mainly finds its use internally in @racket[define-flow], and in most cases you should use @racket[☯] directly.
-}
-
-@deftogether[(
-@defform[(switch-lambda (args ...)
-           [predicate consequent ...]
-           ...
-           [else consequent ...])]
-@defform[(λ01 (args ...)
-           [predicate consequent ...]
-           ...
-           [else consequent ...])]
-)]{
-  Similar to @racket[lambda] but constrained to be a flow-based dispatcher. This is exactly equivalent to @racket[(lambda args (switch (args) [predicate consequent ...] ... [else consequent ...]))]. @racket[λ01] is an alias for @racket[switch-lambda].
+  Similiar to @racket[lambda] but constrained to the flow language. This is exactly equivalent to @racket[(lambda args (on (args) flow-expr))] except that the keywords only introduce bindings, and aren't part of the values that are fed into @racket[flow-expr]. @racket[flow-λ] and @racket[π] are aliases for @racket[flow-lambda]. The present form mainly finds its use internally in @racket[define-flow], and in most cases you should use @racket[☯] directly.
 
 @examples[
     #:eval eval-for-docs
-	((switch-lambda (x)
-	   [(and positive? odd?) (~> sqr add1)]
-	   [else _]) 5)
+    ((flow-lambda a* _) 1 2 3 4)
+    ((flow-lambda (a b c d) list) 1 2 3 4)
+    ((flow-lambda (a . a*) list) 1 2 3 4)
+    ((flow-lambda (a #:b b . a*) list) 1 2 3 4 #:b 'any)
+    ((flow-lambda (a #:b b c . a*) list) 1 2 3 4 #:b 'any)
+    ((flow-lambda (a b #:c c) (~> + (* c))) 2 3 #:c 10)
+  ]
+}
+
+@deftogether[(
+  @defform[(switch-lambda args
+             maybe-divert-clause
+             [predicate consequent ...]
+             ...
+             [else consequent ...])]
+  @defform[(switch-λ args
+             maybe-divert-clause
+             [predicate consequent ...]
+             ...
+             [else consequent ...])]
+  @defform[(λ01 args
+             maybe-divert-clause
+             [predicate consequent ...]
+             ...
+             [else consequent ...])]
+)]{
+  Similar to @racket[lambda] but constrained to be a flow-based dispatcher. This is exactly equivalent to @racket[(lambda args (switch (args) maybe-divert-clause [predicate consequent ...] ... [else consequent ...]))] except that the keywords only introduce bindings, and aren't part of the values that are fed into @racket[flow-expr]. @racket[switch-λ] and @racket[λ01] are aliases for @racket[switch-lambda].
+
+@examples[
+    #:eval eval-for-docs
+    ((switch-lambda (a #:b b . a*)
+       [memq 'yes]
+       [else 'no]) 2 2 3 4 #:b 'any)
+    ((switch-lambda (a #:fx fx . a*)
+       [memq (~> 1> fx)]
+       [else 'no]) 2 2 3 4 #:fx number->string)
+    ((switch-lambda (x)
+       [(and positive? odd?) (~> sqr add1)]
+       [else _]) 5)
   ]
 }
 
@@ -275,18 +300,25 @@ Each of the @racket[predicate] and @racket[consequent] expressions is a flow, an
 The following definition forms may be used in place of the usual general-purpose @racket[define] form when defining flows.
 
 @deftogether[(
-  @defform[(define-flow name body ...)]
+  @defform[(define-flow name flow-expr)]
   @defform[#:link-target? #f
-           (define-flow (name args) body ...)]
-)]{
-  Similiar to the function form of @racket[define] but constrained to the flow language. This is exactly equivalent to @racket[(define name (lambda/subject args body ...))].
+           (define-flow (head args) flow-expr)])]{
+  Similiar to the function form of @racket[define] but constrained to the flow language. This is exactly equivalent to @racket[(define head (flow-lambda args flow-expr))].
 }
 
-@defform[(define-switch (args ...)
-           [predicate consequent ...]
-           ...
-           [else consequent ...])]{
-  Similiar to the function form of @racket[define] but constrained to be a (predicate-based) dispatcher. This is exactly equivalent to @racket[(define name (switch-lambda args [predicate consequent ...] ... [else consequent ...]))].
+@deftogether[(
+  @defform[(define-switch name
+             maybe-divert-clause
+             [predicate consequent ...]
+             ...
+             [else consequent ...])]
+  @defform[#:link-target? #f
+           (define-switch (head args)
+             maybe-divert-clause
+             [predicate consequent ...]
+             ...
+             [else consequent ...])])]{
+  Similiar to the function form of @racket[define] but constrained to be a (predicate-based) dispatcher. This is exactly equivalent to @racket[(define head (switch-lambda args maybe-divert-clause [predicate consequent ...] ... [else consequent ...]))].
 
 @examples[
     #:eval eval-for-docs
@@ -322,7 +354,7 @@ The second way is if you want to describe a flow using the host language instead
     (define-flow add-two
       (esc (λ (a b) (+ a b))))
     (~> (3 5) add-two)
-]
+  ]
 
 Finally, note that the following case works:
 
@@ -331,7 +363,7 @@ Finally, note that the following case works:
     (define (get-flow v)
       (☯ (~> sqr (+ v))))
     (~> (5) (get-flow 3))
-]
+  ]
 
 You might expect here that the expression @racket[(get-flow 3)] would be treated as a @seclink["Templates_and_Partial_Application"]{partial application template}, so that the value @racket[5] would be provided to it as @racket[(get-flow 5 3)], resulting in an error. The reason this isn't what happens is that the partial application behavior in Qi when no argument positions have been indicated is implemented using currying rather than as a template application, and Racket's @racket[curry] and @racket[curryr] functions happen to evaluate to a result immediately if the maximum expected arguments have been provided. Thus, in this case, the @racket[(get-flow 3)] expression is first evaluated to produce a resulting flow which then receives the value @racket[5].
 

@@ -24,9 +24,11 @@
          values->list
          define-alias
          feedback-times
-         feedback-while)
+         feedback-while
+         (for-syntax params-parser))
 
-(require racket/match
+(require syntax/parse/define
+         racket/match
          (only-in racket/function
                   const
                   negate)
@@ -35,7 +37,8 @@
          racket/format
          racket/string
          syntax/parse/define
-         (for-syntax racket/base))
+         (for-syntax racket/base
+                     syntax/parse/lib/function-header))
 
 (define (report-syntax-error name args usage . msgs)
   (raise-syntax-error name
@@ -54,6 +57,18 @@
 
 (define-syntax-parse-rule (define-alias alias:id name:id)
   (define-syntax alias (make-rename-transformer #'name)))
+
+
+(begin-for-syntax
+  (define (params-parser stx)
+    (syntax-parse stx
+      [((~or* 1st:id [1st:id _]) . rest:formals)
+       #`(1st . #,(params-parser #'rest))]
+      [(_:keyword _ . rest:formals)
+       (params-parser #'rest)]
+      [() stx]
+      [_:id #`(#,stx)])))
+
 
 ;; we use a lambda to capture the arguments at runtime
 ;; since they aren't available at compile time
