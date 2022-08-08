@@ -138,7 +138,7 @@ See comments in flow.rkt for more details.
    ((~datum loop) arg ...)))
 
 (define-syntax-class blanket-template-form
-  ;; " prarg" = "pre-supplied argument"
+  ;; "prarg" = "pre-supplied argument"
   (pattern
    (natex prarg-pre ... (~datum __) prarg-post ...)))
 

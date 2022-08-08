@@ -24,15 +24,13 @@
          feedback-times
          feedback-while)
 
-(require syntax/parse/define
-         racket/match
+(require racket/match
          (only-in racket/function
                   const
                   negate)
          racket/bool
          racket/list
          racket/format
-         racket/string
          syntax/parse/define
          (for-syntax racket/base))
 
