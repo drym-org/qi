@@ -9,7 +9,7 @@
 (require syntax/parse/define
          (for-syntax racket/base
                      syntax/parse/lib/function-header
-                     "flow.rkt")
+                     "flow/aux-syntax.rkt")
          "flow.rkt"
          (only-in "private/util.rkt"
                   define-alias

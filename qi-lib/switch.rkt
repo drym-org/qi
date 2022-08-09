@@ -8,7 +8,8 @@
 
 (require syntax/parse/define
          (for-syntax racket/base
-                     syntax/parse/lib/function-header)
+                     syntax/parse/lib/function-header
+                     "flow/aux-syntax.rkt")
          "flow.rkt"
          "on.rkt"
          (only-in "private/util.rkt"
