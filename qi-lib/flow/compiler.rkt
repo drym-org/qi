@@ -93,19 +93,16 @@
     [(~or* (~datum ⏚) (~datum ground))
      #'(qi0->racket (select))]
     [((~or* (~datum ~>) (~datum thread)) onex:clause ...)
-     (datum->syntax this-syntax
-       (cons #'compose
-             (reverse
-              (syntax->list
-               #'((qi0->racket onex) ...)))))]
+     #`(compose . #,(reverse
+                     (syntax->list
+                      #'((qi0->racket onex) ...))))]
     [e:right-threading-form (right-threading-parser #'e)]
     [(~or* (~datum X) (~datum crossover))
      #'(qi0->racket (~> ▽ reverse △))]
     [((~or* (~datum ==) (~datum relay)) onex:clause ...)
      #'(relay (qi0->racket onex) ...)]
     [((~or* (~datum ==*) (~datum relay*)) onex:clause ... rest-onex:clause)
-     (with-syntax ([len (datum->syntax this-syntax
-                          (length (syntax->list #'(onex ...))))])
+     (with-syntax ([len #`#,(length (syntax->list #'(onex ...)))])
        #'(qi0->racket (group len (== onex ...) rest-onex) ))]
     [((~or* (~datum -<) (~datum tee)) onex:clause ...)
      #'(λ args
