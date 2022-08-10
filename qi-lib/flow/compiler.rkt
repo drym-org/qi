@@ -79,9 +79,9 @@
      #'(qi0->racket (~> XOR NOT))]
     [e:and%-form (and%-parser #'e)]
     [e:or%-form (or%-parser #'e)]
-    [(~datum any?) #'any?]
-    [(~datum all?) #'all?]
-    [(~datum none?) #'none?]
+    [(~datum any?) #'(qi0->racket OR)]
+    [(~datum all?) #'(qi0->racket AND)]
+    [(~datum none?) #'(qi0->racket (~> any? NOT))]
     [(~or* (~datum ▽) (~datum collect))
      #'list]
     [e:sep-form (sep-parser #'e)]
