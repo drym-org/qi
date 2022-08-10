@@ -48,21 +48,19 @@
 
     ;;; Special words
     [((~datum one-of?) v:expr ...)
-     #'(compose
-        ->boolean
-        (curryr member (list v ...)))]
+     #'(qi0->racket (~> (member (list v ...)) ->boolean))]
     [((~datum all) onex:clause)
-     #`(give (curry andmap (qi0->racket onex)))]
+     #`(qi0->racket (~> (>< onex) AND))]
     [((~datum any) onex:clause)
-     #'(give (curry ormap (qi0->racket onex)))]
+     #'(qi0->racket (~> (>< onex) OR))]
     [((~datum none) onex:clause)
      #'(qi0->racket (not (any onex)))]
     [((~datum and) onex:clause ...)
-     #'(conjoin (qi0->racket onex) ...)]
+     #'(qi0->racket (~> (-< onex ...) AND))]
     [((~datum or) onex:clause ...)
-     #'(disjoin (qi0->racket onex) ...)]
+     #'(qi0->racket (~> (-< onex ...) OR))]
     [((~datum not) onex:clause)
-     #'(negate (qi0->racket onex))]
+     #'(qi0->racket (~> onex NOT))]
     [((~datum gen) ex:expr ...)
      #'(λ _ (values ex ...))]
     [(~or* (~datum NOT) (~datum !))
