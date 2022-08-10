@@ -210,26 +210,22 @@
   (λ args
     (apply values (zip-with call fs args))))
 
-(define (~all? . args)
+(define (all? . args)
   (match args
     ['() #t]
+    [(list v) v]
     [(cons v vs)
      (and v (apply all? vs))]))
 
-(define all? (compose not not ~all?))
-
-(define (~any? . args)
+(define (any? . args)
   (match args
     ['() #f]
+    [(list v) v]
     [(cons v vs)
      (or v (apply any? vs))]))
 
-(define any? (compose not not ~any?))
-
-(define (~none? . args)
+(define (none? . args)
   (not (apply any? args)))
-
-(define none? (compose not not ~none?))
 
 (define (repeat-values n . vs)
   (apply values (apply append (make-list n vs))))
