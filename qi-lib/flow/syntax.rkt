@@ -12,6 +12,7 @@
          feedback-form
          side-effect-form
          amp-form
+         relay-form
          tee-form
          input-alias
          if-form
@@ -115,6 +116,12 @@ See comments in flow.rkt for more details.
    (~or* (~datum ><) (~datum amp)))
   (pattern
    ((~or* (~datum ><) (~datum amp)) arg ...)))
+
+(define-syntax-class relay-form
+  (pattern
+   (~or* (~datum ==) (~datum relay)))
+  (pattern
+   ((~or* (~datum ==) (~datum relay)) arg ...)))
 
 (define-syntax-class tee-form
   (pattern

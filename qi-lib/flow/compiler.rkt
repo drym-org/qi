@@ -97,8 +97,7 @@
     [e:right-threading-form (right-threading-parser #'e)]
     [(~or* (~datum X) (~datum crossover))
      #'(qi0->racket (~> ▽ reverse △))]
-    [((~or* (~datum ==) (~datum relay)) onex:clause ...)
-     #'(relay (qi0->racket onex) ...)]
+    [e:relay-form (relay-parser #'e)]
     [((~or* (~datum ==*) (~datum relay*)) onex:clause ... rest-onex:clause)
      #:with len #`#,(length (syntax->list #'(onex ...)))
      #'(qi0->racket (group len (== onex ...) rest-onex) )]
@@ -542,6 +541,13 @@ the DSL.
                           ...)))]
       [(~or* (~datum -<) (~datum tee))
        #'repeat-values]))
+
+  (define (relay-parser stx)
+    (syntax-parse stx
+      [((~or* (~datum ==) (~datum relay)) onex:clause ...)
+       #'(relay (qi0->racket onex) ...)]
+      [(~or* (~datum ==) (~datum relay))
+       #'map-values]))
 
   (define (amp-parser stx)
     (syntax-parse stx
