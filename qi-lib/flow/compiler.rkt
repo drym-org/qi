@@ -552,9 +552,9 @@ the DSL.
   (define (amp-parser stx)
     (syntax-parse stx
       [_:id
-       #'map-values]
+       #'(qi0->racket ==)]
       [(_ onex:clause)
-       #'(curry map-values (qi0->racket onex))]
+       #'(qi0->racket (~> (-< (gen (qi0->racket onex)) _) ==))]
       [(_ onex0:clause onex:clause ...)
        (report-syntax-error
         'amp
