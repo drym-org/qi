@@ -424,9 +424,8 @@ the DSL.
        #'(qi0->racket ground)]
       [(_ [cond:clause body:clause])
        #'(qi0->racket (~> (pass cond) body))]
-      [(_ [cond:clause body:clause]  ...+)
-       #:with c+bs #'(list (cons (qi0->racket cond) (qi0->racket body)) ...)
-       #'(qi0->racket (~>> (partition-values c+bs)))]))
+      [(_ [cond:clause body:clause] [conds:clause bodies:clause] ...+)
+       #'(qi0->racket (sieve cond body (partition [conds bodies] ...)))]))
 
   (define (try-parser stx)
     (syntax-parse stx
