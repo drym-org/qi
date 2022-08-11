@@ -100,14 +100,9 @@
     [((~or* (~datum ==) (~datum relay)) onex:clause ...)
      #'(relay (qi0->racket onex) ...)]
     [((~or* (~datum ==*) (~datum relay*)) onex:clause ... rest-onex:clause)
-     (with-syntax ([len #`#,(length (syntax->list #'(onex ...)))])
-       #'(qi0->racket (group len (== onex ...) rest-onex) ))]
-    [((~or* (~datum -<) (~datum tee)) onex:clause ...)
-     #'(λ args
-         (apply values
-                (append (values->list
-                         (apply (qi0->racket onex) args))
-                        ...)))]
+     #:with len #`#,(length (syntax->list #'(onex ...)))
+     #'(qi0->racket (group len (== onex ...) rest-onex) )]
+    [e:tee-form (tee-parser #'e)]
     [e:select-form (select-parser #'e)]
     [e:block-form (block-parser #'e)]
     [((~datum bundle) (n:number ...)
@@ -540,6 +535,17 @@ the DSL.
       [(_ sidex:clause)
        #'(qi0->racket (-< (~> sidex ⏚)
                           _))]))
+
+  (define (tee-parser stx)
+    (syntax-parse stx
+      [((~or* (~datum -<) (~datum tee)) onex:clause ...)
+       #'(λ args
+           (apply values
+                  (append (values->list
+                           (apply (qi0->racket onex) args))
+                          ...)))]
+      [(~or* (~datum -<) (~datum tee))
+       #'repeat-values]))
 
   (define (amp-parser stx)
     (syntax-parse stx
