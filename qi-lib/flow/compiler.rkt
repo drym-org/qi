@@ -479,18 +479,14 @@ the DSL.
 
   (define (fanout-parser stx)
     (syntax-parse stx
-      [_:id #'repeat-values]
+      [_:id #'(qi0->racket -<)]
       [(_ n:number)
        ;; a slightly more efficient compile-time implementation
        ;; for literally indicated N
-       #`(λ args
-           (apply values
-                  (append #,@(make-list (syntax->datum #'n) 'args))) )]
+       #:with list-of-n-blanks #`#,(make-list (syntax->datum #'n) #'_)
+       #`(qi0->racket (-< . list-of-n-blanks))]
       [(_ n:expr)
-       #'(lambda args
-           (apply values
-                  (apply append
-                         (make-list n args))))]))
+       #'(qi0->racket (~> (-< (gen n) _) -<))]))
 
   (define (feedback-parser stx)
     (syntax-parse stx
