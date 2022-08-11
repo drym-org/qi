@@ -145,7 +145,7 @@
     [(~datum count)
      #'(λ args (length args))]
     [(~datum live?)
-     #'(λ args (not (null? args)))]
+     #'(qi0->racket (~> count (> 0)))]
     [((~datum rectify) v:expr ...)
      #'(qi0->racket (if live? _ (gen v ...)))]
 
