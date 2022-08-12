@@ -66,9 +66,9 @@
     [(~or* (~datum NOT) (~datum !))
      #'not]
     [(~or* (~datum AND) (~datum &))
-     #'all?]
+     #'(qi0->racket (>> (and 2> 1>) #t))]
     [(~or* (~datum OR) (~datum ∥))
-     #'any?]
+     #'(qi0->racket (<< (or 1> 2>) #f))]
     [(~datum NOR)
      #'(qi0->racket (~> OR NOT))]
     [(~datum NAND)
