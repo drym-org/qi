@@ -56,9 +56,9 @@
     [((~datum none) onex:clause)
      #'(qi0->racket (not (any onex)))]
     [((~datum and) onex:clause ...)
-     #'(qi0->racket (~> (-< onex ...) AND))]
+     #'(conjoin (qi0->racket onex) ...)]
     [((~datum or) onex:clause ...)
-     #'(qi0->racket (~> (-< onex ...) OR))]
+     #'(disjoin (qi0->racket onex) ...)]
     [((~datum not) onex:clause)
      #'(qi0->racket (~> onex NOT))]
     [((~datum gen) ex:expr ...)
