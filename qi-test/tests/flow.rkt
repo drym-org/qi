@@ -76,7 +76,8 @@
      (check-true ((☯ (and (> 5) (< 10))) 6))
      (check-false ((☯ (and (> 5) (< 10))) 4))
      (check-false ((☯ (and (> 5) (< 10))) 14))
-     (check-false ((☯ (and _ positive?)) #f) "_ in and"))
+     (check-false ((☯ (and number? positive?)) "abc")
+                  "short-circuiting"))
     (test-suite
      "or (disjoin)"
      (check-true ((☯ (or positive? odd?)) 6))
@@ -90,7 +91,8 @@
                           equal?
                           (~> (>< string->number) =)))
                    "5" "6"))
-     (check-true ((☯ (or _ NOT)) #f) "_ in or"))
+     (check-true ((☯ (or string? positive?)) "abc")
+                 "short-circuiting"))
     (test-suite
      "not (predicate negation)"
      (check-true ((☯ (not positive?)) -5))
@@ -665,7 +667,11 @@
                    5)
      (check-equal? ((☯ (if (< 10) _ (gen 0)))
                     15)
-                   0))
+                   0)
+     (check-equal? ((☯ (if positive? _ string-upcase))
+                    3)
+                   3
+                   "short-circuiting"))
     (test-suite
      "when"
      (check-equal? ((☯ (when positive? add1))
@@ -673,7 +679,11 @@
                    6)
      (check-equal? ((☯ (~> (when positive? add1) ▽))
                     -5)
-                   null))
+                   null)
+     (check-equal? ((☯ (~> (when number? add1) ▽))
+                    "abc")
+                   null
+                   "short-circuiting"))
     (test-suite
      "unless"
      (check-equal? ((☯ (~> (unless positive? add1) ▽))
@@ -681,7 +691,11 @@
                    null)
      (check-equal? ((☯ (unless positive? add1))
                     -5)
-                   -4))
+                   -4)
+     (check-equal? ((☯ (~> (unless string? add1) ▽))
+                    "abc")
+                   null
+                   "short-circuiting"))
     (test-suite
      "switch"
      (check-equal? ((☯ (~> (switch) ▽)))
@@ -799,7 +813,13 @@
                           [else 'no]))
                      (list 2 1 3))
                     (list 1 2 3)
-                    "apply in predicate with non-tail arguments")))
+                    "apply in predicate with non-tail arguments"))
+     (check-equal? ((☯ (switch
+                           [string? string-upcase]
+                         [positive? add1]))
+                    "abc")
+                   "ABC"
+                   "short-circuiting"))
     (test-suite
      "sieve"
      (check-equal? ((☯ (~> (sieve positive? add1 (const -1)) ▽))
