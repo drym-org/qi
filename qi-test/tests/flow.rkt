@@ -76,11 +76,8 @@
      (check-true ((☯ (and (> 5) (< 10))) 6))
      (check-false ((☯ (and (> 5) (< 10))) 4))
      (check-false ((☯ (and (> 5) (< 10))) 14))
-     ;; TODO: this doesn't short-circuit anymore
-     ;; review shortcircuiting on all boolean forms
-     ;; (check-false ((☯ (and number? positive?)) "abc")
-     ;;             "short-circuiting")
-     )
+     (check-false ((☯ (and number? positive?)) "abc")
+                  "short-circuiting"))
     (test-suite
      "or (disjoin)"
      (check-true ((☯ (or positive? odd?)) 6))
@@ -94,11 +91,8 @@
                           equal?
                           (~> (>< string->number) =)))
                    "5" "6"))
-     ;; TODO: this doesn't short-circuit anymore
-     ;; review shortcircuiting on all boolean forms
-     ;; (check-true ((☯ (or string? positive?)) "abc")
-     ;;             "short-circuiting")
-     )
+     (check-true ((☯ (or string? positive?)) "abc")
+                 "short-circuiting"))
     (test-suite
      "not (predicate negation)"
      (check-true ((☯ (not positive?)) -5))
