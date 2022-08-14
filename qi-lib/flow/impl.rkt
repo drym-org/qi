@@ -119,10 +119,28 @@
     (f args)))
 
 (define (~map f vs)
-  (match vs
-    ['() null]
-    [(cons v vs) (append (values->list (f v))
-                         (~map f vs))]))
+  (define-values (arity 0?)
+    (match (procedure-arity f)
+      [0 (values 0 #t)]
+      [(? exact-positive-integer? n) (values n #f)]
+      [(arity-at-least 0) (values 1 #f)] ; (~> () (>< 1) ▽) should return '().
+      [(arity-at-least n) (values n #f)]
+      [(list* 0 1 _) (values 1 #f)]
+      [(list* 0 (or (arity-at-least n) n) _) (values n #t)]
+      [(list* n _) (values n #f)]))
+  (cond
+    [(and 0? (null? vs)) (values->list (f))]
+    [(zero? (remainder (length vs) arity))
+     (let loop ([vs vs])
+       (cond
+         [(null? vs) '()]
+         [else
+          (define-values (vs0 vs*) (split-at vs arity))
+          (append (values->list (apply f vs0))
+                  (loop vs*))]))]
+    [else (raise-arguments-error
+           '~map (format "needs ~ax values" arity)
+           "given" vs)]))
 
 (define (map-values f . args)
   (apply values (~map f args)))
