@@ -131,13 +131,29 @@
   (cond
     [(and 0? (null? vs)) (values->list (f))]
     [(zero? (remainder (length vs) arity))
-     (let loop ([vs vs])
-       (cond
-         [(null? vs) '()]
-         [else
-          (define-values (vs0 vs*) (split-at vs arity))
-          (append (values->list (apply f vs0))
-                  (loop vs*))]))]
+     (case arity
+       [(1)
+        (let loop ([vs vs])
+          (match vs
+            ['() '()]
+            [(list* v0 vs)
+             (append (values->list (f v0))
+                     (loop vs))]))]
+       [(2)
+        (let loop ([vs vs])
+          (match vs
+            ['() '()]
+            [(list* v0 v1 vs)
+             (append (values->list (f v0 v1))
+                     (loop vs))]))]
+       [else
+        (let loop ([vs vs])
+          (cond
+            [(null? vs) '()]
+            [else
+             (define-values (vs0 vs*) (split-at vs arity))
+             (append (values->list (apply f vs0))
+                     (loop vs*))]))])]
     [else (raise-arguments-error
            '~map (format "needs ~ax values" arity)
            "given" vs)]))
