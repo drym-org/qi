@@ -46,7 +46,72 @@
                       #'stx)
      #'(qi0->racket expanded)]
 
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;;; Core language forms ;;;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    [((~datum gen) ex:expr ...)
+     #'(λ _ (values ex ...))]
+    ;; pass-through (identity flow)
+    [(~datum _) #'values]
+    ;; routing
+    [((~or* (~datum ~>) (~datum thread)) onex:clause ...)
+     #`(compose . #,(reverse
+                     (syntax->list
+                      #'((qi0->racket onex) ...))))]
+    [e:relay-form (relay-parser #'e)]
+    [e:tee-form (tee-parser #'e)]
+    ;; prisms
+    [e:sep-form (sep-parser #'e)]
+    [(~or* (~datum ▽) (~datum collect))
+     #'list]
+    ;; boolean algebra
+    [(~or* (~datum NOT) (~datum !))
+     #'not]
+    [(~datum XOR)
+     #'parity-xor]
+    [((~datum and) onex:clause ...)
+     #'(conjoin (qi0->racket onex) ...)]
+    [((~datum or) onex:clause ...)
+     #'(disjoin (qi0->racket onex) ...)]
+    ;; selection
+    [e:select-form (select-parser #'e)]
+    [e:block-form (block-parser #'e)]
+    [e:group-form (group-parser #'e)]
+    ;; conditionals
+    [e:if-form (if-parser #'e)]
+    [e:sieve-form (sieve-parser #'e)]
+    ;; exceptions
+    [e:try-form (try-parser #'e)]
+    ;; folds
+    [e:fold-left-form (fold-left-parser #'e)]
+    [e:fold-right-form (fold-right-parser #'e)]
+    ;; looping
+    [e:feedback-form (feedback-parser #'e)]
+    [e:loop-form (loop-parser #'e)]
+    [((~datum loop2) pred:clause mapex:clause combex:clause)
+     #'(letrec ([loop2 (qi0->racket (if pred
+                                        (~> (== (-< cdr
+                                                    (~> car mapex)) _)
+                                            (group 1 _ combex)
+                                            loop2)
+                                        2>))])
+         loop2)]
+    ;; towards universality
+    [(~datum apply)
+     #'call]
+    [e:clos-form (clos-parser #'e)]
+    ;; escape hatch for racket expressions or anything
+    ;; to be "passed through"
+    [((~datum esc) ex:expr)
+     #'ex]
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;;; Non-core forms ;;;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;
+
     ;;; Special words
+
     [((~datum one-of?) v:expr ...)
      #'(qi0->racket (~> (member (list v ...)) ->boolean))]
     [((~datum all) onex:clause)
@@ -55,16 +120,8 @@
      #'(qi0->racket (~> (>< onex) OR))]
     [((~datum none) onex:clause)
      #'(qi0->racket (not (any onex)))]
-    [((~datum and) onex:clause ...)
-     #'(conjoin (qi0->racket onex) ...)]
-    [((~datum or) onex:clause ...)
-     #'(disjoin (qi0->racket onex) ...)]
     [((~datum not) onex:clause)
      #'(qi0->racket (~> onex NOT))]
-    [((~datum gen) ex:expr ...)
-     #'(λ _ (values ex ...))]
-    [(~or* (~datum NOT) (~datum !))
-     #'not]
     [(~or* (~datum AND) (~datum &))
      #'(qi0->racket (>> (and 2> 1>) #t))]
     [(~or* (~datum OR) (~datum ∥))
@@ -73,8 +130,6 @@
      #'(qi0->racket (~> OR NOT))]
     [(~datum NAND)
      #'(qi0->racket (~> AND NOT))]
-    [(~datum XOR)
-     #'parity-xor]
     [(~datum XNOR)
      #'(qi0->racket (~> XOR NOT))]
     [e:and%-form (and%-parser #'e)]
@@ -82,38 +137,25 @@
     [(~datum any?) #'(qi0->racket OR)]
     [(~datum all?) #'(qi0->racket AND)]
     [(~datum none?) #'(qi0->racket (~> any? NOT))]
-    [(~or* (~datum ▽) (~datum collect))
-     #'list]
-    [e:sep-form (sep-parser #'e)]
 
-    ;;; Core routing elements
+    ;;; Routing
 
     [(~or* (~datum ⏚) (~datum ground))
      #'(qi0->racket (select))]
-    [((~or* (~datum ~>) (~datum thread)) onex:clause ...)
-     #`(compose . #,(reverse
-                     (syntax->list
-                      #'((qi0->racket onex) ...))))]
     [e:right-threading-form (right-threading-parser #'e)]
     [(~or* (~datum X) (~datum crossover))
      #'(qi0->racket (~> ▽ reverse △))]
-    [e:relay-form (relay-parser #'e)]
     [((~or* (~datum ==*) (~datum relay*)) onex:clause ... rest-onex:clause)
      #:with len #`#,(length (syntax->list #'(onex ...)))
      #'(qi0->racket (group len (== onex ...) rest-onex) )]
-    [e:tee-form (tee-parser #'e)]
-    [e:select-form (select-parser #'e)]
-    [e:block-form (block-parser #'e)]
     [((~datum bundle) (n:number ...)
                       selection-onex:clause
                       remainder-onex:clause)
      #'(qi0->racket (-< (~> (select n ...) selection-onex)
                         (~> (block n ...) remainder-onex)))]
-    [e:group-form (group-parser #'e)]
 
     ;;; Conditionals
 
-    [e:if-form (if-parser #'e)]
     [((~datum when) condition:clause
                     consequent:clause)
      #'(qi0->racket (if condition consequent ⏚))]
@@ -121,14 +163,9 @@
                       alternative:clause)
      #'(qi0->racket (if condition ⏚ alternative))]
     [e:switch-form (switch-parser #'e)]
-    [e:sieve-form (sieve-parser #'e)]
     [e:partition-form (partition-parser #'e)]
     [((~datum gate) onex:clause)
      #'(qi0->racket (if onex _ ⏚))]
-
-    ;;; Exceptions
-
-    [e:try-form (try-parser #'e)]
 
     ;;; High level circuit elements
 
@@ -145,41 +182,17 @@
 
     ;; high level routing
     [e:fanout-form (fanout-parser #'e)]
-    [e:feedback-form (feedback-parser #'e)]
     [(~datum inverter)
      #'(qi0->racket (>< NOT))]
     [e:side-effect-form (side-effect-parser #'e)]
 
     ;;; Higher-order flows
 
-    ;; map, filter, and fold
+    ;; map and filter
     [e:amp-form (amp-parser #'e)]
     [e:pass-form (pass-parser #'e)]
-    [e:fold-left-form (fold-left-parser #'e)]
-    [e:fold-right-form (fold-right-parser #'e)]
-
-    ;; looping
-    [e:loop-form (loop-parser #'e)]
-    [((~datum loop2) pred:clause mapex:clause combex:clause)
-     #'(letrec ([loop2 (qi0->racket (if pred
-                                        (~> (== (-< cdr
-                                                    (~> car mapex)) _)
-                                            (group 1 _ combex)
-                                            loop2)
-                                        2>))])
-         loop2)]
-
-    ;; towards universality
-    [(~datum apply)
-     #'call]
-    [e:clos-form (clos-parser #'e)]
 
     ;;; Miscellaneous
-
-    ;; escape hatch for racket expressions or anything
-    ;; to be "passed through"
-    [((~datum esc) ex:expr)
-     #'ex]
 
     ;; backwards compat macro extensibility via Racket macros
     [((~var ext-form (starts-with "qi:")) expr ...)
@@ -213,9 +226,6 @@
      (if (and chirality (eq? chirality 'right))
          #'(curry natex prarg ...)
          #'(curryr natex prarg ...))]
-
-    ;; pass-through (identity flow)
-    [(~datum _) #'values]
 
     ;; literally indicated function identifier
     [natex:expr #'natex]))
@@ -403,6 +413,8 @@ the DSL.
        #'(qi0->racket (-< (~> (pass condition) sonex)
                           (~> (pass (not condition)) ronex)))]
       [_:id
+       ;; sieve can be a core form once bindings
+       ;; are introduced into the language
        #'(λ (condition sonex ronex . args)
            (apply (qi0->racket (-< (~> (pass condition) sonex)
                                    (~> (pass (not condition)) ronex)))
