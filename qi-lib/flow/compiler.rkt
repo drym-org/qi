@@ -27,15 +27,7 @@
     #`(qi0->racket #,(optimize-flow stx)))
 
   (define (optimize-flow stx)
-    (syntax-parse stx
-      ;; "restorative" optimization for the original
-      ;; implementation of `all`. Note that the optimized
-      ;; version is _not_ equivalent to the original expression
-      ;; in the presence of side-effects. For now, this is just
-      ;; here as a proof-of-concept optimization
-      [((~datum ~>) ((~datum ><) onex) (~datum AND))
-       #`(esc (give (curry andmap #,(compile-flow #'onex))))]
-      [_ stx])))
+    stx))
 
 (define-syntax (qi0->racket stx)
   (syntax-parse (cadr (syntax->list stx))
@@ -57,8 +49,8 @@
     ;;; Special words
     [((~datum one-of?) v:expr ...)
      #'(qi0->racket (~> (member (list v ...)) ->boolean))]
-    ;; [((~datum all) onex:clause)
-    ;;  #`(qi0->racket (~> (>< onex) AND))]
+    [((~datum all) onex:clause)
+     #`(qi0->racket (~> (>< onex) AND))]
     [((~datum any) onex:clause)
      #'(qi0->racket (~> (>< onex) OR))]
     [((~datum none) onex:clause)
