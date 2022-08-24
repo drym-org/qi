@@ -137,7 +137,7 @@
 
     ;; common utilities
     [(~datum count)
-     #'(λ args (length args))]
+     #'(qi0->racket (~> (>< 1) +))]
     [(~datum live?)
      #'(qi0->racket (~> count (> 0)))]
     [((~datum rectify) v:expr ...)
