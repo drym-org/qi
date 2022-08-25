@@ -112,12 +112,6 @@
 
     ;;; Predicates
 
-    [((~datum all) onex:clause)
-     #`(qi0->racket (~> (>< onex) AND))]
-    [((~datum any) onex:clause)
-     #'(qi0->racket (~> (>< onex) OR))]
-    [((~datum none) onex:clause)
-     #'(qi0->racket (not (any onex)))]
     [((~datum not) onex:clause)
      #'(qi0->racket (~> onex NOT))]
     [(~or* (~datum AND) (~datum &))
