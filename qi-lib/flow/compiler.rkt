@@ -559,14 +559,22 @@ the DSL.
       [((~or* (~datum ==) (~datum relay)) onex:clause ...)
        #'(relay (qi0->racket onex) ...)]
       [(~or* (~datum ==) (~datum relay))
+       ;; review this – this "map" behavior may not be natural
+       ;; for relay. And map-values should probably end up being
+       ;; used in a compiler optimization
        #'map-values]))
 
   (define (amp-parser stx)
     (syntax-parse stx
       [_:id
-       #'(qi0->racket ==)]
+       #'(qi0->racket (~> (==* (-< (gen (qi0->racket #t))
+                                   _
+                                   (gen (qi0->racket _)
+                                        (qi0->racket _)))
+                               _)
+                          loop))]
       [(_ onex:clause)
-       #'(qi0->racket (~> (-< (gen (qi0->racket onex)) _) ==))]
+       #'(qi0->racket (loop onex))]
       [(_ onex0:clause onex:clause ...)
        (report-syntax-error
         'amp
