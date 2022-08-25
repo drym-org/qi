@@ -4,7 +4,15 @@
                     one-of?
                     all
                     any
-                    none))
+                    none
+                    ;; not
+                    NOR
+                    NAND
+                    XNOR
+                    any?
+                    all?
+                    none?
+                    ))
 
 (require (for-syntax racket/base
                      syntax/parse
@@ -25,3 +33,24 @@
 
 (define-qi-syntax-rule (none onex:clause)
   (not (any onex)))
+
+;; (define-qi-syntax-rule (not onex:clause)
+;;   (~> onex NOT))
+
+(define-qi-syntax-parser NOR
+  [_:id #'(~> OR NOT)])
+
+(define-qi-syntax-parser NAND
+  [_:id #'(~> AND NOT)])
+
+(define-qi-syntax-parser XNOR
+  [_:id #'(~> XOR NOT)])
+
+(define-qi-syntax-parser any?
+  [_:id #'OR])
+
+(define-qi-syntax-parser all?
+  [_:id #'AND])
+
+(define-qi-syntax-parser none?
+  [_:id #'(~> any? NOT)])
