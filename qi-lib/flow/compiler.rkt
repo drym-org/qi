@@ -65,7 +65,7 @@
     [e:sep-form (sep-parser #'e)]
     [(~or* (~datum ▽) (~datum collect))
      #'list]
-    ;; boolean algebra
+    ;; predicates
     [(~or* (~datum NOT) (~datum !))
      #'not]
     [(~datum XOR)
@@ -110,7 +110,7 @@
     ;;;; Non-core forms ;;;;
     ;;;;;;;;;;;;;;;;;;;;;;;;
 
-    ;;; Special words
+    ;;; Predicates
 
     [((~datum one-of?) v:expr ...)
      #'(qi0->racket (~> (member (list v ...)) ->boolean))]
