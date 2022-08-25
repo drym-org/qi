@@ -12,8 +12,8 @@
                      syntax/parse
                      (only-in "private/util.rkt"
                               report-syntax-error)
-                     "flow/expander.rkt")
-         "flow/compiler.rkt"
+                     "flow/extended/expander.rkt")
+         "flow/core/compiler.rkt"
          (only-in "private/util.rkt"
                   define-alias))
 

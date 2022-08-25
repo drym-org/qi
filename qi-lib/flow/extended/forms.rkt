@@ -8,9 +8,9 @@
 
 (require (for-syntax racket/base
                      syntax/parse
-                     "aux-syntax.rkt")
-         "../macro.rkt"
-         "impl.rkt")
+                     "../aux-syntax.rkt")
+         "../../macro.rkt"
+         "util.rkt")
 
 ;;; Predicates
 

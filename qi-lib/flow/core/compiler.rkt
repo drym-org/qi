@@ -8,10 +8,10 @@
                      (only-in racket/list
                               make-list)
                      "syntax.rkt"
-                     "aux-syntax.rkt"
-                     (only-in "../private/util.rkt"
+                     "../aux-syntax.rkt"
+                     (only-in "../../private/util.rkt"
                               report-syntax-error))
-         (only-in "../macro.rkt"
+         (only-in "../../macro.rkt"
                   qi-macro?
                   qi-macro-transformer)
          "impl.rkt"

@@ -1,7 +1,6 @@
 #lang racket/base
 
 (provide give
-         ->boolean
          true.
          false.
          any?
@@ -167,10 +166,8 @@
       (call-with-values (λ () (apply b args)) list)))
   (apply values (apply append results)))
 
-(define (->boolean v) (and v #t))
 (define true.  (thunk* #t))
 (define false. (thunk* #f))
-
 (define exists  ormap)
 (define for-all andmap)
 
