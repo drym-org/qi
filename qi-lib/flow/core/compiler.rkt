@@ -66,6 +66,10 @@
     [(~or* (~datum ▽) (~datum collect))
      #'list]
     ;; predicates
+    [(~or* (~datum AND) (~datum &)) ; NOTE: technically not core
+     #'(qi0->racket (>> (and 2> 1>) #t))]
+    [(~or* (~datum OR) (~datum ∥)) ; NOTE: technically not core
+     #'(qi0->racket (<< (or 1> 2>) #f))]
     [(~or* (~datum NOT) (~datum !))
      #'not]
     [(~datum XOR)
