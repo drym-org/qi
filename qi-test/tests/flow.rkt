@@ -483,6 +483,9 @@
                 (thunk ((☯ (~> (== ⏚ add1) ▽))
                         5 7 8))
                 "relay elements must be in one-to-one correspondence with input")
+     (check-equal? ((☯ (~> (gen sqr 1 2 3) == ▽)))
+                   (list 1 4 9)
+                   "relay when used as an identifier") ; TODO: review this
      (check-equal? ((☯ (~> (relay sqr add1) ▽))
                     5 7)
                    (list 25 8)
