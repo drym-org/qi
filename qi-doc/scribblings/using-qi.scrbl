@@ -203,7 +203,7 @@ And here it is in Qi:
 
 This separates the input list into its component values, produces a @racket[1] corresponding to each value, and then adds these ones together to get the length. It is the same idea encoded (and indeed, hidden) in some of the Racket implementations.
 
-This succinctness is possible because Qi reaps the twin benefits of (1) working directly with values (and not just collections of values), and (2) variadic functions that accept any number of inputs (in this case, @racket[+]).
+This succinctness is possible because Qi reaps the twin benefits of (1) working directly with values (and not just collections of values), and (2) Racket's support for variadic functions that accept any number of inputs (in this case, @racket[+]).
 
 @section{Curbing Curries and Losing Lambdas}
 
