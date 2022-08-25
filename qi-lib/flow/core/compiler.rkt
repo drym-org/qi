@@ -116,23 +116,10 @@
 
     ;;; Predicates
 
-    [((~datum not) onex:clause)
+    [((~datum not) onex:clause) ;; TODO
      #'(qi0->racket (~> onex NOT))]
-    [(~or* (~datum AND) (~datum &))
-     #'(qi0->racket (>> (and 2> 1>) #t))]
-    [(~or* (~datum OR) (~datum ∥))
-     #'(qi0->racket (<< (or 1> 2>) #f))]
-    [(~datum NOR)
-     #'(qi0->racket (~> OR NOT))]
-    [(~datum NAND)
-     #'(qi0->racket (~> AND NOT))]
-    [(~datum XNOR)
-     #'(qi0->racket (~> XOR NOT))]
     [e:and%-form (and%-parser #'e)]
     [e:or%-form (or%-parser #'e)]
-    [(~datum any?) #'(qi0->racket OR)]
-    [(~datum all?) #'(qi0->racket AND)]
-    [(~datum none?) #'(qi0->racket (~> any? NOT))]
 
     ;;; Routing
 
