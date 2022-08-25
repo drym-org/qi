@@ -610,7 +610,7 @@ the DSL.
     (syntax-parse stx
       [(_ pred:clause mapex:clause combex:clause retex:clause)
        #'(letrec ([loop (qi0->racket (if pred
-                                         (~> (group 1 mapex loop)
+                                         (~> (group 1 mapex (esc loop))
                                              combex)
                                          retex))])
            loop)]
@@ -619,7 +619,10 @@ the DSL.
       [(_ pred:clause mapex:clause)
        #'(qi0->racket (loop pred mapex _ ⏚))]
       [(_ mapex:clause)
-       #'(qi0->racket (loop #t mapex _ ⏚))]))
+       #'(qi0->racket (loop #t mapex _ ⏚))]
+      [_:id #'(λ (predf mapf combf retf . args)
+                (apply (qi0->racket (loop predf mapf combf retf))
+                       args))]))
 
   (define (clos-parser stx)
     (syntax-parse stx
