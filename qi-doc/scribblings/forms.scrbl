@@ -692,7 +692,7 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
 
 @examples[
     #:eval diagram-eval
-	#:result-only
+    #:result-only
     (set-curve-pict-size 200 200)
     (current-label-gap (px 8))
 

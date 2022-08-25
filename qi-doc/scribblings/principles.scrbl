@@ -38,9 +38,11 @@
 
  The Qi language allows you to describe and use flows in your code.
 
-@section{Values and Flows}
+@section{Values, Paths and Flows}
 
- @emph{Flows} accept inputs and produce outputs -- they are functions. The things that flow -- the inputs and outputs -- are @emph{values}. Yet, values do not actually "move" through a flow, since a flow does not mutate them. The flow simply produces new values that are related to the inputs by a computation. Every flow is made up of components that are themselves flows -- each of these components is a relationship between an input set of values and an output set of values, so that at every level, a flow can be viewed as a sequence of sets of values beginning with the inputs and ending with the outputs, with each set related to the preceding one by a computation, and no real "motion" of values at all.
+@emph{Flows} accept inputs and produce outputs -- they are functions. The things that flow -- the inputs and outputs -- are @emph{values}. Yet, values do not actually "move" through a flow, since a flow does not mutate them. The flow simply produces new values that are related to the inputs by a computation.
+
+ Every flow is made up of components that are themselves flows. Thus, each of these components is a relationship between an input set of values and an output set of values, so that at every level, flows produce sequences of sets of values beginning with the inputs and ending with the outputs, with each set related to the preceding one by a computation, and again, no real "motion" of values at all. There may be many such distinct @deftech{paths} over flow components that could be traced (borrowing the term "path" as used in graph theory in this sense), and we may imagine values to flow along these paths.
 
  So indeed, when we say that values "flow," there is nothing in fact that truly flows, and it is merely a convenient metaphor.
 
@@ -92,20 +94,21 @@ When reading languages like English, we understand what we read in terms of word
 
 Some of these phrases may someday make it into the language as forms themselves, and there may be higher-level phrases still, made up of such phrases.
 
-@section{Qi Identities}
+@section{Identities}
 
 Here are some useful identities for the core routing forms. They can be used to simplify your code or say things in different ways.
 
-@$${(\sim> (>< f) (>< g)) = (>< (\sim> f g))}
-@$${(\sim> (\sim> f g)) = (\sim> f g)}
 @$${(\sim> (\sim> f g) h) = (\sim> f (\sim> g h)) = (\sim> f g h)} [associative law]
-@$${(== (\sim> f₁ g₁) (\sim> f₂ g₂)) = (\sim> (== f₁ f₂) (== g₁ g₂))}
 @$${(\sim> f \_) = (\sim> \_ f) = (\sim> f) = f} [left and right identity]
-@$${(>< \_) = \_}
+@$${(== (\sim> f₁ g₁) (\sim> f₂ g₂)) = (\sim> (== f₁ f₂) (== g₁ g₂))}
+@$${(\sim> (>< f) (>< g)) = (>< (\sim> f g))}
 @$${(\sim> \_ \cdots) = \_}
 @$${(== \_ \ldots) = \_}
+@$${(>< \_) = \_}
+@$${(-< f) = f}
+@$${(-< (\text{gen} a) (\text{gen} b)) = (-< (\text{gen} a b))}
 
-@section{Flows Are Just Arrows, What's the Problem?}
+@section{Flows and Arrows}
 
 [@emph{The connection between flows and arrows was pointed out by Sergiu Ivanov (Scolobb on Discourse).}]
 
@@ -118,7 +121,7 @@ It turns out that the core routing forms of Qi fulfill the definition of @hyperl
  @item{@racket[(-< f g)] corresponds to what is referred to as "fanout composition", @racket[(&&&)], in arrows.}
 ]
 
-So as should be perfectly clear by now, flows are just @hyperlink["https://www.sciencedirect.com/science/article/pii/S1571066106001666/pdf"]{monoids in suitable subcategories of bifunctors}, or, to put it more plainly, they are @hyperlink["https://bentnib.org/arrows.pdf"]{enriched Freyd categories}.
+So evidently, flows are just @hyperlink["https://www.sciencedirect.com/science/article/pii/S1571066106001666/pdf"]{monoids in suitable subcategories of bifunctors} (what's the problem?), or, in another way of looking at it, @hyperlink["https://bentnib.org/arrows.pdf"]{enriched Freyd categories}.
 
 Therefore, any theoretical results about arrows should generally apply to Qi as well (but not necessarily, since Qi is not @emph{just} arrows).
 
