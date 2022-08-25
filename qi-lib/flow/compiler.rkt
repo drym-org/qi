@@ -569,8 +569,8 @@ the DSL.
       [_:id
        #'foldl-values]
       [(_ fn init)
-       #'(qi0->racket (~> (-< (gen (qi0->racket fn))
-                              (gen (qi0->racket init))
+       #'(qi0->racket (~> (-< (gen (qi0->racket fn)
+                                   (qi0->racket init))
                               _)
                           >>))]
       [(_ fn)
@@ -581,8 +581,8 @@ the DSL.
       [_:id
        #'foldr-values]
       [(_ fn init)
-       #'(qi0->racket (~> (-< (gen (qi0->racket fn))
-                              (gen (qi0->racket init))
+       #'(qi0->racket (~> (-< (gen (qi0->racket fn)
+                                   (qi0->racket init))
                               _)
                           <<))]
       [(_ fn)
