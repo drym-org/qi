@@ -112,8 +112,6 @@
 
     ;;; Predicates
 
-    [((~datum one-of?) v:expr ...)
-     #'(qi0->racket (~> (member (list v ...)) ->boolean))]
     [((~datum all) onex:clause)
      #`(qi0->racket (~> (>< onex) AND))]
     [((~datum any) onex:clause)
