@@ -537,20 +537,20 @@ the DSL.
 
   (define (side-effect-parser stx)
     (syntax-parse stx
-      [((~or* (~datum ε) (~datum effect)) sidex:clause onex:clause)
+      [(_ sidex:clause onex:clause)
        #'(qi0->racket (-< (~> sidex ⏚)
                           onex))]
-      [((~or* (~datum ε) (~datum effect)) sidex:clause)
+      [(_ sidex:clause)
        #'(qi0->racket (-< (~> sidex ⏚)
                           _))]))
 
   (define (amp-parser stx)
     (syntax-parse stx
-      [(~or* (~datum ><) (~datum amp))
+      [_:id
        #'map-values]
-      [((~or* (~datum ><) (~datum amp)) onex:clause)
+      [(_ onex:clause)
        #'(curry map-values (qi0->racket onex))]
-      [((~or* (~datum ><) (~datum amp)) onex0:clause onex:clause ...)
+      [(_ onex0:clause onex:clause ...)
        (report-syntax-error
         'amp
         (syntax->datum #'(onex0 onex ...))
@@ -566,46 +566,46 @@ the DSL.
 
   (define (fold-left-parser stx)
     (syntax-parse stx
-      [(~datum >>)
+      [_:id
        #'foldl-values]
-      [((~datum >>) fn init)
+      [(_ fn init)
        #'(qi0->racket (~> (-< (gen (qi0->racket fn))
                               (gen (qi0->racket init))
                               _)
                           >>))]
-      [((~datum >>) fn)
+      [(_ fn)
        #'(qi0->racket (>> fn (gen ((qi0->racket fn)))))]))
 
   (define (fold-right-parser stx)
     (syntax-parse stx
-      [(~datum <<)
+      [_:id
        #'foldr-values]
-      [((~datum <<) fn init)
+      [(_ fn init)
        #'(qi0->racket (~> (-< (gen (qi0->racket fn))
                               (gen (qi0->racket init))
                               _)
                           <<))]
-      [((~datum <<) fn)
+      [(_ fn)
        #'(qi0->racket (<< fn (gen ((qi0->racket fn)))))]))
 
   (define (loop-parser stx)
     (syntax-parse stx
-      [((~datum loop) pred:clause mapex:clause combex:clause retex:clause)
+      [(_ pred:clause mapex:clause combex:clause retex:clause)
        #'(letrec ([loop (qi0->racket (if pred
                                          (~> (group 1 mapex loop)
                                              combex)
                                          retex))])
            loop)]
-      [((~datum loop) pred:clause mapex:clause combex:clause)
+      [(_ pred:clause mapex:clause combex:clause)
        #'(qi0->racket (loop pred mapex combex ⏚))]
-      [((~datum loop) pred:clause mapex:clause)
+      [(_ pred:clause mapex:clause)
        #'(qi0->racket (loop pred mapex _ ⏚))]
-      [((~datum loop) mapex:clause)
+      [(_ mapex:clause)
        #'(qi0->racket (loop #t mapex _ ⏚))]))
 
   (define (clos-parser stx)
     (syntax-parse stx
-      [(~datum clos)
+      [_:id
        #:do [(define chirality (syntax-property stx 'chirality))]
        (if (and chirality (eq? chirality 'right))
            #'(λ (f . args) (apply curryr f args))
