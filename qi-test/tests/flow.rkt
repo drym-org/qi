@@ -1259,7 +1259,16 @@
      (check-equal? ((☯ (~> (loop (~> ▽ (not null?))
                                  sqr
                                  +))) 1 2 3)
-                   14))
+                   14)
+     (check-equal? ((☯ (~> (-< (gen (☯ (~> ▽ (not null?)))
+                                    sqr
+                                    +
+                                    (☯ 0))
+                               _)
+                           loop))
+                    1 2 3)
+                   14
+                   "identifier form of loop"))
     (test-suite
      "loop2"
      (check-equal? ((☯ (~> (loop2 (~> 1> (not null?))
