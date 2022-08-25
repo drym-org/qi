@@ -149,6 +149,8 @@ See comments in flow.rkt for more details.
 
 (define-syntax-class loop-form
   (pattern
+   (~datum loop))
+  (pattern
    ((~datum loop) arg ...)))
 
 (define-syntax-class blanket-template-form
