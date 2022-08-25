@@ -6,7 +6,7 @@
           qi/on
           qi/switch
           qi/threading
-          qi/flow/std))
+          qi/flow/extended/forms))
 
 (require qi/flow
          (except-in qi/macro
@@ -15,4 +15,4 @@
          qi/on
          qi/switch
          qi/threading
-         qi/flow/std)
+         qi/flow/extended/forms)

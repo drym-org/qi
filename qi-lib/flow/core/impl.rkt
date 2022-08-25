@@ -1,7 +1,6 @@
 #lang racket/base
 
 (provide give
-         ->boolean
          true.
          false.
          any?
@@ -170,9 +169,6 @@
                 [args (in-value (hash-ref by-cs c))])
       (call-with-values (λ () (apply b args)) list)))
   (apply values (apply append results)))
-
-(define (->boolean v)
-  (not (not v)))
 
 (define true.
   (procedure-rename (const #t)
