@@ -123,7 +123,6 @@
 
     ;;; Routing
 
-    [e:right-threading-form (right-threading-parser #'e)]
     [(~or* (~datum X) (~datum crossover))
      #'(qi0->racket (~> ▽ reverse △))]
     [((~or* (~datum ==*) (~datum relay*)) onex:clause ... rest-onex:clause)
@@ -231,22 +230,6 @@ the DSL.
 |#
 
 (begin-for-syntax
-
-  (define (make-right-chiral stx)
-    (syntax-property stx 'chirality 'right))
-
-  (define-syntax-class right-threading-clause
-    (pattern
-     onex:clause
-     #:with chiral (make-right-chiral #'onex)))
-
-  (define (right-threading-parser stx)
-    ;; right-threading is just normal threading
-    ;; but with a syntax property attached to
-    ;; the components indicating the chirality
-    (syntax-parse stx
-      [(_ onex:right-threading-clause ...)
-       #'(qi0->racket (~> onex.chiral ...))]))
 
   (define (sep-parser stx)
     (syntax-parse stx

@@ -13,7 +13,9 @@
                     all?
                     none?
                     and%
-                    or%))
+                    or%
+                    thread-right
+                    ~>>))
 
 (require (for-syntax racket/base
                      syntax/parse
@@ -64,3 +66,13 @@
 (define-qi-syntax-rule (or% onex:disjux-clause ...)
   (~> (== onex.parsed ...)
       any?))
+
+;;; Routing
+
+;; Right-threading is just normal threading but with a syntax
+;; property attached to the components indicating the chirality
+(define-qi-syntax-rule (thread-right onex:right-threading-clause ...)
+  (~> onex.chiral ...))
+
+(define-qi-syntax-rule (~>> arg ...)
+  (thread-right arg ...))

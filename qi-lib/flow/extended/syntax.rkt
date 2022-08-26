@@ -1,7 +1,8 @@
 #lang racket/base
 
 (provide conjux-clause
-         disjux-clause)
+         disjux-clause
+         right-threading-clause)
 
 (require syntax/parse
          "../aux-syntax.rkt"
@@ -24,3 +25,11 @@
   (pattern
    onex:clause
    #:with parsed #'onex))
+
+(define (make-right-chiral stx)
+  (syntax-property stx 'chirality 'right))
+
+(define-syntax-class right-threading-clause
+  (pattern
+   onex:clause
+   #:with chiral (make-right-chiral #'onex)))
