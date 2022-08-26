@@ -12,7 +12,6 @@
          amp-form
          relay-form
          tee-form
-         input-alias
          if-form
          pass-form
          fold-left-form
@@ -65,18 +64,6 @@ See comments in flow.rkt for more details.
 (define-syntax-class try-form
   (pattern
    ((~datum try) arg ...)))
-
-(define-syntax-class input-alias
-  (pattern
-   (~or* (~datum 1>)
-         (~datum 2>)
-         (~datum 3>)
-         (~datum 4>)
-         (~datum 5>)
-         (~datum 6>)
-         (~datum 7>)
-         (~datum 8>)
-         (~datum 9>))))
 
 (define-syntax-class if-form
   (pattern
