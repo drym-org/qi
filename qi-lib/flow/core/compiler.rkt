@@ -72,9 +72,9 @@
      #'list]
     ;; predicates
     [(~or* (~datum AND) (~datum &)) ; NOTE: technically not core
-     #'(qi0->racket (>> (and 2> 1>) #t))]
+     #'(qi0->racket (>> (and (select 2) (select 1)) #t))]
     [(~or* (~datum OR) (~datum ∥)) ; NOTE: technically not core
-     #'(qi0->racket (<< (or 1> 2>) #f))]
+     #'(qi0->racket (<< (or (select 1) (select 2)) #f))]
     [(~or* (~datum NOT) (~datum !))
      #'not]
     [(~datum XOR)
@@ -106,7 +106,7 @@
                                                     (~> car mapex)) _)
                                             (group 1 _ combex)
                                             loop2)
-                                        2>))])
+                                        (select 2)))])
          loop2)]
     ;; towards universality
     [(~datum apply)
@@ -120,11 +120,6 @@
     ;;;;;;;;;;;;;;;;;;;;;;;;
     ;;;; Non-core forms ;;;;
     ;;;;;;;;;;;;;;;;;;;;;;;;
-
-    ;;; High level circuit elements
-
-    ;; aliases for inputs
-    [e:input-alias (input-alias-parser #'e)]
 
     ;; common utilities
     [(~datum count)
@@ -284,27 +279,6 @@ the DSL.
        (report-syntax-error 'try
                             (syntax->datum #'(arg ...))
                             "(try <flo> [error-predicate-flo error-handler-flo] ...)")]))
-
-  (define (input-alias-parser stx)
-    (syntax-parse stx
-      [(~datum 1>)
-       #'(qi0->racket (select 1))]
-      [(~datum 2>)
-       #'(qi0->racket (select 2))]
-      [(~datum 3>)
-       #'(qi0->racket (select 3))]
-      [(~datum 4>)
-       #'(qi0->racket (select 4))]
-      [(~datum 5>)
-       #'(qi0->racket (select 5))]
-      [(~datum 6>)
-       #'(qi0->racket (select 6))]
-      [(~datum 7>)
-       #'(qi0->racket (select 7))]
-      [(~datum 8>)
-       #'(qi0->racket (select 8))]
-      [(~datum 9>)
-       #'(qi0->racket (select 9))]))
 
   (define (if-parser stx)
     (syntax-parse stx

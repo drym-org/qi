@@ -24,7 +24,16 @@
                     unless
                     switch
                     partition
-                    gate))
+                    gate
+                    1>
+                    2>
+                    3>
+                    4>
+                    5>
+                    6>
+                    7>
+                    8>
+                    9>))
 
 (require (for-syntax racket/base
                      syntax/parse
@@ -191,3 +200,25 @@
 
 (define-qi-syntax-rule (gate onex:clause)
   (if onex _ ⏚))
+
+;;; High level circuit elements
+
+;; aliases for inputs
+(define-qi-syntax-parser 1>
+  [_:id #'(select 1)])
+(define-qi-syntax-parser 2>
+  [_:id #'(select 2)])
+(define-qi-syntax-parser 3>
+  [_:id #'(select 3)])
+(define-qi-syntax-parser 4>
+  [_:id #'(select 4)])
+(define-qi-syntax-parser 5>
+  [_:id #'(select 5)])
+(define-qi-syntax-parser 6>
+  [_:id #'(select 6)])
+(define-qi-syntax-parser 7>
+  [_:id #'(select 7)])
+(define-qi-syntax-parser 8>
+  [_:id #'(select 8)])
+(define-qi-syntax-parser 9>
+  [_:id #'(select 9)])
