@@ -17,12 +17,16 @@
                     thread-right
                     ~>>
                     crossover
-                    X))
+                    X
+                    relay*
+                    ==*
+                    bundle))
 
 (require (for-syntax racket/base
                      syntax/parse
                      "syntax.rkt"
-                     "../aux-syntax.rkt")
+                     "../aux-syntax.rkt"
+                     "../../private/util.rkt")
          "../../macro.rkt"
          "impl.rkt")
 
@@ -88,3 +92,18 @@
 ;; TODO: alias
 (define-qi-syntax-parser X
   [_:id #'crossover])
+
+(define-qi-syntax-parser relay*
+  [(_ onex:clause ... rest-onex:clause)
+   #:with len #`#,(length (syntax->list #'(onex ...)))
+   #'(group len (== onex ...) rest-onex)])
+
+;; TODO: alias
+(define-qi-syntax-rule (==* onex ...)
+  (relay* onex ...))
+
+(define-qi-syntax-rule (bundle (n:number ...)
+                               selection-onex:clause
+                               remainder-onex:clause)
+  (-< (~> (select n ...) selection-onex)
+      (~> (block n ...) remainder-onex)))
