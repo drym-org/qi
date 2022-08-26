@@ -124,7 +124,6 @@
 
     ;;; Conditionals
 
-    [e:switch-form (switch-parser #'e)]
     [e:partition-form (partition-parser #'e)]
     [((~datum gate) onex:clause)
      #'(qi0->racket (if onex _ ⏚))]
@@ -257,69 +256,6 @@ the DSL.
        (report-syntax-error 'group
                             (syntax->datum #'(arg ...))
                             "(group <number> <selection qi0->racket> <remainder qi0->racket>)")]))
-
-  (define (switch-parser stx)
-    (syntax-parse stx
-      [(_) #'(qi0->racket _)]
-      [(_ ((~or* (~datum divert) (~datum %))
-           condition-gate:clause
-           consequent-gate:clause))
-       #'(qi0->racket consequent-gate)]
-      [(_ [(~datum else) alternative:clause])
-       #'(qi0->racket alternative)]
-      [(_ ((~or* (~datum divert) (~datum %))
-           condition-gate:clause
-           consequent-gate:clause)
-          [(~datum else) alternative:clause])
-       #'(qi0->racket (~> consequent-gate alternative))]
-      [(_ [condition0:clause ((~datum =>) consequent0:clause ...)]
-          [condition:clause consequent:clause]
-          ...)
-       ;; we split the flow ahead of time to avoid evaluating
-       ;; the condition more than once
-       #'(qi0->racket (~> (-< condition0 _)
-                          (if 1>
-                              (~> consequent0 ...)
-                              (group 1 ⏚
-                                     (switch [condition consequent]
-                                       ...)))))]
-      [(_ ((~or* (~datum divert) (~datum %))
-           condition-gate:clause
-           consequent-gate:clause)
-          [condition0:clause ((~datum =>) consequent0:clause ...)]
-          [condition:clause consequent:clause]
-          ...)
-       ;; both divert as well as => clauses. Here, the divert clause
-       ;; operates on the original inputs, not including the result
-       ;; of the condition flow.
-       ;; as before, we split the flow ahead of time to avoid evaluating
-       ;; the condition more than once
-       #'(qi0->racket (~> (-< (~> condition-gate condition0) _)
-                          (if 1>
-                              (~> (group 1 _ consequent-gate)
-                                  consequent0 ...)
-                              (group 1 ⏚
-                                     (switch (divert condition-gate consequent-gate)
-                                       [condition consequent]
-                                       ...)))))]
-      [(_ [condition0:clause consequent0:clause]
-          [condition:clause consequent:clause]
-          ...)
-       #'(qi0->racket (if condition0
-                          consequent0
-                          (switch [condition consequent]
-                            ...)))]
-      [(_ ((~or* (~datum divert) (~datum %))
-           condition-gate:clause
-           consequent-gate:clause)
-          [condition0:clause consequent0:clause]
-          [condition:clause consequent:clause]
-          ...)
-       #'(qi0->racket (if (~> condition-gate condition0)
-                          (~> consequent-gate consequent0)
-                          (switch (divert condition-gate consequent-gate)
-                            [condition consequent]
-                            ...)))]))
 
   (define (sieve-parser stx)
     (syntax-parse stx
