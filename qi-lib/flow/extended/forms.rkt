@@ -74,5 +74,8 @@
 (define-qi-syntax-rule (thread-right onex:right-threading-clause ...)
   (~> onex.chiral ...))
 
+;; TODO: do it as an alias?
+;; (define-qi-alias ~>> thread-right)
+
 (define-qi-syntax-rule (~>> arg ...)
   (thread-right arg ...))
