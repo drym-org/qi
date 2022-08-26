@@ -121,12 +121,6 @@
     ;;;; Non-core forms ;;;;
     ;;;;;;;;;;;;;;;;;;;;;;;;
 
-    ;; high level routing
-    [e:fanout-form (fanout-parser #'e)]
-    [(~datum inverter)
-     #'(qi0->racket (>< NOT))]
-    [e:side-effect-form (side-effect-parser #'e)]
-
     ;;; Miscellaneous
 
     ;; backwards compat macro extensibility via Racket macros
@@ -285,17 +279,6 @@ the DSL.
                (apply (qi0->racket consequent) args)
                (apply (qi0->racket alternative) args)))]))
 
-  (define (fanout-parser stx)
-    (syntax-parse stx
-      [_:id #'(qi0->racket -<)]
-      [(_ n:number)
-       ;; a slightly more efficient compile-time implementation
-       ;; for literally indicated N
-       #:with list-of-n-blanks #`#,(make-list (syntax->datum #'n) #'_)
-       #`(qi0->racket (-< . list-of-n-blanks))]
-      [(_ n:expr)
-       #'(qi0->racket (~> (-< (gen n) _) -<))]))
-
   (define (feedback-parser stx)
     (syntax-parse stx
       [(_ ((~datum while) tilex:clause)
@@ -330,15 +313,6 @@ the DSL.
        #'(λ (n flo . args)
            (apply (qi0->racket (feedback n flo))
                   args))]))
-
-  (define (side-effect-parser stx)
-    (syntax-parse stx
-      [(_ sidex:clause onex:clause)
-       #'(qi0->racket (-< (~> sidex ⏚)
-                          onex))]
-      [(_ sidex:clause)
-       #'(qi0->racket (-< (~> sidex ⏚)
-                          _))]))
 
   (define (tee-parser stx)
     (syntax-parse stx
