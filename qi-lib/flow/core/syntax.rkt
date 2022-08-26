@@ -6,9 +6,7 @@
          group-form
          sieve-form
          try-form
-         fanout-form
          feedback-form
-         side-effect-form
          amp-form
          relay-form
          tee-form
@@ -69,21 +67,11 @@ See comments in flow.rkt for more details.
   (pattern
    ((~datum if) arg ...)))
 
-(define-syntax-class fanout-form
-  (pattern
-   (~datum fanout))
-  (pattern
-   ((~datum fanout) arg ...)))
-
 (define-syntax-class feedback-form
   (pattern
    (~datum feedback))
   (pattern
    ((~datum feedback) arg ...)))
-
-(define-syntax-class side-effect-form
-  (pattern
-   ((~or* (~datum ε) (~datum effect)) arg ...)))
 
 (define-syntax-class amp-form
   (pattern
