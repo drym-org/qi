@@ -1,8 +1,6 @@
 #lang racket/base
 
 (provide give
-         true.
-         false.
          any?
          all?
          none?
@@ -166,9 +164,8 @@
       (call-with-values (λ () (apply b args)) list)))
   (apply values (apply append results)))
 
-(define true.  (thunk* #t))
-(define false. (thunk* #f))
-(define exists  ormap)
+(define exists ormap)
+
 (define for-all andmap)
 
 (define (zip-with op . seqs)

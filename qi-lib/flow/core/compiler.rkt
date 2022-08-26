@@ -118,8 +118,6 @@
 
     [((~datum not) onex:clause) ;; TODO
      #'(qi0->racket (~> onex NOT))]
-    [e:and%-form (and%-parser #'e)]
-    [e:or%-form (or%-parser #'e)]
 
     ;;; Routing
 
@@ -233,35 +231,6 @@ the DSL.
 |#
 
 (begin-for-syntax
-  (define-syntax-class disjux-clause ; "juxtaposed" disjoin
-    #:attributes (parsed)
-    (pattern
-     (~datum _)
-     #:with parsed #'false.)
-    (pattern
-     onex:clause
-     #:with parsed #'onex))
-
-  (define-syntax-class conjux-clause ; "juxtaposed" conjoin
-    #:attributes (parsed)
-    (pattern
-     (~datum _)
-     #:with parsed #'true.)
-    (pattern
-     onex:clause
-     #:with parsed #'onex))
-
-  (define (and%-parser stx)
-    (syntax-parse stx
-      [(_ onex:conjux-clause ...)
-       #'(qi0->racket (~> (== onex.parsed ...)
-                          all?))]))
-
-  (define (or%-parser stx)
-    (syntax-parse stx
-      [(_ onex:disjux-clause ...)
-       #'(qi0->racket (~> (== onex.parsed ...)
-                          any?))]))
 
   (define (make-right-chiral stx)
     (syntax-property stx 'chirality 'right))
