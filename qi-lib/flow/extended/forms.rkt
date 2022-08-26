@@ -25,6 +25,9 @@
                     switch
                     partition
                     gate
+                    count
+                    live?
+                    rectify
                     1>
                     2>
                     3>
@@ -200,6 +203,16 @@
 
 (define-qi-syntax-rule (gate onex:clause)
   (if onex _ ⏚))
+
+;;; Common utilities
+(define-qi-syntax-parser count
+  [_:id #'(~> (>< 1) +)])
+
+(define-qi-syntax-parser live?
+  [_:id #'(~> count (> 0))])
+
+(define-qi-syntax-rule (rectify v:expr ...)
+  (if live? _ (gen v ...)))
 
 ;;; High level circuit elements
 
