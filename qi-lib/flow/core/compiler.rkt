@@ -122,12 +122,6 @@
     [((~datum not) onex:clause) ;; TODO
      #'(qi0->racket (~> onex NOT))]
 
-    ;;; Conditionals
-
-    [e:partition-form (partition-parser #'e)]
-    [((~datum gate) onex:clause)
-     #'(qi0->racket (if onex _ ⏚))]
-
     ;;; High level circuit elements
 
     ;; aliases for inputs
@@ -275,15 +269,6 @@ the DSL.
        (report-syntax-error 'sieve
                             (syntax->datum #'(arg ...))
                             "(sieve <predicate qi0->racket> <selection qi0->racket> <remainder qi0->racket>)")]))
-
-  (define (partition-parser stx)
-    (syntax-parse stx
-      [(_:id)
-       #'(qi0->racket ground)]
-      [(_ [cond:clause body:clause])
-       #'(qi0->racket (~> (pass cond) body))]
-      [(_ [cond:clause body:clause] [conds:clause bodies:clause] ...+)
-       #'(qi0->racket (sieve cond body (partition [conds bodies] ...)))]))
 
   (define (try-parser stx)
     (syntax-parse stx
