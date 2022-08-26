@@ -4,7 +4,6 @@
          select-form
          block-form
          group-form
-         switch-form
          sieve-form
          partition-form
          try-form
@@ -57,10 +56,6 @@ See comments in flow.rkt for more details.
    (~datum group))
   (pattern
    ((~datum group) arg ...)))
-
-(define-syntax-class switch-form
-  (pattern
-   ((~datum switch) arg ...)))
 
 (define-syntax-class sieve-form
   (pattern
