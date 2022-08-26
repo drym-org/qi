@@ -25,6 +25,7 @@
                     switch
                     partition
                     gate
+                    fanout
                     count
                     live?
                     rectify
@@ -36,10 +37,14 @@
                     6>
                     7>
                     8>
-                    9>))
+                    9>
+                    inverter
+                    effect
+                    ε))
 
 (require (for-syntax racket/base
                      syntax/parse
+                     (only-in racket/list make-list)
                      "syntax.rkt"
                      "../aux-syntax.rkt"
                      "../../private/util.rkt")
@@ -235,3 +240,30 @@
   [_:id #'(select 8)])
 (define-qi-syntax-parser 9>
   [_:id #'(select 9)])
+
+;; high level routing
+(define-qi-syntax-parser fanout
+  [_:id #'-<]
+  [(_ n:number)
+   ;; a slightly more efficient compile-time implementation
+   ;; for literally indicated N
+   ;; TODO: move this to a compiler optimization
+   #:with list-of-n-blanks #`#,(make-list (syntax->datum #'n) #'_)
+   #'(-< . list-of-n-blanks)]
+  [(_ n:expr)
+   #'(~> (-< (gen n) _) -<)])
+
+(define-qi-syntax-parser inverter
+  [_:id #'(>< NOT)])
+
+(define-qi-syntax-parser effect
+  [(_ sidex:clause onex:clause)
+   #'(-< (~> sidex ⏚)
+         onex)]
+  [(_ sidex:clause)
+   #'(-< (~> sidex ⏚)
+         _)])
+
+;; TODO: alias
+(define-qi-syntax-rule (ε arg ...)
+  (effect arg ...))
