@@ -124,12 +124,6 @@
 
     ;;; Conditionals
 
-    [((~datum when) condition:clause
-                    consequent:clause)
-     #'(qi0->racket (if condition consequent ⏚))]
-    [((~datum unless) condition:clause
-                      alternative:clause)
-     #'(qi0->racket (if condition ⏚ alternative))]
     [e:switch-form (switch-parser #'e)]
     [e:partition-form (partition-parser #'e)]
     [((~datum gate) onex:clause)
