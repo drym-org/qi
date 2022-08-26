@@ -22,7 +22,8 @@
                     ==*
                     bundle
                     when
-                    unless))
+                    unless
+                    switch))
 
 (require (for-syntax racket/base
                      syntax/parse
@@ -119,3 +120,65 @@
 (define-qi-syntax-rule (unless condition:clause
                          alternative:clause)
   (if condition ⏚ alternative))
+
+(define-qi-syntax-parser switch
+  [(_) #'_]
+  [(_ ((~or* (~datum divert) (~datum %))
+       condition-gate:clause
+       consequent-gate:clause))
+   #'consequent-gate]
+  [(_ [(~datum else) alternative:clause])
+   #'alternative]
+  [(_ ((~or* (~datum divert) (~datum %))
+       condition-gate:clause
+       consequent-gate:clause)
+      [(~datum else) alternative:clause])
+   #'(~> consequent-gate alternative)]
+  [(_ [condition0:clause ((~datum =>) consequent0:clause ...)]
+      [condition:clause consequent:clause]
+      ...)
+   ;; we split the flow ahead of time to avoid evaluating
+   ;; the condition more than once
+   #'(~> (-< condition0 _)
+         (if 1>
+             (~> consequent0 ...)
+             (group 1 ⏚
+                    (switch [condition consequent]
+                      ...))))]
+  [(_ ((~or* (~datum divert) (~datum %))
+       condition-gate:clause
+       consequent-gate:clause)
+      [condition0:clause ((~datum =>) consequent0:clause ...)]
+      [condition:clause consequent:clause]
+      ...)
+   ;; both divert as well as => clauses. Here, the divert clause
+   ;; operates on the original inputs, not including the result
+   ;; of the condition flow.
+   ;; as before, we split the flow ahead of time to avoid evaluating
+   ;; the condition more than once
+   #'(~> (-< (~> condition-gate condition0) _)
+         (if 1>
+             (~> (group 1 _ consequent-gate)
+                 consequent0 ...)
+             (group 1 ⏚
+                    (switch (divert condition-gate consequent-gate)
+                      [condition consequent]
+                      ...))))]
+  [(_ [condition0:clause consequent0:clause]
+      [condition:clause consequent:clause]
+      ...)
+   #'(if condition0
+         consequent0
+         (switch [condition consequent]
+           ...))]
+  [(_ ((~or* (~datum divert) (~datum %))
+       condition-gate:clause
+       consequent-gate:clause)
+      [condition0:clause consequent0:clause]
+      [condition:clause consequent:clause]
+      ...)
+   #'(if (~> condition-gate condition0)
+         (~> consequent-gate consequent0)
+         (switch (divert condition-gate consequent-gate)
+           [condition consequent]
+           ...))])
