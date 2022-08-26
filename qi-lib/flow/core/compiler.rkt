@@ -63,6 +63,7 @@
                       #'((qi0->racket onex) ...))))]
     [e:relay-form (relay-parser #'e)]
     [e:tee-form (tee-parser #'e)]
+    [e:amp-form (amp-parser #'e)] ; NOTE: technically not core
     ;; prisms
     [e:sep-form (sep-parser #'e)]
     [(~or* (~datum ▽) (~datum collect))
@@ -167,7 +168,6 @@
     ;;; Higher-order flows
 
     ;; map and filter
-    [e:amp-form (amp-parser #'e)]
     [e:pass-form (pass-parser #'e)]
 
     ;;; Miscellaneous
@@ -500,12 +500,7 @@ the DSL.
   (define (amp-parser stx)
     (syntax-parse stx
       [_:id
-       #'(qi0->racket (~> (==* (-< (gen (qi0->racket #t))
-                                   _
-                                   (gen (qi0->racket _)
-                                        (qi0->racket _)))
-                               _)
-                          loop))]
+       #'(qi0->racket ==)]
       [(_ onex:clause)
        #'(qi0->racket (loop onex))]
       [(_ onex0:clause onex:clause ...)
