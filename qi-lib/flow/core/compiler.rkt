@@ -122,17 +122,6 @@
     [((~datum not) onex:clause) ;; TODO
      #'(qi0->racket (~> onex NOT))]
 
-    ;;; Routing
-
-    [((~or* (~datum ==*) (~datum relay*)) onex:clause ... rest-onex:clause)
-     #:with len #`#,(length (syntax->list #'(onex ...)))
-     #'(qi0->racket (group len (== onex ...) rest-onex) )]
-    [((~datum bundle) (n:number ...)
-                      selection-onex:clause
-                      remainder-onex:clause)
-     #'(qi0->racket (-< (~> (select n ...) selection-onex)
-                        (~> (block n ...) remainder-onex)))]
-
     ;;; Conditionals
 
     [((~datum when) condition:clause
