@@ -23,7 +23,9 @@
                     bundle
                     when
                     unless
-                    switch))
+                    switch
+                    partition
+                    gate))
 
 (require (for-syntax racket/base
                      syntax/parse
@@ -182,3 +184,14 @@
          (switch (divert condition-gate consequent-gate)
            [condition consequent]
            ...))])
+
+(define-qi-syntax-parser partition
+  [(_:id)
+   #'ground]
+  [(_ [cond:clause body:clause])
+   #'(~> (pass cond) body)]
+  [(_ [cond:clause body:clause] [conds:clause bodies:clause] ...+)
+   #'(sieve cond body (partition [conds bodies] ...))])
+
+(define-qi-syntax-rule (gate onex:clause)
+  (if onex _ ⏚))
