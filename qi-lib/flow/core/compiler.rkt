@@ -63,7 +63,9 @@
                       #'((qi0->racket onex) ...))))]
     [e:relay-form (relay-parser #'e)]
     [e:tee-form (tee-parser #'e)]
+    ;; map and filter
     [e:amp-form (amp-parser #'e)] ; NOTE: technically not core
+    [e:pass-form (pass-parser #'e)] ; NOTE: technically not core
     ;; prisms
     [e:sep-form (sep-parser #'e)]
     [(~or* (~datum ▽) (~datum collect))
@@ -81,6 +83,8 @@
      #'(conjoin (qi0->racket onex) ...)]
     [((~datum or) onex:clause ...)
      #'(disjoin (qi0->racket onex) ...)]
+    [((~datum not) onex:clause) ; NOTE: technically not core
+     #'(qi0->racket (~> onex NOT))]
     ;; selection
     [e:select-form (select-parser #'e)]
     [e:block-form (block-parser #'e)]
@@ -117,11 +121,6 @@
     ;;;; Non-core forms ;;;;
     ;;;;;;;;;;;;;;;;;;;;;;;;
 
-    ;;; Predicates
-
-    [((~datum not) onex:clause) ;; TODO
-     #'(qi0->racket (~> onex NOT))]
-
     ;;; High level circuit elements
 
     ;; aliases for inputs
@@ -143,8 +142,6 @@
 
     ;;; Higher-order flows
 
-    ;; map and filter
-    [e:pass-form (pass-parser #'e)]
 
     ;;; Miscellaneous
 
