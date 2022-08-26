@@ -12,13 +12,15 @@
                     any?
                     all?
                     none?
-                    ))
+                    and%
+                    or%))
 
 (require (for-syntax racket/base
                      syntax/parse
+                     "syntax.rkt"
                      "../aux-syntax.rkt")
          "../../macro.rkt"
-         "util.rkt")
+         "impl.rkt")
 
 ;;; Predicates
 
@@ -54,3 +56,11 @@
 
 (define-qi-syntax-parser none?
   [_:id #'(~> any? NOT)])
+
+(define-qi-syntax-rule (and% onex:conjux-clause ...)
+  (~> (== onex.parsed ...)
+      all?))
+
+(define-qi-syntax-rule (or% onex:disjux-clause ...)
+  (~> (== onex.parsed ...)
+      any?))
