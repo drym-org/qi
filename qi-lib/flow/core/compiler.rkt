@@ -55,6 +55,8 @@
     ;; pass-through (identity flow)
     [(~datum _) #'values]
     ;; routing
+    [(~or* (~datum ⏚) (~datum ground)) ; NOTE: technically not core
+     #'(qi0->racket (select))]
     [((~or* (~datum ~>) (~datum thread)) onex:clause ...)
      #`(compose . #,(reverse
                      (syntax->list
@@ -121,8 +123,6 @@
 
     ;;; Routing
 
-    [(~or* (~datum ⏚) (~datum ground))
-     #'(qi0->racket (select))]
     [e:right-threading-form (right-threading-parser #'e)]
     [(~or* (~datum X) (~datum crossover))
      #'(qi0->racket (~> ▽ reverse △))]
