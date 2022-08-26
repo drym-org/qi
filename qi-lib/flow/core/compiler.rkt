@@ -123,8 +123,6 @@
 
     ;;; Routing
 
-    [(~or* (~datum X) (~datum crossover))
-     #'(qi0->racket (~> ▽ reverse △))]
     [((~or* (~datum ==*) (~datum relay*)) onex:clause ... rest-onex:clause)
      #:with len #`#,(length (syntax->list #'(onex ...)))
      #'(qi0->racket (group len (== onex ...) rest-onex) )]
