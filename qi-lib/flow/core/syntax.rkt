@@ -5,7 +5,6 @@
          block-form
          group-form
          sieve-form
-         partition-form
          try-form
          fanout-form
          feedback-form
@@ -62,10 +61,6 @@ See comments in flow.rkt for more details.
    (~datum sieve))
   (pattern
    ((~datum sieve) arg ...)))
-
-(define-syntax-class partition-form
-  (pattern
-   ({~datum partition} arg ...)))
 
 (define-syntax-class try-form
   (pattern
