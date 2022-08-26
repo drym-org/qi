@@ -15,7 +15,9 @@
                     and%
                     or%
                     thread-right
-                    ~>>))
+                    ~>>
+                    crossover
+                    X))
 
 (require (for-syntax racket/base
                      syntax/parse
@@ -79,3 +81,10 @@
 
 (define-qi-syntax-rule (~>> arg ...)
   (thread-right arg ...))
+
+(define-qi-syntax-parser crossover
+  [_:id #'(~> ▽ reverse △)])
+
+;; TODO: alias
+(define-qi-syntax-parser X
+  [_:id #'crossover])
