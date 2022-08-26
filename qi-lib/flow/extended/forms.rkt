@@ -20,7 +20,9 @@
                     X
                     relay*
                     ==*
-                    bundle))
+                    bundle
+                    when
+                    unless))
 
 (require (for-syntax racket/base
                      syntax/parse
@@ -107,3 +109,13 @@
                                remainder-onex:clause)
   (-< (~> (select n ...) selection-onex)
       (~> (block n ...) remainder-onex)))
+
+;;; Conditionals
+
+(define-qi-syntax-rule (when condition:clause
+                         consequent:clause)
+  (if condition consequent ⏚))
+
+(define-qi-syntax-rule (unless condition:clause
+                         alternative:clause)
+  (if condition ⏚ alternative))
