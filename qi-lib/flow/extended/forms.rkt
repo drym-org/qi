@@ -5,7 +5,6 @@
                     all
                     any
                     none
-                    ;; not
                     NOR
                     NAND
                     XNOR
@@ -48,9 +47,6 @@
 
 (define-qi-syntax-rule (none onex:clause)
   (not (any onex)))
-
-;; (define-qi-syntax-rule (not onex:clause)
-;;   (~> onex NOT))
 
 (define-qi-syntax-parser NOR
   [_:id #'(~> OR NOT)])
