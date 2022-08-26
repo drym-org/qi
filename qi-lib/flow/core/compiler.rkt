@@ -5,8 +5,6 @@
 (require (for-syntax racket/base
                      syntax/parse
                      racket/match
-                     (only-in racket/list
-                              make-list)
                      "syntax.rkt"
                      "../aux-syntax.rkt"
                      (only-in "../../private/util.rkt"
@@ -16,9 +14,7 @@
                   qi-macro-transformer)
          "impl.rkt"
          racket/function
-         (prefix-in fancy: fancy-app)
-         (only-in racket/list
-                  make-list))
+         (prefix-in fancy: fancy-app))
 
 (begin-for-syntax
   ;; note: this does not return compiled code but instead,
@@ -128,7 +124,7 @@
      #'(ext-form expr ...)]
 
     ;; a literal is interpreted as a flow generating it
-    [e:literal (literal-parser #'e)]
+    [e:literal (literal-parser #'e)] ; TODO: how would we write this as a macro?
 
     ;; Partial application with syntactically pre-supplied arguments
     ;; in a blanket template
