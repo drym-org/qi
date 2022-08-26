@@ -21,8 +21,6 @@
          fold-right-form
          loop-form
          blanket-template-form
-         and%-form
-         or%-form
          right-threading-form
          clos-form)
 
@@ -157,14 +155,6 @@ See comments in flow.rkt for more details.
   ;; "prarg" = "pre-supplied argument"
   (pattern
    (natex prarg-pre ... (~datum __) prarg-post ...)))
-
-(define-syntax-class and%-form
-  (pattern
-   ((~datum and%) arg ...)))
-
-(define-syntax-class or%-form
-  (pattern
-   ((~datum or%) arg ...)))
 
 (define-syntax-class right-threading-form
   (pattern

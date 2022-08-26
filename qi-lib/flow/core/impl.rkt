@@ -1,8 +1,6 @@
 #lang racket/base
 
 (provide give
-         true.
-         false.
          any?
          all?
          none?
@@ -169,14 +167,6 @@
                 [args (in-value (hash-ref by-cs c))])
       (call-with-values (λ () (apply b args)) list)))
   (apply values (apply append results)))
-
-(define true.
-  (procedure-rename (const #t)
-                    'true.))
-
-(define false.
-  (procedure-rename (const #f)
-                    'false.))
 
 (define exists ormap)
 
