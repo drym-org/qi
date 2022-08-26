@@ -121,22 +121,11 @@
     ;;;; Non-core forms ;;;;
     ;;;;;;;;;;;;;;;;;;;;;;;;
 
-    ;; common utilities
-    [(~datum count)
-     #'(qi0->racket (~> (>< 1) +))]
-    [(~datum live?)
-     #'(qi0->racket (~> count (> 0)))]
-    [((~datum rectify) v:expr ...)
-     #'(qi0->racket (if live? _ (gen v ...)))]
-
     ;; high level routing
     [e:fanout-form (fanout-parser #'e)]
     [(~datum inverter)
      #'(qi0->racket (>< NOT))]
     [e:side-effect-form (side-effect-parser #'e)]
-
-    ;;; Higher-order flows
-
 
     ;;; Miscellaneous
 
