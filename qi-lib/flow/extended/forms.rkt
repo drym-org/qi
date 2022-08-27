@@ -38,6 +38,9 @@
                     7>
                     8>
                     9>
+                    ;; try rename-out instead of
+                    ;; duplicate macros below, as
+                    ;; an alternative to define-qi-alias
                     inverter
                     effect
                     ε))
@@ -48,6 +51,7 @@
                      "syntax.rkt"
                      "../aux-syntax.rkt"
                      "../../private/util.rkt")
+         "expander.rkt"
          "../../macro.rkt"
          "impl.rkt")
 

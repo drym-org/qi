@@ -15,7 +15,6 @@
          fold-left-form
          fold-right-form
          loop-form
-         blanket-template-form
          clos-form)
 
 (require syntax/parse)
@@ -114,11 +113,6 @@ See comments in flow.rkt for more details.
    (~datum loop))
   (pattern
    ((~datum loop) arg ...)))
-
-(define-syntax-class blanket-template-form
-  ;; "prarg" = "pre-supplied argument"
-  (pattern
-   (natex prarg-pre ... (~datum __) prarg-post ...)))
 
 (define-syntax-class clos-form
   (pattern
