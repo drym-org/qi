@@ -270,13 +270,15 @@
         (define-values (v v*) (split-at a* n))
         (values (cons v a) v*)))
     (apply values
-      (for/list ([f (in-list fs)]
-                 [args (in-list args*)])
-        (match* ((procedure-arity f) args)
-          [(0 (list)) (f)]
-          [(1 (list v0)) (f v0)]
-          [(2 (list v0 v1)) (f v0 v1)]
-          [(_ _) (apply f args)])))))
+      (append*
+       (for/list ([f (in-list fs)]
+                  [args (in-list args*)])
+         (values->list
+          (match* ((procedure-arity f) args)
+            [(0 (list)) (f)]
+            [(1 (list v0)) (f v0)]
+            [(2 (list v0 v1)) (f v0 v1)]
+            [(_ _) (apply f args)])))))))
 
 (define (~all? . args)
   (match args
