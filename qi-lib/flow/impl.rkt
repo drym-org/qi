@@ -241,7 +241,7 @@
         (define-values (i n arity) (apply values a))
         (cond
           [(zero? m)
-           (values m (list* i n pairs))]
+           (values 0 (list* i n pairs))]
           [(arity-includes? arity (+ n m))
            (values 0 (list* i (+ n m) pairs))]
           [(arity-at-least? arity)
