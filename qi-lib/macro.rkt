@@ -5,21 +5,20 @@
          define-qi-syntax-parser
          define-qi-alias
          define-qi-foreign-syntaxes
-         (for-syntax qi-macro?
-                     qi-macro-transformer
-                     qi-macro))
+         (for-syntax qi-macro))
 
 (require (for-syntax racket/base
                      syntax/parse
                      racket/format
                      racket/match
                      racket/list)
+         (only-in "flow/extended/expander.rkt"
+                  qi-macro)
          racket/format
          syntax/parse/define
          syntax/parse)
 
 (begin-for-syntax
-  (struct qi-macro [transformer])
 
   (define (foreign-template-arg-indices tmpl)
     ;; return a list of indices corresponding to

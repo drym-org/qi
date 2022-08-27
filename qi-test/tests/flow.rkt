@@ -849,10 +849,10 @@
                     1 -3 5)
                    (list 1 1 5 5 -3)
                    "sieve with arity-increasing clause")
-     (check-equal? (~> (1 2 -3 4)
-                       (-< (gen positive? + (☯ (+ 2))) _)
-                       sieve
-                       ▽)
+     (check-equal? ((☯ (~> (-< (gen positive? + (☯ (+ 2))) _)
+                           sieve
+                           ▽))
+                    1 2 -3 4)
                    (list 7 -1)
                    "pure control form of sieve"))
     (test-suite
@@ -925,11 +925,12 @@
                    9))
     (test-suite
      "fanout"
-     (check-equal? (~> (5) (fanout 3) ▽)
+     (check-equal? ((☯ (~> (fanout 3) ▽))
+                    5)
                    (list 5 5 5))
-     (check-equal? (~> (2 3) (fanout 3) ▽)
+     (check-equal? ((☯ (~> (fanout 3) ▽)) 2 3)
                    (list 2 3 2 3 2 3))
-     (check-equal? (~> (3 "a") fanout string-append)
+     (check-equal? (~> (3 "a") fanout string-append) ; TODO: don't use Racket-level ~> in this module
                    "aaa"
                    "control form of fanout")
      (check-equal? (~> (3 "a" "b") fanout string-append)
