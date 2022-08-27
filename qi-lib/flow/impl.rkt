@@ -210,41 +210,44 @@
           "arity mismatch;\n"
           " the expected number of arguments does not match the given number")
          "given" n)))
+    (define len (length arity*))
     (define-values (m a*)
-      (for/fold ([m n]
-                 [a* '()]
-                 #:result
-                 (match a*
-                   [`([,n 1 ,(arity-at-least 2)] . ,a*)
-                    (values (add1 m) `([,n 0 ,(arity-at-least 1)] . ,a*))]
-                   [_ (values m a*)]))
+      (for/fold ([m n] [a* '()])
                 ([arity (in-list arity*)]
                  [n (in-naturals)])
-        (match arity
-          [(? exact-nonnegative-integer? i)
-           (values (- m i) a*)]
-          [(arity-at-least 0)
-           (values (- m 1) `([,n  1 ,(arity-at-least 2)] . ,a*))]
-          [(or (arity-at-least i) (list* 0 (arity-at-least i)))
-           (values (- m i) `([,n ,i ,(arity-at-least (add1 i))] . ,a*))]
-          [(or (list* 0 i j) (list* i j))
-           (values (- m i) `([,n ,i ,j] . ,a*))])))
+        (if (= 1 (- len n))
+            (match arity
+              [(? exact-nonnegative-integer? i)
+               (values (- m i) a*)]
+              [(or (arity-at-least i)
+                   (list* i _))
+               (values (- m i) `([,n ,i ,arity] . ,a*))])
+            (match arity
+              [(? exact-nonnegative-integer? i)
+               (values (- m i) a*)]
+              [(arity-at-least 0)
+               (values (- m 1) `([,n  1 ,arity] . ,a*))]
+              [(or (arity-at-least i)
+                   (list* 0 (arity-at-least i))
+                   (list* 0 i _)
+                   (list* i _))
+               (values (- m i) `([,n ,i ,arity] . ,a*))]))))
     (unless (>= m 0)
       (report-arity-error))
     (apply list-set*
       arity*
       (for/fold ([m m] [pairs '()] #:result pairs)
                 ([a (in-list a*)])
-        (define-values (n i j) (apply values a))
+        (define-values (n i arity) (apply values a))
         (cond
-          [(or (zero? m) (null? j))
+          [(zero? m)
            (values m (list* n i pairs))]
-          [(arity-includes? j m)
+          [(arity-includes? arity (+ i m))
            (values 0 (list* n (+ i m) pairs))]
-          [(arity-at-least? j)
+          [(arity-at-least? arity)
            (report-arity-error)]
-          [(list? j)
-           (match (last j)
+          [(list? arity)
+           (match (last arity)
              [(? arity-at-least?)
               (report-arity-error)]
              [(? exact-nonnegative-integer? j)
