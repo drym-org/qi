@@ -101,9 +101,8 @@
      #'(qi0->racket (~> ▽ reverse △))]
     [((~or* (~datum ==) (~datum relay)) onex:clause ...)
      #'(relay (qi0->racket onex) ...)]
-    [((~or* (~datum ==*) (~datum relay*)) onex:clause ... rest-onex:clause)
-     (with-syntax ([len #`#,(length (syntax->list #'(onex ...)))])
-       #'(qi0->racket (group len (== onex ...) rest-onex) ))]
+    [((~or* (~datum ==*) (~datum relay*)) onex:clause ...)
+     #'(relay* (qi0->racket onex) ...)]
     [((~or* (~datum -<) (~datum tee)) onex:clause ...)
      #'(λ args
          (apply values

@@ -11,6 +11,7 @@
          filter-values
          partition-values
          relay
+         relay*
          loom-compose
          parity-xor
          arg
@@ -27,7 +28,8 @@
 (require racket/match
          (only-in racket/function
                   const
-                  negate)
+                  negate
+                  arity-includes?)
          racket/bool
          racket/list
          racket/format
@@ -198,6 +200,56 @@
         (append (values->list (apply op vs))
                 (apply zip-with op (map rest seqs))))))
 
+(define split-input
+  (λ (n arity*)
+    (define report-arity-error
+      (λ ()
+        (raise-arguments-error
+         'split-input
+         (string-append
+          "arity mismatch;\n"
+          " the expected number of arguments does not match the given number")
+         "given" n)))
+    (define-values (m a*)
+      (for/fold ([m n]
+                 [a* '()]
+                 #:result
+                 (match a*
+                   [`([,n 1 ,(arity-at-least 2)] . ,a*)
+                    (values (add1 m) `([,n 0 ,(arity-at-least 1)] . ,a*))]
+                   [_ (values m a*)]))
+                ([arity (in-list arity*)]
+                 [n (in-naturals)])
+        (match arity
+          [(? exact-nonnegative-integer? i)
+           (values (- m i) a*)]
+          [(arity-at-least 0)
+           (values (- m 1) `([,n  1 ,(arity-at-least 2)] . ,a*))]
+          [(or (arity-at-least i) (list* 0 (arity-at-least i)))
+           (values (- m i) `([,n ,i ,(arity-at-least (add1 i))] . ,a*))]
+          [(or (list* 0 i j) (list* i j))
+           (values (- m i) `([,n ,i ,j] . ,a*))])))
+    (unless (>= m 0)
+      (report-arity-error))
+    (apply list-set*
+      arity*
+      (for/fold ([m m] [pairs '()] #:result pairs)
+                ([a (in-list a*)])
+        (define-values (n i j) (apply values a))
+        (cond
+          [(or (zero? m) (null? j))
+           (values m (list* n i pairs))]
+          [(arity-includes? j m)
+           (values 0 (list* n (+ i m) pairs))]
+          [(arity-at-least? j)
+           (report-arity-error)]
+          [(list? j)
+           (match (last j)
+             [(? arity-at-least?)
+              (report-arity-error)]
+             [(? exact-nonnegative-integer? j)
+              (values (- m j) (list* n (+ i j) pairs))])])))))
+
 ;; from mischief/function - requiring it runs aground
 ;; of some "name is protected" error while building docs, not sure why;
 ;; so including the implementation directly here for now
@@ -209,6 +261,22 @@
 (define (relay . fs)
   (λ args
     (apply values (zip-with call fs args))))
+
+(define (relay* . fs)
+  (λ args
+    (define args*
+      (for/fold ([a '()] [a* args] #:result (reverse a))
+                ([n (in-list (split-input (length args) (map procedure-arity fs)))])
+        (define-values (v v*) (split-at a* n))
+        (values (cons v a) v*)))
+    (apply values
+      (for/list ([f (in-list fs)]
+                 [args (in-list args*)])
+        (match* ((procedure-arity f) args)
+          [(0 (list)) (f)]
+          [(1 (list v0)) (f v0)]
+          [(2 (list v0 v1)) (f v0 v1)]
+          [(_ _) (apply f args)])))))
 
 (define (~all? . args)
   (match args
