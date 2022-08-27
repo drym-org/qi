@@ -1,7 +1,8 @@
 #lang racket/base
 
 (provide flow
-         ☯)
+         ☯
+         (all-from-out "flow/extended/expander.rkt"))
 
 (require syntax/parse/define
          (prefix-in fancy: fancy-app)
@@ -11,8 +12,8 @@
          (for-syntax racket/base
                      syntax/parse
                      (only-in "private/util.rkt"
-                              report-syntax-error)
-                     "flow/extended/expander.rkt")
+                              report-syntax-error))
+         "flow/extended/expander.rkt"
          "flow/core/compiler.rkt"
          (only-in "private/util.rkt"
                   define-alias))

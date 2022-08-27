@@ -2,7 +2,11 @@
 
 (provide conjux-clause
          disjux-clause
-         right-threading-clause)
+         right-threading-clause
+         blanket-template-form
+         fine-template-form
+         partial-application-form
+         any-stx)
 
 (require syntax/parse
          "../aux-syntax.rkt"
@@ -33,3 +37,25 @@
   (pattern
    onex:clause
    #:with chiral (make-right-chiral #'onex)))
+
+(define-syntax-class blanket-template-form
+  ;; "prarg" = "pre-supplied argument"
+  (pattern
+   (natex prarg-pre ... (~datum __) prarg-post ...)))
+
+(define-syntax-class fine-template-form
+  ;; "prarg" = "pre-supplied argument"
+  (pattern
+   ;; note these are used in the expander instead of in the compiler
+   ;; that's why they don't need the tag
+   (prarg-pre ... (~datum _) prarg-post ...)))
+
+(define-syntax-class partial-application-form
+  ;; "prarg" = "pre-supplied argument"
+  (pattern
+   ;; note these are used in the expander instead of in the compiler
+   ;; that's why they don't need the tag
+   (natex prarg ...+)))
+
+(define-syntax-class any-stx
+  (pattern _))

@@ -10,8 +10,7 @@
 
 (require qi/flow
          (except-in qi/macro
-                    qi-macro-transformer
-                    qi-macro?)
+                    qi-macro)
          qi/on
          qi/switch
          qi/threading
