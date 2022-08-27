@@ -214,36 +214,36 @@
     (define-values (m a*)
       (for/fold ([m n] [a* '()])
                 ([arity (in-list arity*)]
-                 [n (in-naturals)])
-        (if (= 1 (- len n))
+                 [i (in-naturals)])
+        (if (= 1 (- len i))
             (match arity
-              [(? exact-nonnegative-integer? i)
-               (values (- m i) a*)]
-              [(or (arity-at-least i)
-                   (list* i _))
-               (values (- m i) `([,n ,i ,arity] . ,a*))])
+              [(? exact-nonnegative-integer? n)
+               (values (- m n) a*)]
+              [(or (arity-at-least n)
+                   (list* n _))
+               (values (- m n) `([,i ,n ,arity] . ,a*))])
             (match arity
-              [(? exact-nonnegative-integer? i)
-               (values (- m i) a*)]
+              [(? exact-nonnegative-integer? n)
+               (values (- m n) a*)]
               [(arity-at-least 0)
-               (values (- m 1) `([,n  1 ,arity] . ,a*))]
-              [(or (arity-at-least i)
-                   (list* 0 (arity-at-least i))
-                   (list* 0 i _)
-                   (list* i _))
-               (values (- m i) `([,n ,i ,arity] . ,a*))]))))
+               (values (- m 1) `([,i  1 ,arity] . ,a*))]
+              [(or (arity-at-least n)
+                   (list* 0 (arity-at-least n))
+                   (list* 0 n _)
+                   (list* n _))
+               (values (- m n) `([,i ,n ,arity] . ,a*))]))))
     (unless (>= m 0)
       (report-arity-error))
     (apply list-set*
       arity*
       (for/fold ([m m] [pairs '()] #:result pairs)
                 ([a (in-list a*)])
-        (define-values (n i arity) (apply values a))
+        (define-values (i n arity) (apply values a))
         (cond
           [(zero? m)
-           (values m (list* n i pairs))]
-          [(arity-includes? arity (+ i m))
-           (values 0 (list* n (+ i m) pairs))]
+           (values m (list* i n pairs))]
+          [(arity-includes? arity (+ n m))
+           (values 0 (list* i (+ n m) pairs))]
           [(arity-at-least? arity)
            (report-arity-error)]
           [(list? arity)
@@ -251,7 +251,7 @@
              [(? arity-at-least?)
               (report-arity-error)]
              [(? exact-nonnegative-integer? j)
-              (values (- m j) (list* n (+ i j) pairs))])])))))
+              (values (- m j) (list* i (+ n j) pairs))])])))))
 
 ;; from mischief/function - requiring it runs aground
 ;; of some "name is protected" error while building docs, not sure why;
@@ -269,8 +269,8 @@
   (λ args
     (define args*
       (for/fold ([a '()] [a* args] #:result (reverse a))
-                ([n (in-list (split-input (length args) (map procedure-arity fs)))])
-        (define-values (v v*) (split-at a* n))
+                ([i (in-list (split-input (length args) (map procedure-arity fs)))])
+        (define-values (v v*) (split-at a* i))
         (values (cons v a) v*)))
     (apply values
       (append*
