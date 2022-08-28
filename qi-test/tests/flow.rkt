@@ -501,11 +501,11 @@
        (check-equal? ((☯ (~> (==* add1 sub1 +) ▽))
                       1 1)
                      (list 2 0 0))
-       (check-equal? ((☯
+       (check-equal? ((☯                        ; x y
                         (~> (-< 1> 1> 1> 2> 3)  ; x x x y 3
                             (==* mul  mul   id) ; x*x x*y 3
                             (==* id   mul)      ; x*x x*y*3
-                            (==* add)))
+                            add))               ; x*x+x*y*3
                       3 4)
                      45)
        (check-equal? ((☯ (~> (relay* add1 sub1 +) ▽))
