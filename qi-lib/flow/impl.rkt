@@ -253,6 +253,8 @@
              [(? exact-nonnegative-integer? j)
               (values (- m j) (list* i (+ n j) pairs))])])))))
 
+(define terminal (λ () (values)))
+
 ;; from mischief/function - requiring it runs aground
 ;; of some "name is protected" error while building docs, not sure why;
 ;; so including the implementation directly here for now
@@ -262,28 +264,30 @@
      (keyword-apply f ks vs xs))))
 
 (define (relay . fs)
-  (λ args
-    (apply values (zip-with call fs args))))
+  (if (null? fs)
+      terminal
+      (λ args (apply values (zip-with call fs args)))))
 
 (define (relay* . fs)
   (if (null? fs)
-      (λ () (values))
+      terminal
       (λ args
-        (define args*
-          (for/fold ([a '()] [a* args] #:result (reverse a))
-                    ([i (in-list (split-input (length args) (map procedure-arity fs)))])
-            (define-values (v v*) (split-at a* i))
-            (values (cons v a) v*)))
-        (apply values
-          (append*
-           (for/list ([f (in-list fs)]
-                      [args (in-list args*)])
-             (values->list
-              (match* ((procedure-arity f) args)
-                [(0 (list)) (f)]
-                [(1 (list v0)) (f v0)]
-                [(2 (list v0 v1)) (f v0 v1)]
-                [(_ _) (apply f args)]))))))))
+        (let ([fs (remq* (list terminal) fs)])
+          (define args*
+            (for/fold ([a '()] [a* args] #:result (reverse a))
+                      ([i (in-list (split-input (length args) (map procedure-arity fs)))])
+              (define-values (v v*) (split-at a* i))
+              (values (cons v a) v*)))
+          (apply values
+            (append*
+             (for/list ([f (in-list fs)]
+                        [args (in-list args*)])
+               (values->list
+                (match* ((procedure-arity f) args)
+                  [(0 (list)) (f)]
+                  [(1 (list v0)) (f v0)]
+                  [(2 (list v0 v1)) (f v0 v1)]
+                  [(_ _) (apply f args)])))))))))
 
 (define (~all? . args)
   (match args
