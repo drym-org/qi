@@ -219,13 +219,17 @@
 
 (define (tee . fs)
   (let ([fs (remq* (list *->1) fs)])
-    (if (null? fs)
-        *->1
-        (λ args
-          (apply values
-            (append*
-             (for/list ([f (in-list fs)])
-               (values->list (apply f args)))))))))
+    (match fs
+      ['() *->1]
+      [`(,f) f]
+      [_
+       (define teed
+         (λ args
+           (apply values
+             (append*
+              (for/list ([f (in-list fs)])
+                (values->list (apply f args)))))))
+       teed])))
 
 (define (~all? . args)
   (match args
