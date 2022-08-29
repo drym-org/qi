@@ -91,7 +91,7 @@
     ;;; Core routing elements
 
     [(~or* (~datum ⏚) (~datum ground))
-     #'(qi0->racket (select))]
+     #'*->1]
     [((~or* (~datum ~>) (~datum thread)) onex:clause ...)
      #`(compose . #,(reverse
                      (syntax->list
@@ -104,11 +104,7 @@
     [((~or* (~datum ==*) (~datum relay*)) onex:clause ...)
      #'(relay* (qi0->racket onex) ...)]
     [((~or* (~datum -<) (~datum tee)) onex:clause ...)
-     #'(λ args
-         (apply values
-                (append (values->list
-                         (apply (qi0->racket onex) args))
-                        ...)))]
+     #'(tee (qi0->racket onex) ...)]
     [e:select-form (select-parser #'e)]
     [e:block-form (block-parser #'e)]
     [((~datum bundle) (n:number ...)
@@ -307,6 +303,7 @@ the DSL.
 
   (define (select-parser stx)
     (syntax-parse stx
+      [(_) #'*->1]
       [(_ n:number ...) #'(qi0->racket (-< (esc (arg n)) ...))]
       [(_ arg ...) ; error handling catch-all
        (report-syntax-error 'select
@@ -487,17 +484,14 @@ the DSL.
   (define (fanout-parser stx)
     (syntax-parse stx
       [_:id #'repeat-values]
+      [(_ 0) #'*->1]
       [(_ n:number)
        ;; a slightly more efficient compile-time implementation
        ;; for literally indicated N
        #`(λ args
            (apply values
                   (append #,@(make-list (syntax->datum #'n) 'args))) )]
-      [(_ n:expr)
-       #'(lambda args
-           (apply values
-                  (apply append
-                         (make-list n args))))]))
+      [(_ e:expr) #`(let ([n e]) (#,fanout-parser n))]))
 
   (define (feedback-parser stx)
     (syntax-parse stx

@@ -10,8 +10,11 @@
          map-values
          filter-values
          partition-values
+         1->1
+         *->1
          relay
          relay*
+         tee
          loom-compose
          parity-xor
          arg
@@ -253,7 +256,8 @@
              [(? exact-nonnegative-integer? j)
               (values (- m j) (list* i (+ n j) pairs))])])))))
 
-(define terminal (λ () (values)))
+(define 1->1 (λ () (values)))
+(define *->1 (λ _ (values)))
 
 ;; from mischief/function - requiring it runs aground
 ;; of some "name is protected" error while building docs, not sure why;
@@ -265,13 +269,13 @@
 
 (define (relay . fs)
   (if (null? fs)
-      terminal
+      1->1
       (λ args (apply values (zip-with call fs args)))))
 
 (define (relay* . fs)
-  (let ([fs (remq* (list terminal) fs)])
+  (let ([fs (remq* (list 1->1) fs)])
     (if (null? fs)
-        terminal
+        1->1
         (λ args
           (define args*
             (for/fold ([a '()] [a* args] #:result (reverse a))
@@ -284,10 +288,20 @@
                         [args (in-list args*)])
                (values->list
                 (match* ((procedure-arity f) args)
-                  [(0 (list)) (f)]
-                  [(1 (list v0)) (f v0)]
-                  [(2 (list v0 v1)) (f v0 v1)]
+                  [(0 '()) (f)]
+                  [(1 `(,v0)) (f v0)]
+                  [(2 `(,v0 ,v1)) (f v0 v1)]
                   [(_ _) (apply f args)])))))))))
+
+(define (tee . fs)
+  (let ([fs (remq* (list *->1) fs)])
+    (if (null? fs)
+        *->1
+        (λ args
+          (apply values
+            (append*
+             (for/list ([f (in-list fs)])
+               (values->list (apply f args)))))))))
 
 (define (~all? . args)
   (match args
