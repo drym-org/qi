@@ -236,7 +236,7 @@
       (report-arity-error))
     (apply list-set*
       arity*
-      (for/fold ([m m] [pairs '()] #:result pairs)
+      (for/fold ([m m] [pairs '()] #:result (if (zero? m) pairs (report-arity-error)))
                 ([a (in-list a*)])
         (define-values (i n arity) (apply values a))
         (cond
@@ -266,22 +266,24 @@
     (apply values (zip-with call fs args))))
 
 (define (relay* . fs)
-  (λ args
-    (define args*
-      (for/fold ([a '()] [a* args] #:result (reverse a))
-                ([i (in-list (split-input (length args) (map procedure-arity fs)))])
-        (define-values (v v*) (split-at a* i))
-        (values (cons v a) v*)))
-    (apply values
-      (append*
-       (for/list ([f (in-list fs)]
-                  [args (in-list args*)])
-         (values->list
-          (match* ((procedure-arity f) args)
-            [(0 (list)) (f)]
-            [(1 (list v0)) (f v0)]
-            [(2 (list v0 v1)) (f v0 v1)]
-            [(_ _) (apply f args)])))))))
+  (if (null? fs)
+      (λ () (values))
+      (λ args
+        (define args*
+          (for/fold ([a '()] [a* args] #:result (reverse a))
+                    ([i (in-list (split-input (length args) (map procedure-arity fs)))])
+            (define-values (v v*) (split-at a* i))
+            (values (cons v a) v*)))
+        (apply values
+          (append*
+           (for/list ([f (in-list fs)]
+                      [args (in-list args*)])
+             (values->list
+              (match* ((procedure-arity f) args)
+                [(0 (list)) (f)]
+                [(1 (list v0)) (f v0)]
+                [(2 (list v0 v1)) (f v0 v1)]
+                [(_ _) (apply f args)]))))))))
 
 (define (~all? . args)
   (match args
