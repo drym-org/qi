@@ -29,6 +29,8 @@
 
 (require racket/match
          (only-in racket/function
+                  thunk
+                  thunk*
                   const
                   negate)
          racket/bool
@@ -201,8 +203,8 @@
         (append (values->list (apply op vs))
                 (apply zip-with op (map rest seqs))))))
 
-(define 1->1 (λ () (values)))
-(define *->1 (λ _ (values)))
+(define 1->1 (thunk  (values)))
+(define *->1 (thunk* (values)))
 
 ;; from mischief/function - requiring it runs aground
 ;; of some "name is protected" error while building docs, not sure why;
