@@ -484,18 +484,34 @@
                     5 7)
                    (list 25 8)
                    "named relay form"))
-    (test-suite
-     "==*"
-     (check-equal? ((☯ (~> (==* add1 sub1 +) ▽))
-                    1 1 1 1 1)
-                   (list 2 0 3))
-     (check-equal? ((☯ (~> (==* add1 sub1 +) ▽))
-                    1 1)
-                   (list 2 0 0))
-     (check-equal? ((☯ (~> (relay* add1 sub1 +) ▽))
-                    1 1 1 1 1)
-                   (list 2 0 3)
-                   "named relay* form"))
+    (let ([add (procedure-reduce-arity + 2)]
+          [mul (procedure-reduce-arity * 2)]
+          [id  (procedure-reduce-arity values 1)])
+      (test-suite
+       "==*"
+       (check-equal? ((☯ (~> (==* add1 sub1 +) ▽))
+                      1 1 1 1 1)
+                     (list 2 0 3))
+       (check-equal? ((☯ (~> (==* add1 + sub1) ▽))
+                      1 1 1 1 1)
+                     (list 2 3 0))
+       (check-equal? ((☯ (~> (==* add1 + + sub1) ▽))
+                      1 1 1 1 1)
+                     (list 2 1 2 0))
+       (check-equal? ((☯ (~> (==* add1 sub1 +) ▽))
+                      1 1)
+                     (list 2 0 0))
+       (check-equal? ((☯                        ; x y
+                        (~> (-< 1> 1> 1> 2> 3)  ; x x x y 3
+                            (==* mul  mul   id) ; x*x x*y 3
+                            (==* id   mul)      ; x*x x*y*3
+                            add))               ; x*x+x*y*3
+                      3 4)
+                     45)
+       (check-equal? ((☯ (~> (relay* add1 sub1 +) ▽))
+                      1 1 1 1 1)
+                     (list 2 0 3)
+                     "named relay* form")))
     (test-suite
      "ground"
      (check-equal? ((☯ (-< ⏚ add1))
