@@ -10,7 +10,10 @@
          map-values
          filter-values
          partition-values
+         1->1
+         *->1
          relay
+         tee
          loom-compose
          parity-xor
          arg
@@ -198,6 +201,9 @@
         (append (values->list (apply op vs))
                 (apply zip-with op (map rest seqs))))))
 
+(define 1->1 (λ () (values)))
+(define *->1 (λ _ (values)))
+
 ;; from mischief/function - requiring it runs aground
 ;; of some "name is protected" error while building docs, not sure why;
 ;; so including the implementation directly here for now
@@ -207,8 +213,19 @@
      (keyword-apply f ks vs xs))))
 
 (define (relay . fs)
-  (λ args
-    (apply values (zip-with call fs args))))
+  (if (null? fs)
+      1->1
+      (λ args (apply values (zip-with call fs args)))))
+
+(define (tee . fs)
+  (let ([fs (remq* (list *->1) fs)])
+    (if (null? fs)
+        *->1
+        (λ args
+          (apply values
+            (append*
+             (for/list ([f (in-list fs)])
+               (values->list (apply f args)))))))))
 
 (define (~all? . args)
   (match args
