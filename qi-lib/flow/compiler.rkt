@@ -492,7 +492,14 @@ the DSL.
        #`(λ args
            (apply values
                   (append #,@(make-list (syntax->datum #'n) 'args))) )]
-      [(_ e:expr) #`(let ([n e]) (#,fanout-parser n))]))
+      [(_ e:expr)
+       #'(let ([n e])
+           (if (zero? n)
+               *->1
+               (λ args
+                 (apply values
+                   (apply append
+                     (make-list n args))))))]))
 
   (define (feedback-parser stx)
     (syntax-parse stx
