@@ -269,10 +269,10 @@
       (λ args (apply values (zip-with call fs args)))))
 
 (define (relay* . fs)
-  (if (null? fs)
-      terminal
-      (λ args
-        (let ([fs (remq* (list terminal) fs)])
+  (let ([fs (remq* (list terminal) fs)])
+    (if (null? fs)
+        terminal
+        (λ args
           (define args*
             (for/fold ([a '()] [a* args] #:result (reverse a))
                       ([i (in-list (split-input (length args) (map procedure-arity fs)))])
