@@ -26,7 +26,8 @@
 
 (require racket/match
          (only-in racket/function
-                  const
+                  thunk
+                  thunk*
                   negate)
          racket/bool
          racket/list
@@ -56,12 +57,7 @@
                      (append (values->list (apply f sargs))
                              (values->list (apply g rargs))))))))))
 
-(define (parity-xor . args)
-  (not
-   (not
-    (foldl xor
-           #f
-           args))))
+(define (parity-xor . args) (and (foldl xor #f args) #t))
 
 (define (counting-string n)
   (let ([d (remainder n 10)]
@@ -171,19 +167,11 @@
       (call-with-values (λ () (apply b args)) list)))
   (apply values (apply append results)))
 
-(define (->boolean v)
-  (not (not v)))
+(define (->boolean v) (and v #t))
+(define true.  (thunk* #t))
+(define false. (thunk* #f))
 
-(define true.
-  (procedure-rename (const #t)
-                    'true.))
-
-(define false.
-  (procedure-rename (const #f)
-                    'false.))
-
-(define exists ormap)
-
+(define exists  ormap)
 (define for-all andmap)
 
 (define (zip-with op . seqs)
@@ -210,26 +198,14 @@
   (λ args
     (apply values (zip-with call fs args))))
 
-(define (~all? . args)
-  (match args
-    ['() #t]
-    [(cons v vs)
-     (and v (apply all? vs))]))
+(define (all? . args)
+  (and (for/and ([v (in-list args)]) v) #t))
 
-(define all? (compose not not ~all?))
+(define (any? . args)
+  (and (for/or ([v (in-list args)]) v) #t))
 
-(define (~any? . args)
-  (match args
-    ['() #f]
-    [(cons v vs)
-     (or v (apply any? vs))]))
-
-(define any? (compose not not ~any?))
-
-(define (~none? . args)
-  (not (apply any? args)))
-
-(define none? (compose not not ~none?))
+(define (none? . args)
+  (not (for/or ([v (in-list args)]) v)))
 
 (define (repeat-values n . vs)
   (apply values (apply append (make-list n vs))))
