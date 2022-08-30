@@ -488,20 +488,17 @@ the DSL.
     (syntax-parse stx
       [_:id #'repeat-values]
       [(_ 0) #'*->1]
+      [(_ 1) #'values]
       [(_ n:number)
        ;; a slightly more efficient compile-time implementation
        ;; for literally indicated N
-       #`(λ args
-           (apply values
-                  (append #,@(make-list (syntax->datum #'n) 'args))) )]
+       #'(curry repeat-values n)]
       [(_ e:expr)
        #'(let ([n e])
-           (if (zero? n)
-               *->1
-               (λ args
-                 (apply values
-                   (apply append
-                     (make-list n args))))))]))
+           (case n
+             [(0) *->1]
+             [(1) values]
+             [else (curry repeat-values n)]))]))
 
   (define (feedback-parser stx)
     (syntax-parse stx
