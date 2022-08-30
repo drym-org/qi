@@ -220,18 +220,16 @@
       (λ args (apply values (zip-with call fs args)))))
 
 (define (tee . fs)
-  (let ([fs (remq* (list *->1) fs)])
-    (match fs
-      ['() *->1]
-      [`(,f) f]
-      [_
-       (define teed
-         (λ args
-           (apply values
-             (append*
-              (for/list ([f (in-list fs)])
-                (values->list (apply f args)))))))
-       teed])))
+  (match (remq* (list *->1) fs)
+    ['() *->1]
+    [`(,f) f]
+    [fs
+     (define (teed . args)
+       (apply values
+         (append*
+          (for/list ([f (in-list fs)])
+            (values->list (apply f args))))))
+     teed]))
 
 (define (~all? . args)
   (match args
