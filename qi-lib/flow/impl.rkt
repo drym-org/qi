@@ -174,7 +174,7 @@
                 [b (in-value (cdr c+b))]
                 [args (in-value (hash-ref by-cs c))])
       (call-with-values (λ () (apply b args)) list)))
-  (apply values (apply append results)))
+  (apply values (append* results)))
 
 (define (->boolean v)
   (not (not v)))
@@ -255,7 +255,7 @@
 (define none? (compose not not ~none?))
 
 (define (repeat-values n . vs)
-  (apply values (apply append (make-list n vs))))
+  (apply values (append* (make-list n vs))))
 
 (define (power n f)
   (apply compose (make-list n f)))
