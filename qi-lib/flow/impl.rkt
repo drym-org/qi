@@ -215,9 +215,12 @@
      (keyword-apply f ks vs xs))))
 
 (define (relay . fs)
-  (if (null? fs)
-      1->1
-      (λ args (apply values (zip-with call fs args)))))
+  (cond
+    [(null? fs) 1->1]
+    [else
+     (define (relayed . args)
+       (apply values (zip-with call fs args)))
+     relayed]))
 
 (define (tee . fs)
   (match (remq* (list *->1) fs)
