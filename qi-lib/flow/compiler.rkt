@@ -63,8 +63,10 @@
      #'(disjoin (qi0->racket onex) ...)]
     [((~datum not) onex:clause)
      #'(negate (qi0->racket onex))]
+    [((~datum gen))
+     #'*->1]
     [((~datum gen) ex:expr ...)
-     #'(λ _ (values ex ...))]
+     #'(thunk* (values ex ...))]
     [(~or* (~datum NOT) (~datum !))
      #'not]
     [(~or* (~datum AND) (~datum &))
