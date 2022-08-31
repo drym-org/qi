@@ -33,14 +33,23 @@ module, defined after the flow macro. They are all invoked as needed
 in the flow macro.
 |#
 
-(define-syntax-parser flow
-  [(_ onex) ((compose compile-flow expand-flow) #'onex)]
-  ;; a non-flow
-  [_ #'values]
-  ;; error handling catch-all
-  [(_ expr0 expr ...+)
-   (report-syntax-error
-    'flow
-    (syntax->datum #'(expr0 expr ...))
-    "(flow flo)"
-    "flow expects a single flow specification, but it received many.")])
+(define-syntax (flow stx)
+  (syntax-parse stx
+    [(_ onex)
+     #:with name (syntax-local-name)
+     (quasisyntax/loc stx
+       (let ([flowed #,((compose compile-flow expand-flow) #'onex)])
+         (cond
+           [(and 'name (procedure? flowed)
+                 (memq (object-name flowed) '(flowed composed)))
+            (procedure-rename flowed 'name)]
+           [else flowed])))]
+    ;; a non-flow
+    [_ #'values]
+    ;; error handling catch-all
+    [(_ expr0 expr ...+)
+     (report-syntax-error
+      'flow
+      (syntax->datum #'(expr0 expr ...))
+      "(flow flo)"
+      "flow expects a single flow specification, but it received many.")]))
