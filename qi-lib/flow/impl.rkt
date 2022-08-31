@@ -31,7 +31,6 @@
          (only-in racket/function
                   thunk
                   thunk*
-                  const
                   negate)
          racket/bool
          racket/list
