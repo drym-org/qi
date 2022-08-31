@@ -41,7 +41,8 @@ in the flow macro.
        (let ([flowed #,((compose compile-flow expand-flow) #'onex)])
          (cond
            [(and 'name (procedure? flowed)
-                 (memq (object-name flowed) '(flowed composed)))
+                 (memq (object-name flowed)
+                       '(flowed composed #f)))
             (procedure-rename flowed 'name)]
            [else flowed])))]
     ;; a non-flow
