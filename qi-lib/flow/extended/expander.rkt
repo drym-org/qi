@@ -45,8 +45,7 @@
                         ;; potentially pull out as a phase 1 function
                         ;; just a stopgap until better error messages
                         (report-syntax-error
-                         'amp
-                         (syntax->datum #'(f0 f ...))
+                         this-syntax
                          "(>< flo)"
                          "amp expects a single flow specification, but it received many."))
                pass
@@ -63,19 +62,16 @@
                (not f:floe)
                (select e:expr ...)
                (~>/form (select arg ...)
-                        (report-syntax-error 'select
-                                             (syntax->datum #'(arg ...))
+                        (report-syntax-error this-syntax
                                              "(select <number> ...)"))
                (block e:expr ...)
                (~>/form (block arg ...)
-                        (report-syntax-error 'block
-                                             (syntax->datum #'(arg ...))
+                        (report-syntax-error this-syntax
                                              "(block <number> ...)"))
                (group n:expr e1:floe e2:floe)
                group
                (~>/form (group arg ...)
-                        (report-syntax-error 'group
-                                             (syntax->datum #'(arg ...))
+                        (report-syntax-error this-syntax
                                              "(group <number> <selection flow> <remainder flow>)"))
                (if consequent:floe
                    alternative:floe)
@@ -87,15 +83,13 @@
                       ronex:floe)
                sieve
                (~>/form (sieve arg ...)
-                        (report-syntax-error 'sieve
-                                             (syntax->datum #'(arg ...))
+                        (report-syntax-error this-syntax
                                              "(sieve <predicate flow> <selection flow> <remainder flow>)"))
                (try flo:floe
                  [error-condition-flo:floe error-handler-flo:floe]
                  ...+)
                (~>/form (try arg ...)
-                        (report-syntax-error 'try
-                                             (syntax->datum #'(arg ...))
+                        (report-syntax-error this-syntax
                                              "(try <flo> [error-predicate-flo error-handler-flo] ...)"))
                >>
                (>> fn:floe init:floe)
