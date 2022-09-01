@@ -45,10 +45,13 @@ in the flow macro.
                        '(#f
                          composed
                          compiled-flow
-                         compiled-amp-flow
                          compiled-relay-flow
                          compiled-relay*-flow
-                         compiled-tee-flow)))
+                         compiled-tee-flow
+                         compiled-amp-flow
+                         compiled-fanout-flow
+                         compiled-pass-flow
+                         compiled-clos-flow)))
             (procedure-rename compiled-flow 'name)]
            [else compiled-flow])))]
     ;; a non-flow
