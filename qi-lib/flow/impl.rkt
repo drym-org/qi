@@ -43,22 +43,22 @@
 
 ;; we use a lambda to capture the arguments at runtime
 ;; since they aren't available at compile time
-(define (loom-compose f g [n #f])
-  (let ([n (or n (procedure-arity f))])
+(define (loom-compose f g [n (procedure-arity f)])
+  (define compiled-group-flow
     (λ args
-      (let ([num-args (length args)])
-        (if (< num-args n)
-            (if (= 0 num-args)
-                (values)
-                (error 'group (~a "Can't select "
-                                  n
-                                  " arguments from "
-                                  args)))
-            (let ([sargs (take args n)]
-                  [rargs (drop args n)])
-              (apply values
-                     (append (values->list (apply f sargs))
-                             (values->list (apply g rargs))))))))))
+      (define num-args (length args))
+      (if (< num-args n)
+          (if (= 0 num-args)
+              (values)
+              (error 'group (~a "Can't select "
+                                n
+                                " arguments from "
+                                args)))
+          (let-values ([(sargs rargs) (split-at args n)])
+            (apply values
+              (append (values->list (apply f sargs))
+                      (values->list (apply g rargs))))))))
+  compiled-group-flow)
 
 (define (parity-xor . args) (and (foldl xor #f args) #t))
 
@@ -204,21 +204,21 @@
   (cond
     [(null? fs) 1->1]
     [else
-     (define (relayed . args)
+     (define (compiled-relay-flow . args)
        (apply values (zip-with call fs args)))
-     relayed]))
+     compiled-relay-flow]))
 
 (define (tee . fs)
   (match (remq* (list *->1) fs)
     ['() *->1]
     [`(,f) f]
     [fs
-     (define (teed . args)
+     (define (compiled-tee-flow . args)
        (apply values
          (append*
           (for/list ([f (in-list fs)])
             (values->list (apply f args))))))
-     teed]))
+     compiled-tee-flow]))
 
 (define (all? . args)
   (and (for/and ([v (in-list args)]) v) #t))

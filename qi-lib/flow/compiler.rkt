@@ -301,8 +301,11 @@ the DSL.
                                                 "list?"
                                                 _)))]
       [(_ onex:clause)
-       #'(λ (v . vs)
-           ((qi0->racket (~> △ (>< (apply (qi0->racket onex) _ vs)))) v))]))
+       #'(let ([compiled-sep-flow
+                (λ (v . vs)
+                  ((qi0->racket (~> △ (>< (apply (qi0->racket onex) _ vs))))
+                   v))])
+           compiled-sep-flow)]))
 
   (define (select-parser stx)
     (syntax-parse stx
@@ -332,8 +335,10 @@ the DSL.
                        (qi0->racket remainder-onex)
                        n)]
       [_:id
-       #'(λ (n selection-flo remainder-flo . vs)
-           (apply (qi0->racket (group n selection-flo remainder-flo)) vs))]
+       #'(let ([compiled-group-flow
+                (λ (n selection-flo remainder-flo . vs)
+                  (apply (qi0->racket (group n selection-flo remainder-flo)) vs))])
+           compiled-group-flow)]
       [(_ arg ...) ; error handling catch-all
        (report-syntax-error 'group
                             (syntax->datum #'(arg ...))
@@ -341,7 +346,7 @@ the DSL.
 
   (define (switch-parser stx)
     (syntax-parse stx
-      [(_) #'(qi0->racket _)]
+      [(_) #'values]
       [(_ ((~or* (~datum divert) (~datum %))
            condition-gate:clause
            consequent-gate:clause))
@@ -410,10 +415,12 @@ the DSL.
        #'(qi0->racket (-< (~> (pass condition) sonex)
                           (~> (pass (not condition)) ronex)))]
       [_:id
-       #'(λ (condition sonex ronex . args)
-           (apply (qi0->racket (-< (~> (pass condition) sonex)
-                                   (~> (pass (not condition)) ronex)))
-                  args))]
+       #'(let ([compiled-sieve-flow
+                (λ (condition sonex ronex . args)
+                  (apply (qi0->racket (-< (~> (pass condition) sonex)
+                                          (~> (pass (not condition)) ronex)))
+                    args))])
+           compiled-sieve-flow)]
       [(_ arg ...) ; error handling catch-all
        (report-syntax-error 'sieve
                             (syntax->datum #'(arg ...))
@@ -434,14 +441,16 @@ the DSL.
       [(_ flo
           [error-condition-flo error-handler-flo]
           ...+)
-       #'(λ args
-           (with-handlers ([(qi0->racket error-condition-flo)
-                            (λ (e)
-                              ;; TODO: may be good to support reference to the
-                              ;; error via a binding / syntax parameter
-                              (apply (qi0->racket error-handler-flo) args))]
-                           ...)
-             (apply (qi0->racket flo) args)))]
+       #'(let ([compiled-try-flow
+                (λ args
+                  (with-handlers ([(qi0->racket error-condition-flo)
+                                   (λ (e)
+                                     ;; TODO: may be good to support reference to the
+                                     ;; error via a binding / syntax parameter
+                                     (apply (qi0->racket error-handler-flo) args))]
+                                  ...)
+                    (apply (qi0->racket flo) args)))])
+           compiled-try-flow)]
       [(_ arg ...)
        (report-syntax-error 'try
                             (syntax->datum #'(arg ...))
@@ -472,17 +481,21 @@ the DSL.
     (syntax-parse stx
       [(_ consequent:clause
           alternative:clause)
-       #'(λ (f . args)
-           (if (apply f args)
-               (apply (qi0->racket consequent) args)
-               (apply (qi0->racket alternative) args)))]
+       #'(let ([compiled-if-flow
+                (λ (f . args)
+                  (if (apply f args)
+                      (apply (qi0->racket consequent) args)
+                      (apply (qi0->racket alternative) args)))])
+           compiled-if-flow)]
       [(_ condition:clause
           consequent:clause
           alternative:clause)
-       #'(λ args
-           (if (apply (qi0->racket condition) args)
-               (apply (qi0->racket consequent) args)
-               (apply (qi0->racket alternative) args)))]))
+       #'(let ([compiled-if-flow
+                (λ args
+                  (if (apply (qi0->racket condition) args)
+                      (apply (qi0->racket consequent) args)
+                      (apply (qi0->racket alternative) args)))])
+           compiled-if-flow)]))
 
   (define (fanout-parser stx)
     (syntax-parse stx
@@ -492,13 +505,18 @@ the DSL.
       [(_ n:number)
        ;; a slightly more efficient compile-time implementation
        ;; for literally indicated N
-       #'(curry repeat-values n)]
+       #'(procedure-rename
+          (curry repeat-values n)
+          'compiled-fanout-flow)]
       [(_ e:expr)
        #'(let ([n e])
            (case n
              [(0) *->1]
              [(1) values]
-             [else (curry repeat-values n)]))]))
+             [else
+              (procedure-rename
+               (curry repeat-values n)
+               'compiled-fanout-flow)]))]))
 
   (define (feedback-parser stx)
     (syntax-parse stx
@@ -510,9 +528,10 @@ the DSL.
                          (qi0->racket thenex))]
       [(_ ((~datum while) tilex:clause)
           ((~datum then) thenex:clause))
-       #'(λ (f . args)
-           (apply (qi0->racket (feedback (while tilex) (then thenex) f))
-                  args))]
+       #'(let ([compiled-feedback-flow
+                (λ (f . args)
+                  (apply (qi0->racket (feedback (while tilex) (then thenex) f)) args))])
+           compiled-feedback-flow)]
       [(_ ((~datum while) tilex:clause) onex:clause)
        #'(qi0->racket (feedback (while tilex) (then _) onex))]
       [(_ ((~datum while) tilex:clause))
@@ -523,17 +542,23 @@ the DSL.
        #'(feedback-times (qi0->racket onex) n (qi0->racket thenex))]
       [(_ n:expr
           ((~datum then) thenex:clause))
-       #'(λ (f . args)
-           (apply (qi0->racket (feedback n (then thenex) f)) args))]
+       #'(let ([compiled-feedback-flow
+                (λ (f . args)
+                  (apply (qi0->racket (feedback n (then thenex) f)) args))])
+           compiled-feedback-flow)]
       [(_ n:expr onex:clause)
        #'(qi0->racket (feedback n (then _) onex))]
       [(_ onex:clause)
-       #'(λ (n . args)
-           (apply (qi0->racket (feedback n onex)) args))]
+       #'(let ([compiled-feedback-flow
+                (λ (n . args)
+                  (apply (qi0->racket (feedback n onex)) args))])
+           compiled-feedback-flow)]
       [_:id
-       #'(λ (n flo . args)
-           (apply (qi0->racket (feedback n flo))
-                  args))]))
+       #'(let ([compiled-feedback-flow
+                (λ (n flo . args)
+                  (apply (qi0->racket (feedback n flo))
+                    args))])
+           compiled-feedback-flow)]))
 
   (define (side-effect-parser stx)
     (syntax-parse stx
@@ -549,7 +574,9 @@ the DSL.
       [_:id
        #'map-values]
       [(_ onex:clause)
-       #'(curry map-values (qi0->racket onex))]
+       #'(procedure-rename
+          (curry map-values (qi0->racket onex))
+          'compiled-amp-flow)]
       [(_ onex0:clause onex:clause ...)
        (report-syntax-error
         'amp
@@ -562,7 +589,9 @@ the DSL.
       [_:id
        #'filter-values]
       [(_ onex:clause)
-       #'(curry filter-values (qi0->racket onex))]))
+       #'(procedure-rename
+          (curry filter-values (qi0->racket onex))
+          'compiled-pass-flow)]))
 
   (define (fold-left-parser stx)
     (syntax-parse stx
@@ -607,18 +636,23 @@ the DSL.
     (syntax-parse stx
       [_:id
        #:do [(define chirality (syntax-property stx 'chirality))]
-       (if (and chirality (eq? chirality 'right))
-           #'(λ (f . args) (apply curryr f args))
-           #'(λ (f . args) (apply curry f args)))]
+       #`(let ([compiled-clos-flow
+                (λ (f . args)
+                  (apply #,(if (and chirality (eq? chirality 'right))
+                               #'curryr #'curry)
+                    f args))])
+           compiled-clos-flow)]
       [(_ onex:clause)
        #:do [(define chirality (syntax-property stx 'chirality))]
-       (if (and chirality (eq? chirality 'right))
-           #'(λ args
-               (qi0->racket (~> (-< _ (~> (gen args) △))
-                                onex)))
-           #'(λ args
-               (qi0->racket (~> (-< (~> (gen args) △) _)
-                                onex))))]))
+       #`(let ([compiled-clos-flow
+                (λ args
+                  (qi0->racket
+                   (~>
+                     #,(if (and chirality (eq? chirality 'right))
+                           #'(-< _ (~> (gen args) △))
+                           #'(-< (~> (gen args) △) _))
+                     onex)))])
+         compiled-clos-flow)]))
 
   (define (literal-parser stx)
     (syntax-parse stx
