@@ -38,13 +38,13 @@ in the flow macro.
     [(_ onex)
      #:with name (syntax-local-name)
      (quasisyntax/loc stx
-       (let ([flowed #,((compose compile-flow expand-flow) #'onex)])
+       (let ([compiled-flow #,((compose compile-flow expand-flow) #'onex)])
          (cond
-           [(and 'name (procedure? flowed)
-                 (memq (object-name flowed)
-                       '(flowed composed #f)))
-            (procedure-rename flowed 'name)]
-           [else flowed])))]
+           [(and 'name (procedure? compiled-flow)
+                 (memq (object-name compiled-flow)
+                       '(compiled-flow composed #f)))
+            (procedure-rename compiled-flow 'name)]
+           [else compiled-flow])))]
     ;; a non-flow
     [_ #'values]
     ;; error handling catch-all
