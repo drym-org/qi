@@ -8,6 +8,9 @@
          racket/function
          (only-in racket/list
                   make-list)
+         (only-in racket/string
+                  string-prefix?
+                  string-suffix?)
          (for-syntax racket/base
                      syntax/parse
                      (only-in "private/util.rkt"
@@ -41,17 +44,10 @@ in the flow macro.
        (let ([compiled-flow #,((compose compile-flow expand-flow) #'onex)])
          (cond
            [(and 'name (procedure? compiled-flow)
-                 (memq (object-name compiled-flow)
-                       '(#f
-                         composed
-                         compiled-flow
-                         compiled-relay-flow
-                         compiled-relay*-flow
-                         compiled-tee-flow
-                         compiled-amp-flow
-                         compiled-fanout-flow
-                         compiled-pass-flow
-                         compiled-clos-flow)))
+                 (let ([fname (format "~a" (object-name compiled-flow))])
+                   (or (member fname '("#f" "composed"))
+                       (and (string-prefix? fname "compiled-")
+                            (string-suffix? fname "-flow")))))
             (procedure-rename compiled-flow 'name)]
            [else compiled-flow])))]
     ;; a non-flow
