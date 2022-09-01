@@ -42,7 +42,13 @@ in the flow macro.
          (cond
            [(and 'name (procedure? compiled-flow)
                  (memq (object-name compiled-flow)
-                       '(compiled-flow composed #f)))
+                       '(#f
+                         composed
+                         compiled-flow
+                         compiled-amp-flow
+                         compiled-relay-flow
+                         compiled-relay*-flow
+                         compiled-tee-flow)))
             (procedure-rename compiled-flow 'name)]
            [else compiled-flow])))]
     ;; a non-flow
