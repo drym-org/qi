@@ -7,8 +7,6 @@
                      racket/match
                      "syntax.rkt"
                      "../aux-syntax.rkt"
-                     (only-in "../../private/util.rkt"
-                              report-syntax-error)
                      racket/format)
          "impl.rkt"
          racket/function
@@ -166,21 +164,13 @@ the DSL.
 
   (define (select-parser stx)
     (syntax-parse stx
-      [(_ n:number ...) #'(qi0->racket (-< (esc (arg n)) ...))]
-      [(_ arg ...) ; error handling catch-all
-       (report-syntax-error 'select
-                            (syntax->datum #'(arg ...))
-                            "(select <number> ...)")]))
+      [(_ n:number ...) #'(qi0->racket (-< (esc (arg n)) ...))]))
 
   (define (block-parser stx)
     (syntax-parse stx
       [(_ n:number ...)
        #'(qi0->racket (~> (esc (except-args n ...))
-                          △))]
-      [(_ arg ...) ; error handling catch-all
-       (report-syntax-error 'block
-                            (syntax->datum #'(arg ...))
-                            "(block <number> ...)")]))
+                          △))]))
 
   (define (group-parser stx)
     (syntax-parse stx
@@ -194,11 +184,7 @@ the DSL.
        #'(λ (n selection-flo remainder-flo . vs)
            (apply (qi0->racket (group n
                                       (esc selection-flo)
-                                      (esc remainder-flo))) vs))]
-      [(_ arg ...) ; error handling catch-all
-       (report-syntax-error 'group
-                            (syntax->datum #'(arg ...))
-                            "(group <number> <selection qi0->racket> <remainder qi0->racket>)")]))
+                                      (esc remainder-flo))) vs))]))
 
   (define (sieve-parser stx)
     (syntax-parse stx
@@ -213,11 +199,7 @@ the DSL.
        #'(λ (condition sonex ronex . args)
            (apply (qi0->racket (-< (~> (pass (esc condition)) (esc sonex))
                                    (~> (pass (not (esc condition))) (esc ronex))))
-                  args))]
-      [(_ arg ...) ; error handling catch-all
-       (report-syntax-error 'sieve
-                            (syntax->datum #'(arg ...))
-                            "(sieve <predicate qi0->racket> <selection qi0->racket> <remainder qi0->racket>)")]))
+                  args))]))
 
   (define (try-parser stx)
     (syntax-parse stx
@@ -231,11 +213,7 @@ the DSL.
                               ;; error via a binding / syntax parameter
                               (apply (qi0->racket error-handler-flo) args))]
                            ...)
-             (apply (qi0->racket flo) args)))]
-      [(_ arg ...)
-       (report-syntax-error 'try
-                            (syntax->datum #'(arg ...))
-                            "(try <flo> [error-predicate-flo error-handler-flo] ...)")]))
+             (apply (qi0->racket flo) args)))]))
 
   (define (if-parser stx)
     (syntax-parse stx
@@ -314,13 +292,7 @@ the DSL.
       [_:id
        #'(qi0->racket ==)]
       [(_ onex:clause)
-       #'(qi0->racket (loop onex))]
-      [(_ onex0:clause onex:clause ...)
-       (report-syntax-error
-        'amp
-        (syntax->datum #'(onex0 onex ...))
-        "(>< flo)"
-        "amp expects a single qi0->racket specification, but it received many.")]))
+       #'(qi0->racket (loop onex))]))
 
   (define (pass-parser stx)
     (syntax-parse stx
