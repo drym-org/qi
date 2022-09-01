@@ -41,7 +41,6 @@ in the flow macro.
   ;; error handling catch-all
   [(_ expr0 expr ...+)
    (report-syntax-error
-    'flow
-    (syntax->datum #'(expr0 expr ...))
+    this-syntax
     "(flow flo)"
     "flow expects a single flow specification, but it received many.")])
