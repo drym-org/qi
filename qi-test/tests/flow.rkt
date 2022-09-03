@@ -398,7 +398,7 @@
      (check-equal? ((☯ (~>> △ (sort < #:key identity)))
                     (list 2 1 3))
                    (list 1 2 3)
-                   "TODO")
+                   "right-threading with keyword arg")
      ;; TODO: propagate threading side to nested clauses
      ;; (check-equal? (on ("p" "q")
      ;;                   (~>> (>< (string-append "a" "b"))
