@@ -1,6 +1,6 @@
 #lang racket/base
 
-(provide switch
+(provide (rename-out [Rswitch switch])
          switch-lambda
          switch-λ
          λ01
@@ -16,7 +16,7 @@
                   define-alias
                   params-parser))
 
-(define-syntax-parser switch
+(define-syntax-parser Rswitch
   [(_ args:subject
       clause ...)
    #'(on args
@@ -30,7 +30,7 @@
   [(_ args:formals expr:expr ...)
    #:with ags (params-parser #'args)
    #'(lambda args
-       (switch ags
+       (Rswitch ags
          expr ...))])
 
 (define-alias λ01 switch-lambda)

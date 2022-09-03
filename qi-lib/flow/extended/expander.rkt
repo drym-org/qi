@@ -149,11 +149,6 @@
 (begin-for-syntax
   (define (expand-flow stx)
     (displayln (~a "input: " stx))
-    (syntax-parse stx
-      [(a:id . _) (displayln (~a "syntax info: "
-                                 (syntax-debug-info
-                                  ((make-interned-syntax-introducer 'qi) #'a))))]
-      [_ (void)])
     (let ([result ((nonterminal-expander floe) stx)])
       (displayln (~a "output: " result))
       result)))
