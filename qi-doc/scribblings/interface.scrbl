@@ -8,6 +8,8 @@
                     syntax/parse/define]]
 
 @(define eval-for-docs
+  (call-with-trusted-sandbox-configuration
+   (lambda ()
   (parameterize ([sandbox-output 'string]
                  [sandbox-error-output 'string]
                  [sandbox-memory-limit #f])
@@ -17,7 +19,7 @@
                               racket/string)
                     '(define ->string number->string)
                     '(define (sqr x)
-                       (* x x)))))
+                       (* x x)))))))
 
 @title{Language Interface}
 
