@@ -20,12 +20,7 @@
                         "Note that the inputs to ~> must be wrapped in parentheses.")]
   [(_ args:subject clause:clause ...)
    #:with ags (attribute args.args)
-   #'(on ags (~> clause ...))
-   ;; tweak report-syntax-error to give srcloc
-   ;; (raise-syntax-error #f "Error!" this-syntax)
-   ])
-
-;; (raise-syntax-error #f "Error!" this-syntax)
+   #'(on ags (~> clause ...))])
 
 (define-syntax-parser R~>>
   [(_ (arg0 arg ...+) (~or* (~datum sep) (~datum △)) clause:clause ...)
@@ -36,10 +31,4 @@
                         "Note that the inputs to ~>> must be wrapped in parentheses.")]
   [(_ args:subject clause:clause ...)
    #:with ags (attribute args.args)
-   #'(on ags (~>> clause ...))
-   ;; (report-syntax-error '~>>
-   ;;                      (syntax->datum #'((args) sep clause ...))
-   ;;                      "(~>> (arg ...) flo ...)"
-   ;;                      "ERROR"
-   ;;                      "Note that the inputs to ~>> must be wrapped in parentheses.")
-   ])
+   #'(on ags (~>> clause ...))])
