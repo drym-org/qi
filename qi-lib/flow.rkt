@@ -2,7 +2,9 @@
 
 (provide flow
          ☯
-         (all-from-out "flow/extended/expander.rkt"))
+         flow-dummy
+         (all-from-out "flow/extended/expander.rkt")
+         (all-from-out "flow/extended/forms.rkt"))
 
 (require syntax/parse/define
          (prefix-in fancy: fancy-app)
@@ -15,6 +17,7 @@
                               report-syntax-error))
          "flow/extended/expander.rkt"
          "flow/core/compiler.rkt"
+         "flow/extended/forms.rkt"
          (only-in "private/util.rkt"
                   define-alias))
 
@@ -36,6 +39,19 @@ in the flow macro.
 
 (define-syntax-parser flow
   [(_ onex) ((compose compile-flow expand-flow) #'onex)]
+  ;; a non-flow
+  [_ #'values]
+  ;; error handling catch-all
+  [(_ expr0 expr ...+)
+   (report-syntax-error
+    this-syntax
+    "(flow flo)"
+    "flow expects a single flow specification, but it received many.")])
+
+(define-syntax-parser flow-dummy
+  [(_ onex) (let ([stx (expand-flow #'onex)])
+              (displayln (syntax-property (cadr (syntax->list stx)) 'chirality))
+              stx)]
   ;; a non-flow
   [_ #'values]
   ;; error handling catch-all
