@@ -22,112 +22,110 @@
     stx))
 
 (define-syntax (qi0->racket stx)
-  (let ([result (syntax-parse (cadr (syntax->list stx))
+  (syntax-parse (cadr (syntax->list stx))
 
-           ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-           ;;;; Core language forms ;;;;
-           ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;;; Core language forms ;;;;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-           [((~datum gen) ex:expr ...)
-            #'(λ _ (values ex ...))]
-           ;; pass-through (identity flow)
-           [(~datum _) #'values]
-           ;; routing
-           [(~or* (~datum ⏚) (~datum ground)) ; NOTE: technically not core
-            #'(qi0->racket (select))]
-           [((~or* (~datum ~>) (~datum thread)) onex:clause ...)
-            #`(compose . #,(reverse
-                            (syntax->list
-                             #'((qi0->racket onex) ...))))]
-           [e:relay-form (relay-parser #'e)]
-           [e:tee-form (tee-parser #'e)]
-           ;; map and filter
-           [e:amp-form (amp-parser #'e)] ; NOTE: technically not core
-           [e:pass-form (pass-parser #'e)] ; NOTE: technically not core
-           ;; prisms
-           [e:sep-form (sep-parser #'e)]
-           [(~or* (~datum ▽) (~datum collect))
-            #'list]
-           ;; predicates
-           [(~or* (~datum AND) (~datum &)) ; NOTE: technically not core
-            #'(qi0->racket (>> (and (select 2) (select 1)) (gen #t)))]
-           [(~or* (~datum OR) (~datum ∥)) ; NOTE: technically not core
-            #'(qi0->racket (<< (or (select 1) (select 2)) (gen #f)))]
-           [(~or* (~datum NOT) (~datum !))
-            #'not]
-           [(~datum XOR)
-            #'parity-xor]
-           [((~datum and) onex:clause ...)
-            #'(conjoin (qi0->racket onex) ...)]
-           [((~datum or) onex:clause ...)
-            #'(disjoin (qi0->racket onex) ...)]
-           [((~datum not) onex:clause) ; NOTE: technically not core
-            #'(qi0->racket (~> onex NOT))]
-           ;; selection
-           [e:select-form (select-parser #'e)]
-           [e:block-form (block-parser #'e)]
-           [e:group-form (group-parser #'e)]
-           ;; conditionals
-           [e:if-form (if-parser #'e)]
-           [e:sieve-form (sieve-parser #'e)]
-           ;; exceptions
-           [e:try-form (try-parser #'e)]
-           ;; folds
-           [e:fold-left-form (fold-left-parser #'e)]
-           [e:fold-right-form (fold-right-parser #'e)]
-           ;; looping
-           [e:feedback-form (feedback-parser #'e)]
-           [e:loop-form (loop-parser #'e)]
-           [((~datum loop2) pred:clause mapex:clause combex:clause)
-            #'(letrec ([loop2 (qi0->racket (if pred
-                                               (~> (== (-< (esc cdr)
-                                                           (~> (esc car) mapex)) _)
-                                                   (group 1 _ combex)
-                                                   (esc loop2))
-                                               (select 2)))])
-                loop2)]
-           ;; towards universality
-           [(~datum appleye)
-            #'call]
-           [e:clos-form (clos-parser #'e)]
-           ;; escape hatch for racket expressions or anything
-           ;; to be "passed through"
-           [((~datum esc) ex:expr)
-            #'ex]
+    [((~datum gen) ex:expr ...)
+     #'(λ _ (values ex ...))]
+    ;; pass-through (identity flow)
+    [(~datum _) #'values]
+    ;; routing
+    [(~or* (~datum ⏚) (~datum ground)) ; NOTE: technically not core
+     #'(qi0->racket (select))]
+    [((~or* (~datum ~>) (~datum thread)) onex:clause ...)
+     #`(compose . #,(reverse
+                     (syntax->list
+                      #'((qi0->racket onex) ...))))]
+    [e:relay-form (relay-parser #'e)]
+    [e:tee-form (tee-parser #'e)]
+    ;; map and filter
+    [e:amp-form (amp-parser #'e)] ; NOTE: technically not core
+    [e:pass-form (pass-parser #'e)] ; NOTE: technically not core
+    ;; prisms
+    [e:sep-form (sep-parser #'e)]
+    [(~or* (~datum ▽) (~datum collect))
+     #'list]
+    ;; predicates
+    [(~or* (~datum AND) (~datum &)) ; NOTE: technically not core
+     #'(qi0->racket (>> (and (select 2) (select 1)) (gen #t)))]
+    [(~or* (~datum OR) (~datum ∥)) ; NOTE: technically not core
+     #'(qi0->racket (<< (or (select 1) (select 2)) (gen #f)))]
+    [(~or* (~datum NOT) (~datum !))
+     #'not]
+    [(~datum XOR)
+     #'parity-xor]
+    [((~datum and) onex:clause ...)
+     #'(conjoin (qi0->racket onex) ...)]
+    [((~datum or) onex:clause ...)
+     #'(disjoin (qi0->racket onex) ...)]
+    [((~datum not) onex:clause) ; NOTE: technically not core
+     #'(qi0->racket (~> onex NOT))]
+    ;; selection
+    [e:select-form (select-parser #'e)]
+    [e:block-form (block-parser #'e)]
+    [e:group-form (group-parser #'e)]
+    ;; conditionals
+    [e:if-form (if-parser #'e)]
+    [e:sieve-form (sieve-parser #'e)]
+    ;; exceptions
+    [e:try-form (try-parser #'e)]
+    ;; folds
+    [e:fold-left-form (fold-left-parser #'e)]
+    [e:fold-right-form (fold-right-parser #'e)]
+    ;; looping
+    [e:feedback-form (feedback-parser #'e)]
+    [e:loop-form (loop-parser #'e)]
+    [((~datum loop2) pred:clause mapex:clause combex:clause)
+     #'(letrec ([loop2 (qi0->racket (if pred
+                                        (~> (== (-< (esc cdr)
+                                                    (~> (esc car) mapex)) _)
+                                            (group 1 _ combex)
+                                            (esc loop2))
+                                        (select 2)))])
+         loop2)]
+    ;; towards universality
+    [(~datum appleye)
+     #'call]
+    [e:clos-form (clos-parser #'e)]
+    ;; escape hatch for racket expressions or anything
+    ;; to be "passed through"
+    [((~datum esc) ex:expr)
+     #'ex]
 
-           ;;; Miscellaneous
+    ;;; Miscellaneous
 
-           ;; Partial application with syntactically pre-supplied arguments
-           ;; in a blanket template
-           ;; Note: at this point it's already been parsed/validated
-           ;; and we don't need to worry about checking at the compiler
-           ;; level
-           [((~datum #%blanket-template) e)
-            (blanket-template-form-parser this-syntax)]
+    ;; Partial application with syntactically pre-supplied arguments
+    ;; in a blanket template
+    ;; Note: at this point it's already been parsed/validated
+    ;; and we don't need to worry about checking at the compiler
+    ;; level
+    [((~datum #%blanket-template) e)
+     (blanket-template-form-parser this-syntax)]
 
-           ;; Fine-grained template-based application
-           ;; This handles templates that indicate a specific number of template
-           ;; variables (i.e. expected arguments). The semantics of template-based
-           ;; application here is fulfilled by the fancy-app module. In order to use
-           ;; it, we simply use the #%app macro provided by fancy-app instead of the
-           ;; implicit one used for function application in racket/base.
-           ;; "prarg" = "pre-supplied argument"
-           [((~datum #%fine-template) (prarg-pre ... (~datum _) prarg-post ...))
-            #'(fancy:#%app prarg-pre ... _ prarg-post ...)]
+    ;; Fine-grained template-based application
+    ;; This handles templates that indicate a specific number of template
+    ;; variables (i.e. expected arguments). The semantics of template-based
+    ;; application here is fulfilled by the fancy-app module. In order to use
+    ;; it, we simply use the #%app macro provided by fancy-app instead of the
+    ;; implicit one used for function application in racket/base.
+    ;; "prarg" = "pre-supplied argument"
+    [((~datum #%fine-template) (prarg-pre ... (~datum _) prarg-post ...))
+     #'(fancy:#%app prarg-pre ... _ prarg-post ...)]
 
-           ;; Pre-supplied arguments without a template
-           [((~datum #%partial-application) (natex prarg ...+))
-            ;; we use currying instead of templates when a template hasn't
-            ;; explicitly been indicated since in such cases, we cannot
-            ;; always infer the appropriate arity for a template (e.g. it
-            ;; may change under composition within the form), while a
-            ;; curried function will accept any number of arguments
-            #:do [(define chirality (syntax-property this-syntax 'chirality))]
-            (if (and chirality (eq? chirality 'right))
-                #'(curry natex prarg ...)
-                #'(curryr natex prarg ...))])])
-    (displayln (~a "qi0->racket output" result))
-    result))
+    ;; Pre-supplied arguments without a template
+    [((~datum #%partial-application) (natex prarg ...+))
+     ;; we use currying instead of templates when a template hasn't
+     ;; explicitly been indicated since in such cases, we cannot
+     ;; always infer the appropriate arity for a template (e.g. it
+     ;; may change under composition within the form), while a
+     ;; curried function will accept any number of arguments
+     #:do [(define chirality (syntax-property this-syntax 'chirality))]
+     (if (and chirality (eq? chirality 'right))
+         #'(curry natex prarg ...)
+         #'(curryr natex prarg ...))]))
 
 ;; The form-specific parsers, which are delegated to from
 ;; the qi0->racket macro:

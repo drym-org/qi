@@ -148,7 +148,4 @@
 ;; 2. nonterminal
 (begin-for-syntax
   (define (expand-flow stx)
-    (displayln (~a "input: " stx))
-    (let ([result ((nonterminal-expander floe) stx)])
-      (displayln (~a "output: " result))
-      result)))
+    ((nonterminal-expander floe) stx)))
