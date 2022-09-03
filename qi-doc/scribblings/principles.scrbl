@@ -107,6 +107,7 @@ Here are some useful identities for the core routing forms. They can be used to 
 @$${(>< \_) = \_}
 @$${(-< f) = f}
 @$${(-< (\text{gen} a) (\text{gen} b)) = (-< (\text{gen} a b))}
+@$${(\sim> △ ▽) = \_ = (\sim> ▽ △) \text{(the former only holds when the input is a list)}}
 
 @section{Flows and Arrows}
 
