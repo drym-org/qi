@@ -13,7 +13,8 @@
                      racket/match
                      racket/list)
          (only-in "flow/extended/expander.rkt"
-                  qi-macro)
+                  qi-macro
+                  esc)
          racket/format
          syntax/parse/define
          syntax/parse)

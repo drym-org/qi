@@ -7,15 +7,17 @@
                     racket]]
 
 @(define eval-for-docs
-  (parameterize ([sandbox-output 'string]
+  (call-with-trusted-sandbox-configuration
+   (lambda ()
+     (parameterize ([sandbox-output 'string]
                  [sandbox-error-output 'string]
                  [sandbox-memory-limit #f])
-    (make-evaluator 'racket/base
+      (make-evaluator 'racket/base
                     '(require qi
                               (only-in racket/list range)
                               racket/string)
                     '(define (sqr x)
-                       (* x x)))))
+                       (* x x)))))))
 
 @title{Introduction and Usage}
 

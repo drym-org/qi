@@ -8,6 +8,8 @@
                     racket]]
 
 @(define eval-for-docs
+  (call-with-trusted-sandbox-configuration
+   (lambda ()
   (parameterize ([sandbox-output 'string]
                  [sandbox-error-output 'string]
                  [sandbox-memory-limit #f])
@@ -17,7 +19,7 @@
                               (only-in racket/function curry)
                               racket/string)
                     '(define (sqr x)
-                       (* x x)))))
+                       (* x x)))))))
 
 @title{Tutorial}
 

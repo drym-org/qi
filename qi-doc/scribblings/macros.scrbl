@@ -9,6 +9,8 @@
                     syntax/parse/define]]
 
 @(define eval-for-docs
+  (call-with-trusted-sandbox-configuration
+   (lambda ()
   (parameterize ([sandbox-output 'string]
                  [sandbox-error-output 'string]
                  [sandbox-memory-limit #f])
@@ -18,7 +20,7 @@
                               (for-syntax syntax/parse racket/base)
                               racket/string)
                     '(define (sqr x)
-                       (* x x)))))
+                       (* x x)))))))
 
 @title[#:tag "Qi_Macros"]{Qi Macros}
 

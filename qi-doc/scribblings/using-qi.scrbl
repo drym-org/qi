@@ -10,6 +10,8 @@
                              ->string)]]
 
 @(define eval-for-docs
+  (call-with-trusted-sandbox-configuration
+   (lambda ()
   (parameterize ([sandbox-output 'string]
                  [sandbox-error-output 'string]
                  [sandbox-memory-limit #f])
@@ -21,7 +23,7 @@
                               '(define ->number string->number)
                               '(define ->string number->string)
                     '(define (sqr x)
-                       (* x x)))))
+                       (* x x)))))))
 
 @title{When Should I Use Qi?}
 
