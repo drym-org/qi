@@ -10,14 +10,14 @@
   (call-with-trusted-sandbox-configuration
    (lambda ()
      (parameterize ([sandbox-output 'string]
-                 [sandbox-error-output 'string]
-                 [sandbox-memory-limit #f])
-      (make-evaluator 'racket/base
-                    '(require qi
-                              (only-in racket/list range)
-                              racket/string)
-                    '(define (sqr x)
-                       (* x x)))))))
+                    [sandbox-error-output 'string]
+                    [sandbox-memory-limit #f])
+       (make-evaluator 'racket/base
+                       '(require qi
+                                 (only-in racket/list range)
+                                 racket/string)
+                       '(define (sqr x)
+                          (* x x)))))))
 
 @title{Introduction and Usage}
 
