@@ -864,30 +864,30 @@
                    (list 7 -1)
                    "pure control form of sieve"))
     (test-suite
-      "partition"
-      (check-equal? ((flow (~> (partition) collect)))
-                    (list)
-                    "base partition case")
-      (check-equal? ((flow (partition [positive? +]))
-                     -1 2 1 1 -2 2)
-                    6
-                    "partition composes ~> and pass")
-      (check-equal? ((flow (~> (partition [positive? +]
-                                          [zero? (-< count (gen "zero"))]
-                                          [negative? *]) collect))
-                     -1 0 2 1 1 -2 0 0 2)
-                    (list 6 3 "zero" 2))
-      (check-equal? ((flow (~> (partition [positive? +]
-                                          [zero? (-< count (gen "zero"))]
-                                          [negative? *]) collect))
-                     -1 2 1 1 -2 2)
-                    (list 6 0 "zero" 2)
-                    "some partition bodies have no inputs")
-      (check-equal? ((flow (~> (partition [(and positive? (> 1)) +]
-                                          [_ list]) collect))
-                     -1 2 1 1 -2 2)
-                    (list 4 (list -1 1 1 -2))
-                    "partition bodies can be flows"))
+     "partition"
+     (check-equal? ((flow (~> (partition) collect)))
+                   (list)
+                   "base partition case")
+     (check-equal? ((flow (partition [positive? +]))
+                    -1 2 1 1 -2 2)
+                   6
+                   "partition composes ~> and pass")
+     (check-equal? ((flow (~> (partition [positive? +]
+                                         [zero? (-< count (gen "zero"))]
+                                         [negative? *]) collect))
+                    -1 0 2 1 1 -2 0 0 2)
+                   (list 6 3 "zero" 2))
+     (check-equal? ((flow (~> (partition [positive? +]
+                                         [zero? (-< count (gen "zero"))]
+                                         [negative? *]) collect))
+                    -1 2 1 1 -2 2)
+                   (list 6 0 "zero" 2)
+                   "some partition bodies have no inputs")
+     (check-equal? ((flow (~> (partition [(and positive? (> 1)) +]
+                                         [_ list]) collect))
+                    -1 2 1 1 -2 2)
+                   (list 4 (list -1 1 1 -2))
+                   "partition bodies can be flows"))
     (test-suite
      "gate"
      (check-equal? ((☯ (gate positive?))
@@ -938,27 +938,27 @@
                    (list 5 5 5))
      (check-equal? ((☯ (~> (fanout 3) ▽)) 2 3)
                    (list 2 3 2 3 2 3))
-     (check-equal? (~> (3 "a") fanout string-append) ; TODO: don't use Racket-level ~> in this module
+     (check-equal? ((☯ (~> fanout string-append)) 3 "a")
                    "aaa"
                    "control form of fanout")
-     (check-equal? (~> (3 "a" "b") fanout string-append)
+     (check-equal? ((☯ (~> fanout string-append)) 3 "a" "b")
                    "ababab"
                    "control form of fanout")
-     (check-equal? (~> (5) (fanout (add1 2)) ▽)
+     (check-equal? ((☯ (~> (fanout (add1 2)) ▽)) 5)
                    (list 5 5 5)
                    "arbitrary racket expressions and not just literals")
      (check-equal? (let ([n 3])
-                     (~> (5) (fanout n) ▽))
+                     ((☯ (~> (fanout n) ▽)) 5))
                    (list 5 5 5)
                    "arbitrary racket expressions and not just literals")
-     (check-equal? (~> (2 3) (fanout 0) ▽)
+     (check-equal? ((☯ (~> (fanout 0) ▽)) 2 3)
                    null
                    "N=0 produces no values.")
-     (check-equal? (~> () (fanout 3) ▽)
+     (check-equal? ((☯ (~> (fanout 3) ▽)))
                    null
                    "No inputs produces no outputs.")
      (check-exn exn:fail:contract?
-                (thunk (~> (-1 3) fanout ▽))
+                (thunk ((☯ (~> fanout ▽)) -1 3))
                 "Negative N signals an error."))
     (test-suite
      "inverter"
@@ -974,7 +974,7 @@
                     5)
                    625
                    "(feedback N flo)")
-     (check-equal? (~> (3 5) (feedback add1))
+     (check-equal? ((☯ (~> (feedback add1))) 3 5)
                    8
                    "(feedback flo) consumes the first input as N")
      (check-equal? ((☯ (feedback 5 (then sqr) add1))
@@ -1172,16 +1172,16 @@
      (check-true ((☯ live?) 3 4 5))
      (check-true ((☯ live?) 5))
      (check-false ((☯ live?)))
-     (check-true (~> (1 2) live?))
-     (check-false (~> (1 2) ⏚ live?)))
+     (check-true ((☯ (~> live?)) 1 2))
+     (check-false ((☯ (~> ⏚ live?)) 1 2)))
 
     (test-suite
      "rectify"
-     (check-equal? (~> (3 4 5) (rectify 'boo) ▽) (list 3 4 5))
-     (check-equal? (~> (5) (rectify 'boo)) 5)
-     (check-equal? (~> () (rectify 'boo)) 'boo)
-     (check-equal? (~> (1 2) (rectify #f) ▽) (list 1 2))
-     (check-equal? (~> (1 2) ⏚ (rectify #f)) #f)))
+     (check-equal? ((☯ (~> (rectify 'boo) ▽)) 3 4 5) (list 3 4 5))
+     (check-equal? ((☯ (~> (rectify 'boo))) 5) 5)
+     (check-equal? ((☯ (~> (rectify 'boo)))) 'boo)
+     (check-equal? ((☯ (~> (rectify #f) ▽)) 1 2) (list 1 2))
+     (check-equal? ((☯ (~> ⏚ (rectify #f))) 1 2) #f)))
 
    (test-suite
     "higher-order flows"
@@ -1332,7 +1332,7 @@
     "language extension"
     (test-suite
      "qi:"
-     (check-equal? (~> (2 3) + (qi:square sqr))
+     (check-equal? ((☯ (~> + (qi:square sqr))) 2 3)
                    625)))
 
    (test-suite
