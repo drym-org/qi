@@ -24,7 +24,9 @@
          racket/function
          racket/format
          syntax/parse/define
-         (for-syntax racket/base)
+         (for-syntax racket/base
+                     (only-in racket/string
+                              string-trim))
          qi)
 
 (define-flow average
@@ -86,8 +88,18 @@
 ;; and report the time taken.
 (define-syntax-parse-rule (run-benchmark f-name runner n-times)
   #:with name (datum->syntax #'f-name
-                (symbol->string
-                 (syntax->datum #'f-name)))
+                ;; this is because of the name collision between
+                ;; Racket functions and Qi forms, now that the latter
+                ;; are provided as identifiers in the qi binding space.
+                ;; Using a standard prefix (i.e. ~) in the naming and then
+                ;; detecting that, trimming it, here, is pretty hacky.
+                ;; One alternative could be to broaden the run-benchmark
+                ;; macro to support a name argument, but that seems like
+                ;; more work. It would be better to be able to introspect
+                ;; these somehow.
+                (string-trim (symbol->string
+                              (syntax->datum #'f-name))
+                             "~"))
   (let ([ms (measure runner f-name n-times)])
     (list name ms)))
 
