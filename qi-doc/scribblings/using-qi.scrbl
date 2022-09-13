@@ -10,6 +10,10 @@
                              ->string)]]
 
 @(define eval-for-docs
+  ;; The "trusted" sandbox configuration is needed possibly
+  ;; because of the interaction of binding spaces with
+  ;; sandbox evaluator. For more context, see the Qi wiki
+  ;; "Qi Compiler Sync Sept 2 2022."
   (call-with-trusted-sandbox-configuration
    (lambda ()
      (parameterize ([sandbox-output 'string]
