@@ -100,8 +100,8 @@
     ;; Partial application with syntactically pre-supplied arguments
     ;; in a blanket template
     ;; Note: at this point it's already been parsed/validated
-    ;; and we don't need to worry about checking at the compiler
-    ;; level
+    ;; by the expander and we don't need to worry about checking
+    ;; the syntax at the compiler level
     [((~datum #%blanket-template) e)
      (blanket-template-form-parser this-syntax)]
 

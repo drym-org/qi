@@ -17,10 +17,11 @@
                      "syntax.rkt"
                      racket/base
                      syntax/parse
-                     "../../private/util.rkt"
-                     racket/format))
+                     "../../private/util.rkt"))
 
 (define-hosted-syntaxes
+  ;; Declare a compile-time datatype by which qi macros may
+  ;; be identified.
   (extension-class qi-macro
                    #:binding-space qi)
   (nonterminal floe
@@ -30,7 +31,12 @@
                #:allow-extension qi-macro
                #:binding-space qi
                (gen e:expr ...)
-               ;; hack to allow _ to be used ...
+               ;; Ad hoc expansion rule to allow _ to be used in application
+               ;; position in a template.
+               ;; Without it, (_ v ...) would be treated as an error since
+               ;; _ is an unrelated form of the core language having different
+               ;; semantics. The expander would assume it is a syntax error
+               ;; from that perspective.
                (~> ((~literal _) arg ...) #'(#%fine-template (_ arg ...)))
                _
                ground
@@ -129,13 +135,22 @@
                ;; a literal is interpreted as a flow generating it
                (~> val:literal
                    #'(gen val))
+               ;; Certain rules of the language aren't determined by the "head"
+               ;; position, so naively, these can't be core forms. In order to
+               ;; treat them as core forms, we tag them at the expander level
+               ;; by wrapping them with #%-prefixed forms, similar to Racket's
+               ;; approach to a similiar case - "interposition points." These
+               ;; new forms can then be treated as core forms in the compiler.
                (~> f:blanket-template-form
                    #'(#%blanket-template f))
                (#%blanket-template (arg:any-stx ...))
-               ;; (~> v:expr (begin (displayln "hello!") (error 'bye)))
                (~> f:fine-template-form
                    #'(#%fine-template f))
                (#%fine-template (arg:any-stx ...))
+               ;; The core rule must come before the tagging rule here since
+               ;; the former as a production of the latter would still match
+               ;; the latter (i.e. it is still a parenthesized expression),
+               ;; which would lead to infinite code generation.
                (#%partial-application (arg:any-stx ...))
                (~> f:partial-application-form
                    #'(#%partial-application f))
@@ -144,8 +159,6 @@
                ;; everything else is stable
                (~> f:expr #'(esc f))))
 
-;; 1. extension class
-;; 2. nonterminal
 (begin-for-syntax
   (define (expand-flow stx)
     ((nonterminal-expander floe) stx)))
