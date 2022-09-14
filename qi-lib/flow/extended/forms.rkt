@@ -1,49 +1,13 @@
 #lang racket/base
 
 (provide (for-space qi
-                    one-of?
-                    all
-                    any
-                    none
-                    NOR
-                    NAND
-                    XNOR
-                    any?
-                    all?
-                    none?
-                    and%
-                    or%
-                    thread-right
-                    ~>>
-                    crossover
-                    X
-                    relay*
-                    ==*
-                    bundle
-                    when
-                    unless
-                    switch
-                    partition
-                    gate
-                    fanout
-                    count
-                    live?
-                    rectify
-                    1>
-                    2>
-                    3>
-                    4>
-                    5>
-                    6>
-                    7>
-                    8>
-                    9>
-                    ;; try rename-out instead of
-                    ;; duplicate macros below, as
-                    ;; an alternative to define-qi-alias
-                    inverter
-                    effect
-                    ε))
+                    (all-defined-out)
+                    ;; defining and using a `define-qi-alias` form
+                    ;; would be a more direct way to do this
+                    (rename-out [thread-right ~>>]
+                                [crossover X]
+                                [relay* ==*]
+                                [effect ε])))
 
 (require (for-syntax racket/base
                      syntax/parse
@@ -102,27 +66,13 @@
 (define-qi-syntax-rule (thread-right onex:right-threading-clause ...)
   (~> onex.chiral ...))
 
-;; TODO: do it as an alias?
-;; (define-qi-alias ~>> thread-right)
-
-(define-qi-syntax-rule (~>> arg ...)
-  (thread-right arg ...))
-
 (define-qi-syntax-parser crossover
   [_:id #'(~> ▽ reverse △)])
-
-;; TODO: alias
-(define-qi-syntax-parser X
-  [_:id #'crossover])
 
 (define-qi-syntax-parser relay*
   [(_ onex:clause ... rest-onex:clause)
    #:with len #`#,(length (syntax->list #'(onex ...)))
    #'(group len (== onex ...) rest-onex)])
-
-;; TODO: alias
-(define-qi-syntax-rule (==* onex ...)
-  (relay* onex ...))
 
 (define-qi-syntax-rule (bundle (n:number ...)
                                selection-onex:clause
@@ -267,7 +217,3 @@
   [(_ sidex:clause)
    #'(-< (~> sidex ⏚)
          _)])
-
-;; TODO: alias
-(define-qi-syntax-rule (ε arg ...)
-  (effect arg ...))
