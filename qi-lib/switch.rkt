@@ -1,6 +1,10 @@
 #lang racket/base
 
-(provide (rename-out [Rswitch switch])
+;; This name juggling is necessary since the Racket macros would
+;; otherwise collide with the Qi forms with the same name in the qi
+;; binding space, since Qi forms are now exported literals and not simply
+;; matched as datum patterns as they were formerly.
+(provide (rename-out [%switch switch])
          switch-lambda
          switch-λ
          λ01
@@ -16,7 +20,7 @@
                   define-alias
                   params-parser))
 
-(define-syntax-parser Rswitch
+(define-syntax-parser %switch
   [(_ args:subject
       clause ...)
    #'(on args
@@ -30,7 +34,7 @@
   [(_ args:formals expr:expr ...)
    #:with ags (params-parser #'args)
    #'(lambda args
-       (Rswitch ags
+       (%switch ags
          expr ...))])
 
 (define-alias λ01 switch-lambda)
