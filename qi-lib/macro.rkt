@@ -3,7 +3,6 @@
 (provide define-qi-syntax
          define-qi-syntax-rule
          define-qi-syntax-parser
-         define-qi-alias
          define-qi-foreign-syntaxes
          (for-syntax qi-macro))
 
@@ -96,9 +95,9 @@
          transformer)]))
 
 ;; TODO: get this to work
-(define-syntax define-qi-alias
-  (syntax-parser
-    [(_ alias:id name:id) #'(define-qi-syntax alias (make-rename-transformer #'name))]))
+;; (define-syntax define-qi-alias
+;;   (syntax-parser
+;;     [(_ alias:id name:id) #'(define-qi-syntax alias (make-rename-transformer #'name))]))
 
 (define-syntax define-qi-syntax-rule
   (syntax-parser
