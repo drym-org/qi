@@ -10,7 +10,12 @@ utility macros `run-benchmark` or `run-summary-benchmark`, and
 provides it one of the helper functions `check-value` (to invoke the
 form with a single value each time during benchmarking) or
 `check-values` (to invoke the form with multiple values each time
-during benchmarking).
+during benchmarking). Note that at the moment, as a hack for convenience,
+`run-benchmark` expects a function with the name of the form being
+benchmarked _prefixed with tilde_. This is to avoid name collisions
+between this function and the Qi form with the same name. Basically,
+just follow one of the numerous examples in this module to see what
+this is referring to.
 
 2. Require the submodule in the `main` submodule with an appropriate
 prefix (see other examples)
