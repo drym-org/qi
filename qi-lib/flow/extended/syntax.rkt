@@ -38,6 +38,9 @@
    onex:clause
    #:with chiral (make-right-chiral #'onex)))
 
+;; Note these are used in the expander instead of in the compiler.
+;; That's why they don't need the tag (i.e. they don't look for
+;; #%blanket-template, #%fine-template, or #%partial-application)
 (define-syntax-class blanket-template-form
   ;; "prarg" = "pre-supplied argument"
   (pattern
@@ -46,15 +49,11 @@
 (define-syntax-class fine-template-form
   ;; "prarg" = "pre-supplied argument"
   (pattern
-   ;; note these are used in the expander instead of in the compiler
-   ;; that's why they don't need the tag
    (prarg-pre ... (~datum _) prarg-post ...)))
 
 (define-syntax-class partial-application-form
   ;; "prarg" = "pre-supplied argument"
   (pattern
-   ;; note these are used in the expander instead of in the compiler
-   ;; that's why they don't need the tag
    (natex prarg ...+)))
 
 (define-syntax-class any-stx
