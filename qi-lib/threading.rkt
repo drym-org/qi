@@ -1,7 +1,11 @@
 #lang racket/base
 
-(provide (rename-out [R~> ~>]
-                     [R~>> ~>>]))
+;; This name juggling is necessary since the Racket macros would
+;; otherwise collide with the Qi forms with the same name in the qi
+;; binding space, since Qi forms are now exported literals and not simply
+;; matched as datum patterns as they were formerly.
+(provide (rename-out [%~> ~>]
+                     [%~>> ~>>]))
 
 (require syntax/parse/define
          (for-syntax racket/base
@@ -11,7 +15,7 @@
          "flow.rkt"
          "on.rkt")
 
-(define-syntax-parser R~>
+(define-syntax-parser %~>
   [(_ (arg0 arg ...+) (~or* (~datum sep) (~datum △)) clause:clause ...)
    ;; catch a common usage error
    (report-syntax-error this-syntax
@@ -22,7 +26,7 @@
    #:with ags (attribute args.args)
    #'(on ags (~> clause ...))])
 
-(define-syntax-parser R~>>
+(define-syntax-parser %~>>
   [(_ (arg0 arg ...+) (~or* (~datum sep) (~datum △)) clause:clause ...)
    ;; catch a common usage error
    (report-syntax-error this-syntax
