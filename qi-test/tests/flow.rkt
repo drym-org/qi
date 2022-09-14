@@ -10,7 +10,8 @@
          racket/list
          racket/string
          racket/function
-         "private/util.rkt")
+         (except-in "private/util.rkt"
+                    add-two))
 
 ;; used in the "language extension" tests for `qi:*`
 (define-syntax-rule (qi:square flo)
