@@ -74,7 +74,11 @@ The main thing is, you want to ensure that these forms have convenient keybindin
 
 Now, it isn't just about being @emph{able} to enter them, but being able to enter them @emph{without effort}. This makes a difference, because having convenient keybindings for Qi is less about entering unicode conveniently than it is about @emph{expressing ideas} economically, just as having evocative symbols in Qi is less about brevity and more about appealing to the intuition. After all, as the old writer's adage goes, "show, don't tell."
 
-Some specific suggestions are included below for commonly used editors.
+Some specific suggestions are included below for commonly used editors and operating systems.
+
+@subsection{Unicode Support}
+
+Some of the following sections cover entering unicode characters in various editors, but if the font you're using doesn't have full unicode support (e.g. on Linux), these characters may render only as nondescript boxes. In this case, consult the documentation for your operating system to discover fonts with unicode support (for instance, if your OS happens to be Arch Linux, the @hyperlink["https://wiki.archlinux.org/title/Fonts#Font_packages"]{font documentation for that system}). One widely available collection of such fonts is @hyperlink["https://fonts.google.com/noto"]{Noto}.
 
 @subsection{DrRacket}
 
