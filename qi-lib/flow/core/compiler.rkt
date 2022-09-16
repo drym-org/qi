@@ -32,7 +32,7 @@
        #'(~> _0 ... (>< (~> g (if f _ ⏚))) _1 ...)]
       ;; merge amps in sequence
       [((~datum ~>) _0 ... ((~datum ><) f) ((~datum ><) g) _1 ...)
-       #'(~> _0 ... (>< (~> f g)) _1 ...)]
+       #'(~> _0 ... (>< (~> f g)) _1 ...)] ; TODO: optimizing the inner flow?
       ;; merge pass filters in sequence
       [((~datum ~>) _0 ... ((~datum pass) f) ((~datum pass) g) _1 ...)
        #'(~> _0 ... (pass (and f g)) _1 ...)]
