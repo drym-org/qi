@@ -21,6 +21,9 @@
     (process-bindings (optimize-flow stx)))
 
   (define (optimization-pass stx)
+    ;; TODO: the "active" components of the expansions should be
+    ;; optimized, i.e. they should be wrapped with a recursive
+    ;; call to the optimizer
     (syntax-parse stx
       ;; restorative optimization for "all"
       [((~datum ~>) ((~datum ><) onex) (~datum AND))
@@ -32,7 +35,7 @@
        #'(~> _0 ... (>< (~> g (if f _ ⏚))) _1 ...)]
       ;; merge amps in sequence
       [((~datum ~>) _0 ... ((~datum ><) f) ((~datum ><) g) _1 ...)
-       #'(~> _0 ... (>< (~> f g)) _1 ...)] ; TODO: optimizing the inner flow?
+       #`(~> _0 ... #,(optimization-pass #'(>< (~> f g))) _1 ...)]
       ;; merge pass filters in sequence
       [((~datum ~>) _0 ... ((~datum pass) f) ((~datum pass) g) _1 ...)
        #'(~> _0 ... (pass (and f g)) _1 ...)]
