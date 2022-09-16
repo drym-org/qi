@@ -36,6 +36,9 @@
       ;; merge pass filters in sequence
       [((~datum ~>) _0 ... ((~datum pass) f) ((~datum pass) g) _1 ...)
        #'(~> _0 ... (pass (and f g)) _1 ...)]
+      ;; collapse deterministic conditionals
+      [((~datum if) (~datum #t) f g) #'f]
+      [((~datum if) (~datum #f) f g) #'g]
       ;; associative laws for ~>
       [((~datum ~>) _0 ... ((~datum ~>) f ...) _1 ...)
        #'(~> _0 ... f ... _1 ...)]
