@@ -33,6 +33,9 @@
       ;; merge amps in sequence
       [((~datum ~>) _0 ... ((~datum ><) f) ((~datum ><) g) _1 ...)
        #'(~> _0 ... (>< (~> f g)) _1 ...)]
+      ;; merge pass filters in sequence
+      [((~datum ~>) _0 ... ((~datum pass) f) ((~datum pass) g) _1 ...)
+       #'(~> _0 ... (pass (and f g)) _1 ...)]
       ;; identities
       [((~datum ~>) _0 ... ((~datum ~>) f ...) _1 ...)
        #'(~> _0 ... f ... _1 ...)]
