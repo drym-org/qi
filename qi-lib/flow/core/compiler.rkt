@@ -21,7 +21,11 @@
     (process-bindings (optimize-flow stx)))
 
   (define (optimize-flow stx)
-    stx))
+    (syntax-parse stx
+      ;; restorative optimization for "all"
+      [((~datum ~>) ((~datum ><) onex) (~datum AND))
+       #`(esc (give (curry andmap #,(compile-flow #'onex))))]
+      [_ stx])))
 
 ;; Transformation rules for the `as` binding form:
 ;;
