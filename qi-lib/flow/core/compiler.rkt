@@ -20,7 +20,7 @@
   (define (compile-flow stx)
     (process-bindings (optimize-flow stx)))
 
-  (define (optimize-flow stx)
+  (define (optimization-pass stx)
     (syntax-parse stx
       ;; restorative optimization for "all"
       [((~datum ~>) ((~datum ><) onex) (~datum AND))
@@ -30,7 +30,13 @@
        #'(~> _0 ... (>< (if f g ⏚)) _1 ...)]
       [((~datum ~>) _0 ... ((~datum ><) g) ((~datum pass) f) _1 ...)
        #'(~> _0 ... (>< (~> g (if f _ ⏚))) _1 ...)]
-      [_ stx])))
+      [_ stx]))
+
+  (define (optimize-flow stx)
+    (let ([optimized (optimization-pass stx)])
+      (if (eq? optimized stx)
+          stx
+          (optimize-flow optimized)))))
 
 ;; Transformation rules for the `as` binding form:
 ;;
