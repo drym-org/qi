@@ -36,25 +36,32 @@
       ;; merge pass filters in sequence
       [((~datum ~>) _0 ... ((~datum pass) f) ((~datum pass) g) _1 ...)
        #'(~> _0 ... (pass (and f g)) _1 ...)]
-      ;; identities
+      ;; associative laws for ~>
       [((~datum ~>) _0 ... ((~datum ~>) f ...) _1 ...)
        #'(~> _0 ... f ... _1 ...)]
       [((~datum ~>>) _0 ... ((~datum ~>>) f ...) _1 ...)
        #'(~>> _0 ... f ... _1 ...)]
+      ;; left and right identity for ~>
       [((~datum ~>) _0 ... (~datum _) _1 ...)
        #'(~> _0 ... _1 ...)]
       [((~datum ~>>) _0 ... (~datum _) _1 ...)
        #'(~>> _0 ... _1 ...)]
+      ;; composition of identity flows is the identity flow
       [((~datum ~>) (~datum _) ...)
        #'_]
+      ;; identity flows composed using a relay
       [((~datum ==) (~datum _) ...)
        #'_]
+      ;; amp and identity
       [((~datum ><) (~datum _))
        #'_]
+      ;; trivial tee junction
       [((~datum -<) f)
        #'f]
+      ;; merge adjacent gens
       [((~datum -<) _0 ... ((~datum gen) a ...) ((~datum gen) b ...) _1 ...)
        #'(-< _0 ... (gen a ... b ...) _1 ...)]
+      ;; prism identities
       [((~datum ~>) _0 ... (~datum △) (~datum ▽) _1 ...)
        #'(~> _0 ... _1 ...)]
       [((~datum ~>) _0 ... (~datum ▽) (~datum △) _1 ...)
