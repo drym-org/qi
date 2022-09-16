@@ -30,8 +30,10 @@
        #'(~> _0 ... (>< (if f g ⏚)) _1 ...)]
       [((~datum ~>) _0 ... ((~datum ><) g) ((~datum pass) f) _1 ...)
        #'(~> _0 ... (>< (~> g (if f _ ⏚))) _1 ...)]
+      ;; merge amps in sequence
       [((~datum ~>) _0 ... ((~datum ><) f) ((~datum ><) g) _1 ...)
        #'(~> _0 ... (>< (~> f g)) _1 ...)]
+      ;; identities
       [((~datum ~>) _0 ... ((~datum ~>) f ...) _1 ...)
        #'(~> _0 ... f ... _1 ...)]
       [((~datum ~>>) _0 ... ((~datum ~>>) f ...) _1 ...)
@@ -54,6 +56,7 @@
        #'(~> _0 ... _1 ...)]
       [((~datum ~>) _0 ... (~datum ▽) (~datum △) _1 ...)
        #'(~> _0 ... _1 ...)]
+      ;; return syntax unchanged if there are no known optimizations
       [_ stx]))
 
   (define (optimize-flow stx)
