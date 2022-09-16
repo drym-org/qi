@@ -21,6 +21,34 @@
   (define (optimize-flow stx)
     stx))
 
+;; Transformation rules for the `as` binding form:
+;;
+;; 1. escape to wrap outermost ~> with let and re-enter
+;;
+;;   (~> flo ... (... (as name) ...))
+;;   ...
+;;    ↓
+;;   ...
+;;   (esc (let ([name (void)])
+;;          (☯ original-flow)))
+;;
+;; 2. as → set!
+;;
+;;   (as name)
+;;   ...
+;;    ↓
+;;   ...
+;;   (~> (esc (λ (x) (set! name x))) ⏚)
+;;
+;; 3. Overall transformation:
+;;
+;;   (~> flo ... (... (as name) ...))
+;;   ...
+;;    ↓
+;;   ...
+;;   (esc (let ([name (void)])
+;;          (☯ (~> flo ... (... (~> (esc (λ (x) (set! name x))) ⏚) ...)))))
+
 (define-syntax (qi0->racket stx)
   (syntax-parse (cadr (syntax->list stx))
 
