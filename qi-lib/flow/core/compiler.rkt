@@ -25,6 +25,11 @@
       ;; restorative optimization for "all"
       [((~datum ~>) ((~datum ><) onex) (~datum AND))
        #`(esc (give (curry andmap #,(compile-flow #'onex))))]
+      ;; "deforestation" for values
+      [((~datum ~>) _0 ... ((~datum pass) f) ((~datum ><) g) _1 ...)
+       #'(~> _0 ... (>< (if f g ⏚)) _1 ...)]
+      [((~datum ~>) _0 ... ((~datum ><) g) ((~datum pass) f) _1 ...)
+       #'(~> _0 ... (>< (~> g (if f _ ⏚))) _1 ...)]
       [_ stx])))
 
 ;; Transformation rules for the `as` binding form:
