@@ -8,7 +8,8 @@
                "qi-test"
                "qi-probe"
                "Qi-Quickscripts"))
-(define build-deps '("cli"))
+(define build-deps '("cli"
+                     "collections-lib"))
 (define implies '("qi-lib"
                   "qi-doc"
                   "qi-test"
