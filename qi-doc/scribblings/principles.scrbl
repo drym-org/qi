@@ -7,17 +7,6 @@
          @for-label[qi
                     racket]]
 
-@(define eval-for-docs
-  (parameterize ([sandbox-output 'string]
-                 [sandbox-error-output 'string]
-                 [sandbox-memory-limit #f])
-    (make-evaluator 'racket/base
-                    '(require qi
-                              (only-in racket/list range)
-                              racket/string)
-                    '(define (sqr x)
-                       (* x x)))))
-
 @(use-mathjax)
 
 @title{Principles of Qi}
@@ -125,6 +114,3 @@ It turns out that the core routing forms of Qi fulfill the definition of @hyperl
 So evidently, flows are just @hyperlink["https://www.sciencedirect.com/science/article/pii/S1571066106001666/pdf"]{monoids in suitable subcategories of bifunctors} (what's the problem?), or, in another way of looking at it, @hyperlink["https://bentnib.org/arrows.pdf"]{enriched Freyd categories}.
 
 Therefore, any theoretical results about arrows should generally apply to Qi as well (but not necessarily, since Qi is not @emph{just} arrows).
-
-@close-eval[eval-for-docs]
-@(set! eval-for-docs #f)
