@@ -3,7 +3,6 @@
 (define version "3.0")
 (define collection "qi")
 (define deps '("base"
-               "mischief"
                "qi-lib"))
 (define build-deps '())
 (define clean '("compiled" "private/compiled"))

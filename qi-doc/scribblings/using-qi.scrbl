@@ -4,10 +4,7 @@
          scribble/example
          racket/sandbox
          @for-label[qi
-                    racket
-                    (only-in relation
-                             ->number
-                             ->string)]]
+                    racket]]
 
 @(define eval-for-docs
   (parameterize ([sandbox-output 'string]
@@ -55,7 +52,7 @@ The equivalent in Racket would be:
             (map ->string vs))))
 }
 
-The Qi version uses @racket[><] to "map" all input values under the @racket[->string] flow to convert them to strings. Then it appends these values together as strings, finally converting the result back to a number to produce the result.
+The Qi version uses @racket[><] to "map" all input values under the @hyperlink["https://docs.racket-lang.org/relation/Types.html#%28def._%28%28lib._relation%2Ftype..rkt%29._-~3estring%29%29"]{@racket[->string]} flow to convert them to strings. Then it appends these values together as strings, finally converting the result back to a number to produce the result.
 
 The Racket version needs to be parsed in detail in order to be understood, while the Qi version reads sequentially in the natural order of the transformations, and makes plain what these transformations are. Qi is the natural choice here.
 

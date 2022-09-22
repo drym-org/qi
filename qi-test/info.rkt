@@ -4,9 +4,7 @@
 (define collection "qi")
 (define deps '("base"))
 (define build-deps '("rackunit-lib"
-                     "cover"
-                     "cover-coveralls"
+                     "adjutor"
                      "math-lib"
-                     "qi-lib"
-                     "relation"))
+                     "qi-lib"))
 (define clean '("compiled" "tests/compiled" "tests/private/compiled"))

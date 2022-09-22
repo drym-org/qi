@@ -5,9 +5,7 @@
          racket/sandbox
          @for-label[qi
                     racket
-                    syntax/parse/define
-                    (only-in relation
-                             ->string)]]
+                    syntax/parse/define]]
 
 @(define eval-for-docs
   (parameterize ([sandbox-output 'string]
