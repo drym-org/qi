@@ -9,6 +9,7 @@
                      "racket-doc"
                      "sandbox-lib"
                      "metapict"
+                     "relation-lib"
                      "qi-lib"
                      "qi-probe"))
 (define scribblings '(("scribblings/qi.scrbl" (multi-page) (language))))
