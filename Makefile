@@ -111,39 +111,39 @@ test-probe:
 	raco test -exp $(PACKAGE-NAME)-probe
 
 test-with-errortrace:
-	racket -l errortrace -l racket -e '(require (submod "qi-test/tests/qi.rkt" test))'
+	racket -l errortrace -l racket -e '(require (submod "$(PACKAGE-NAME)-test/tests/qi.rkt" test))'
 
 errortrace: test-with-errortrace
 
 errortrace-flow:
-	racket -l errortrace -l racket -e '(require (submod "qi-test/tests/flow.rkt" main))'
+	racket -l errortrace -l racket -e '(require (submod "$(PACKAGE-NAME)-test/tests/flow.rkt" main))'
 
 errortrace-on:
-	racket -l errortrace -l racket -e '(require (submod "qi-test/tests/on.rkt" main))'
+	racket -l errortrace -l racket -e '(require (submod "$(PACKAGE-NAME)-test/tests/on.rkt" main))'
 
 errortrace-threading:
-	racket -l errortrace -l racket -e '(require (submod "qi-test/tests/threading.rkt" main))'
+	racket -l errortrace -l racket -e '(require (submod "$(PACKAGE-NAME)-test/tests/threading.rkt" main))'
 
 errortrace-switch:
-	racket -l errortrace -l racket -e '(require (submod "qi-test/tests/switch.rkt" main))'
+	racket -l errortrace -l racket -e '(require (submod "$(PACKAGE-NAME)-test/tests/switch.rkt" main))'
 
 errortrace-definitions:
-	racket -l errortrace -l racket -e '(require (submod "qi-test/tests/definitions.rkt" main))'
+	racket -l errortrace -l racket -e '(require (submod "$(PACKAGE-NAME)-test/tests/definitions.rkt" main))'
 
 errortrace-macro:
-	racket -l errortrace -l racket -e '(require (submod "qi-test/tests/macro.rkt" main))'
+	racket -l errortrace -l racket -e '(require (submod "$(PACKAGE-NAME)-test/tests/macro.rkt" main))'
 
 errortrace-util:
-	racket -l errortrace -l racket -e '(require (submod "qi-test/tests/util.rkt" main))'
+	racket -l errortrace -l racket -e '(require (submod "$(PACKAGE-NAME)-test/tests/util.rkt" main))'
 
 errortrace-probe:
-	racket -l errortrace -l racket -e '(require (submod "qi-probe/tests/qi-probe.rkt" test))'
+	racket -l errortrace -l racket -e '(require (submod "$(PACKAGE-NAME)-probe/tests/qi-probe.rkt" test))'
 
 docs:
 	raco docs $(PACKAGE-NAME)
 
 coverage-check:
-	raco cover -b -n dev -p $(PACKAGE-NAME)-{lib,test}
+	raco cover -b -d ./coverage -p $(PACKAGE-NAME)-{lib,test}
 
 coverage-report:
 	open coverage/index.html
@@ -151,7 +151,7 @@ coverage-report:
 cover: coverage-check coverage-report
 
 cover-coveralls:
-	raco cover -b -n dev -f coveralls -p $(PACKAGE-NAME)-{lib,test}
+	raco cover -b -f coveralls -p $(PACKAGE-NAME)-{lib,test}
 
 profile-forms:
 	echo "Profiling forms..."
