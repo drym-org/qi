@@ -46,8 +46,14 @@ help:
 install:
 	raco pkg install --deps search-auto --link $(PWD)/$(PACKAGE-NAME)-{lib,test,doc,probe} $(PWD)/$(PACKAGE-NAME)
 
+install-sdk:
+	raco pkg install --deps search-auto --link $(PWD)/$(PACKAGE-NAME)-sdk
+
 remove:
 	raco pkg remove $(PACKAGE-NAME)-{lib,test,doc,probe} $(PACKAGE-NAME)
+
+remove-sdk:
+	raco pkg remove $(PACKAGE-NAME)-sdk
 
 # Primarily for day-to-day dev.
 # Build libraries from source.

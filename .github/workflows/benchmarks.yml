@@ -21,6 +21,8 @@ jobs:
           version: 'stable'
       - name: Install Package and its Dependencies
         run: make install
+      - name: Install SDK
+        run: make install-sdk
       - name: Run benchmark
         shell: 'bash --noprofile --norc -eo pipefail {0}'
         run: make report-benchmarks | tee benchmarks.txt
