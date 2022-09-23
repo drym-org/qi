@@ -56,5 +56,7 @@ jobs:
           version: 'stable'
       - name: Install Package and its Dependencies
         run: make install
+      - name: Install SDK
+        run: make install-sdk
       - name: Report Coverage
         run: make cover-coveralls
