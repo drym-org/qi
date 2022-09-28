@@ -26,52 +26,48 @@
     ;; call to the optimizer
     (syntax-parse stx
       ;; restorative optimization for "all"
-      [((~datum ~>) ((~datum ><) onex) (~datum AND))
+      [((~datum thread) ((~datum amp) onex) (~datum AND))
        #`(esc (give (curry andmap #,(compile-flow #'onex))))]
       ;; "deforestation" for values
-      [((~datum ~>) _0 ... ((~datum pass) f) ((~datum ><) g) _1 ...)
-       #'(~> _0 ... (>< (if f g ⏚)) _1 ...)]
-      [((~datum ~>) _0 ... ((~datum ><) g) ((~datum pass) f) _1 ...)
-       #'(~> _0 ... (>< (~> g (if f _ ⏚))) _1 ...)]
+      [((~datum thread) _0 ... ((~datum pass) f) ((~datum amp) g) _1 ...)
+       #'(thread _0 ... (amp (if f g ground)) _1 ...)]
+      [((~datum thread) _0 ... ((~datum amp) g) ((~datum pass) f) _1 ...)
+       #'(thread _0 ... (amp (thread g (if f _ ground))) _1 ...)]
       ;; merge amps in sequence
-      [((~datum ~>) _0 ... ((~datum ><) f) ((~datum ><) g) _1 ...)
-       #`(~> _0 ... #,(optimization-pass #'(>< (~> f g))) _1 ...)]
+      [((~datum thread) _0 ... ((~datum amp) f) ((~datum amp) g) _1 ...)
+       #`(thread _0 ... #,(optimization-pass #'(amp (thread f g))) _1 ...)]
       ;; merge pass filters in sequence
-      [((~datum ~>) _0 ... ((~datum pass) f) ((~datum pass) g) _1 ...)
-       #'(~> _0 ... (pass (and f g)) _1 ...)]
+      [((~datum thread) _0 ... ((~datum pass) f) ((~datum pass) g) _1 ...)
+       #'(thread _0 ... (pass (and f g)) _1 ...)]
       ;; collapse deterministic conditionals
       [((~datum if) (~datum #t) f g) #'f]
       [((~datum if) (~datum #f) f g) #'g]
       ;; associative laws for ~>
-      [((~datum ~>) _0 ... ((~datum ~>) f ...) _1 ...)
-       #'(~> _0 ... f ... _1 ...)]
-      [((~datum ~>>) _0 ... ((~datum ~>>) f ...) _1 ...)
-       #'(~>> _0 ... f ... _1 ...)]
+      [((~datum thread) _0 ... ((~datum thread) f ...) _1 ...)
+       #'(thread _0 ... f ... _1 ...)]
       ;; left and right identity for ~>
-      [((~datum ~>) _0 ... (~datum _) _1 ...)
-       #'(~> _0 ... _1 ...)]
-      [((~datum ~>>) _0 ... (~datum _) _1 ...)
-       #'(~>> _0 ... _1 ...)]
+      [((~datum thread) _0 ... (~datum _) _1 ...)
+       #'(thread _0 ... _1 ...)]
       ;; composition of identity flows is the identity flow
-      [((~datum ~>) (~datum _) ...)
+      [((~datum thread) (~datum _) ...)
        #'_]
       ;; identity flows composed using a relay
-      [((~datum ==) (~datum _) ...)
+      [((~datum relay) (~datum _) ...)
        #'_]
       ;; amp and identity
-      [((~datum ><) (~datum _))
+      [((~datum amp) (~datum _))
        #'_]
       ;; trivial tee junction
-      [((~datum -<) f)
+      [((~datum tee) f)
        #'f]
       ;; merge adjacent gens
-      [((~datum -<) _0 ... ((~datum gen) a ...) ((~datum gen) b ...) _1 ...)
-       #'(-< _0 ... (gen a ... b ...) _1 ...)]
+      [((~datum tee) _0 ... ((~datum gen) a ...) ((~datum gen) b ...) _1 ...)
+       #'(tee _0 ... (gen a ... b ...) _1 ...)]
       ;; prism identities
-      [((~datum ~>) _0 ... (~datum △) (~datum ▽) _1 ...)
-       #'(~> _0 ... _1 ...)]
-      [((~datum ~>) _0 ... (~datum ▽) (~datum △) _1 ...)
-       #'(~> _0 ... _1 ...)]
+      [((~datum thread) _0 ... (~datum sep) (~datum collect) _1 ...)
+       #'(thread _0 ... _1 ...)]
+      [((~datum thread) _0 ... (~datum collect) (~datum sep) _1 ...)
+       #'(thread _0 ... _1 ...)]
       ;; return syntax unchanged if there are no known optimizations
       [_ stx]))
 
