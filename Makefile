@@ -161,14 +161,14 @@ cover-coveralls:
 
 profile-forms:
 	echo "Profiling forms..."
-	racket profile/forms.rkt
+	racket $(PACKAGE-NAME)-sdk/profile/forms.rkt
 
 profile-selected-forms:
 	@echo "Use 'racket profile/forms.rkt' directly, with -f form-name for each form."
 
 profile-competitive:
 	echo "Running competitive benchmarks..."
-	racket profile/competitive.rkt
+	racket $(PACKAGE-NAME)-sdk/profile/competitive.rkt
 
 profile: profile-competitive profile-forms
 
