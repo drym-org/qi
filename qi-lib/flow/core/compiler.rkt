@@ -64,8 +64,9 @@
       [((~datum tee) _0 ... ((~datum gen) a ...) ((~datum gen) b ...) _1 ...)
        #'(tee _0 ... (gen a ... b ...) _1 ...)]
       ;; prism identities
-      [((~datum thread) _0 ... (~datum sep) (~datum collect) _1 ...)
-       #'(thread _0 ... _1 ...)]
+      ;; Note: (~> ... △ ▽ ...) can't be rewritten to `values` since that's
+      ;; only valid if the input is in fact a list, and is an error otherwise,
+      ;; and we can only know this at runtime.
       [((~datum thread) _0 ... (~datum collect) (~datum sep) _1 ...)
        #'(thread _0 ... _1 ...)]
       ;; return syntax unchanged if there are no known optimizations
