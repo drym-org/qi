@@ -16,7 +16,7 @@
   ;; note: this does not return compiled code but instead,
   ;; syntax whose expansion compiles the code
   (define (compile-flow stx)
-    #`(qi0->racket #,(optimize-flow stx)))
+    #`(qi0->racket #,(process-bindings (optimize-flow stx))))
 
   (define (optimize-flow stx)
     stx))
@@ -49,7 +49,25 @@
 ;;   (esc (let ([name (void)])
 ;;          (☯ (~> flo ... (... (~> (esc (λ (x) (set! name x))) ⏚) ...)))))
 
+(begin-for-syntax
+  (define (handle-binding stx)
+    stx)
+
+  (define (process-bindings stx)
+    (if (syntax-property stx 'bindings-done)
+        stx
+        ;; find a single `as`, transform it, loop.
+        ;; if no `as` found, attach a syntax property
+        ;; and return without looping.
+        (let loop ([stx stx])
+          (if #f
+              (loop (handle-binding stx))
+              (syntax-property stx 'bindings-done #t))))))
+
 (define-syntax (qi0->racket stx)
+  ;; this is a macro so it receives the entire expression
+  ;; (qi0->racket ...). We use cadr here to parse the
+  ;; contained expression.
   (syntax-parse (cadr (syntax->list stx))
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
