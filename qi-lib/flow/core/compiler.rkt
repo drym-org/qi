@@ -69,6 +69,39 @@
       ;; and we can only know this at runtime.
       [((~datum thread) _0 ... (~datum collect) (~datum sep) _1 ...)
        #'(thread _0 ... _1 ...)]
+      ;; Deforestation
+      ;; (~> (>< f) (pass g)) → (~> (>< (if g f ⏚)))
+      [((~datum thread) ((~datum amp) f) ((~datum pass) g)) #'(thread (amp (if g f ground)))]
+      ;; TODO: propagate the syntax property instead
+      ;; (~> (filter f) (map g)) → (~> (foldr [f+g] ...)))
+      [((~datum thread) _0 ...
+                        ((~datum #%partial-application) ((~literal filter) g))
+                        ((~datum #%partial-application) ((~literal map) f))
+                        _1 ...)
+       #'(thread _0 ...
+                 (#%fine-template
+                  (foldr (λ (v vs)
+                           (if (g v)
+                               (cons (f v) vs)
+                               vs))
+                         null
+                         _))
+                 _1 ...)]
+      ;; (~> (map f) (filter g)) → (~> (foldr [f+g] ...)))
+      [((~datum thread) _0 ...
+                        ((~datum #%partial-application) ((~literal map) f))
+                        ((~datum #%partial-application) ((~literal filter) g))
+                        _1 ...)
+       #'(thread _0 ...
+                 (#%fine-template
+                  (foldr (λ (v vs)
+                           (let ([result (f v)])
+                             (if (g result)
+                                 (cons result vs)
+                                 vs)))
+                         null
+                         _))
+                 _1 ...)]
       ;; return syntax unchanged if there are no known optimizations
       [_ stx]))
 
