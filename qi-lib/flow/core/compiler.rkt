@@ -29,8 +29,10 @@
       [((~datum thread) ((~datum amp) onex) (~datum AND))
        #`(esc (give (curry andmap #,(compile-flow #'onex))))]
       ;; "deforestation" for values
+      ;; (~> (pass f) (>< g)) → (>< (if f g ⏚))
       [((~datum thread) _0 ... ((~datum pass) f) ((~datum amp) g) _1 ...)
        #'(thread _0 ... (amp (if f g ground)) _1 ...)]
+      ;; (~> (>< g) (pass f)) → (>< (~> g (if f _ ⏚)))
       [((~datum thread) _0 ... ((~datum amp) g) ((~datum pass) f) _1 ...)
        #'(thread _0 ... (amp (thread g (if f _ ground))) _1 ...)]
       ;; merge amps in sequence
@@ -69,9 +71,7 @@
       ;; and we can only know this at runtime.
       [((~datum thread) _0 ... (~datum collect) (~datum sep) _1 ...)
        #'(thread _0 ... _1 ...)]
-      ;; Deforestation
-      ;; (~> (>< f) (pass g)) → (~> (>< (if g f ⏚)))
-      [((~datum thread) ((~datum amp) f) ((~datum pass) g)) #'(thread (amp (if g f ground)))]
+      ;; Deforestation for lists
       ;; TODO: propagate the syntax property instead
       ;; (~> (filter f) (map g)) → (~> (foldr [f+g] ...)))
       [((~datum thread) _0 ...
