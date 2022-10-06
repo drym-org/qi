@@ -52,14 +52,11 @@
 (begin-for-syntax
 
   (define (find-and-map pred f lst)
-    (if (null? lst)
-        null
-        (let ([v (car lst)]
-              [vs (cdr lst)])
-          (cons (cond [(pred v) (f v)]
-                      [(list? v) (find-and-map pred f v)]
-                      [else v])
-                (find-and-map pred f vs)))))
+    (map (λ (v)
+           (cond [(pred v) (f v)]
+                 [(list? v) (find-and-map pred f v)]
+                 [else v]))
+         lst))
 
   (define (binding-form? stx)
     (and (list? stx) (equal? 'as (car stx))))
