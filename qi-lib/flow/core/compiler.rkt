@@ -50,19 +50,52 @@
 ;;          (☯ (~> flo ... (... (~> (esc (λ (x) (set! name x))) ⏚) ...)))))
 
 (begin-for-syntax
-  (define (handle-binding stx)
-    stx)
+
+  (define (find-and-map pred f lst)
+    (if (null? lst)
+        null
+        (let ([v (car lst)]
+              [vs (cdr lst)])
+          (cons (cond [(pred v) (f v)]
+                      [(list? v) (find-and-map pred f v)]
+                      [else v])
+                (find-and-map pred f vs)))))
+
+  (define (binding-form? stx)
+    (and (list? stx) (equal? 'as (car stx))))
+
+  ;; (as name) → (~> (esc (λ (x) (set! name x))) ⏚)
+  (define (rewrite-binding stx)
+    (let ([id (cadr stx)])
+      `(~> (esc (λ (x) (set! ,id x))) ⏚)))
+
+  (define (rewrite-all-bindings stx)
+    (find-and-map binding-form?
+                  rewrite-binding
+                  stx))
+
+  (define (bound-identifiers stx)
+    (let ([ids null])
+      (find-and-map binding-form?
+                    (λ (v)
+                      (set! ids
+                            (cons (cadr v) ids))
+                      v)
+                    stx)
+      ids))
+
+  ;; wrap stx with (let ([v undefined] ...) stx) for v ∈ ids
+  (define (wrap-with-scopes stx ids)
+    (syntax->datum
+     (syntax-parse (datum->syntax #f ids)
+       [(v ...) #`(let ([v undefined] ...) #,stx)])))
 
   (define (process-bindings stx)
-    (if (syntax-property stx 'bindings-done)
-        stx
-        ;; find a single `as`, transform it, loop.
-        ;; if no `as` found, attach a syntax property
-        ;; and return without looping.
-        (let loop ([stx stx])
-          (if #f
-              (loop (handle-binding stx))
-              (syntax-property stx 'bindings-done #t))))))
+    ;; TODO: use syntax-parse and match ~> specifically.
+    ;; Since macros are expanded "outside in," presumably
+    ;; it will naturally wrap the outermost ~>
+    (wrap-with-scopes (rewrite-all-bindings stx)
+                      (bound-identifiers stx))))
 
 (define-syntax (qi0->racket stx)
   ;; this is a macro so it receives the entire expression
