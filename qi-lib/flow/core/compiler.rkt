@@ -65,6 +65,7 @@
     (and (list? stx) (equal? 'as (car stx))))
 
   ;; (as name) → (~> (esc (λ (x) (set! name x))) ⏚)
+  ;; TODO: use a box instead of set!
   (define (rewrite-binding stx)
     (let ([id (cadr stx)])
       `(~> (esc (λ (x) (set! ,id x))) ⏚)))
