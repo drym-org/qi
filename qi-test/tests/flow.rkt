@@ -242,6 +242,9 @@
                    "separate into a non-primitive flow with presupplied values"))
     (test-suite
      "gen"
+     (check-eq? (☯ (gen)) (☯ ⏚))
+     (check-eq? ((☯ (~> (gen) ▽)))
+                '())
      (check-equal? ((☯ (gen 5)))
                    5)
      (check-equal? ((☯ (gen 5)) 3)
@@ -420,6 +423,11 @@
                    "a"))
     (test-suite
      "-<"
+     (check-eq? (☯ (-<)) (☯ ⏚))
+     (check-eq? (☯ (-< add1 (-<)))
+                add1)
+     (check-eq? (☯ (-< (-<) add1))
+                add1)
      (check-equal? ((☯ (~> (-< sqr add1) ▽))
                     5)
                    (list 25 6))
@@ -452,6 +460,8 @@
                    "named tee junction form"))
     (test-suite
      "=="
+     (check-eq? ((☯ (~> (==) ▽)))
+                '())
      (check-equal? ((☯ (~> (== sqr add1) ▽))
                     5 7)
                    (list 25 8))
@@ -486,6 +496,8 @@
                    "named relay form"))
     (test-suite
      "==*"
+     (check-eq? ((☯ (~> (==*) ▽)))
+                '())
      (check-equal? ((☯ (~> (==* add1 sub1 +) ▽))
                     1 1 1 1 1)
                    (list 2 0 3))
@@ -503,7 +515,9 @@
                    6)
      (check-equal? ((☯ (-< ground add1))
                     5)
-                   6)))
+                   6)
+     (check-eq? (☯ (-< ⏚ add1)) add1)
+     (check-eq? (☯ ⏚) (☯ (-<)))))
 
    (test-suite
     "Exceptions"
@@ -939,6 +953,9 @@
      (check-equal? (~> (2 3) (fanout 0) ▽)
                    null
                    "N=0 produces no values.")
+     (check-equal? (~> (2 3) (fanout 1) ▽)
+                   (list 2 3)
+                   "N=1 produces original values.")
      (check-equal? (~> () (fanout 3) ▽)
                    null
                    "No inputs produces no outputs.")
@@ -1051,6 +1068,7 @@
                 "grouping more inputs than are available shows a helpful error"))
     (test-suite
      "select"
+     (check-equal? (☯ (~> (select))) (☯ ⏚))
      (check-equal? ((☯ (~> (select) ▽))
                     1)
                    null)
