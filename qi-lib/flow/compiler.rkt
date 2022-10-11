@@ -507,9 +507,11 @@ the DSL.
       [(_ n:number)
        ;; a slightly more efficient compile-time implementation
        ;; for literally indicated N
-       #'(procedure-rename
-          (curry repeat-values n)
-          'compiled-fanout-flow)]
+       #`(let ([compiled-fanout-flow
+                (λ args
+                  (apply values
+                    (append #,@(make-list (syntax->datum #'n) 'args))))])
+           compiled-fanout-flow)]
       [(_ e:expr)
        #'(let ([n e])
            (case n
