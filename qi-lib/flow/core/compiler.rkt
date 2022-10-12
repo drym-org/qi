@@ -32,9 +32,6 @@
       ;; (~> (pass f) (>< g)) → (>< (if f g ⏚))
       [((~datum thread) _0 ... ((~datum pass) f) ((~datum amp) g) _1 ...)
        #'(thread _0 ... (amp (if f g ground)) _1 ...)]
-      ;; (~> (>< g) (pass f)) → (>< (~> g (if f _ ⏚)))
-      [((~datum thread) _0 ... ((~datum amp) g) ((~datum pass) f) _1 ...)
-       #'(thread _0 ... (amp (thread g (if f _ ground))) _1 ...)]
       ;; merge amps in sequence
       [((~datum thread) _0 ... ((~datum amp) f) ((~datum amp) g) _1 ...)
        #`(thread _0 ... #,(optimization-pass #'(amp (thread f g))) _1 ...)]
