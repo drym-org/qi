@@ -15,7 +15,7 @@ qi
 Another way to structure computations.
 
 Install it from the `Racket Package Index <https://pkgs.racket-lang.org/package/qi>`_.
-Read `the documentation <https://docs.racket-lang.org/qi/index.html>`_ to learn more. See `the Wiki <https://github.com/countvajhula/qi/wiki>`_ for community resources and events.
+Read `the documentation <https://docs.racket-lang.org/qi/index.html>`_ to learn more. See `the Wiki <https://github.com/countvajhula/qi/wiki>`_ for community resources, events, and developer documentation.
 
 In case the main documentation is unavailable, read the `backup docs <https://countvajhula.github.io/qi/>`_.
 
