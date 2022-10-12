@@ -8,6 +8,9 @@
          racket/function
          (only-in racket/list
                   make-list)
+         (only-in racket/string
+                  string-prefix?
+                  string-suffix?)
          (for-syntax racket/base
                      syntax/parse
                      (only-in "private/util.rkt"
@@ -33,14 +36,26 @@ module, defined after the flow macro. They are all invoked as needed
 in the flow macro.
 |#
 
-(define-syntax-parser flow
-  [(_ onex) ((compose compile-flow expand-flow) #'onex)]
-  ;; a non-flow
-  [_ #'values]
-  ;; error handling catch-all
-  [(_ expr0 expr ...+)
-   (report-syntax-error
-    'flow
-    (syntax->datum #'(expr0 expr ...))
-    "(flow flo)"
-    "flow expects a single flow specification, but it received many.")])
+(define-syntax (flow stx)
+  (syntax-parse stx
+    [(_ onex)
+     #:with name (syntax-local-name)
+     (quasisyntax/loc stx
+       (let ([compiled-flow #,((compose compile-flow expand-flow) #'onex)])
+         (cond
+           [(and 'name (procedure? compiled-flow)
+                 (let ([fname (format "~a" (object-name compiled-flow))])
+                   (or (member fname '("#f" "composed"))
+                       (and (string-prefix? fname "compiled-")
+                            (string-suffix? fname "-flow")))))
+            (procedure-rename compiled-flow 'name)]
+           [else compiled-flow])))]
+    ;; a non-flow
+    [_ #'values]
+    ;; error handling catch-all
+    [(_ expr0 expr ...+)
+     (report-syntax-error
+      'flow
+      (syntax->datum #'(expr0 expr ...))
+      "(flow flo)"
+      "flow expects a single flow specification, but it received many.")]))
