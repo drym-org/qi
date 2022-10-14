@@ -486,7 +486,11 @@
                     5 7)
                    (list 5 5 8)
                    "relay with arity-increasing clause")
-     (check-exn exn:fail?
+     (check-eq? ((☯ (~> (== add1))) 1) 2)
+     (check-exn exn:fail:contract:arity?
+                (thunk ((☯ (~> (== +)))
+                        1 2 3)))
+     (check-exn exn:fail:contract:arity?
                 (thunk ((☯ (~> (== ⏚ add1) ▽))
                         5 7 8))
                 "relay elements must be in one-to-one correspondence with input")
@@ -498,6 +502,9 @@
      "==*"
      (check-eq? ((☯ (~> (==*) ▽)))
                 '())
+     (check-eq? ((☯ (~> (==* +)))
+                 1 2 3 4 5)
+                15)
      (check-equal? ((☯ (~> (==* add1 sub1 +) ▽))
                     1 1 1 1 1)
                    (list 2 0 3))

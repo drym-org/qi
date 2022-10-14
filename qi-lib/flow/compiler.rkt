@@ -105,6 +105,8 @@
      #'(relay (qi0->racket onex) ...)]
     [((~or* (~datum ==*) (~datum relay*)))
      #'1->1]
+    [((~or* (~datum ==*) (~datum relay*)) onex:clause)
+     #'onex]
     [((~or* (~datum ==*) (~datum relay*)) onex:clause ... rest-onex:clause)
      (with-syntax ([len #`#,(length (syntax->list #'(onex ...)))])
        #'(qi0->racket (group len (== onex ...) rest-onex) ))]

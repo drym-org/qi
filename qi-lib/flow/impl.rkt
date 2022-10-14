@@ -200,10 +200,11 @@
    (lambda (ks vs f . xs)
      (keyword-apply f ks vs xs))))
 
-(define (relay . fs)
-  (cond
-    [(null? fs) 1->1]
-    [else
+(define relay
+  (case-lambda
+    [() 1->1]
+    [(f) (procedure-reduce-arity-mask f 2)]
+    [fs
      (define (compiled-relay-flow . args)
        (apply values (zip-with call fs args)))
      compiled-relay-flow]))
