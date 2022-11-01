@@ -331,6 +331,11 @@
                     "abc"))))
 
    (test-suite
+    "bindings"
+    (check-equal? ((☯ (~> (as v) (+ v))) 3)
+                  3))
+
+   (test-suite
     "routing forms"
     (test-suite
      "~>"

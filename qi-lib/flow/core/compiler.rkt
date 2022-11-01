@@ -7,16 +7,18 @@
                      racket/match
                      "syntax.rkt"
                      "../aux-syntax.rkt"
-                     racket/format)
+                     racket/format
+                     ee-lib)
          "impl.rkt"
          racket/function
+         racket/undefined
          (prefix-in fancy: fancy-app))
 
 (begin-for-syntax
   ;; note: this does not return compiled code but instead,
   ;; syntax whose expansion compiles the code
   (define (compile-flow stx)
-    #`(qi0->racket #,(process-bindings (optimize-flow stx))))
+    (process-bindings (optimize-flow stx)))
 
   (define (optimize-flow stx)
     stx))
@@ -51,21 +53,23 @@
 
 (begin-for-syntax
 
-  (define (find-and-map pred f lst)
-    (map (λ (v)
-           (cond [(pred v) (f v)]
-                 [(list? v) (find-and-map pred f v)]
-                 [else v]))
-         lst))
+  (define (find-and-map pred f stx)
+    (map-transform (λ (v)
+                     (cond [(pred v) (f v)]
+                           [else v]))
+                   stx))
 
   (define (binding-form? stx)
-    (and (list? stx) (equal? 'as (car stx))))
+    (syntax-parse stx
+      [((~datum as) v:id) #t]
+      [_ #f]))
 
   ;; (as name) → (~> (esc (λ (x) (set! name x))) ⏚)
   ;; TODO: use a box instead of set!
   (define (rewrite-binding stx)
-    (let ([id (cadr stx)])
-      `(~> (esc (λ (x) (set! ,id x))) ⏚)))
+    (syntax-parse stx
+      [(_ idx)
+       #'(thread (esc (λ (x) (set! idx x))) ground)]))
 
   (define (rewrite-all-bindings stx)
     (find-and-map binding-form?
@@ -76,23 +80,24 @@
     (let ([ids null])
       (find-and-map binding-form?
                     (λ (v)
-                      (set! ids
-                            (cons (cadr v) ids))
+                      (syntax-parse v
+                        [(_ x)
+                         (set! ids
+                               (cons #'x ids))])
                       v)
                     stx)
       ids))
 
   ;; wrap stx with (let ([v undefined] ...) stx) for v ∈ ids
   (define (wrap-with-scopes stx ids)
-    (syntax->datum
-     (syntax-parse (datum->syntax #f ids)
-       [(v ...) #`(let ([v undefined] ...) #,stx)])))
+    (with-syntax ([(v ...) ids])
+      #`(let ([v undefined] ...) #,stx)))
 
   (define (process-bindings stx)
     ;; TODO: use syntax-parse and match ~> specifically.
     ;; Since macros are expanded "outside in," presumably
     ;; it will naturally wrap the outermost ~>
-    (wrap-with-scopes (rewrite-all-bindings stx)
+    (wrap-with-scopes #`(qi0->racket #,(rewrite-all-bindings stx))
                       (bound-identifiers stx))))
 
 (define-syntax (qi0->racket stx)
@@ -201,8 +206,10 @@
      ;; curried function will accept any number of arguments
      #:do [(define chirality (syntax-property this-syntax 'chirality))]
      (if (and chirality (eq? chirality 'right))
-         #'(curry natex prarg ...)
-         #'(curryr natex prarg ...))]))
+         #'(lambda args
+             (apply natex (append (list prarg ...) args)))
+         #'(lambda args
+             (apply natex (append args (list prarg ...)))))]))
 
 ;; The form-specific parsers, which are delegated to from
 ;; the qi0->racket macro:
