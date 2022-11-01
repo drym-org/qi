@@ -206,6 +206,7 @@
      ;; curried function will accept any number of arguments
      #:do [(define chirality (syntax-property this-syntax 'chirality))]
      (if (and chirality (eq? chirality 'right))
+         ;; currying quirk with 0 args isn't preserved
          #'(lambda args
              (apply natex (append (list prarg ...) args)))
          #'(lambda args
