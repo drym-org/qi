@@ -129,6 +129,7 @@
                clos
                (clos onex:floe)
                (esc ex:expr)
+               (as v:id)
                ;; backwards compat macro extensibility via Racket macros
                (~> ((~var ext-form (starts-with "qi:")) expr ...)
                    #'(esc (ext-form expr ...)))
