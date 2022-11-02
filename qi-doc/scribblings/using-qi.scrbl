@@ -46,7 +46,7 @@ The documentation for the @seclink["top" #:indirect? #t #:doc '(lib "scribblings
 
 @subsection{Root-Mean-Square}
 
-While you can always use Qi to express computations as flows, it isn't always a better way of thinking about them -- just a @emph{different} way, better in some cases but not others. Let's look at an example that illustrates this subjectivity.
+While you can always use Qi to express computations as flows, it isn't always a better way of thinking about them -- just a @emph{different} way, more appropriate in some cases and less in others. Let's look at an example that illustrates this subjectivity.
 
 The "root mean square" is a measure often used in statistics to estimate the magnitude of some quantity for which there are many independent measurements. For instance, given a set of values representing the "deviation" of the result from the predictions of a model, we can use the square root of the mean of the squares of these values as an estimate of "error" in the model, i.e. inversely, an estimate of the accuracy of the model. The RMS also comes up in other branches of engineering and mathematics. What if we encountered such a case and wanted to implement this function? In Racket, we might implement it as:
 

@@ -247,7 +247,7 @@ And this would allow you to use Qi forms directly in Racket -- indeed, the forms
 
 @subsubsection{Exercise: Pattern Matching}
 
-Let's add some pattern matching to Qi by embedding Racket's pattern matching language into Qi, using this approach.
+Let's add some @seclink["match" #:doc '(lib "scribblings/guide/guide.scrbl")]{pattern matching} to Qi by embedding Racket's pattern matching language into Qi, using this approach.
 
 First, the simplest possible embedding of @racket[match] is to just write a Qi macro corresponding to the Racket macro.
 
