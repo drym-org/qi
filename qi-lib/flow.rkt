@@ -36,7 +36,7 @@ in the flow macro.
 (define-syntax-parser flow
   [(_ onex) ((compose compile-flow expand-flow) #'onex)]
   ;; a non-flow
-  [_ #'values]
+  [(_) #'values]
   ;; error handling catch-all
   [(_ expr0 expr ...+)
    (report-syntax-error
