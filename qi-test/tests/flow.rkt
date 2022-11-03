@@ -395,6 +395,14 @@
                     "p" "q")
                    "abpq"
                    "right-threading without template")
+     (check-equal? ((☯ (~>> △ (sort < #:key identity)))
+                    (list 2 1 3))
+                   (list 1 2 3)
+                   "right-threading with keyword arg pre-supplied")
+     (check-equal? ((☯ (~>> (sort <)))
+                    #:key identity 2 1 3)
+                   (list 1 2 3)
+                   "right-threading with keyword arg at invocation time")
      ;; TODO: propagate threading side to nested clauses
      ;; (check-equal? (on ("p" "q")
      ;;                   (~>> (>< (string-append "a" "b"))
