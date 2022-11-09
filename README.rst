@@ -1,23 +1,23 @@
-.. image:: https://github.com/countvajhula/qi/actions/workflows/test.yml/badge.svg
-    :target: https://github.com/countvajhula/qi/actions/workflows/test.yml
+.. image:: https://github.com/drym-org/qi/actions/workflows/test.yml/badge.svg
+    :target: https://github.com/drym-org/qi/actions/workflows/test.yml
 
-.. image:: https://coveralls.io/repos/github/countvajhula/qi/badge.svg?branch=main
-    :target: https://coveralls.io/github/countvajhula/qi?branch=main
+.. image:: https://coveralls.io/repos/github/drym-org/qi/badge.svg?branch=main
+    :target: https://coveralls.io/github/drym-org/qi?branch=main
 
 .. image:: https://img.shields.io/badge/documentation-%E2%98%AF-blue
     :target: https://docs.racket-lang.org/qi/index.html
 
 .. image:: https://img.shields.io/badge/wiki-%E2%98%AF-yellowgreen
-    :target: https://github.com/countvajhula/qi/wiki
+    :target: https://github.com/drym-org/qi/wiki
 
 qi
 ===
 Another way to structure computations.
 
 Install it from the `Racket Package Index <https://pkgs.racket-lang.org/package/qi>`_.
-Read `the documentation <https://docs.racket-lang.org/qi/index.html>`_ to learn more. See `the Wiki <https://github.com/countvajhula/qi/wiki>`_ for community resources, events, and developer documentation.
+Read `the documentation <https://docs.racket-lang.org/qi/index.html>`_ to learn more. See `the Wiki <https://github.com/drym-org/qi/wiki>`_ for community resources, events, and developer documentation.
 
-In case the main documentation is unavailable, read the `backup docs <https://countvajhula.github.io/qi/>`_.
+In case the main documentation is unavailable, read the `backup docs <https://drym-org.github.io/qi/>`_.
 
 "License":
 ==========
