@@ -224,7 +224,10 @@
          ;; from the positional arguments.
          #'(lambda args
              ;; (apply natex #,@prarg-kw (append args #,@prarg-pos))
-             (apply natex (append args (list prarg ...)))))]))
+             (let ([f (make-keyword-procedure
+                       (λ (kws kws-vs . pos)
+                         (keyword-apply natex kws kws-vs (append args pos))))])
+               (f prarg ...))))]))
 
 ;; The form-specific parsers, which are delegated to from
 ;; the qi0->racket macro:

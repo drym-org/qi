@@ -347,7 +347,9 @@
                   3)
     (let ([as (lambda (v) v)])
       (check-equal? ((☯ (~> (gen (as 3))))) 3) ; TODO: why does this work?
-      (check-equal? ((☯ (~> (esc (lambda (v) (as v))))) 3) 3)))
+      ;; TODO: uncomment for bindings
+      ;; (check-equal? ((☯ (~> (esc (lambda (v) (as v))))) 3) 3)
+      ))
 
    (test-suite
     "routing forms"
@@ -855,13 +857,13 @@
                    "short-circuiting"))
     (test-suite
      "sieve"
-     (check-equal? ((☯ (~> (sieve positive? add1 (const -1)) ▽))
+     (check-equal? ((☯ (~> (sieve positive? add1 (gen -1)) ▽))
                     1 -2)
                    (list 2 -1))
      (check-equal? ((☯ (~> (sieve positive? + (+ 2)) ▽))
                     1 2 -3 4)
                    (list 7 -1))
-     (check-equal? ((☯ (~> (sieve positive? + (const 0)) ▽))
+     (check-equal? ((☯ (~> (sieve positive? + (gen 0)) ▽))
                     1 2 3 4)
                    (list 10 0))
      (check-equal? ((☯ (~> (sieve negative? ⏚ ⏚) ▽))
@@ -1037,7 +1039,7 @@
                    "pure control form of feedback"))
     (test-suite
      "group"
-     (check-equal? ((☯ (~> (group 0 (const 5) +) ▽))
+     (check-equal? ((☯ (~> (group 0 (gen 5) +) ▽))
                     1 2)
                    (list 5 3))
      (check-equal? ((☯ (~> (group 1 add1 sub1) ▽))
