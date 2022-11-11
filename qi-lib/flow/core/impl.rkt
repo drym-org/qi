@@ -19,7 +19,8 @@
          foldr-values
          values->list
          feedback-times
-         feedback-while)
+         feedback-while
+         kw-helper)
 
 (require racket/match
          (only-in racket/function
@@ -34,6 +35,11 @@
 
 (define-syntax-parse-rule (values->list body:expr ...+)
   (call-with-values (λ () body ...) list))
+
+(define (kw-helper f args)
+  (make-keyword-procedure
+   (λ (kws kws-vs . pos)
+     (keyword-apply f kws kws-vs (append args pos)))))
 
 ;; we use a lambda to capture the arguments at runtime
 ;; since they aren't available at compile time
