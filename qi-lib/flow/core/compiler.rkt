@@ -53,14 +53,6 @@
 
 (begin-for-syntax
 
-  (define (extract-kwargs stx)
-    ;; TODO: extract keyword args as (kw val ...)
-    null)
-
-  (define (extract-posargs stx)
-    ;; TODO: extract positional args as (val ...)
-    null)
-
   (define (find-and-map pred f stx)
     (map-transform (λ (v)
                      (cond [(pred v) (f v)]
@@ -213,8 +205,6 @@
      ;; may change under composition within the form), while a
      ;; curried function will accept any number of arguments
      #:do [(define chirality (syntax-property this-syntax 'chirality))]
-     ;; #:with prarg-kw (extract-kwargs #'(prarg ...))
-     ;; #:with prarg-pos (extract-posargs #'(prarg ...))
      (if (and chirality (eq? chirality 'right))
          #'(lambda args
              (apply natex prarg ... args))
@@ -223,7 +213,6 @@
          ;; and need to handle the keyword arguments differently
          ;; from the positional arguments.
          #'(lambda args
-             ;; (apply natex #,@prarg-kw (append args #,@prarg-pos))
              (let ([f (make-keyword-procedure
                        (λ (kws kws-vs . pos)
                          (keyword-apply natex kws kws-vs (append args pos))))])
