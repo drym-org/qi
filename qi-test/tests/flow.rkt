@@ -32,9 +32,18 @@
      (check-equal? (values->list ((☯))) null "empty flow with no inputs")
      (check-equal? ((☯) 0) 0 "empty flow with one input")
      (check-equal? (values->list ((☯) 1 2)) (list 1 2) "empty flow with multiple inputs")
-     (check-equal? ((☯ (const 3))) 3 "no arguments")
+     (check-equal? ((☯ (+ 3))) 3 "partial application with no runtime arguments")
      (check-equal? ((flow add1) 2) 3 "simple function")
-     (check-equal? ((flow (get-f 1)) 2) 3 "fully qualified function")
+     (check-exn exn:fail:contract?
+                (thunk ((flow (get-f 1)) 2))
+                "fully qualified function is still treated as a partial application")
+     ;; As this is a syntax error, it can't be written as a unit test
+     ;; (check-exn exn:fail:contract?
+     ;;            (thunk (flow (get-f)))
+     ;;            "empty partial application isn't allowed")
+     (check-equal? ((flow (esc (get-f 1))) 2)
+                   3
+                   "fully qualified function used as a flow must still use esc")
      (check-equal? ((flow _) 5) 5 "identity flow")
      (check-equal? ((flow (~> _ ▽)) 5 6) (list 5 6) "identity flow"))
     (test-suite
@@ -255,6 +264,8 @@
                    (list 3 4 5)))
     (test-suite
      "escape hatch"
+     (check-equal? ((☯ (esc add1)) 2) 3)
+     (check-equal? ((☯ (esc (const 3)))) 3)
      (check-equal? ((☯ (esc (first (list + *)))) 3 7)
                    10
                    "normal racket expressions"))
@@ -590,10 +601,13 @@
                     (list "a" "b" "c"))
                    "cba"
                    "curried foldl")
-     (check-exn exn:fail?
-                (thunk ((☯ (+))
-                        5 7 8))
-                "function isn't curried when no arguments are provided"))
+     (check-equal? (((☯ (const 3)))) 3 "partial application with no arguments")
+     ;; As this is now a syntax error, it can't be written as a unit test
+     ;; (check-exn exn:fail?
+     ;;            (thunk ((☯ (+))
+     ;;                    5 7 8))
+     ;;            "function isn't curried when no arguments are provided")
+     )
     (test-suite
      "blanket template"
      (check-equal? ((☯ (+ __))) 0)
