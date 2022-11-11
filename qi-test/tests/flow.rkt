@@ -344,7 +344,10 @@
    (test-suite
     "bindings"
     (check-equal? ((☯ (~> (as v) (+ v))) 3)
-                  3))
+                  3)
+    (let ([as (lambda (v) v)])
+      (check-equal? ((☯ (~> (gen (as 3))))) 3) ; TODO: why does this work?
+      (check-equal? ((☯ (~> (esc (lambda (v) (as v))))) 3) 3)))
 
    (test-suite
     "routing forms"
