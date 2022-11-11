@@ -156,9 +156,7 @@
                (~> f:partial-application-form
                    #'(#%partial-application f))
                ;; literally indicated function identifier
-               ;; TODO: make this id rather than expr once
-               ;; everything else is stable
-               (~> f:expr #'(esc f))))
+               (~> f:id #'(esc f))))
 
 (begin-for-syntax
   (define (expand-flow stx)
