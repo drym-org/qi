@@ -213,10 +213,7 @@
          ;; and need to handle the keyword arguments differently
          ;; from the positional arguments.
          #'(lambda args
-             (let ([f (make-keyword-procedure
-                       (λ (kws kws-vs . pos)
-                         (keyword-apply natex kws kws-vs (append args pos))))])
-               (f prarg ...))))]))
+             ((kw-helper natex args) prarg ...)))]))
 
 ;; The form-specific parsers, which are delegated to from
 ;; the qi0->racket macro:
