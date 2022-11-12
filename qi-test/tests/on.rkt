@@ -21,7 +21,7 @@
                   (list 5 5)
                   "no clauses, binary")
     (check-equal? (on ()
-                    (const 3))
+                    (gen 3))
                   3
                   "no arguments"))
    (test-suite
