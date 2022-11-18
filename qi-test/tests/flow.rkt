@@ -11,7 +11,8 @@
          racket/string
          racket/function
          (except-in "private/util.rkt"
-                    add-two))
+                    add-two)
+         syntax/macro-testing)
 
 ;; used in the "language extension" tests for `qi:*`
 (define-syntax-rule (qi:square flo)
@@ -119,7 +120,7 @@
      (check-true ((☯ (and positive?
                           (or integer?
                               odd?)))
-                  5))
+                 5))
      (check-false ((☯ (and positive?
                            (or (> 6)
                                even?)))
@@ -345,6 +346,11 @@
     "bindings"
     (check-equal? ((☯ (~> (as v) (+ v))) 3)
                   3)
+    ;; convert-compile-time-error
+    (check-exn exn:fail?
+               (thunk (convert-compile-time-error
+                       ((☯ (~> sqr (list v) (as v) (gen v))) 3)))
+               "bindings cannot be referenced before being assigned")
     (let ([as (lambda (v) v)])
       (check-equal? ((☯ (~> (gen (as 3))))) 3) ; TODO: why does this work?
       ;; TODO: uncomment for bindings
