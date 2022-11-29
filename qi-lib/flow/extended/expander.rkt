@@ -22,13 +22,34 @@
 (define-hosted-syntaxes
   ;; Declare a compile-time datatype by which qi macros may
   ;; be identified.
+  (binding-class qi-var)
   (extension-class qi-macro
                    #:binding-space qi)
   (nonterminal floe
-               ;; Check first whether the form is a macro. If it is, expand it.
-               ;; This is prioritized over other forms so that extensions may
-               ;; override built-in Qi forms.
-               #:allow-extension qi-macro
+               f:binding-floe
+               #:binding (nest-one f []))
+  (nesting-nonterminal binding-floe (nested)
+                       ;; Check first whether the form is a macro. If it is, expand it.
+                       ;; This is prioritized over other forms so that extensions may
+                       ;; override built-in Qi forms.
+                       #:allow-extension qi-macro
+
+                       #:binding-space qi
+
+                       (as v:qi-var ...+)
+                       #:binding {(bind v) nested}
+
+                       (thread f:binding-floe ...)
+                       #:binding (nest f nested)
+
+                       ;; [f nested] is the implicit binding rule
+                       ;; anything not mentioned (e.g. nested) is treated as a
+                       ;; subexpression that's not in any scope
+                       ;; Note: this could be at the top level floe after
+                       ;; binding-floe, but that isnt supported atm because
+                       ;; it doesn't backtrack
+                       f:simple-floe)
+  (nonterminal simple-floe
                #:binding-space qi
                (gen e:expr ...)
                ;; Ad hoc expansion rule to allow _ to be used in application
@@ -40,7 +61,6 @@
                (~> ((~literal _) arg ...) #'(#%fine-template (_ arg ...)))
                _
                ground
-               (thread f:floe ...)
                (relay f:floe ...)
                relay
                (tee f:floe ...)
@@ -129,7 +149,7 @@
                clos
                (clos onex:floe)
                (esc ex:expr)
-               (as v:id)
+
                ;; backwards compat macro extensibility via Racket macros
                (~> ((~var ext-form (starts-with "qi:")) expr ...)
                    #'(esc (ext-form expr ...)))
