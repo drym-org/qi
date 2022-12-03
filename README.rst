@@ -22,7 +22,7 @@ In case the main documentation is unavailable, read the `backup docs <https://dr
 Supporting the Project
 ======================
 
-Please make any financial contributions by Venmo to ``@Sid-K``.
+Please make any financial contributions by Venmo to ``@Sid-K`` and mention "Qi" in your message.
 
 This project follows Attribution-Based Economics as described in `drym-org/foundation <https://github.com/drym-org/foundation>`_. Any financial contributions will be distributed to contributors and antecedents as agreed-upon in a collective process that anyone may participate in. To see the current distributions, take a look at abe/attributions.txt (TBD).
 
