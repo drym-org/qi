@@ -1,11 +1,12 @@
 #lang racket/base
 
-(provide flow
+(provide (rename-out [flow-interface flow])
          ☯
          (all-from-out "flow/extended/expander.rkt")
          (all-from-out "flow/extended/forms.rkt"))
 
 (require syntax/parse/define
+         bindingspec
          (prefix-in fancy: fancy-app)
          racket/function
          (only-in racket/list
@@ -20,7 +21,7 @@
          (only-in "private/util.rkt"
                   define-alias))
 
-(define-alias ☯ flow)
+(define-alias ☯ flow-interface)
 
 #|
 The `flow` macro specifies the Qi language. In cases where there is
@@ -36,11 +37,18 @@ module, defined after the flow macro. They are all invoked as needed
 in the flow macro.
 |#
 
-(define-syntax-parser flow
-  [(_ onex) ((compose compile-flow expand-flow) #'onex)]
-  ;; a non-flow
-  [_ #'values]
-  ;; error handling catch-all
+(syntax-spec
+  (host-interface/expression
+    (flow f:floe)
+    (compile-flow #'f)))
+
+(define-syntax-parser flow-interface
+  ;; we could define `flow` exclusively using syntax-spec if there weren't
+  ;; these extra-linguistic cases to handle. Otherwise, if we did that now,
+  ;; the multi-argument case would only report the intended error message
+  ;; if the component expressions were valid flows
+  [(_ onex) #'(flow onex)]
+  [(_) #'values]
   [(_ expr0 expr ...+)
    (report-syntax-error
     this-syntax

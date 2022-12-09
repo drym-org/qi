@@ -10,13 +10,13 @@
 
 (define-syntax-class literal
   (pattern
+   ;; TODO: would be ideal to also match literal vectors, boxes and prefabs
    (~or* expr:boolean
          expr:char
          expr:string
          expr:bytes
          expr:number
          expr:regexp
-         expr:byte-regexp
          ;; We'd like to treat quoted forms as literals as well. This
          ;; includes symbols, and would also include, for instance,
          ;; syntactic specifications of flows, since flows are
