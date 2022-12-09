@@ -7,8 +7,7 @@
                      racket/match
                      "syntax.rkt"
                      "../aux-syntax.rkt"
-                     racket/format
-                     ee-lib)
+                     racket/format)
          "impl.rkt"
          racket/function
          racket/undefined
@@ -53,39 +52,44 @@
 
 (begin-for-syntax
 
-  (define (find-and-map pred f stx)
-    (map-transform (λ (v)
-                     (cond [(pred v) (f v)]
-                           [else v]))
-                   stx))
+  (define (find-and-map f stx)
+    ;; f : syntax? -> (or/c syntax? #f)
+    (match stx
+      [(? syntax?) (let ([stx^ (f stx)])
+                     (or stx^ (datum->syntax stx
+                                (find-and-map f (syntax-e stx))
+                                stx
+                                stx)))]
+      [(cons a d) (cons (find-and-map f a)
+                        (find-and-map f d))]
+      [_ stx]))
 
-  (define (binding-form? stx)
-    (syntax-parse stx
-      [((~datum as) v:id) #t]
-      [_ #f]))
+  (define (find-and-map/qi f stx)
+    ;; #%host-expression is a Racket macro defined by syntax-spec
+    ;; that resumes expansion of its sub-expression with an
+    ;; expander environment containing the original surface bindings
+    (find-and-map (syntax-parser [((~datum #%host-expression) e:expr) this-syntax]
+                                 [_ (f this-syntax)])
+                  stx))
 
   ;; (as name) → (~> (esc (λ (x) (set! name x))) ⏚)
   ;; TODO: use a box instead of set!
-  (define (rewrite-binding stx)
-    (syntax-parse stx
-      [(_ idx)
-       #'(thread (esc (λ (x) (set! idx x))) ground)]))
-
   (define (rewrite-all-bindings stx)
-    (find-and-map binding-form?
-                  rewrite-binding
-                  stx))
+    (find-and-map/qi (syntax-parser
+                       [((~datum as) x ...)
+                        #:with (x-val ...) (generate-temporaries (attribute x))
+                        #'(thread (esc (λ (x-val ...) (set! x x-val) ...)) ground)]
+                       [_ #f])
+                     stx))
 
   (define (bound-identifiers stx)
     (let ([ids null])
-      (find-and-map binding-form?
-                    (λ (v)
-                      (syntax-parse v
-                        [(_ x)
-                         (set! ids
-                               (cons #'x ids))])
-                      v)
-                    stx)
+      (find-and-map/qi (syntax-parser
+                         [((~datum as) x ...)
+                          (set! ids
+                                (append (attribute x) ids))]
+                         [_ #f])
+                       stx)
       ids))
 
   ;; wrap stx with (let ([v undefined] ...) stx) for v ∈ ids

@@ -344,6 +344,7 @@ Another way to do it is to simply promote the expression out of the nest:
     (~> (3) (get-f 1))
   ]
 
+@;{Update this to reflect new partial application behavior}
 Now, you might, once again, expect this to be treated as a partial application template, so that this would be equivalent to @racket[(get-f 3 1)] and would raise an error. But in fact, since the expression @racket[(get-f 1)] happens to be fully qualified with all the arguments it needs, the currying employed under the hood to implement partial application in this case @seclink["Using_Racket_to_Define_Flows"]{evaluates to a function result right away}. This then receives the value @racket[3], and consequently, this expression produces the correct result.
 
 So in sum, it's perhaps best to rely on @racket[esc] in such cases to be as explicit as possible about what you mean, rather than rely on quirks of the implementation that are revealed at this boundary between two languages.
