@@ -345,17 +345,19 @@
    (test-suite
     "bindings"
     (check-equal? ((☯ (~> (as v) (+ v))) 3)
-                  3)
+                  3
+                  "binds a single value")
+    (check-equal? ((☯ (~> (as v w) (+ v w))) 3 4)
+                  7
+                  "binds multiple values")
     ;; convert-compile-time-error
     (check-exn exn:fail?
                (thunk (convert-compile-time-error
                        ((☯ (~> sqr (list v) (as v) (gen v))) 3)))
                "bindings cannot be referenced before being assigned")
     (let ([as (lambda (v) v)])
-      (check-equal? ((☯ (~> (gen (as 3))))) 3) ; TODO: why does this work?
-      ;; TODO: uncomment for bindings
-      ;; (check-equal? ((☯ (~> (esc (lambda (v) (as v))))) 3) 3)
-      ))
+      (check-equal? ((☯ (~> (gen (as 3))))) 3)
+      (check-equal? ((☯ (~> (esc (lambda (v) (as v))))) 3) 3)))
 
    (test-suite
     "routing forms"
