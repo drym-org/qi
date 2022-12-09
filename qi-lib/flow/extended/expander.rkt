@@ -1,7 +1,7 @@
 #lang racket/base
 
-(provide (for-syntax expand-flow
-                     qi-macro)
+(provide (for-syntax qi-macro
+                     floe)
          (for-space qi
                     (all-defined-out)
                     (rename-out [ground ⏚]
@@ -20,14 +20,16 @@
                      "../../private/util.rkt"))
 
 (syntax-spec
-  ;; Declare a compile-time datatype by which qi macros may
-  ;; be identified.
-  (extension-class qi-macro
-                   #:binding-space qi)
+    ;; Declare a compile-time datatype by which qi macros may
+    ;; be identified.
+    (extension-class qi-macro
+                     #:binding-space qi)
   (nonterminal floe
+    #:description "a flow expression"
     f:threading-floe
     #:binding (nest-one f []))
   (nonterminal/nesting binding-floe (nested)
+    #:description "a flow expression"
     ;; Check first whether the form is a macro. If it is, expand it.
     ;; This is prioritized over other forms so that extensions may
     ;; override built-in Qi forms.
@@ -41,6 +43,7 @@
     f:threading-floe
     #:binding (nest-one f nested))
   (nonterminal/nesting threading-floe (nested)
+    #:description "a flow expression"
     ;; Check first whether the form is a macro. If it is, expand it.
     ;; This is prioritized over other forms so that extensions may
     ;; override built-in Qi forms.
@@ -63,6 +66,7 @@
     ;; it doesn't backtrack
     f:simple-floe)
   (nonterminal simple-floe
+    #:description "a flow expression"
     #:binding-space qi
     (gen e:expr ...)
     #:binding (host e)
@@ -127,8 +131,8 @@
              (report-syntax-error this-syntax
                                   "(sieve <predicate flow> <selection flow> <remainder flow>)"))
     (try flo:floe
-         [error-condition-flo:floe error-handler-flo:floe]
-         ...+)
+      [error-condition-flo:floe error-handler-flo:floe]
+      ...+)
     (~>/form (try arg ...)
              (report-syntax-error this-syntax
                                   "(try <flo> [error-predicate-flo error-handler-flo] ...)"))
@@ -200,15 +204,11 @@
         #'(#%partial-application f))
     ;; literally indicated function identifier
     (~> f:id #'(esc f)))
-  
+
   (nonterminal arg-stx
     (~datum _)
     (~datum __)
     k:keyword
-    
+
     e:expr
     #:binding (host e)))
-
-(begin-for-syntax
-  (define (expand-flow stx)
-    ((nonterminal-expander floe) stx)))
