@@ -25,7 +25,7 @@
   (extension-class qi-macro
                    #:binding-space qi)
   (nonterminal floe
-    f:binding-floe
+    f:threading-floe
     #:binding (nest-one f []))
   (nonterminal/nesting binding-floe (nested)
     ;; Check first whether the form is a macro. If it is, expand it.
@@ -37,6 +37,20 @@
 
     (as v:racket-var ...+)
     #:binding {(bind v) nested}
+
+    f:threading-floe
+    #:binding (nest-one f nested))
+  (nonterminal/nesting threading-floe (nested)
+    ;; Check first whether the form is a macro. If it is, expand it.
+    ;; This is prioritized over other forms so that extensions may
+    ;; override built-in Qi forms.
+    #:allow-extension qi-macro
+
+    #:binding-space qi
+
+    (~> ((~literal as) v:id ...+)
+        (report-syntax-error this-syntax
+                             "(as ...) may only be used inside ~>"))
 
     (thread f:binding-floe ...)
     #:binding (nest f nested)

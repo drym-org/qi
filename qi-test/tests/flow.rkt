@@ -350,6 +350,10 @@
     (check-equal? ((☯ (~> (as v w) (+ v w))) 3 4)
                   7
                   "binds multiple values")
+    (check-exn exn:fail?
+               (thunk (convert-compile-time-error
+                       ((☯ (~> list (-< vs (as vs)))))))
+               "using `as` outside a threading form is an error")
     ;; convert-compile-time-error
     (check-exn exn:fail?
                (thunk (convert-compile-time-error
