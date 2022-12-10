@@ -12,7 +12,7 @@
                                 [sep △]
                                 [collect ▽])))
 
-(require bindingspec
+(require syntax-spec
          (for-syntax "../aux-syntax.rkt"
                      "syntax.rkt"
                      racket/base
