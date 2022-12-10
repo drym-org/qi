@@ -6,8 +6,7 @@
          rackunit
          rackunit/text-ui
          (only-in math sqr)
-         (only-in adjutor values->list)
-         racket/function)
+         (only-in adjutor values->list))
 
 (define tests
   (test-suite
