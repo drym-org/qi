@@ -20,14 +20,17 @@
                      "../../private/util.rkt"))
 
 (syntax-spec
-    ;; Declare a compile-time datatype by which qi macros may
-    ;; be identified.
-    (extension-class qi-macro
-                     #:binding-space qi)
+
+  ;; Declare a compile-time datatype by which qi macros may
+  ;; be identified.
+  (extension-class qi-macro
+                   #:binding-space qi)
+
   (nonterminal floe
     #:description "a flow expression"
     f:threading-floe
     #:binding (nest-one f []))
+
   (nonterminal/nesting binding-floe (nested)
     #:description "a flow expression"
     ;; Check first whether the form is a macro. If it is, expand it.
@@ -42,6 +45,7 @@
 
     f:threading-floe
     #:binding (nest-one f nested))
+
   (nonterminal/nesting threading-floe (nested)
     #:description "a flow expression"
     ;; Check first whether the form is a macro. If it is, expand it.
@@ -65,6 +69,7 @@
     ;; binding-floe, but that isnt supported atm because
     ;; it doesn't backtrack
     f:simple-floe)
+
   (nonterminal simple-floe
     #:description "a flow expression"
     #:binding-space qi
