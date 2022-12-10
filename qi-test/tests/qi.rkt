@@ -8,8 +8,7 @@
          (prefix-in threading: "threading.rkt")
          (prefix-in definitions: "definitions.rkt")
          (prefix-in macro: "macro.rkt")
-         (prefix-in util: "util.rkt")
-         "private/util.rkt")
+         (prefix-in util: "util.rkt"))
 
 (define tests
   (test-suite

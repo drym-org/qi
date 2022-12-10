@@ -6,8 +6,7 @@
                      syntax/parse
                      racket/match
                      "syntax.rkt"
-                     "../aux-syntax.rkt"
-                     racket/format)
+                     "../aux-syntax.rkt")
          "impl.rkt"
          racket/function
          racket/undefined

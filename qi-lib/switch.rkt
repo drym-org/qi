@@ -48,4 +48,4 @@
          expr ...))]
   [(_ name:id expr:expr ...)
    #'(define name
-       (☯ (switch expr ...)))])
+       (flow (switch expr ...)))])
