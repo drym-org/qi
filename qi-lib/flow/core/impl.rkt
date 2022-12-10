@@ -24,8 +24,6 @@
 
 (require racket/match
          (only-in racket/function
-                  thunk
-                  thunk*
                   negate)
          racket/bool
          racket/list

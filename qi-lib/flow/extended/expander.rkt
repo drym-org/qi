@@ -28,16 +28,13 @@
 
   (nonterminal floe
     #:description "a flow expression"
+
     f:threading-floe
     #:binding (nest-one f []))
 
   (nonterminal/nesting binding-floe (nested)
     #:description "a flow expression"
-    ;; Check first whether the form is a macro. If it is, expand it.
-    ;; This is prioritized over other forms so that extensions may
-    ;; override built-in Qi forms.
     #:allow-extension qi-macro
-
     #:binding-space qi
 
     (as v:racket-var ...+)
@@ -48,11 +45,7 @@
 
   (nonterminal/nesting threading-floe (nested)
     #:description "a flow expression"
-    ;; Check first whether the form is a macro. If it is, expand it.
-    ;; This is prioritized over other forms so that extensions may
-    ;; override built-in Qi forms.
     #:allow-extension qi-macro
-
     #:binding-space qi
 
     (~> ((~literal as) v:id ...+)
@@ -73,6 +66,7 @@
   (nonterminal simple-floe
     #:description "a flow expression"
     #:binding-space qi
+
     (gen e:expr ...)
     #:binding (host e)
     ;; Ad hoc expansion rule to allow _ to be used in application

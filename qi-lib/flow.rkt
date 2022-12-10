@@ -5,12 +5,7 @@
          (all-from-out "flow/extended/expander.rkt")
          (all-from-out "flow/extended/forms.rkt"))
 
-(require syntax/parse/define
-         syntax-spec
-         (prefix-in fancy: fancy-app)
-         racket/function
-         (only-in racket/list
-                  make-list)
+(require syntax-spec
          (for-syntax racket/base
                      syntax/parse
                      (only-in "private/util.rkt"

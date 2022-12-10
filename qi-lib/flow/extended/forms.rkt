@@ -13,8 +13,7 @@
                      syntax/parse
                      (only-in racket/list make-list)
                      "syntax.rkt"
-                     "../aux-syntax.rkt"
-                     "../../private/util.rkt")
+                     "../aux-syntax.rkt")
          "expander.rkt"
          "../../macro.rkt"
          "impl.rkt")
