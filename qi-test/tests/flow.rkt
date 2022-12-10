@@ -55,6 +55,8 @@
      (check-equal? ((flow #"hi") 5) #"hi" "literal byte string")
      (check-equal? ((flow #px"hi") 5) #px"hi" "literal regexp")
      (check-equal? ((flow #rx"hi") 5) #rx"hi" "literal regexp")
+     (check-equal? ((flow #px#"hi") 5) #px#"hi" "bytestring literal regexp")
+     (check-equal? ((flow #rx#"hi") 5) #rx#"hi" "bytestring literal regexp")
      (check-equal? ((flow 'hi) 5) 'hi "literal symbol")
      (check-equal? ((flow '(+ 1 2)) 5) '(+ 1 2) "literal quoted list")
      (check-equal? ((flow `(+ 1 ,(* 2 3))) 5) '(+ 1 6) "literal quasiquoted list")
