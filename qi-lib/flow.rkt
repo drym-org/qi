@@ -6,7 +6,7 @@
          (all-from-out "flow/extended/forms.rkt"))
 
 (require syntax/parse/define
-         bindingspec
+         syntax-spec
          (prefix-in fancy: fancy-app)
          racket/function
          (only-in racket/list
