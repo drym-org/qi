@@ -49,6 +49,7 @@
      (check-equal? ((flow #(1 2 3)) 2) #(1 2 3) "literal vector")
      (check-equal? ((flow #&3) 2) #&3 "literal box")
      (check-equal? ((flow #&(1 2 3)) 2) #&(1 2 3) "literal collection in a box")
+     (check-equal? ((flow #s(dog "Fido")) 2) #s(dog "Fido") "literal prefab")
      (check-equal? ((flow '(+ 1 2)) 5) '(+ 1 2) "literal quoted list")
      (check-equal? ((flow `(+ 1 ,(* 2 3))) 5) '(+ 1 6) "literal quasiquoted list")
      (check-equal? (syntax->datum ((flow #'(+ 1 2)) 5)) '(+ 1 2) "Literal syntax quoted list"))

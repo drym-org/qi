@@ -19,6 +19,7 @@
          expr:byte-regexp
          expr:vector-literal
          expr:box-literal
+         expr:prefab-literal
          ;; We'd like to treat quoted forms as literals as well. This
          ;; includes symbols, and would also include, for instance,
          ;; syntactic specifications of flows, since flows are
@@ -44,6 +45,10 @@
 
 (define-syntax-class box-literal
   (pattern #&v))
+
+(define-syntax-class prefab-literal
+  (pattern e:expr
+    #:when (prefab-struct-key (syntax-e #'e))))
 
 (define-syntax-class (starts-with pfx)
   (pattern i:id
