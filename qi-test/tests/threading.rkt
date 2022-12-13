@@ -6,7 +6,9 @@
          rackunit
          rackunit/text-ui
          (only-in math sqr)
-         (only-in adjutor values->list))
+         (only-in adjutor values->list)
+         racket/function
+         syntax/macro-testing)
 
 (define tests
   (test-suite
@@ -21,6 +23,16 @@
     (check-equal? (~>> (4)) 4)
     (check-equal? (values->list (~> (4 5 6))) '(4 5 6))
     (check-equal? (values->list (~>> (4 5 6))) '(4 5 6)))
+   (test-suite
+    "Syntax"
+    (check-exn exn:fail?
+               (thunk (convert-compile-time-error
+                       (~> (1 2) sep)))
+               "catch a common syntax error")
+    (check-exn exn:fail?
+               (thunk (convert-compile-time-error
+                       (~>> (1 2) sep)))
+               "catch a common syntax error"))
    (test-suite
     "smoke"
     (check-equal? (~> (3) sqr add1) 10)
