@@ -372,19 +372,17 @@
                    (list 1 2 3))
                   (list 1 2 3 1 2 3)
                   "idiom: bind as a side effect")
-    (check-equal? ((☯ (~> (ε (as args)) (append args)))
-                   (list 1 2 3))
-                  (list 1 2 3 1 2 3)
-                  "idiom: bind as a side effect")
     (check-exn exn:fail?
                (thunk (convert-compile-time-error
                        ((☯ (~> (as n) 5 (feedback n add1)))
                         3)))
+               ;; TODO: discuss this
                "using a bound value in a flow specification is an error")
     (check-equal? ((☯ (~> (== (as n) _) sqr (+ n)))
                    3 5)
                   8
                   "binding some but not all values using a relay")
+    ;; TODO: remove / fix
     (check-exn exn:fail?
                (thunk (convert-compile-time-error
                        ((☯ (~> list (-< vs (as vs)))))))
@@ -400,15 +398,15 @@
                   "tee junction tines bind succeeding peers")
     (check-exn exn:fail?
                (thunk (convert-compile-time-error
-                       ((☯ (~> (or (ε (as v)) 5) (+ v)))
-                        3)))
-               "error is raised if identifier is not guaranteed to be bound downstream")
-    (check-exn exn:fail?
-               (thunk (convert-compile-time-error
                        ((☯ (~> (-< (gen v)
                                    (as v))))
                         3)))
                "tee junction tines don't bind preceding peers")
+    (check-exn exn:fail?
+               (thunk (convert-compile-time-error
+                       ((☯ (~> (or (ε (as v)) 5) (+ v)))
+                        3)))
+               "error is raised if identifier is not guaranteed to be bound downstream")
     (let ([as (lambda (v) v)])
       (check-equal? ((☯ (~> (gen (as 3))))) 3)
       (check-equal? ((☯ (~> (esc (lambda (v) (as v))))) 3) 3)))
