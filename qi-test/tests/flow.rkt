@@ -10,6 +10,7 @@
          racket/list
          racket/string
          racket/function
+         racket/format
          (except-in "private/util.rkt"
                     add-two)
          syntax/macro-testing)
@@ -349,18 +350,65 @@
     (check-equal? ((☯ (~> (as v) (+ v))) 3)
                   3
                   "binds a single value")
+    (check-false ((☯ (~> (as v) live?)) 3)
+                 "binding does not propagate the value")
     (check-equal? ((☯ (~> (as v w) (+ v w))) 3 4)
                   7
                   "binds multiple values")
+    (check-equal? ((☯ (~> (-< (~> list (as vs))
+                              +)
+                          (~a "The sum of " vs " is " _)))
+                   1 2)
+                  "The sum of (1 2) is 3"
+                  "bindings are scoped to the outermost threading form")
+    (check-equal? ((☯ (~> (-< _ (~> list (as S)))
+                          (-< sqr (~>> list (append S) (as S)))
+                          (-< add1 (~>> list (append S) (as S)))
+                          (list S)))
+                   5)
+                  (list 26 (list 5 25 26))
+                  "binding to accumulate state")
+    (check-equal? ((☯ (~> (ε (as args)) (append args)))
+                   (list 1 2 3))
+                  (list 1 2 3 1 2 3)
+                  "idiom: bind as a side effect")
+    (check-equal? ((☯ (~> (ε (as args)) (append args)))
+                   (list 1 2 3))
+                  (list 1 2 3 1 2 3)
+                  "idiom: bind as a side effect")
+    (check-exn exn:fail?
+               (thunk (convert-compile-time-error
+                       ((☯ (~> (as n) 5 (feedback n add1)))
+                        3)))
+               "using a bound value in a flow specification is an error")
+    (check-equal? ((☯ (~> (== (as n) _) sqr (+ n)))
+                   3 5)
+                  8
+                  "binding some but not all values using a relay")
     (check-exn exn:fail?
                (thunk (convert-compile-time-error
                        ((☯ (~> list (-< vs (as vs)))))))
                "using `as` outside a threading form is an error")
-    ;; convert-compile-time-error
     (check-exn exn:fail?
                (thunk (convert-compile-time-error
                        ((☯ (~> sqr (list v) (as v) (gen v))) 3)))
                "bindings cannot be referenced before being assigned")
+    (check-equal? ((☯ (~> (-< (as v)
+                              (gen v))))
+                   3)
+                  3
+                  "tee junction tines bind succeeding peers")
+    (check-exn exn:fail?
+               (thunk (convert-compile-time-error
+                       ((☯ (~> (or (ε (as v)) 5) (+ v)))
+                        3)))
+               "error is raised if identifier is not guaranteed to be bound downstream")
+    (check-exn exn:fail?
+               (thunk (convert-compile-time-error
+                       ((☯ (~> (-< (gen v)
+                                   (as v))))
+                        3)))
+               "tee junction tines don't bind preceding peers")
     (let ([as (lambda (v) v)])
       (check-equal? ((☯ (~> (gen (as 3))))) 3)
       (check-equal? ((☯ (~> (esc (lambda (v) (as v))))) 3) 3)))
