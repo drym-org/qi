@@ -30,6 +30,12 @@
    (test-suite
     "core language"
     (test-suite
+     "Syntax"
+     (check-exn exn:fail?
+                (thunk (convert-compile-time-error
+                        (☯ 1 2)))
+                "flow expects exactly one argument"))
+    (test-suite
      "Edge/base cases"
      (check-equal? (values->list ((☯))) null "empty flow with no inputs")
      (check-equal? ((☯) 0) 0 "empty flow with one input")
