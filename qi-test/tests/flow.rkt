@@ -384,6 +384,10 @@
                    3 5)
                   28
                   "binding some but not all values using a relay")
+    (check-equal? (map (☯ (~> (as n) (+ n n)))
+                       (list 1 3 5))
+                  (list 2 6 10)
+                  "binding arguments without a lambda")
     (check-exn exn:fail?
                (thunk (convert-compile-time-error
                        ((☯ (~> sqr (list v) (as v) (gen v))) 3)))
