@@ -51,6 +51,11 @@
     (thread f:binding-floe ...)
     #:binding (nest f nested)
 
+    (tee f:binding-floe ...)
+    #:binding (nest f nested)
+    tee
+    ;; Note: `#:binding nested` is the implicit binding rule here
+
     ;; [f nested] is the implicit binding rule
     ;; anything not mentioned (e.g. nested) is treated as a
     ;; subexpression that's not in any scope
@@ -76,8 +81,6 @@
     ground
     (relay f:floe ...)
     relay
-    (tee f:floe ...)
-    tee
     amp
     (amp f:floe)
     (~>/form (amp f0:clause f:clause ...)
