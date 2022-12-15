@@ -407,8 +407,8 @@
                         3)))
                "error is raised if identifier is not guaranteed to be bound downstream")
     (let ([as (lambda (v) v)])
-      (check-equal? ((☯ (~> (gen (as 3))))) 3)
-      (check-equal? ((☯ (~> (esc (lambda (v) (as v))))) 3) 3)))
+      (check-equal? ((☯ (~> (gen (as 3))))) 3 "Racket functions named `as` aren't clobbered")
+      (check-equal? ((☯ (~> (esc (lambda (v) (as v))))) 3) 3 "Racket functions named `as` aren't clobbered")))
 
    (test-suite
     "routing forms"
