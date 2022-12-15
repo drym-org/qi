@@ -15,10 +15,10 @@
     "report-syntax-error"
     (check-exn exn:fail:syntax?
                (thunk (report-syntax-error #'(dummy 1 2 3)
-                                           "blah: blah"
-                                           "Use it"
-                                           "like"
-                                           "this"))))))
+                        "blah: blah"
+                        "Use it"
+                        "like"
+                        "this"))))))
 
 (module+ main
   (void (run-tests tests)))

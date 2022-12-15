@@ -83,10 +83,9 @@
     (~>/form (amp f0:clause f:clause ...)
              ;; potentially pull out as a phase 1 function
              ;; just a stopgap until better error messages
-             (report-syntax-error
-              this-syntax
-              "(>< flo)"
-              "amp expects a single flow specification, but it received many."))
+             (report-syntax-error this-syntax
+               "(>< flo)"
+               "amp expects a single flow specification, but it received many."))
     pass
     (pass f:floe)
     sep
@@ -102,17 +101,17 @@
     (select n:number ...)
     (~>/form (select arg ...)
              (report-syntax-error this-syntax
-                                  "(select <number> ...)"))
+               "(select <number> ...)"))
     (block n:number ...)
     (~>/form (block arg ...)
              (report-syntax-error this-syntax
-                                  "(block <number> ...)"))
+               "(block <number> ...)"))
     (group n:expr e1:floe e2:floe)
     #:binding (host n)
     group
     (~>/form (group arg ...)
              (report-syntax-error this-syntax
-                                  "(group <number> <selection flow> <remainder flow>)"))
+               "(group <number> <selection flow> <remainder flow>)"))
     (if consequent:floe
         alternative:floe)
     (if condition:floe
@@ -124,13 +123,13 @@
     sieve
     (~>/form (sieve arg ...)
              (report-syntax-error this-syntax
-                                  "(sieve <predicate flow> <selection flow> <remainder flow>)"))
+               "(sieve <predicate flow> <selection flow> <remainder flow>)"))
     (try flo:floe
       [error-condition-flo:floe error-handler-flo:floe]
       ...+)
     (~>/form (try arg ...)
              (report-syntax-error this-syntax
-                                  "(try <flo> [error-predicate-flo error-handler-flo] ...)"))
+               "(try <flo> [error-predicate-flo error-handler-flo] ...)"))
     >>
     (>> fn:floe init:floe)
     (>> fn:floe)
