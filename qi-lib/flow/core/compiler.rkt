@@ -340,7 +340,9 @@ the DSL.
       [(_ n:expr
           ((~datum then) thenex:clause)
           onex:clause)
-       #'(feedback-times (qi0->racket onex) n (qi0->racket thenex))]
+       #'(lambda args
+           (apply (feedback-times (qi0->racket onex) n (qi0->racket thenex))
+                  args))]
       [(_ n:expr
           ((~datum then) thenex:clause))
        #'(λ (f . args)
