@@ -365,9 +365,9 @@
                    1 2)
                   "The sum of (1 2) is 3"
                   "bindings are scoped to the outermost threading form")
-    (check-equal? ((☯ (~> (-< _ (~> list (as S)))
-                          (-< sqr (~>> list (append S) (as S)))
+    (check-equal? ((☯ (~> (-< sqr (~> list (as S)))
                           (-< add1 (~>> list (append S) (as S)))
+                          (-< _ (~>> list (append S) (as S)))
                           (list S)))
                    5)
                   (list 26 (list 5 25 26))
@@ -376,15 +376,13 @@
                    (list 1 2 3))
                   (list 1 2 3 1 2 3)
                   "idiom: bind as a side effect")
-    (check-exn exn:fail?
-               (thunk (convert-compile-time-error
-                       ((☯ (~> (as n) 5 (feedback n add1)))
-                        3)))
-               ;; TODO: discuss this
-               "using a bound value in a flow specification is an error")
+    (check-equal? ((☯ (~> (as n) 5 (feedback n add1)))
+                   3)
+                  8
+                  "using a bound value in a flow specification")
     (check-equal? ((☯ (~> (== (as n) _) sqr (+ n)))
                    3 5)
-                  8
+                  28
                   "binding some but not all values using a relay")
     (check-exn exn:fail?
                (thunk (convert-compile-time-error
@@ -407,8 +405,12 @@
                         3)))
                "error is raised if identifier is not guaranteed to be bound downstream")
     (let ([as (lambda (v) v)])
-      (check-equal? ((☯ (~> (gen (as 3))))) 3 "Racket functions named `as` aren't clobbered")
-      (check-equal? ((☯ (~> (esc (lambda (v) (as v))))) 3) 3 "Racket functions named `as` aren't clobbered")))
+      (check-equal? ((☯ (~> (gen (as 3)))))
+                    3
+                    "Racket functions named `as` aren't clobbered")
+      (check-equal? ((☯ (~> (esc (lambda (v) (as v))))) 3)
+                    3
+                    "Racket functions named `as` aren't clobbered")))
 
    (test-suite
     "routing forms"
