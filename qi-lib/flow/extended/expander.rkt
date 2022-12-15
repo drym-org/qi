@@ -37,10 +37,6 @@
     #:allow-extension qi-macro
     #:binding-space qi
 
-    (~> ((~literal as) v:id ...+)
-        (report-syntax-error this-syntax
-                             "(as ...) may only be used inside ~>"))
-
     (thread f:binding-floe ...)
     #:binding (nest f nested)
 

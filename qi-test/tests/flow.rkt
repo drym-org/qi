@@ -382,11 +382,6 @@
                    3 5)
                   8
                   "binding some but not all values using a relay")
-    ;; TODO: remove / fix
-    (check-exn exn:fail?
-               (thunk (convert-compile-time-error
-                       ((☯ (~> list (-< vs (as vs)))))))
-               "using `as` outside a threading form is an error")
     (check-exn exn:fail?
                (thunk (convert-compile-time-error
                        ((☯ (~> sqr (list v) (as v) (gen v))) 3)))
