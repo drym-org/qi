@@ -32,6 +32,17 @@
     f:threading-floe
     #:binding (nest-one f []))
 
+  (nonterminal/nesting binding-floe (nested)
+    #:description "a flow expression"
+    #:allow-extension qi-macro
+    #:binding-space qi
+
+    (as v:racket-var ...+)
+    #:binding {(bind v) nested}
+
+    f:threading-floe
+    #:binding (nest-one f nested))
+
   (nonterminal/nesting threading-floe (nested)
     #:description "a flow expression"
     #:allow-extension qi-macro
@@ -47,17 +58,6 @@
     ;; binding-floe, but that isnt supported atm because
     ;; it doesn't backtrack
     _:simple-floe)
-
-  (nonterminal/nesting binding-floe (nested)
-    #:description "a flow expression"
-    #:allow-extension qi-macro
-    #:binding-space qi
-
-    (as v:racket-var ...+)
-    #:binding {(bind v) nested}
-
-    f:threading-floe
-    #:binding (nest-one f nested))
 
   (nonterminal simple-floe
     #:description "a flow expression"
