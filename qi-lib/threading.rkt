@@ -19,9 +19,9 @@
   [(_ (arg0 arg ...+) (~or* (~datum sep) (~datum △)) clause:clause ...)
    ;; catch a common usage error
    (report-syntax-error this-syntax
-                        "(~> (arg ...) flo ...)"
-                        "Attempted to separate multiple values."
-                        "Note that the inputs to ~> must be wrapped in parentheses.")]
+     "(~> (arg ...) flo ...)"
+     "Attempted to separate multiple values."
+     "Note that the inputs to ~> must be wrapped in parentheses.")]
   [(_ args:subject clause:clause ...)
    #:with ags (attribute args.args)
    #'(on ags (~> clause ...))])
@@ -30,9 +30,9 @@
   [(_ (arg0 arg ...+) (~or* (~datum sep) (~datum △)) clause:clause ...)
    ;; catch a common usage error
    (report-syntax-error this-syntax
-                        "(~>> (arg ...) flo ...)"
-                        "Attempted to separate multiple values."
-                        "Note that the inputs to ~>> must be wrapped in parentheses.")]
+     "(~>> (arg ...) flo ...)"
+     "Attempted to separate multiple values."
+     "Note that the inputs to ~>> must be wrapped in parentheses.")]
   [(_ args:subject clause:clause ...)
    #:with ags (attribute args.args)
    #'(on ags (~>> clause ...))])
