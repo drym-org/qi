@@ -4,7 +4,7 @@
          @for-label[qi
                     racket]]
 
-@title{Qi: A Functional, Flow-Oriented DSL}
+@title{Qi: An Embeddable Flow-Oriented Language}
 
 @defmodule[qi]
 
