@@ -82,6 +82,9 @@ build-standalone-docs:
 clean:
 	raco setup --fast-clean --pkgs $(PACKAGE-NAME)-{lib,test,doc,probe}
 
+clean-sdk:
+	raco setup --fast-clean --pkgs $(PACKAGE-NAME)-sdk
+
 # Primarily for use by CI, after make install -- since that already
 # does the equivalent of make setup, this tries to do as little as
 # possible except checking deps.
@@ -161,14 +164,14 @@ cover-coveralls:
 
 profile-forms:
 	echo "Profiling forms..."
-	racket profile/forms.rkt
+	racket qi-sdk/profile/forms.rkt
 
 profile-selected-forms:
-	@echo "Use 'racket profile/forms.rkt' directly, with -f form-name for each form."
+	@echo "Use 'racket qi-sdk/profile/forms.rkt' directly, with -f form-name for each form."
 
 profile-competitive:
 	echo "Running competitive benchmarks..."
-	racket profile/competitive.rkt
+	racket qi-sdk/profile/competitive.rkt
 
 profile: profile-competitive profile-forms
 
