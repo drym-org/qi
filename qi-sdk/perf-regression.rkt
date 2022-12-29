@@ -9,6 +9,9 @@
          racket/format
          racket/port)
 
+(define LOWER-THRESHOLD 0.75)
+(define HIGHER-THRESHOLD 1.5)
+
 (define (parse-json-file filename)
   (call-with-input-file filename
     (λ (port)
@@ -43,7 +46,7 @@
                (~> (-< (hash-ref after _)
                        (hash-ref before _))
                    /
-                   (if (< 0.75 _ 1.5)
+                   (if (< LOWER-THRESHOLD _ HIGHER-THRESHOLD)
                        1
                        (~r #:precision 2))))
            ▽))
