@@ -72,8 +72,7 @@
     #:description "a flow expression"
     #:binding-space qi
 
-    (gen e:expr ...)
-    #:binding (host e)
+    (gen e:racket-expr ...)
     ;; Ad hoc expansion rule to allow _ to be used in application
     ;; position in a template.
     ;; Without it, (_ v ...) would be treated as an error since
@@ -111,8 +110,7 @@
     (~>/form (block arg ...)
              (report-syntax-error this-syntax
                "(block <number> ...)"))
-    (group n:expr e1:floe e2:floe)
-    #:binding (host n)
+    (group n:racket-expr e1:floe e2:floe)
     group
     (~>/form (group arg ...)
              (report-syntax-error this-syntax
@@ -148,15 +146,12 @@
               ((~datum then) thenex:floe))
     (feedback ((~datum while) tilex:floe) onex:floe)
     (feedback ((~datum while) tilex:floe))
-    (feedback n:expr
+    (feedback n:racket-expr
               ((~datum then) thenex:floe)
               onex:floe)
-    #:binding (host n)
-    (feedback n:expr
+    (feedback n:racket-expr
               ((~datum then) thenex:floe))
-    #:binding (host n)
-    (feedback n:expr onex:floe)
-    #:binding (host n)
+    (feedback n:racket-expr onex:floe)
     (feedback onex:floe)
     feedback
     (loop pred:floe mapex:floe combex:floe retex:floe)
@@ -169,8 +164,7 @@
     (~> (~literal apply) #'appleye)
     clos
     (clos onex:floe)
-    (esc ex:expr)
-    #:binding (host ex)
+    (esc ex:racket-expr)
 
     ;; backwards compat macro extensibility via Racket macros
     (~> ((~var ext-form (starts-with "qi:")) expr ...)
@@ -209,5 +203,4 @@
     (~datum __)
     k:keyword
 
-    e:expr
-    #:binding (host e)))
+    e:racket-expr))
