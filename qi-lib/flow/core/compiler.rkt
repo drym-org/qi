@@ -6,22 +6,107 @@
                      syntax/parse
                      racket/match
                      "syntax.rkt"
-                     "../aux-syntax.rkt"
-                     racket/format)
+                     "../aux-syntax.rkt")
          "impl.rkt"
          racket/function
+         racket/undefined
          (prefix-in fancy: fancy-app))
 
 (begin-for-syntax
   ;; note: this does not return compiled code but instead,
   ;; syntax whose expansion compiles the code
   (define (compile-flow stx)
-    #`(qi0->racket #,(optimize-flow stx)))
+    (process-bindings (optimize-flow stx)))
 
   (define (optimize-flow stx)
     stx))
 
+;; Transformation rules for the `as` binding form:
+;;
+;; 1. escape to wrap outermost ~> with let and re-enter
+;;
+;;   (~> flo ... (... (as name) ...))
+;;   ...
+;;    ↓
+;;   ...
+;;   (esc (let ([name (void)])
+;;          (☯ original-flow)))
+;;
+;; 2. as → set!
+;;
+;;   (as name)
+;;   ...
+;;    ↓
+;;   ...
+;;   (~> (esc (λ (x) (set! name x))) ⏚)
+;;
+;; 3. Overall transformation:
+;;
+;;   (~> flo ... (... (as name) ...))
+;;   ...
+;;    ↓
+;;   ...
+;;   (esc (let ([name (void)])
+;;          (☯ (~> flo ... (... (~> (esc (λ (x) (set! name x))) ⏚) ...)))))
+
+(begin-for-syntax
+
+  (define (find-and-map f stx)
+    ;; f : syntax? -> (or/c syntax? #f)
+    (match stx
+      [(? syntax?) (let ([stx^ (f stx)])
+                     (or stx^ (datum->syntax stx
+                                (find-and-map f (syntax-e stx))
+                                stx
+                                stx)))]
+      [(cons a d) (cons (find-and-map f a)
+                        (find-and-map f d))]
+      [_ stx]))
+
+  (define (find-and-map/qi f stx)
+    ;; #%host-expression is a Racket macro defined by syntax-spec
+    ;; that resumes expansion of its sub-expression with an
+    ;; expander environment containing the original surface bindings
+    (find-and-map (syntax-parser [((~datum #%host-expression) e:expr) this-syntax]
+                                 [_ (f this-syntax)])
+                  stx))
+
+  ;; (as name) → (~> (esc (λ (x) (set! name x))) ⏚)
+  ;; TODO: use a box instead of set!
+  (define (rewrite-all-bindings stx)
+    (find-and-map/qi (syntax-parser
+                       [((~datum as) x ...)
+                        #:with (x-val ...) (generate-temporaries (attribute x))
+                        #'(thread (esc (λ (x-val ...) (set! x x-val) ...)) ground)]
+                       [_ #f])
+                     stx))
+
+  (define (bound-identifiers stx)
+    (let ([ids null])
+      (find-and-map/qi (syntax-parser
+                         [((~datum as) x ...)
+                          (set! ids
+                                (append (attribute x) ids))]
+                         [_ #f])
+                       stx)
+      ids))
+
+  ;; wrap stx with (let ([v undefined] ...) stx) for v ∈ ids
+  (define (wrap-with-scopes stx ids)
+    (with-syntax ([(v ...) ids])
+      #`(let ([v undefined] ...) #,stx)))
+
+  (define (process-bindings stx)
+    ;; TODO: use syntax-parse and match ~> specifically.
+    ;; Since macros are expanded "outside in," presumably
+    ;; it will naturally wrap the outermost ~>
+    (wrap-with-scopes #`(qi0->racket #,(rewrite-all-bindings stx))
+                      (bound-identifiers stx))))
+
 (define-syntax (qi0->racket stx)
+  ;; this is a macro so it receives the entire expression
+  ;; (qi0->racket ...). We use cadr here to parse the
+  ;; contained expression.
   (syntax-parse (cadr (syntax->list stx))
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -124,8 +209,14 @@
      ;; curried function will accept any number of arguments
      #:do [(define chirality (syntax-property this-syntax 'chirality))]
      (if (and chirality (eq? chirality 'right))
-         #'(curry natex prarg ...)
-         #'(curryr natex prarg ...))]))
+         #'(lambda args
+             (apply natex prarg ... args))
+         ;; TODO: keyword arguments don't work for the left-chiral case
+         ;; since we can't just blanket place the pre-supplied args
+         ;; and need to handle the keyword arguments differently
+         ;; from the positional arguments.
+         #'(lambda args
+             ((kw-helper natex args) prarg ...)))]))
 
 ;; The form-specific parsers, which are delegated to from
 ;; the qi0->racket macro:
@@ -249,7 +340,9 @@ the DSL.
       [(_ n:expr
           ((~datum then) thenex:clause)
           onex:clause)
-       #'(feedback-times (qi0->racket onex) n (qi0->racket thenex))]
+       #'(lambda args
+           (apply (feedback-times (qi0->racket onex) n (qi0->racket thenex))
+                  args))]
       [(_ n:expr
           ((~datum then) thenex:clause))
        #'(λ (f . args)

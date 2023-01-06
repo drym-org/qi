@@ -5,11 +5,7 @@
          (all-from-out "flow/extended/expander.rkt")
          (all-from-out "flow/extended/forms.rkt"))
 
-(require syntax/parse/define
-         (prefix-in fancy: fancy-app)
-         racket/function
-         (only-in racket/list
-                  make-list)
+(require syntax-spec
          (for-syntax racket/base
                      syntax/parse
                      (only-in "private/util.rkt"
@@ -36,13 +32,17 @@ module, defined after the flow macro. They are all invoked as needed
 in the flow macro.
 |#
 
-(define-syntax-parser flow
-  [(_ onex) ((compose compile-flow expand-flow) #'onex)]
-  ;; a non-flow
-  [_ #'values]
-  ;; error handling catch-all
-  [(_ expr0 expr ...+)
-   (report-syntax-error
-    this-syntax
-    "(flow flo)"
-    "flow expects a single flow specification, but it received many.")])
+(syntax-spec
+  (host-interface/expression
+    (flow f:floe ...)
+    (syntax-parse #'(f ...)
+      [(f) (compile-flow #'f)]
+      ;; a non-flow
+      [() #'values]
+      ;; error handling catch-all
+      [(expr0 expr ...+)
+       (report-syntax-error
+           (datum->syntax this-syntax
+             (cons 'flow (syntax->list this-syntax)))
+         "(flow flo)"
+         "flow expects a single flow specification, but it received many.")])))

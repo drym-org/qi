@@ -6,8 +6,7 @@
          rackunit
          rackunit/text-ui
          (only-in math sqr)
-         (only-in adjutor values->list)
-         racket/function)
+         (only-in adjutor values->list))
 
 (define tests
   (test-suite
@@ -16,8 +15,8 @@
     "Edge/base cases"
     (check-equal? (values->list (~> ())) null)
     (check-equal? (values->list (~>> ())) null)
-    (check-equal? (~> () (const 5)) 5)
-    (check-equal? (~>> () (const 5)) 5)
+    (check-equal? (~> () (gen 5)) 5)
+    (check-equal? (~>> () (gen 5)) 5)
     (check-equal? (~> (4)) 4)
     (check-equal? (~>> (4)) 4)
     (check-equal? (values->list (~> (4 5 6))) '(4 5 6))

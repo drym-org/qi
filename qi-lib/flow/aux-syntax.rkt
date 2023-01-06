@@ -10,6 +10,7 @@
 
 (define-syntax-class literal
   (pattern
+   ;; TODO: would be ideal to also match literal vectors, boxes and prefabs
    (~or* expr:boolean
          expr:char
          expr:string

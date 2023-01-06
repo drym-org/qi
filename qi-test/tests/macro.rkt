@@ -7,8 +7,7 @@
          rackunit/text-ui
          (only-in math sqr)
          (only-in racket/function thunk)
-         (for-syntax syntax/parse
-                     racket/base)
+         (for-syntax racket/base)
          syntax/parse/define
          "private/util.rkt")
 

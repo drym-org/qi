@@ -10,8 +10,10 @@
          racket/list
          racket/string
          racket/function
+         racket/format
          (except-in "private/util.rkt"
-                    add-two))
+                    add-two)
+         syntax/macro-testing)
 
 ;; used in the "language extension" tests for `qi:*`
 (define-syntax-rule (qi:square flo)
@@ -32,9 +34,18 @@
      (check-equal? (values->list ((☯))) null "empty flow with no inputs")
      (check-equal? ((☯) 0) 0 "empty flow with one input")
      (check-equal? (values->list ((☯) 1 2)) (list 1 2) "empty flow with multiple inputs")
-     (check-equal? ((☯ (const 3))) 3 "no arguments")
+     (check-equal? ((☯ (+ 3))) 3 "partial application with no runtime arguments")
      (check-equal? ((flow add1) 2) 3 "simple function")
-     (check-equal? ((flow (get-f 1)) 2) 3 "fully qualified function")
+     (check-exn exn:fail:contract?
+                (thunk ((flow (get-f 1)) 2))
+                "fully qualified function is still treated as a partial application")
+     ;; As this is a syntax error, it can't be written as a unit test
+     ;; (check-exn exn:fail:contract?
+     ;;            (thunk (flow (get-f)))
+     ;;            "empty partial application isn't allowed")
+     (check-equal? ((flow (esc (get-f 1))) 2)
+                   3
+                   "fully qualified function used as a flow must still use esc")
      (check-equal? ((flow _) 5) 5 "identity flow")
      (check-equal? ((flow (~> _ ▽)) 5 6) (list 5 6) "identity flow"))
     (test-suite
@@ -45,6 +56,8 @@
      (check-equal? ((flow #"hi") 5) #"hi" "literal byte string")
      (check-equal? ((flow #px"hi") 5) #px"hi" "literal regexp")
      (check-equal? ((flow #rx"hi") 5) #rx"hi" "literal regexp")
+     (check-equal? ((flow #px#"hi") 5) #px#"hi" "bytestring literal regexp")
+     (check-equal? ((flow #rx#"hi") 5) #rx#"hi" "bytestring literal regexp")
      (check-equal? ((flow 'hi) 5) 'hi "literal symbol")
      (check-equal? ((flow #(1 2 3)) 2) #(1 2 3) "literal vector")
      (check-equal? ((flow #&3) 2) #&3 "literal box")
@@ -114,7 +127,7 @@
      (check-true ((☯ (and positive?
                           (or integer?
                               odd?)))
-                  5))
+                 5))
      (check-false ((☯ (and positive?
                            (or (> 6)
                                even?)))
@@ -259,6 +272,8 @@
                    (list 3 4 5)))
     (test-suite
      "escape hatch"
+     (check-equal? ((☯ (esc add1)) 2) 3)
+     (check-equal? ((☯ (esc (const 3)))) 3)
      (check-equal? ((☯ (esc (first (list + *)))) 3 7)
                    10
                    "normal racket expressions"))
@@ -333,6 +348,73 @@
                     (list 1 2 3))
       (check-equal? ((☯ (~> ▽ △ string-append)) "a" "b" "c")
                     "abc"))))
+
+   (test-suite
+    "bindings"
+    (check-equal? ((☯ (~> (as v) (+ v))) 3)
+                  3
+                  "binds a single value")
+    (check-false ((☯ (~> (as v) live?)) 3)
+                 "binding does not propagate the value")
+    (check-equal? ((☯ (~> (as v w) (+ v w))) 3 4)
+                  7
+                  "binds multiple values")
+    (check-equal? ((☯ (~> (-< (~> list (as vs))
+                              +)
+                          (~a "The sum of " vs " is " _)))
+                   1 2)
+                  "The sum of (1 2) is 3"
+                  "bindings are scoped to the outermost threading form")
+    (check-equal? ((☯ (~> (-< sqr (~> list (as S)))
+                          (-< add1 (~>> list (append S) (as S)))
+                          (-< _ (~>> list (append S) (as S)))
+                          (list S)))
+                   5)
+                  (list 26 (list 5 25 26))
+                  "binding to accumulate state")
+    (check-equal? ((☯ (~> (ε (as args)) (append args)))
+                   (list 1 2 3))
+                  (list 1 2 3 1 2 3)
+                  "idiom: bind as a side effect")
+    (check-equal? ((☯ (~> (as n) 5 (feedback n add1)))
+                   3)
+                  8
+                  "using a bound value in a flow specification")
+    (check-equal? ((☯ (~> (== (as n) _) sqr (+ n)))
+                   3 5)
+                  28
+                  "binding some but not all values using a relay")
+    (check-equal? (map (☯ (~> (as n) (+ n n)))
+                       (list 1 3 5))
+                  (list 2 6 10)
+                  "binding arguments without a lambda")
+    (check-exn exn:fail?
+               (thunk (convert-compile-time-error
+                       ((☯ (~> sqr (list v) (as v) (gen v))) 3)))
+               "bindings cannot be referenced before being assigned")
+    (check-equal? ((☯ (~> (-< (as v)
+                              (gen v))))
+                   3)
+                  3
+                  "tee junction tines bind succeeding peers")
+    (check-exn exn:fail?
+               (thunk (convert-compile-time-error
+                       ((☯ (~> (-< (gen v)
+                                   (as v))))
+                        3)))
+               "tee junction tines don't bind preceding peers")
+    (check-exn exn:fail?
+               (thunk (convert-compile-time-error
+                       ((☯ (~> (or (ε (as v)) 5) (+ v)))
+                        3)))
+               "error is raised if identifier is not guaranteed to be bound downstream")
+    (let ([as (lambda (v) v)])
+      (check-equal? ((☯ (~> (gen (as 3)))))
+                    3
+                    "Racket functions named `as` aren't clobbered")
+      (check-equal? ((☯ (~> (esc (lambda (v) (as v))))) 3)
+                    3
+                    "Racket functions named `as` aren't clobbered")))
 
    (test-suite
     "routing forms"
@@ -585,10 +667,13 @@
                     (list "a" "b" "c"))
                    "cba"
                    "curried foldl")
-     (check-exn exn:fail?
-                (thunk ((☯ (+))
-                        5 7 8))
-                "function isn't curried when no arguments are provided"))
+     (check-equal? (((☯ (const 3)))) 3 "partial application with no arguments")
+     ;; As this is now a syntax error, it can't be written as a unit test
+     ;; (check-exn exn:fail?
+     ;;            (thunk ((☯ (+))
+     ;;                    5 7 8))
+     ;;            "function isn't curried when no arguments are provided")
+     )
     (test-suite
      "blanket template"
      (check-equal? ((☯ (+ __))) 0)
@@ -837,13 +922,13 @@
                    "short-circuiting"))
     (test-suite
      "sieve"
-     (check-equal? ((☯ (~> (sieve positive? add1 (const -1)) ▽))
+     (check-equal? ((☯ (~> (sieve positive? add1 (gen -1)) ▽))
                     1 -2)
                    (list 2 -1))
      (check-equal? ((☯ (~> (sieve positive? + (+ 2)) ▽))
                     1 2 -3 4)
                    (list 7 -1))
-     (check-equal? ((☯ (~> (sieve positive? + (const 0)) ▽))
+     (check-equal? ((☯ (~> (sieve positive? + (gen 0)) ▽))
                     1 2 3 4)
                    (list 10 0))
      (check-equal? ((☯ (~> (sieve negative? ⏚ ⏚) ▽))
@@ -1019,7 +1104,7 @@
                    "pure control form of feedback"))
     (test-suite
      "group"
-     (check-equal? ((☯ (~> (group 0 (const 5) +) ▽))
+     (check-equal? ((☯ (~> (group 0 (gen 5) +) ▽))
                     1 2)
                    (list 5 3))
      (check-equal? ((☯ (~> (group 1 add1 sub1) ▽))

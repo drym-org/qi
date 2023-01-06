@@ -6,8 +6,7 @@
          rackunit
          rackunit/text-ui
          (only-in math sqr)
-         (only-in adjutor values->list)
-         racket/function)
+         (only-in adjutor values->list))
 
 (define tests
   (test-suite
@@ -21,7 +20,7 @@
                   (list 5 5)
                   "no clauses, binary")
     (check-equal? (on ()
-                    (const 3))
+                    (gen 3))
                   3
                   "no arguments"))
    (test-suite
