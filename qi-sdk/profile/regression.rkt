@@ -17,10 +17,6 @@
     (λ (port)
       (read-json port))))
 
-(help
- (usage (~a "Reports relative performance of forms between two sets of results\n"
-            "(e.g. run against two different commits).")))
-
 (define (parse-benchmarks filename)
   (make-hash
    (map (☯ (~> (-< (~> (hash-ref 'name)
@@ -31,6 +27,10 @@
                    (hash-ref 'value))
                cons))
         (parse-json-file filename))))
+
+(help
+ (usage (~a "Report relative performance of forms between two sets of results\n"
+            "(e.g. run against two different commits).")))
 
 (program (main [before-file "'before' file"]
                [after-file "'after' file"])
