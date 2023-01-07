@@ -9,6 +9,7 @@
                "math-lib"
                "collections-lib"
                "relation-lib"
+               "csv-writing"
                "cover"
                "cover-coveralls"))
 (define build-deps '())
