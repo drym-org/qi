@@ -39,7 +39,7 @@ help:
 	@echo "profile-competitive - Run competitive benchmarks"
 	@echo "profile-forms - Run benchmarks for individual Qi forms"
 	@echo "profile-selected-forms - Run benchmarks for Qi forms by name (command only)"
-	@echo "report-benchmarks - Run benchmarks for Qi forms and produce results for use in CI"
+	@echo "form-performance-report - Run benchmarks for Qi forms and produce results for use in CI"
 
 # Primarily for use by CI.
 # Installs dependencies as well as linking this as a package.
