@@ -145,6 +145,10 @@
    "apply" apply:run
    "clos" clos:run))
 
+(help
+ (usage (~a "Report on the performance of all of the forms "
+            "of the language, in JSON format.")))
+
 (program (main)
   ;; TODO: could use try-order? with hash-keys if support is dropped for Racket 8.3
   (define fs (~>> (env) hash-keys (sort <)))

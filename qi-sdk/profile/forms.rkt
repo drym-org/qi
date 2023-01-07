@@ -1043,6 +1043,10 @@ for the forms are run.
 
   (constraint (multi forms))
 
+  (help
+   (usage (~a "Run benchmarks for individual Qi forms "
+              "(by default, all of them).")))
+
   (program (main)
     (let ([fs (~>> ((forms))
                    (only-if null?
