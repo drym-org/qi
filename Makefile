@@ -164,14 +164,14 @@ cover-coveralls:
 
 profile-forms:
 	echo "Profiling forms..."
-	racket qi-sdk/profile/forms.rkt
+	racket $(PACKAGE-NAME)-sdk/profile/forms.rkt
 
 profile-selected-forms:
-	@echo "Use 'racket qi-sdk/profile/forms.rkt' directly, with -f form-name for each form."
+	@echo "Use 'racket $(PACKAGE-NAME)-sdk/profile/forms.rkt' directly, with -f form-name for each form."
 
 profile-competitive:
 	echo "Running competitive benchmarks..."
-	racket qi-sdk/profile/competitive.rkt
+	racket $(PACKAGE-NAME)-sdk/profile/competitive.rkt
 
 profile: profile-competitive profile-forms
 
