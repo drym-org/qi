@@ -146,14 +146,6 @@
    "apply" apply:run
    "clos" clos:run))
 
-(help
- (usage (~a "Report on the performance of all of the forms "
-            "of the language, in JSON format.")))
-
-(flag (output-format #:param [output-format "json"] fmt)
-  ("-f" "--format" "Output format to use, either 'json' or 'csv'")
-  (output-format fmt))
-
 (define (write-csv data)
   (~> (data)
       △
@@ -165,6 +157,14 @@
           _)
       ▽
       display-table))
+
+(help
+ (usage (~a "Report on the performance of all of the forms "
+            "of the language, in a configurable output format.")))
+
+(flag (output-format #:param [output-format "json"] fmt)
+  ("-f" "--format" "Output format to use, either 'json' or 'csv'")
+  (output-format fmt))
 
 (program (main)
   (define fs (hash-keys env #t))
