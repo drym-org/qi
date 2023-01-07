@@ -58,7 +58,6 @@
            ▽))
          ▽
          (sort > #:key (☯ (~> cadr ->inexact)))))
-  ;; (write-json results)
   (println results))
 
 (run main)
