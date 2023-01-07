@@ -167,8 +167,7 @@
       display-table))
 
 (program (main)
-  ;; TODO: could use try-order? with hash-keys if support is dropped for Racket 8.3
-  (define fs (~>> (env) hash-keys (sort <)))
+  (define fs (hash-keys env #t))
   (define forms-data (for/list ([f (in-list fs)])
                        (match-let ([(list name ms) ((hash-ref env f))])
                          (hash 'name name 'unit "ms" 'value ms))))
