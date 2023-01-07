@@ -181,6 +181,6 @@
     (cond
       [(equal? (output-format) "json") (write-json output)]
       [(equal? (output-format) "csv") (write-csv output)]
-      [else (error "Unrecognized format!")])))
+      [else (error (~a "Unrecognized format: " (output-format) "!"))])))
 
 (run main)
