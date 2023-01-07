@@ -167,7 +167,7 @@ profile-forms:
 	racket $(PACKAGE-NAME)-sdk/profile/forms.rkt
 
 profile-selected-forms:
-	@echo "Use 'racket qi-sdk/profile/forms.rkt' directly, with -f form-name for each form."
+	@echo "Use 'racket $(PACKAGE-NAME)-sdk/profile/forms.rkt' directly, with -f form-name for each form."
 
 profile-competitive:
 	echo "Running competitive benchmarks..."
