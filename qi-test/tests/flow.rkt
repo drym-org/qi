@@ -1355,6 +1355,12 @@
                                  +
                                  0))) 1 2 3)
                    14)
+     (check-equal? ((☯ (~> (loop (~> ▽ (not null?))
+                                 (-< sqr sqr)
+                                 +
+                                 0))) 1 2 3)
+                   28
+                   "loop with multi-valued map flow")
      (check-equal? ((☯ (~> (loop sqr) ▽))
                     1 2 3)
                    (list 1 4 9))
