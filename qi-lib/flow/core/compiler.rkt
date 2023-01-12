@@ -383,7 +383,9 @@ the DSL.
       [_:id
        #'(qi0->racket ==)]
       [(_ onex:clause)
-       #'(qi0->racket (loop onex))]))
+       #'(qi0->racket
+          (#%blanket-template
+           (map-values (qi0->racket onex) __)))]))
 
   (define (pass-parser stx)
     (syntax-parse stx
