@@ -1,3 +1,4 @@
+#!/usr/bin/env racket
 #lang cli
 
 (require
@@ -70,6 +71,7 @@
          relation
          qi
          json
+         csv-writing
          (only-in "util.rkt"
                   only-if
                   for/call))
@@ -144,15 +146,41 @@
    "apply" apply:run
    "clos" clos:run))
 
+(define (write-csv data)
+  (~> (data)
+      △
+      (>< (~> (-< (hash-ref 'name)
+                  (hash-ref 'unit)
+                  (hash-ref 'value))
+              ▽))
+      (-< '(name unit value)
+          _)
+      ▽
+      display-table))
+
+(help
+ (usage (~a "Report on the performance of all of the forms "
+            "of the language, in a configurable output format.")))
+
+(flag (output-format #:param [output-format "json"] fmt)
+  ("-f" "--format" "Output format to use, either 'json' or 'csv'")
+  (output-format fmt))
+
 (program (main)
-  ;; TODO: could use try-order? with hash-keys if support is dropped for Racket 8.3
-  (define fs (~>> (env) hash-keys (sort <)))
+  (define fs (hash-keys env #t))
   (define forms-data (for/list ([f (in-list fs)])
                        (match-let ([(list name ms) ((hash-ref env f))])
                          (hash 'name name 'unit "ms" 'value ms))))
   (define require-data (list (hash 'name "(require qi)"
                                    'unit "ms"
                                    'value (time-module-ms "qi"))))
-  (write-json (append forms-data require-data)))
+  (let ([output (append forms-data require-data)])
+    ;; Note: this is a case where declaring "constraints" on the CLI args
+    ;; would be useful, instead of using the ad hoc fallback `else` check here
+    ;; https://github.com/countvajhula/cli/issues/6
+    (cond
+      [(equal? (output-format) "json") (write-json output)]
+      [(equal? (output-format) "csv") (write-csv output)]
+      [else (error (~a "Unrecognized format: " (output-format) "!"))])))
 
 (run main)

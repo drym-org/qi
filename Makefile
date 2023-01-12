@@ -39,7 +39,7 @@ help:
 	@echo "profile-competitive - Run competitive benchmarks"
 	@echo "profile-forms - Run benchmarks for individual Qi forms"
 	@echo "profile-selected-forms - Run benchmarks for Qi forms by name (command only)"
-	@echo "report-benchmarks - Run benchmarks for Qi forms and produce results for use in CI"
+	@echo "form-performance-report - Run benchmarks for Qi forms and produce results for use in CI"
 
 # Primarily for use by CI.
 # Installs dependencies as well as linking this as a package.
@@ -81,6 +81,9 @@ build-standalone-docs:
 # generated docs, too.
 clean:
 	raco setup --fast-clean --pkgs $(PACKAGE-NAME)-{lib,test,doc,probe}
+
+clean-sdk:
+	raco setup --fast-clean --pkgs $(PACKAGE-NAME)-sdk
 
 # Primarily for use by CI, after make install -- since that already
 # does the equivalent of make setup, this tries to do as little as
@@ -161,18 +164,18 @@ cover-coveralls:
 
 profile-forms:
 	echo "Profiling forms..."
-	racket profile/forms.rkt
+	racket $(PACKAGE-NAME)-sdk/profile/forms.rkt
 
 profile-selected-forms:
-	@echo "Use 'racket profile/forms.rkt' directly, with -f form-name for each form."
+	@echo "Use 'racket $(PACKAGE-NAME)-sdk/profile/forms.rkt' directly, with -f form-name for each form."
 
 profile-competitive:
 	echo "Running competitive benchmarks..."
-	racket profile/competitive.rkt
+	racket $(PACKAGE-NAME)-sdk/profile/competitive.rkt
 
 profile: profile-competitive profile-forms
 
-report-benchmarks:
+form-performance-report:
 	@racket $(PACKAGE-NAME)-sdk/profile/report.rkt
 
-.PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile-forms profile-selected-forms profile-competitive profile report-benchmarks
+.PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile-forms profile-selected-forms profile-competitive profile form-performance-report

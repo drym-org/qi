@@ -1,3 +1,4 @@
+#!/usr/bin/env racket
 #lang racket/base
 
 #|
@@ -1041,6 +1042,10 @@ for the forms are run.
     (forms (cons name (forms))))
 
   (constraint (multi forms))
+
+  (help
+   (usage (~a "Run benchmarks for individual Qi forms "
+              "(by default, all of them).")))
 
   (program (main)
     (let ([fs (~>> ((forms))

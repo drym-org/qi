@@ -1,3 +1,4 @@
+#!/usr/bin/env racket
 #lang racket/base
 
 (require (only-in data/collection
