@@ -147,7 +147,7 @@
     [((~datum or) onex:clause ...)
      #'(disjoin (qi0->racket onex) ...)]
     [((~datum not) onex:clause) ; NOTE: technically not core
-     #'(qi0->racket (~> onex NOT))]
+     #'(negate (qi0->racket onex))]
     ;; selection
     [e:select-form (select-parser #'e)]
     [e:block-form (block-parser #'e)]
