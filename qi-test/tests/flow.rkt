@@ -1350,23 +1350,23 @@
                                  sqr)
                            ▽)) 1 2 3)
                    (list 1 4 9))
-     (check-equal? ((☯ (~> (loop (~> ▽ (not null?))
-                                 sqr
-                                 +
-                                 0))) 1 2 3)
+     (check-equal? ((☯ (loop (~> ▽ (not null?))
+                             sqr
+                             +
+                             0)) 1 2 3)
                    14)
-     (check-equal? ((☯ (~> (loop (~> ▽ (not null?))
-                                 (-< sqr sqr)
-                                 +
-                                 0))) 1 2 3)
+     (check-equal? ((☯ (loop (~> ▽ (not null?))
+                             (-< sqr sqr)
+                             +
+                             0)) 1 2 3)
                    28
                    "loop with multi-valued map flow")
      (check-equal? ((☯ (~> (loop sqr) ▽))
                     1 2 3)
                    (list 1 4 9))
-     (check-equal? ((☯ (~> (loop (~> ▽ (not null?))
-                                 sqr
-                                 +))) 1 2 3)
+     (check-equal? ((☯ (loop (~> ▽ (not null?))
+                             sqr
+                             +)) 1 2 3)
                    14)
      (check-equal? ((☯ (~> (-< (gen (☯ (~> ▽ (not null?)))
                                     sqr
@@ -1379,14 +1379,14 @@
                    "identifier form of loop"))
     (test-suite
      "loop2"
-     (check-equal? ((☯ (~> (loop2 (~> 1> (not null?))
-                                  sqr
-                                  cons)))
+     (check-equal? ((☯ (loop2 (~> 1> (not null?))
+                              sqr
+                              cons))
                     (list 1 2 3) null)
                    (list 9 4 1))
-     (check-equal? ((☯ (~> (loop2 (~> 1> (not null?))
-                                  sqr
-                                  +)))
+     (check-equal? ((☯ (loop2 (~> 1> (not null?))
+                              sqr
+                              +))
                     (list 1 2 3)
                     0)
                    14))
