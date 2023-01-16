@@ -75,5 +75,6 @@
 * The wiki was created
 * A Developer's Guide containing developer documentation was written
 * Documentation was written for Qi
+* A weekly meetup for the project was started
 * The repo was migrated to an organization account
 * The project benefited from general support from the Racket community

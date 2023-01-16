@@ -75,5 +75,6 @@
 * Sid created a wiki
 * Sid wrote a Developer's Guide containing developer documentation
 * Sid wrote docs for Qi
+* Michael and Sid started a weekly meetup for the project
 * Sid migrated the repo to an organization account
 * The project benefited from general support from the Racket community
