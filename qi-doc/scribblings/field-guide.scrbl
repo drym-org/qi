@@ -282,6 +282,18 @@ Methodical use of @racket[gen] together with the @seclink["Using_a_Probe"]{probe
 
 @bold{Common example}: You have a template like @racket[(f _ _)] with a certain number of arguments indicated, but it was invoked with more or fewer arguments.
 
+@subsubsection{Application: Not a Procedure}
+
+@codeblock{
+; application: not a procedure;
+;  expected a procedure that can be applied to arguments
+;   given: 5
+}
+
+@bold{Meaning}: The interpreter attempted to invoke a function but it found something other than a function (in this case, the value @racket[5]).
+
+@bold{Common example}: Attempting to partially apply a function with the same name as a Qi form, for instance, using a @secref["Named_let" #:doc '(lib "scribblings/guide/guide.scrbl")] with the name @racket[loop] and attempting to partially apply the recursive invocation using Qi. Since @racket[loop] is the name of a Qi form, in order to use the Racket function in scope, you need to either use @racket[esc] or rename the function (in the case of @racket[loop], consider @racket[go] instead) to avoid the collision.
+
 @subsection{Gotchas}
 
 @subsubsection{null is Not a Literal}
