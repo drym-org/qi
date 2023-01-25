@@ -65,7 +65,7 @@ And then, downloading the tutorial is as simple as:
 
 D. Ben Knoble's @seclink["top" #:indirect? #t #:doc '(lib "tmux-vim-demo/scribblings/tmux-vim-demo.scrbl")]{tmux-vim-demo} allows you to run expressions on demand with a split-pane view of your Vim buffer and a tmux session containing a Racket REPL. See @hyperlink["https://github.com/countvajhula/qi-tutorial"]{the README} for additional setup instructions once the package is installed. Once set up, you can simply use @code{r} (in Normal mode) to send the current line or visual selection to the REPL.
 
-@subsection{Usage}
+@subsection{Starting the Tutorial}
 
 Open the file @code{start.rkt} in your favorite editor.
 
