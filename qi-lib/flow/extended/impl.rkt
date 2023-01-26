@@ -5,7 +5,8 @@
 
 (provide ->boolean
          true.
-         false.)
+         false.
+         ~all?)
 
 (define (->boolean v) (and v #t))
 
@@ -16,3 +17,6 @@
 (define false.
   (procedure-rename (const #f)
                     'false.))
+
+(define (~all? . args)
+  (for/and ([v (in-list args)]) v))
