@@ -32,6 +32,10 @@
 
 ;;; Predicates
 
+(define-for-qi all? ~all?)
+
+(define-for-qi AND ~all?)
+
 (define-qi-syntax-rule (one-of? v:expr ...)
   (~> (member (list v ...)) ->boolean))
 
@@ -55,9 +59,6 @@
 
 (define-qi-syntax-parser any?
   [_:id #'OR])
-
-(define-qi-syntax-parser all?
-  [_:id #'AND])
 
 (define-qi-syntax-parser none?
   [_:id #'(~> any? NOT)])
