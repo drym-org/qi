@@ -8,7 +8,7 @@
 
 @title{When Should I Use Qi?}
 
-Okay, so you've read @secref{Using Qi} and understand at a high level that there are interface macros providing a bridge between Racket and Qi, which allow you to use Qi anywhere in your code, and you have some idea of how to write flows (maybe you've gone through the @secref["Tutorial"]). Let's now look at a collection of examples that may help shed light on when you should use Qi vs Racket or another language.
+Okay, so you've read @secref{Using_Qi} and understand at a high level that there are interface macros providing a bridge between Racket and Qi, which allow you to use Qi anywhere in your code, and you have some idea of how to write flows (maybe you've gone through the @secref["Tutorial"]). Let's now look at a collection of examples that may help shed light on when you should use Qi vs Racket or another language.
 
 @table-of-contents[]
 
