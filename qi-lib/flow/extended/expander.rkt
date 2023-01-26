@@ -196,7 +196,15 @@
     (~> f:partial-application-form
         #'(#%partial-application f))
     ;; literally indicated function identifier
-    (~> f:id #'(esc f)))
+    ;;
+    ;; functions defined in the Qi binding space take precedence over
+    ;; Racket definitions here, for cases of "library functions" like
+    ;; `count` that we don't include in the core language but which
+    ;; we'd like to treat as part of the language rather than as
+    ;; functions which could be shadowed.
+    (~> f:id
+        #:with spaced-f ((make-interned-syntax-introducer 'qi) #'f)
+        #'(esc spaced-f)))
 
   (nonterminal arg-stx
     (~datum _)
