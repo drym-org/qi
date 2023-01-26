@@ -134,8 +134,6 @@
     [(~or* (~datum ▽) (~datum collect))
      #'list]
     ;; predicates
-    [(~or* (~datum AND) (~datum &)) ; NOTE: technically not core
-     #'(qi0->racket (>> (and (select 2) (select 1)) (gen #t)))]
     [(~or* (~datum OR) (~datum ∥)) ; NOTE: technically not core
      #'(qi0->racket (<< (or (select 1) (select 2)) (gen #f)))]
     [(~or* (~datum NOT) (~datum !))
