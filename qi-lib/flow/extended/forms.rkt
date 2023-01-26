@@ -175,11 +175,12 @@
   (if onex _ ⏚))
 
 ;;; Common utilities
-(define-qi-syntax-parser count
-  [_:id #'(~> (>< 1) +)])
 
-(define-qi-syntax-parser live?
-  [_:id #'(~> count (> 0))])
+(define-for-qi (count . args)
+  (length args))
+
+(define-for-qi (live? . args)
+  (not (null? args)))
 
 (define-qi-syntax-rule (rectify v:expr ...)
   (if live? _ (gen v ...)))
