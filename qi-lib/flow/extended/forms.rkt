@@ -10,7 +10,6 @@
                                 [effect ε])))
 
 (require (for-syntax racket/base
-                     syntax/parse
                      (only-in racket/list make-list)
                      syntax/parse/lib/function-header
                      "syntax.rkt"
