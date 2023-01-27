@@ -25,6 +25,10 @@
 
 (define-for-qi AND ~all?)
 
+(define-for-qi OR ~any?)
+
+(define-for-qi any? ~any?)
+
 (define-qi-syntax-rule (one-of? v:expr ...)
   (~> (member (list v ...)) ->boolean))
 
@@ -45,9 +49,6 @@
 
 (define-qi-syntax-parser XNOR
   [_:id #'(~> XOR NOT)])
-
-(define-qi-syntax-parser any?
-  [_:id #'OR])
 
 (define-qi-syntax-parser none?
   [_:id #'(~> any? NOT)])

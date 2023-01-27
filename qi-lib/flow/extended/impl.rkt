@@ -6,7 +6,8 @@
 (provide ->boolean
          true.
          false.
-         ~all?)
+         ~all?
+         ~any?)
 
 (define (->boolean v) (and v #t))
 
@@ -20,3 +21,6 @@
 
 (define (~all? . args)
   (for/and ([v (in-list args)]) v))
+
+(define (~any? . args)
+  (for/or ([v (in-list args)]) v))
