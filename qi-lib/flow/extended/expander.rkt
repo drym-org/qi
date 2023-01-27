@@ -95,7 +95,6 @@
     sep
     (sep f:floe)
     collect
-    OR
     NOT
     XOR
     (and f:floe ...)
