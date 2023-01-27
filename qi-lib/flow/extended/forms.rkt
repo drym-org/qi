@@ -29,6 +29,8 @@
 
 (define-for-qi any? ~any?)
 
+(define-for-qi none? ~none?)
+
 (define-qi-syntax-rule (one-of? v:expr ...)
   (~> (member (list v ...)) ->boolean))
 
@@ -49,9 +51,6 @@
 
 (define-qi-syntax-parser XNOR
   [_:id #'(~> XOR NOT)])
-
-(define-qi-syntax-parser none?
-  [_:id #'(~> any? NOT)])
 
 (define-qi-syntax-rule (and% onex:conjux-clause ...)
   (~> (== onex.parsed ...)

@@ -7,7 +7,8 @@
          true.
          false.
          ~all?
-         ~any?)
+         ~any?
+         ~none?)
 
 (define (->boolean v) (and v #t))
 
@@ -22,5 +23,11 @@
 (define (~all? . args)
   (for/and ([v (in-list args)]) v))
 
-(define (~any? . args)
+(define (~any?-helper args)
   (for/or ([v (in-list args)]) v))
+
+(define (~any? . args)
+  (~any?-helper args))
+
+(define (~none? . args)
+  (not (~any?-helper args)))
