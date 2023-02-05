@@ -26,7 +26,7 @@
 * Sid designed a simple macro extensibility based on prefix matching
 * Sam provided an implementation for the prefix matching macro extensibility scheme
 * Michael suggested many options for proper macro extensibility
-* Michael and Sid implemented "first class" macro extensibility (based on Michael et al's paper)
+* Michael and Sid implemented "first class" macro extensibility (based on Michael et al's paper), allowing users to seamlessly extend the syntax of the language
 * Ben reported a confusing error message in the threading form and suggested a way to handle it
 * Sid implemented Ben's suggested error message fix
 * Stephen suggested the idea of a Qi-themed event
@@ -71,6 +71,7 @@
 * Noah removed the unused let/flow and let/switch macros
 * Noah improved the organization of some tests
 * Noah significantly improved the performance of any?, all?, and none?
+* Noah wrote the first library extending Qi functionality
 * Anonymous suggested creating a wiki for Qi
 * Sid created a wiki
 * Sid wrote a Developer's Guide containing developer documentation

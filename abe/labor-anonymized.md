@@ -26,7 +26,7 @@
 * A simple macro extensibility based on prefix matching was designed
 * An implementation for the prefix matching macro extensibility scheme was provided
 * Many options for proper macro extensibility were suggested
-* "First class" macro extensibility was implemented
+* "First class" macro extensibility was implemented, allowing users to seamlessly extend the syntax of the language
 * A confusing error message in the threading form was reported and a way to handle it was suggested
 * The suggested error message fix was implemented
 * The idea of a Qi-themed event was suggested
@@ -71,6 +71,7 @@
 * The unused let/flow and let/switch macros were removed
 * The organization of some tests was improved
 * The performance of any?, all?, and none? were significantly improved
+* The first library extending Qi functionality was written
 * There was a suggestion to create a wiki for Qi
 * The wiki was created
 * A Developer's Guide containing developer documentation was written
