@@ -23,7 +23,7 @@
 * jo-sm reported an installation issue
 * Stephen reported a broken link in the documentation
 * Sid fixed some bugs in switch
-* Sid designed a simple macro extensibility based on prefix matching
+* Sid designed a simple macro extensibility based on prefix matching, to allow users to extend the syntax of the language in a rudimentary way
 * Sam provided an implementation for the prefix matching macro extensibility scheme
 * Michael suggested many options for proper macro extensibility
 * Michael and Sid implemented "first class" macro extensibility (based on Michael et al's paper), allowing users to seamlessly extend the syntax of the language

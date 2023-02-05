@@ -23,7 +23,7 @@
 * An installation issue was reported
 * A broken link in the documentation was reported
 * Some bugs in switch were fixed
-* A simple macro extensibility based on prefix matching was designed
+* A simple macro extensibility based on prefix matching was designed, to allow users to extend the syntax of the language in a rudimentary way
 * An implementation for the prefix matching macro extensibility scheme was provided
 * Many options for proper macro extensibility were suggested
 * "First class" macro extensibility was implemented, allowing users to seamlessly extend the syntax of the language
@@ -34,7 +34,7 @@
 * An example implementation to motivate design improvements in feedback was provided
 * The design of feedback was improved
 * The feedback PR was reviewed
-* There was a suggestion to restrict fancy-app's scope in Qi to avoid tricky bugs in handling user input
+* There was a suggestion to restrict fancy-app's (a templatized function application library) scope in Qi to avoid tricky bugs in handling user input
 * fancy-app was restricted to just the fine-grained application form
 * The fancy-app PR was reviewed
 * It was pointed out that fanout does not accept arbitrary Racket expressions for N
