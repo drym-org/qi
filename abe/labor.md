@@ -31,9 +31,9 @@
 * Sid implemented Ben's suggested error message fix
 * Stephen suggested the idea of a Qi-themed event
 * Sid organized the Qi design challenge
-* 1e1001 provided an example implementation to motivate design improvements in feedback
-* Sid improved the design of feedback
-* Ben reviewed the feedback PR
+* 1e1001 provided an illustrative example to motivate design improvements to the `feedback` form of the language
+* Sid improved the design of `feedback`
+* Ben reviewed the PR improving the design of `feedback`
 * Nia suggested restricting fancy-app's scope in Qi to avoid tricky bugs in handling user input
 * Sid restricted fancy-app to just the fine-grained application form
 * Nia reviewed the fancy-app PR

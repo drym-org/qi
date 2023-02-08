@@ -31,9 +31,9 @@
 * The suggested error message fix was implemented
 * The idea of a Qi-themed event was suggested
 * The Qi design challenge was organized
-* An example implementation to motivate design improvements in feedback was provided
-* The design of feedback was improved
-* The feedback PR was reviewed
+* An illustrative example to motivate design improvements to the `feedback` form of the language was provided
+* The design of `feedback` was improved
+* The PR improving the design of `feedback` was reviewed
 * There was a suggestion to restrict fancy-app's (a templatized function application library) scope in Qi to avoid tricky bugs in handling user input
 * fancy-app was restricted to just the fine-grained application form
 * The fancy-app PR was reviewed
