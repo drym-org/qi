@@ -79,5 +79,4 @@
 * Sid wrote docs for Qi
 * Michael and Sid started a weekly meetup for the project
 * Sid migrated the repo to an organization account
-* The project benefited from general support from the Racket community
 * Ben and Sid provided technical support to Qi users
