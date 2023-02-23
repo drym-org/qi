@@ -29,6 +29,7 @@
 * "First class" macro extensibility was implemented, allowing users to seamlessly extend the syntax of the language
 * A confusing error message in the threading form was reported and a way to handle it was suggested
 * The suggested error message fix was implemented
+* A theoretical connection between Qi and Arrows in category theory was drawn.
 * The idea of a Qi-themed event was suggested
 * The Qi design challenge was organized
 * An illustrative example to motivate design improvements to the `feedback` form of the language was provided

@@ -29,6 +29,7 @@
 * Michael and Sid implemented "first class" macro extensibility (based on Michael et al's paper), allowing users to seamlessly extend the syntax of the language
 * Ben reported a confusing error message in the threading form and suggested a way to handle it
 * Sid implemented Ben's suggested error message fix
+* Sergiu drew a theoretical connection between Qi and Arrows in category theory.
 * Stephen suggested the idea of a Qi-themed event
 * Sid organized the Qi design challenge
 * 1e1001 provided an illustrative example to motivate design improvements to the `feedback` form of the language
