@@ -100,6 +100,8 @@
     (and f:floe ...)
     (or f:floe ...)
     (not f:floe)
+    (all f:floe)
+    (any f:floe)
     (select n:number ...)
     (~>/form (select arg ...)
              (report-syntax-error this-syntax

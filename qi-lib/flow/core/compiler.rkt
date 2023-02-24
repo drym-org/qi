@@ -144,6 +144,11 @@
      #'(disjoin (qi0->racket onex) ...)]
     [((~datum not) onex:clause) ; NOTE: technically not core
      #'(negate (qi0->racket onex))]
+    [((~datum all) onex:clause)
+     #`(give (curry andmap (qi0->racket onex)))]
+    [((~datum any) onex:clause)
+     #'(give (curry ormap (qi0->racket onex)))]
+
     ;; selection
     [e:select-form (select-parser #'e)]
     [e:block-form (block-parser #'e)]
