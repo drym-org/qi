@@ -158,6 +158,7 @@
     ;; conditionals
     [e:if-form (if-parser #'e)]
     [e:sieve-form (sieve-parser #'e)]
+    [e:partition-form (partition-parser #'e)]
     ;; exceptions
     [e:try-form (try-parser #'e)]
     ;; folds
@@ -294,6 +295,16 @@ the DSL.
            (apply (qi0->racket (-< (~> (pass (esc condition)) (esc sonex))
                                    (~> (pass (not (esc condition))) (esc ronex))))
                   args))]))
+
+  (define (partition-parser stx)
+    (syntax-parse stx
+      [(_:id)
+       #'(qi0->racket ground)]
+      [(_ [cond:clause body:clause])
+       #'(qi0->racket (~> (pass cond) body))]
+      [(_ [cond:clause body:clause]  ...+)
+       #:with c+bs #'(list (cons (qi0->racket cond) (qi0->racket body)) ...)
+       #'(qi0->racket (~> (#%blanket-template (partition-values c+bs __))))]))
 
   (define (try-parser stx)
     (syntax-parse stx
