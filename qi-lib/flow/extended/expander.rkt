@@ -110,8 +110,8 @@
     (~>/form (block arg ...)
              (report-syntax-error this-syntax
                "(block <number> ...)"))
-    fanout
     (fanout n:racket-expr)
+    fanout
     (group n:racket-expr e1:floe e2:floe)
     group
     (~>/form (group arg ...)
@@ -129,6 +129,8 @@
     (~>/form (sieve arg ...)
              (report-syntax-error this-syntax
                "(sieve <predicate flow> <selection flow> <remainder flow>)"))
+    (partition)
+    (partition [cond:floe body:floe] ...+)
     (try flo:floe
       [error-condition-flo:floe error-handler-flo:floe]
       ...+)
