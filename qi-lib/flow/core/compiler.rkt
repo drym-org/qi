@@ -5,9 +5,11 @@
 (require (for-syntax racket/base
                      syntax/parse
                      racket/match
+                     (only-in racket/list make-list)
                      "syntax.rkt"
                      "../aux-syntax.rkt")
          "impl.rkt"
+         (only-in racket/list make-list)
          racket/function
          racket/undefined
          (prefix-in fancy: fancy-app))
@@ -161,6 +163,8 @@
     ;; folds
     [e:fold-left-form (fold-left-parser #'e)]
     [e:fold-right-form (fold-right-parser #'e)]
+    ;; high-level routing
+    [e:fanout-form (fanout-parser #'e)]
     ;; looping
     [e:feedback-form (feedback-parser #'e)]
     [e:loop-form (loop-parser #'e)]
@@ -320,6 +324,22 @@ the DSL.
            (if (apply (qi0->racket condition) args)
                (apply (qi0->racket consequent) args)
                (apply (qi0->racket alternative) args)))]))
+
+  (define (fanout-parser stx)
+    (syntax-parse stx
+      [_:id #'repeat-values]
+      [(_ n:number)
+       ;; a slightly more efficient compile-time implementation
+       ;; for literally indicated N
+       ;; TODO: implement this as an optimization instead
+       #`(λ args
+           (apply values
+                  (append #,@(make-list (syntax->datum #'n) #'args))) )]
+      [(_ n:expr)
+       #'(lambda args
+           (apply values
+                  (apply append
+                         (make-list n args))))]))
 
   (define (feedback-parser stx)
     (syntax-parse stx
