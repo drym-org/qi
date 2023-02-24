@@ -10,6 +10,7 @@
          amp-form
          relay-form
          tee-form
+         fanout-form
          if-form
          pass-form
          fold-left-form
@@ -65,6 +66,12 @@ See comments in flow.rkt for more details.
 (define-syntax-class if-form
   (pattern
    ((~datum if) arg ...)))
+
+(define-syntax-class fanout-form
+  (pattern
+   (~datum fanout))
+  (pattern
+   ((~datum fanout) arg ...)))
 
 (define-syntax-class feedback-form
   (pattern

@@ -191,18 +191,6 @@
 (define-qi-syntax-parser 9>
   [_:id #'(select 9)])
 
-;; high level routing
-(define-qi-syntax-parser fanout
-  [_:id #'-<]
-  [(_ n:number)
-   ;; a slightly more efficient compile-time implementation
-   ;; for literally indicated N
-   ;; TODO: move this to a compiler optimization
-   #:with list-of-n-blanks #`#,(make-list (syntax->datum #'n) #'_)
-   #'(-< . list-of-n-blanks)]
-  [(_ n:expr)
-   #'(~> (-< (gen n) _) -<)])
-
 (define-qi-syntax-parser inverter
   [_:id #'(>< NOT)])
 
