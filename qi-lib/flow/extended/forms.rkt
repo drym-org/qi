@@ -151,11 +151,9 @@
 
 ;;; Common utilities
 
-(define-for-qi (count . args)
-  (length args))
+(define-for-qi count ~count)
 
-(define-for-qi (live? . args)
-  (not (null? args)))
+(define-for-qi live? ~live?)
 
 (define-qi-syntax-rule (rectify v:expr ...)
   (if live? _ (gen v ...)))

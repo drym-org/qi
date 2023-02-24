@@ -8,7 +8,9 @@
          false.
          ~all?
          ~any?
-         ~none?)
+         ~none?
+         ~count
+         ~live?)
 
 (define (->boolean v) (and v #t))
 
@@ -31,3 +33,9 @@
 
 (define (~none? . args)
   (not (~any?-helper args)))
+
+(define (~count . args)
+  (length args))
+
+(define (~live? . args)
+  (not (null? args)))
