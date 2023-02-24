@@ -389,10 +389,9 @@ the DSL.
   (define (pass-parser stx)
     (syntax-parse stx
       [_:id
-       #'(qi0->racket (~> (group 1 (clos (if _ ⏚)) _)
-                          ><))]
+       #'filter-values]
       [(_ onex:clause)
-       #'(qi0->racket (>< (if onex _ ⏚)))]))
+       #'(curry filter-values (qi0->racket onex))]))
 
   (define (fold-left-parser stx)
     (syntax-parse stx
