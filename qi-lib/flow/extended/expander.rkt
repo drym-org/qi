@@ -110,6 +110,8 @@
     (~>/form (block arg ...)
              (report-syntax-error this-syntax
                "(block <number> ...)"))
+    fanout
+    (fanout n:racket-expr)
     (group n:racket-expr e1:floe e2:floe)
     group
     (~>/form (group arg ...)
