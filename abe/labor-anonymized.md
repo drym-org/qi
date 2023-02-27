@@ -73,7 +73,7 @@
 * The organization of some tests was improved
 * The performance of any?, all?, and none? were significantly improved
 * The first library extending Qi functionality was written
-* The first package leveraging Qi was written
+* The first application leveraging Qi was written
 * There was a suggestion to create a wiki for Qi
 * The wiki was created
 * A Developer's Guide containing developer documentation was written

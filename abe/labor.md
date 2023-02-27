@@ -73,7 +73,7 @@
 * Noah improved the organization of some tests
 * Noah significantly improved the performance of any?, all?, and none?
 * Noah wrote the first library extending Qi functionality
-* Ben wrote the first package leveraging Qi
+* Ben wrote the first application leveraging Qi
 * Anonymous suggested creating a wiki for Qi
 * Sid created a wiki
 * Sid wrote a Developer's Guide containing developer documentation
