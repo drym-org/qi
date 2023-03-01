@@ -304,7 +304,7 @@ the DSL.
        #'(qi0->racket (~> (pass cond) body))]
       [(_ [cond:clause body:clause]  ...+)
        #:with c+bs #'(list (cons (qi0->racket cond) (qi0->racket body)) ...)
-       #'(qi0->racket (~> (#%blanket-template (partition-values c+bs __))))]))
+       #'(qi0->racket (#%blanket-template (partition-values c+bs __)))]))
 
   (define (try-parser stx)
     (syntax-parse stx
@@ -503,5 +503,6 @@ the DSL.
       [((~datum #%blanket-template)
         (natex (~datum __) prarg-post ...+))
        #'(curryr natex prarg-post ...)]
+      ;; TODO: this should be a compiler optimization
       [((~datum #%blanket-template) (natex (~datum __)))
        #'natex])))
