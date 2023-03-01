@@ -29,13 +29,16 @@
                cons))
         benchmarks)))
 
-(define (compute-regression before after)
+(define (compute-regression before
+                            after
+                            [low LOWER-THRESHOLD]
+                            [high HIGHER-THRESHOLD])
 
   (define-flow calculate-ratio
     (~> (-< (hash-ref after _)
             (hash-ref before _))
         /
-        (if (< LOWER-THRESHOLD _ HIGHER-THRESHOLD)
+        (if (< low _ high)
             1
             (~r #:precision 2))))
 
