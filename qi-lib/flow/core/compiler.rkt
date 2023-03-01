@@ -41,6 +41,9 @@
       ;; collapse deterministic conditionals
       [((~datum if) (~datum #t) f g) #'f]
       [((~datum if) (~datum #f) f g) #'g]
+      ;; trivial threading form
+      [((~datum thread) f)
+       #'f]
       ;; associative laws for ~>
       [((~datum thread) _0 ... ((~datum thread) f ...) _1 ...)
        #'(thread _0 ... f ... _1 ...)]
