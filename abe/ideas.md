@@ -1,16 +1,20 @@
 * Qi
-	* visual syntax
-	* flow-oriented semantics
-	* embeddable language
-	* primitives
-		* multiple input and output values
-		* variadic functions
-		* partial application
-		* function composition
-		* predicate composition
-	* macro-extensible
-	* phrase structure
-	* arrows (category theory)
-	* sunyata logic
-	* flow-oriented debugging
-		* continuations
+	* DSL
+		* syntax
+			* visual syntax
+			* extensible syntax
+		* semantics
+			* essential
+				* flow-oriented semantics
+				* multi-valued I/O
+				* sunyata logic
+				* immutable data
+				* functional/composable programming
+			* incidental
+				* phrase structure
+				* variadic functions
+				* arrows
+				* point-free programming
+	* interop/ease of use
+		* embeddable language
+		* structural debugging

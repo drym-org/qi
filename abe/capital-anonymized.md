@@ -8,4 +8,4 @@
 * Generic operators from a utility library that were used to simplify documentation and build scripts in the initial implementation, and which are currently used only in build scripts
 * Generic operations on collections from a utility library that are used to simplify working with collections in build scripts
 * A tool to draw graphics used in documentation
-* A Makefile to automate common project development actions, which in its current form is significantly expanded from the original
+* A Makefile that was used as the starting point to automate common project development actions, serving as a template for future expansion
