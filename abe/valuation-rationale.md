@@ -18,6 +18,11 @@ PRICING
 
 		-> yearly matches one-time in 2+ years
 
+	APL2000:
+		Individual: $2100/yr
+
+	Dyalog APL:
+		£850/yr - £1875/yr ($1020/yr - $2250/yr)
 
 VALUATION
 
