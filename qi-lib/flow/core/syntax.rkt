@@ -5,11 +5,13 @@
          block-form
          group-form
          sieve-form
+         partition-form
          try-form
          feedback-form
          amp-form
          relay-form
          tee-form
+         fanout-form
          if-form
          pass-form
          fold-left-form
@@ -58,6 +60,10 @@ See comments in flow.rkt for more details.
   (pattern
    ((~datum sieve) arg ...)))
 
+(define-syntax-class partition-form
+  (pattern
+   ({~datum partition} arg ...)))
+
 (define-syntax-class try-form
   (pattern
    ((~datum try) arg ...)))
@@ -65,6 +71,12 @@ See comments in flow.rkt for more details.
 (define-syntax-class if-form
   (pattern
    ((~datum if) arg ...)))
+
+(define-syntax-class fanout-form
+  (pattern
+   (~datum fanout))
+  (pattern
+   ((~datum fanout) arg ...)))
 
 (define-syntax-class feedback-form
   (pattern

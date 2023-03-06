@@ -14,7 +14,6 @@
          except-args
          call
          repeat-values
-         power
          foldl-values
          foldr-values
          values->list
@@ -24,7 +23,8 @@
 
 (require racket/match
          (only-in racket/function
-                  negate)
+                  negate
+                  thunk)
          racket/bool
          racket/list
          racket/format
@@ -208,9 +208,6 @@
 (define (repeat-values n . vs)
   (apply values (apply append (make-list n vs))))
 
-(define (power n f)
-  (apply compose (make-list n f)))
-
 (define (fold-values f init vs)
   (let loop ([vs vs]
              [accs (values->list (init))])
@@ -225,7 +222,11 @@
   (fold-values f init (reverse vs)))
 
 (define (feedback-times f n then-f)
-  (compose then-f (power n f)))
+  (λ args
+    (if (= n 0)
+        (apply then-f args)
+        (call-with-values (thunk (apply f args))
+                          (feedback-times f (sub1 n) then-f)))))
 
 (define (feedback-while f condition then-f)
   (λ args

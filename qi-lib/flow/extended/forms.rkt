@@ -10,24 +10,29 @@
                                 [effect ε])))
 
 (require (for-syntax racket/base
-                     syntax/parse
                      (only-in racket/list make-list)
                      "syntax.rkt"
                      "../aux-syntax.rkt")
+         syntax/parse/define
          "expander.rkt"
          "../../macro.rkt"
+         "../space.rkt"
          "impl.rkt")
 
 ;;; Predicates
 
+(define-for-qi all? ~all?)
+
+(define-for-qi AND ~all?)
+
+(define-for-qi OR ~any?)
+
+(define-for-qi any? ~any?)
+
+(define-for-qi none? ~none?)
+
 (define-qi-syntax-rule (one-of? v:expr ...)
   (~> (member (list v ...)) ->boolean))
-
-(define-qi-syntax-rule (all onex:clause)
-  (~> (>< onex) AND))
-
-(define-qi-syntax-rule (any onex:clause)
-  (~> (>< onex) OR))
 
 (define-qi-syntax-rule (none onex:clause)
   (not (any onex)))
@@ -40,15 +45,6 @@
 
 (define-qi-syntax-parser XNOR
   [_:id #'(~> XOR NOT)])
-
-(define-qi-syntax-parser any?
-  [_:id #'OR])
-
-(define-qi-syntax-parser all?
-  [_:id #'AND])
-
-(define-qi-syntax-parser none?
-  [_:id #'(~> any? NOT)])
 
 (define-qi-syntax-rule (and% onex:conjux-clause ...)
   (~> (== onex.parsed ...)
@@ -151,23 +147,14 @@
            [condition consequent]
            ...))])
 
-(define-qi-syntax-parser partition
-  [(_:id)
-   #'ground]
-  [(_ [cond:clause body:clause])
-   #'(~> (pass cond) body)]
-  [(_ [cond:clause body:clause] [conds:clause bodies:clause] ...+)
-   #'(sieve cond body (partition [conds bodies] ...))])
-
 (define-qi-syntax-rule (gate onex:clause)
   (if onex _ ⏚))
 
 ;;; Common utilities
-(define-qi-syntax-parser count
-  [_:id #'(~> (>< 1) +)])
 
-(define-qi-syntax-parser live?
-  [_:id #'(~> count (> 0))])
+(define-for-qi count ~count)
+
+(define-for-qi live? ~live?)
 
 (define-qi-syntax-rule (rectify v:expr ...)
   (if live? _ (gen v ...)))
@@ -193,18 +180,6 @@
   [_:id #'(select 8)])
 (define-qi-syntax-parser 9>
   [_:id #'(select 9)])
-
-;; high level routing
-(define-qi-syntax-parser fanout
-  [_:id #'-<]
-  [(_ n:number)
-   ;; a slightly more efficient compile-time implementation
-   ;; for literally indicated N
-   ;; TODO: move this to a compiler optimization
-   #:with list-of-n-blanks #`#,(make-list (syntax->datum #'n) #'_)
-   #'(-< . list-of-n-blanks)]
-  [(_ n:expr)
-   #'(~> (-< (gen n) _) -<)])
 
 (define-qi-syntax-parser inverter
   [_:id #'(>< NOT)])

@@ -64,7 +64,8 @@
  (prefix-in apply: (submod "forms.rkt" apply))
  (prefix-in clos: (submod "forms.rkt" clos)))
 
-(require "loadlib.rkt")
+(require "loadlib.rkt"
+         "regression.rkt")
 
 (require racket/match
          racket/format
@@ -166,6 +167,19 @@
   ("-f" "--format" "Output format to use, either 'json' or 'csv'")
   (output-format fmt))
 
+(flag (regression-file #:param [regression-file #f] reg-file)
+  ("-r" "--regression" "'Before' data to compute regression against")
+  (regression-file reg-file))
+
+(define (format-output output)
+  ;; Note: this is a case where declaring "constraints" on the CLI args
+  ;; would be useful, instead of using the ad hoc fallback `else` check here
+  ;; https://github.com/countvajhula/cli/issues/6
+  (cond
+    [(equal? (output-format) "json") (write-json output)]
+    [(equal? (output-format) "csv") (write-csv output)]
+    [else (error (~a "Unrecognized format: " (output-format) "!"))]))
+
 (program (main)
   (define fs (hash-keys env #t))
   (define forms-data (for/list ([f (in-list fs)])
@@ -175,12 +189,11 @@
                                    'unit "ms"
                                    'value (time-module-ms "qi"))))
   (let ([output (append forms-data require-data)])
-    ;; Note: this is a case where declaring "constraints" on the CLI args
-    ;; would be useful, instead of using the ad hoc fallback `else` check here
-    ;; https://github.com/countvajhula/cli/issues/6
-    (cond
-      [(equal? (output-format) "json") (write-json output)]
-      [(equal? (output-format) "csv") (write-csv output)]
-      [else (error (~a "Unrecognized format: " (output-format) "!"))])))
+
+    (if (regression-file)
+        (let ([before (parse-benchmarks (parse-json-file (regression-file)))]
+              [after (parse-benchmarks output)])
+          (compute-regression before after))
+        (format-output output))))
 
 (run main)

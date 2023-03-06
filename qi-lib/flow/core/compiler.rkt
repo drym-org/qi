@@ -5,9 +5,11 @@
 (require (for-syntax racket/base
                      syntax/parse
                      racket/match
+                     (only-in racket/list make-list)
                      "syntax.rkt"
                      "../aux-syntax.rkt")
          "impl.rkt"
+         (only-in racket/list make-list)
          racket/function
          racket/undefined
          (prefix-in fancy: fancy-app))
@@ -134,10 +136,6 @@
     [(~or* (~datum ▽) (~datum collect))
      #'list]
     ;; predicates
-    [(~or* (~datum AND) (~datum &)) ; NOTE: technically not core
-     #'(qi0->racket (>> (and (select 2) (select 1)) (gen #t)))]
-    [(~or* (~datum OR) (~datum ∥)) ; NOTE: technically not core
-     #'(qi0->racket (<< (or (select 1) (select 2)) (gen #f)))]
     [(~or* (~datum NOT) (~datum !))
      #'not]
     [(~datum XOR)
@@ -147,7 +145,12 @@
     [((~datum or) onex:clause ...)
      #'(disjoin (qi0->racket onex) ...)]
     [((~datum not) onex:clause) ; NOTE: technically not core
-     #'(qi0->racket (~> onex NOT))]
+     #'(negate (qi0->racket onex))]
+    [((~datum all) onex:clause)
+     #`(give (curry andmap (qi0->racket onex)))]
+    [((~datum any) onex:clause)
+     #'(give (curry ormap (qi0->racket onex)))]
+
     ;; selection
     [e:select-form (select-parser #'e)]
     [e:block-form (block-parser #'e)]
@@ -155,11 +158,14 @@
     ;; conditionals
     [e:if-form (if-parser #'e)]
     [e:sieve-form (sieve-parser #'e)]
+    [e:partition-form (partition-parser #'e)]
     ;; exceptions
     [e:try-form (try-parser #'e)]
     ;; folds
     [e:fold-left-form (fold-left-parser #'e)]
     [e:fold-right-form (fold-right-parser #'e)]
+    ;; high-level routing
+    [e:fanout-form (fanout-parser #'e)]
     ;; looping
     [e:feedback-form (feedback-parser #'e)]
     [e:loop-form (loop-parser #'e)]
@@ -290,6 +296,16 @@ the DSL.
                                    (~> (pass (not (esc condition))) (esc ronex))))
                   args))]))
 
+  (define (partition-parser stx)
+    (syntax-parse stx
+      [(_:id)
+       #'(qi0->racket ground)]
+      [(_ [cond:clause body:clause])
+       #'(qi0->racket (~> (pass cond) body))]
+      [(_ [cond:clause body:clause]  ...+)
+       #:with c+bs #'(list (cons (qi0->racket cond) (qi0->racket body)) ...)
+       #'(qi0->racket (#%blanket-template (partition-values c+bs __)))]))
+
   (define (try-parser stx)
     (syntax-parse stx
       [(_ flo
@@ -319,6 +335,22 @@ the DSL.
            (if (apply (qi0->racket condition) args)
                (apply (qi0->racket consequent) args)
                (apply (qi0->racket alternative) args)))]))
+
+  (define (fanout-parser stx)
+    (syntax-parse stx
+      [_:id #'repeat-values]
+      [(_ n:number)
+       ;; a slightly more efficient compile-time implementation
+       ;; for literally indicated N
+       ;; TODO: implement this as an optimization instead
+       #`(λ args
+           (apply values
+                  (append #,@(make-list (syntax->datum #'n) #'args))) )]
+      [(_ n:expr)
+       #'(lambda args
+           (apply values
+                  (apply append
+                         (make-list n args))))]))
 
   (define (feedback-parser stx)
     (syntax-parse stx
@@ -383,15 +415,14 @@ the DSL.
       [_:id
        #'(qi0->racket ==)]
       [(_ onex:clause)
-       #'(qi0->racket (loop onex))]))
+       #'(curry map-values (qi0->racket onex))]))
 
   (define (pass-parser stx)
     (syntax-parse stx
       [_:id
-       #'(qi0->racket (~> (group 1 (clos (if _ ⏚)) _)
-                          ><))]
+       #'filter-values]
       [(_ onex:clause)
-       #'(qi0->racket (>< (if onex _ ⏚)))]))
+       #'(curry filter-values (qi0->racket onex))]))
 
   (define (fold-left-parser stx)
     (syntax-parse stx
@@ -472,5 +503,6 @@ the DSL.
       [((~datum #%blanket-template)
         (natex (~datum __) prarg-post ...+))
        #'(curryr natex prarg-post ...)]
+      ;; TODO: this should be a compiler optimization
       [((~datum #%blanket-template) (natex (~datum __)))
        #'natex])))
