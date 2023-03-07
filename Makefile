@@ -42,7 +42,11 @@ help:
 	@echo "profile-competitive - Run competitive benchmarks"
 	@echo "profile-forms - Run benchmarks for individual Qi forms"
 	@echo "profile-selected-forms - Run benchmarks for Qi forms by name (command only)"
-	@echo "form-performance-report - Run benchmarks for Qi forms and produce results for use in CI"
+	@echo "form-performance-report - Run benchmarks for Qi forms and produce results for use in CI and for measuring regression"
+	@echo "  For use in regression: make form-performance-report > /path/to/before.json"
+	@echo "performance-regression-report - Run benchmarks for Qi forms against a reference report."
+	@echo "  make performance-regression-report REF=/path/to/before.json"
+
 
 # Primarily for use by CI.
 # Installs dependencies as well as linking this as a package.
@@ -181,4 +185,7 @@ profile: profile-competitive profile-forms
 form-performance-report:
 	@racket $(PACKAGE-NAME)-sdk/profile/report.rkt
 
-.PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile-forms profile-selected-forms profile-competitive profile form-performance-report
+performance-regression-report:
+	@racket $(PACKAGE-NAME)-sdk/profile/report.rkt -r $(REF)
+
+.PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile-forms profile-selected-forms profile-competitive profile form-performance-report performance-regression-report
