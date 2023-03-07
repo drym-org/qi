@@ -7,12 +7,15 @@ DEPS-FLAGS=--check-pkg-deps --unused-pkg-deps
 
 help:
 	@echo "install - install package along with dependencies"
+	@echo "install-sdk - install the SDK which includes developer tools"
 	@echo "remove - remove package"
+	@echo "remove-sdk - remove SDK; this will not remove SDK dependencies"
 	@echo "build - Compile libraries"
 	@echo "build-docs - Build docs"
 	@echo "build-standalone-docs - Build self-contained docs that could be hosted somewhere"
 	@echo "build-all - Compile libraries, build docs, and check dependencies"
 	@echo "clean - remove all build artifacts"
+	@echo "clean-sdk - remove all build artifacts in SDK paths"
 	@echo "check-deps - check dependencies"
 	@echo "test - run tests"
 	@echo "test-with-errortrace - run tests with error tracing"
