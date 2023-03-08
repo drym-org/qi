@@ -10,7 +10,9 @@
          run-summary-benchmark
          run-competitive-benchmark
          (for-space qi only-if)
-         for/call)
+         for/call
+         write-csv
+         format-output)
 
 (require (only-in racket/list
                   range
@@ -21,7 +23,8 @@
                   cycle
                   take
                   in)
-         racket/function
+         csv-writing
+         json
          racket/format
          syntax/parse/define
          (for-syntax racket/base
@@ -136,3 +139,25 @@
           [label (list "λ" "☯")])
       (let ([ms (measure runner f n-times)])
         (displayln (~a label ": " ms " ms"))))))
+
+(define (write-csv data)
+  (~> (data)
+      △
+      (>< (~> (-< (hash-ref 'name)
+                  (hash-ref 'unit)
+                  (hash-ref 'value))
+              ▽))
+      (-< '(name unit value)
+          _)
+      ▽
+      display-table))
+
+(define (format-output output fmt)
+  ;; Note: this is a case where declaring "constraints" on the CLI args
+  ;; would be useful, instead of using the ad hoc fallback `else` check here
+  ;; https://github.com/countvajhula/cli/issues/6
+  (cond
+    [(equal? fmt "json") (write-json output)]
+    [(equal? fmt "csv") (write-csv output)]
+    [(equal? fmt "") (values)]
+    [else (error (~a "Unrecognized format: " fmt "!"))]))
