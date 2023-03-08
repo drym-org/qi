@@ -1,8 +1,6 @@
 #!/usr/bin/env racket
 #lang cli
 
-(require "../regression.rkt")
-
 (require racket/match
          racket/format
          relation
@@ -11,9 +9,9 @@
                   only-if
                   for/call
                   write-csv
-                  format-output))
-(require
- (submod "benchmarks.rkt" main))
+                  format-output)
+         "../regression.rkt"
+         (submod "benchmarks.rkt" main))
 
 (flag (forms #:param [forms null] name)
   ("-f" "--form" "Forms to benchmark")

@@ -10,9 +10,8 @@
          (only-in racket/function
                   curryr)
          (prefix-in q: "qi.rkt")
-         (prefix-in b: "builtin.rkt"))
-
-(require "../util.rkt")
+         (prefix-in b: "builtin.rkt")
+         "../util.rkt")
 
 (displayln "\nRunning flat benchmarks...")
 
