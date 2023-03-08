@@ -1,9 +1,6 @@
 #!/usr/bin/env racket
 #lang cli
 
-(require "../regression.rkt"
-         "loadlib.rkt")
-
 (require racket/match
          racket/format
          relation
@@ -12,7 +9,9 @@
                   only-if
                   for/call
                   write-csv
-                  format-output))
+                  format-output)
+         "../regression.rkt"
+         "loadlib.rkt")
 
 (help
  (usage
