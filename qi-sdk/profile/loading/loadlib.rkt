@@ -2,7 +2,8 @@
 #lang cli
 
 (provide time-racket
-         time-module-ms)
+         time-module-ms
+         profile-load)
 
 (require racket/port
          racket/format)
@@ -40,6 +41,15 @@ what remains is just the time contributed by requiring the specified module.
   (* 1000
      (- (time-racket module-name)
         (time-racket))))
+
+(define (profile-load module-name)
+  (let ([name (~a "(require " module-name ")")]
+        [ms (time-module-ms module-name)])
+    (displayln (~a name ": " ms " ms")
+               (current-error-port))
+    (hash 'name name
+          'unit "ms"
+          'value ms)))
 
 (program (time-require module-name)
   (displayln (~a (time-module-ms module-name) " ms")))

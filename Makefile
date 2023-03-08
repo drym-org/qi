@@ -42,8 +42,8 @@ help:
 	@echo "profile-competitive - Run competitive benchmarks"
 	@echo "profile-forms - Run benchmarks for individual Qi forms"
 	@echo "profile-selected-forms - Run benchmarks for Qi forms by name (command only)"
-	@echo "form-performance-report - Run benchmarks for Qi forms and produce results for use in CI and for measuring regression"
-	@echo "  For use in regression: make form-performance-report > /path/to/before.json"
+	@echo "performance-report - Run benchmarks for Qi forms and produce results for use in CI and for measuring regression"
+	@echo "  For use in regression: make performance-report > /path/to/before.json"
 	@echo "performance-regression-report - Run benchmarks for Qi forms against a reference report."
 	@echo "  make performance-regression-report REF=/path/to/before.json"
 
@@ -171,10 +171,14 @@ cover-coveralls:
 
 profile-forms:
 	echo "Profiling forms..."
-	racket $(PACKAGE-NAME)-sdk/profile/forms.rkt
+	racket $(PACKAGE-NAME)-sdk/profile/forms/report.rkt
+
+profile-loading:
+	echo "Profiling module loading..."
+	racket $(PACKAGE-NAME)-sdk/profile/loading/report.rkt
 
 profile-selected-forms:
-	@echo "Use 'racket $(PACKAGE-NAME)-sdk/profile/forms.rkt' directly, with -f form-name for each form."
+	@echo "Use 'racket $(PACKAGE-NAME)-sdk/profile/forms/report.rkt' directly, with -f form-name for each form."
 
 profile-competitive:
 	echo "Running competitive benchmarks..."
@@ -182,10 +186,10 @@ profile-competitive:
 
 profile: profile-competitive profile-forms
 
-form-performance-report:
-	@racket $(PACKAGE-NAME)-sdk/profile/report.rkt
+performance-report:
+	@racket $(PACKAGE-NAME)-sdk/profile/report.rkt -o json
 
 performance-regression-report:
 	@racket $(PACKAGE-NAME)-sdk/profile/report.rkt -r $(REF)
 
-.PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile-forms profile-selected-forms profile-competitive profile form-performance-report performance-regression-report
+.PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile-forms profile-selected-forms profile-competitive profile performance-report performance-regression-report
