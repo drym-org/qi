@@ -182,7 +182,7 @@ profile-selected-forms:
 
 profile-competitive:
 	echo "Running competitive benchmarks..."
-	racket $(PACKAGE-NAME)-sdk/profile/competitive/competitive.rkt
+	racket $(PACKAGE-NAME)-sdk/profile/competitive/report.rkt
 
 profile: profile-competitive profile-forms
 
