@@ -17,6 +17,7 @@
 * Stephen suggested distributing a Qi template using racket templates
 * Sid wrote an interactive tutorial using racket templates
 * Laurent added a quickscript for interactive evaluation in DrRacket to support the Qi tutorial
+* Ben made improvements to a Vim plugin to better support the Qi tutorial
 * Stephen suggested decomposing the package into lib/test/doc packages for more flexible development and distribution
 * Sid decomposed the package into lib/test/doc packages
 * Sid added a flow-oriented debugger
