@@ -15,6 +15,10 @@
 
 (displayln "\nRunning flat benchmarks...")
 
+;; TODO: make these display the results as "side effects"
+;; in STDERR like the intrinsic benchmarking scripts.
+;; and configurable via CLI flags
+
 (run-competitive-benchmark "Conditionals"
                            check-value
                            cond-fn
