@@ -10,6 +10,7 @@
                "collections-lib"
                "relation-lib"
                "csv-writing"
+               "require-latency"
                "cover"
                "cover-coveralls"))
 (define build-deps '())
