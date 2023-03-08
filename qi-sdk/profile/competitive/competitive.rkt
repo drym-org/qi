@@ -12,7 +12,7 @@
          (prefix-in q: "qi.rkt")
          (prefix-in b: "builtin.rkt"))
 
-(require "util.rkt")
+(require "../util.rkt")
 
 (displayln "\nRunning flat benchmarks...")
 
