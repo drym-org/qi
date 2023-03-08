@@ -2,11 +2,9 @@
 
 (provide (all-from-out racket/base)
          (all-from-out qi)
-         (all-from-out "util.rkt")
+         (all-from-out "../util.rkt")
          sqr)
 
 (require qi
-         "util.rkt"
+         "../util.rkt"
          (only-in math sqr))
-
-
