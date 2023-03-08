@@ -11,13 +11,18 @@ utility macros `run-benchmark` or `run-summary-benchmark`, and
 provides it one of the helper functions `check-value` (to invoke the
 form with a single value each time during benchmarking) or
 `check-values` (to invoke the form with multiple values each time
-during benchmarking).
+during benchmarking). Note that at the moment, as a hack for
+convenience, `run-benchmark` expects a function with the name of the
+form being benchmarked _prefixed with tilde_. This is to avoid name
+collisions between this function and the Qi form with the same
+name. Basically, just follow one of the numerous examples in this
+module to see what this is referring to.
 
 2. Require the submodule in the `main` submodule with an appropriate
 prefix (see other examples)
 
 3. Add the required `run` function to the `env` hash in the main
-submodule. This will ensure that it gets picked up when the benchmarks
+submodule.  This will ensure that it gets picked up when the benchmarks
 for the forms are run.
 |#
 
@@ -884,3 +889,164 @@ for the forms are run.
     (run-benchmark ~clos
                    check-values
                    100000)))
+
+(module main racket/base
+
+  (provide benchmark)
+
+  (require racket/match
+           racket/format
+           relation
+           qi
+           json
+           csv-writing
+           (only-in "../util.rkt"
+                    only-if
+                    for/call))
+  (require
+   (prefix-in one-of?: (submod ".." one-of?))
+   (prefix-in and: (submod ".." and))
+   (prefix-in or: (submod ".." or))
+   (prefix-in not: (submod ".." not))
+   (prefix-in and%: (submod ".." and%))
+   (prefix-in or%: (submod ".." or%))
+   (prefix-in group: (submod ".." group))
+   (prefix-in count: (submod ".." count))
+   (prefix-in relay: (submod ".." relay))
+   (prefix-in relay*: (submod ".." relay*))
+   (prefix-in amp: (submod ".." amp))
+   (prefix-in ground: (submod ".." ground))
+   (prefix-in thread: (submod ".." thread))
+   (prefix-in thread-right: (submod ".." thread-right))
+   (prefix-in crossover: (submod ".." crossover))
+   (prefix-in all: (submod ".." all))
+   (prefix-in any: (submod ".." any))
+   (prefix-in none: (submod ".." none))
+   (prefix-in all?: (submod ".." all?))
+   (prefix-in any?: (submod ".." any?))
+   (prefix-in none?: (submod ".." none?))
+   (prefix-in collect: (submod ".." collect))
+   (prefix-in sep: (submod ".." sep))
+   (prefix-in gen: (submod ".." gen))
+   (prefix-in esc: (submod ".." esc))
+   (prefix-in AND: (submod ".." AND))
+   (prefix-in OR: (submod ".." OR))
+   (prefix-in NOT: (submod ".." NOT))
+   (prefix-in NAND: (submod ".." NAND))
+   (prefix-in NOR: (submod ".." NOR))
+   (prefix-in XOR: (submod ".." XOR))
+   (prefix-in XNOR: (submod ".." XNOR))
+   (prefix-in tee: (submod ".." tee))
+   (prefix-in try: (submod ".." try))
+   (prefix-in currying: (submod ".." currying))
+   (prefix-in template: (submod ".." template))
+   (prefix-in catchall-template: (submod ".." catchall-template))
+   (prefix-in if: (submod ".." if))
+   (prefix-in when: (submod ".." when))
+   (prefix-in unless: (submod ".." unless))
+   (prefix-in switch: (submod ".." switch))
+   (prefix-in sieve: (submod ".." sieve))
+   (prefix-in partition: (submod ".." partition))
+   (prefix-in gate: (submod ".." gate))
+   (prefix-in input-aliases: (submod ".." input-aliases))
+   (prefix-in fanout: (submod ".." fanout))
+   (prefix-in inverter: (submod ".." inverter))
+   (prefix-in feedback: (submod ".." feedback))
+   (prefix-in select: (submod ".." select))
+   (prefix-in block: (submod ".." block))
+   (prefix-in bundle: (submod ".." bundle))
+   (prefix-in effect: (submod ".." effect))
+   (prefix-in live?: (submod ".." live?))
+   (prefix-in rectify: (submod ".." rectify))
+   (prefix-in pass: (submod ".." pass))
+   (prefix-in foldl: (submod ".." foldl))
+   (prefix-in foldr: (submod ".." foldr))
+   (prefix-in loop: (submod ".." loop))
+   (prefix-in loop2: (submod ".." loop2))
+   (prefix-in apply: (submod ".." apply))
+   (prefix-in clos: (submod ".." clos)))
+
+  ;; It would be great if we could get the value of a variable
+  ;; by using its (string) name, but (eval (string->symbol name))
+  ;; doesn't find it. So instead, we reify the "lexical environment"
+  ;; here manually, so that the values can be looked up at runtime
+  ;; based on the string names (note that the value is always the key
+  ;; + ":" + "run")
+  (define env
+    (hash
+     "one-of?" one-of?:run
+     "and" and:run
+     "or" or:run
+     "not" not:run
+     "and%" and%:run
+     "or%" or%:run
+     "group" group:run
+     "count" count:run
+     "relay" relay:run
+     "relay*" relay*:run
+     "amp" amp:run
+     "ground" ground:run
+     "thread" thread:run
+     "thread-right" thread-right:run
+     "crossover" crossover:run
+     "all" all:run
+     "any" any:run
+     "none" none:run
+     "all?" all?:run
+     "any?" any?:run
+     "none?" none?:run
+     "collect" collect:run
+     "sep" sep:run
+     "gen" gen:run
+     "esc" esc:run
+     "AND" AND:run
+     "OR" OR:run
+     "NOT" NOT:run
+     "NAND" NAND:run
+     "NOR" NOR:run
+     "XOR" XOR:run
+     "XNOR" XNOR:run
+     "tee" tee:run
+     "try" try:run
+     "currying" currying:run
+     "template" template:run
+     "catchall-template" catchall-template:run
+     "if" if:run
+     "when" when:run
+     "unless" unless:run
+     "switch" switch:run
+     "sieve" sieve:run
+     "partition" partition:run
+     "gate" gate:run
+     "input-aliases" input-aliases:run
+     "fanout" fanout:run
+     "inverter" inverter:run
+     "feedback" feedback:run
+     "select" select:run
+     "block" block:run
+     "bundle" bundle:run
+     "effect" effect:run
+     "live?" live?:run
+     "rectify" rectify:run
+     "pass" pass:run
+     "foldl" foldl:run
+     "foldr" foldr:run
+     "loop" loop:run
+     "loop2" loop2:run
+     "apply" apply:run
+     "clos" clos:run))
+
+  (define (benchmark forms)
+    (define fs (~>> (forms)
+                    (only-if null?
+                             (gen (hash-keys env)))
+                    (sort <)))
+    (define forms-data (for/list ([f (in-list fs)])
+                         (match-let ([(list name ms) ((hash-ref env f))])
+                           ;; Print results "live" to STDERR, with
+                           ;; only the actual output (if desired)
+                           ;; going to STDOUT at the end.
+                           (displayln (~a name ": " ms " ms")
+                                      (current-error-port))
+                           (hash 'name name 'unit "ms" 'value ms))))
+    forms-data))
