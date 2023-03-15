@@ -5,52 +5,41 @@
 
 (require "../util.rkt")
 
-(struct bm (name exerciser target times)
+(struct bm (name exerciser times)
   #:transparent)
 
 (define specs
-  (list (bm "Conditionals"
+  (list (bm "conditionals"
             check-value
-            "cond-fn"
             300000)
-        (bm "Composition"
+        (bm "composition"
             check-value
-            "compose-fn"
             300000)
-        (bm "Root Mean Square"
+        (bm "root-mean-square"
             check-list
-            "root-mean-square"
             500000)
-        (bm "Filter-map"
+        (bm "filter-map"
             check-list
-            "filter-map-fn"
             500000)
-        (bm "Filter-map values"
+        (bm "filter-map-values"
             check-values
-            "filter-map-values"
             500000)
-        (bm "Double list"
+        (bm "double-list"
             check-list
-            "double-list"
             500000)
-        (bm "Double values"
+        (bm "double-values"
             check-values
-            "double-values"
             500000)
-        (bm "Factorial"
+        (bm "factorial"
             check-value
-            "fact"
             100000)
-        (bm "Pingala"
+        (bm "pingala"
             check-value
-            "ping"
             10000)
-        (bm "Eratosthenes"
+        (bm "eratosthenes"
             check-value-primes
-            "eratos"
             100)
         ;; See https://en.wikipedia.org/wiki/Collatz_conjecture
-        (bm "Collatz"
+        (bm "collatz"
             check-value
-            "collatz"
             10000)))
