@@ -898,8 +898,6 @@ for the forms are run.
            racket/format
            relation
            qi
-           json
-           csv-writing
            (only-in "../util.rkt"
                     only-if
                     for/call))
