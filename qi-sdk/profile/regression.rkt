@@ -42,6 +42,12 @@
             1
             (~r #:precision 2))))
 
+  (define-flow reformat
+    (~> △
+        (>< (~> (-< car cadr)
+                (hash 'name _ 'value _ 'unit "x")))
+        ▽))
+
   (define results
     (~>> (before)
          hash-keys
@@ -52,6 +58,7 @@
                calculate-ratio)
            ▽))
          ▽
-         (sort > #:key (☯ (~> cadr ->inexact)))))
+         (sort > #:key (☯ (~> cadr ->inexact)))
+         reformat))
 
   results)
