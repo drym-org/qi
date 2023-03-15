@@ -13,11 +13,11 @@
          "../regression.rkt"
          (submod "benchmarks.rkt" main))
 
-(flag (forms #:param [forms null] name)
-  ("-f" "--form" "Forms to benchmark")
-  (forms (cons name (forms))))
+(flag (selected #:param [selected null] name)
+  ("-s" "--select" "Select form to benchmark")
+  (selected (cons name (selected))))
 
-(constraint (multi forms))
+(constraint (multi selected))
 
 (help
  (usage
@@ -26,7 +26,7 @@
       "in a configurable output format.")))
 
 (flag (output-format #:param [output-format ""] fmt)
-  ("-o"
+  ("-f"
    "--format"
    "Output format to use, either 'json' or 'csv'. If none is specified, no output is generated.")
   (output-format fmt))
@@ -36,7 +36,7 @@
   (regression-file reg-file))
 
 (program (main)
-  (let ([output (benchmark (forms))])
+  (let ([output (benchmark (selected))])
     (if (regression-file)
         ;; TODO: regression ignores any flags and is a parallel path
         ;; it should be properly incorporated into the CLI
@@ -46,6 +46,6 @@
         (format-output output (output-format)))))
 
 ;; To run benchmarks for a form interactively, use e.g.:
-;; (run main #("-f" "fanout"))
+;; (run main #("-s" "fanout"))
 
 (run main)
