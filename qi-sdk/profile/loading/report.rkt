@@ -28,6 +28,8 @@
   (regression-file reg-file))
 
 (program (main)
+  (displayln "\nMeasuring module load time..." (current-error-port))
+
   (let ([output (profile-load "qi")])
     (if (regression-file)
         (let ([before (parse-benchmarks (parse-json-file (regression-file)))]

@@ -36,6 +36,8 @@
   (regression-file reg-file))
 
 (program (main)
+  (displayln "\nRunning local (forms) benchmarks..." (current-error-port))
+
   (let ([output (benchmark (selected))])
     (if (regression-file)
         (let ([before (parse-benchmarks (parse-json-file (regression-file)))]
