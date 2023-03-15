@@ -5,12 +5,12 @@
          racket/format
          relation
          qi
-         (only-in "../../util.rkt"
+         (only-in "../util.rkt"
                   only-if
                   for/call
                   write-csv
                   format-output)
-         "../../regression.rkt"
+         "../regression.rkt"
          "loadlib.rkt")
 
 (help
