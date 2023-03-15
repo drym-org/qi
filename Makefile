@@ -171,14 +171,14 @@ cover-coveralls:
 
 profile-forms:
 	echo "Profiling forms..."
-	racket $(PACKAGE-NAME)-sdk/profile/intrinsic/forms/report.rkt
+	racket $(PACKAGE-NAME)-sdk/profile/local/report.rkt
 
 profile-loading:
 	echo "Profiling module loading..."
-	racket $(PACKAGE-NAME)-sdk/profile/intrinsic/loading/report.rkt
+	racket $(PACKAGE-NAME)-sdk/profile/loading/report.rkt
 
 profile-selected-forms:
-	@echo "Use 'racket $(PACKAGE-NAME)-sdk/profile/intrinsic/forms/report.rkt' directly, with -f form-name for each form."
+	@echo "Use 'racket $(PACKAGE-NAME)-sdk/profile/local/report.rkt' directly, with -f form-name for each form."
 
 profile-competitive:
 	echo "Running competitive benchmarks..."
@@ -187,9 +187,9 @@ profile-competitive:
 profile: profile-competitive profile-forms
 
 performance-report:
-	@racket $(PACKAGE-NAME)-sdk/profile/local/report.rkt -f json
+	@racket $(PACKAGE-NAME)-sdk/profile/report.rkt -f json
 
 performance-regression-report:
-	@racket $(PACKAGE-NAME)-sdk/profile/local/report.rkt -r $(REF)
+	@racket $(PACKAGE-NAME)-sdk/profile/report.rkt -r $(REF)
 
 .PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile-forms profile-loading profile-selected-forms profile-competitive profile performance-report performance-regression-report
