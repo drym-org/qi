@@ -2,6 +2,7 @@
 #lang cli
 
 (require racket/format
+         relation
          (only-in "util.rkt"
                   format-output)
          "loading/loadlib.rkt"
