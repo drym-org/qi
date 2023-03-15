@@ -1,5 +1,5 @@
 #!/usr/bin/env racket
-#lang cli
+#lang racket/base
 
 (provide benchmark)
 

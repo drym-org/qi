@@ -1,14 +1,8 @@
 #!/usr/bin/env racket
 #lang cli
 
-(require racket/match
-         racket/format
-         relation
-         qi
+(require racket/format
          (only-in "util.rkt"
-                  only-if
-                  for/call
-                  write-csv
                   format-output)
          "loading/loadlib.rkt"
          "regression.rkt"
