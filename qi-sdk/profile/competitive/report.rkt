@@ -13,6 +13,12 @@
          "../intrinsic/regression.rkt"
          "intrinsic.rkt")
 
+(flag (selected #:param [selected null] name)
+  ("-s" "--select" "Select benchmark by name")
+  (selected (cons name (selected))))
+
+(constraint (multi selected))
+
 (help
  (usage
   (~a "Run competitive benchmarks between Qi and Racket, "
@@ -31,7 +37,7 @@
 (program (main)
   (displayln "\nRunning competitive benchmarks..." (current-error-port))
 
-  (let ([output (benchmark 'qi)])
+  (let ([output (benchmark 'qi (selected))])
     (if (regression-file)
         (let ([before (parse-benchmarks (parse-json-file (regression-file)))]
               [after (parse-benchmarks output)])
