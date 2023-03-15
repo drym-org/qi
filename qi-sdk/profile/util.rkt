@@ -127,11 +127,11 @@
 ;; Run different implementations of the same benchmark (e.g. a Racket vs a Qi
 ;; implementation) a specified number of times, and report the time taken
 ;; by each implementation.
-(define (run-nonlocal-benchmark bm-name runner f n-times)
-  (displayln (~a bm-name ":") (current-error-port))
+(define (run-nonlocal-benchmark name runner f n-times)
+  (displayln (~a name ":") (current-error-port))
   (let ([ms (measure runner f n-times)])
     (displayln (~a ms " ms") (current-error-port))
-    (hash 'name bm-name 'unit "ms" 'value ms)))
+    (hash 'name name 'unit "ms" 'value ms)))
 
 (define (write-csv data)
   (~> (data)

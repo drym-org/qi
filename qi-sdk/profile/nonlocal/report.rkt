@@ -34,10 +34,16 @@
   ("-r" "--regression" "'Before' data to compute regression against")
   (regression-file reg-file))
 
+(flag (language #:param [language "qi"] lang)
+  ("-l"
+   "--language"
+   "Language to benchmark, either 'qi' or 'racket'. If none is specified, assumes 'qi'.")
+  (language lang))
+
 (program (main)
   (displayln "\nRunning competitive benchmarks..." (current-error-port))
 
-  (let ([output (benchmark 'qi (selected))])
+  (let ([output (benchmark (language) (selected))])
     (if (regression-file)
         (let ([before (parse-benchmarks (parse-json-file (regression-file)))]
               [after (parse-benchmarks output)])
