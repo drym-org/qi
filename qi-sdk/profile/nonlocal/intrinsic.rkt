@@ -11,8 +11,8 @@
         [benchmarks-to-run (if (null? benchmarks-to-run)
                                (map bm-name specs)
                                benchmarks-to-run)])
-    (cond [(eq? 'qi language) (eval '(require "qi/main.rkt") namespace)]
-          [(eq? 'racket language) (eval '(require "racket/main.rkt") namespace)])
+    (cond [(equal? "qi" language) (eval '(require "qi/main.rkt") namespace)]
+          [(equal? "racket" language) (eval '(require "racket/main.rkt") namespace)])
 
     (for/list ([spec specs]
                #:when (member (bm-name spec) benchmarks-to-run))
