@@ -182,7 +182,11 @@ profile-selected-forms:
 
 profile-competitive:
 	echo "Running competitive benchmarks..."
-	cd $(PACKAGE-NAME)-sdk/profile/nonlocal; racket report.rkt
+	cd $(PACKAGE-NAME)-sdk/profile/nonlocal; racket report-competitive.rkt
+
+profile-nonlocal:
+	echo "Running nonlocal benchmarks..."
+	cd $(PACKAGE-NAME)-sdk/profile/nonlocal; racket report-intrinsic.rkt -l qi
 
 profile: profile-competitive profile-forms
 

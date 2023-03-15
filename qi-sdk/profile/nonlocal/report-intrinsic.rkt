@@ -21,7 +21,7 @@
 
 (help
  (usage
-  (~a "Run competitive benchmarks between Qi and Racket, "
+  (~a "Run nonlocal benchmarks on either Qi or Racket, "
       "reporting the results in a configurable output format.")))
 
 (flag (output-format #:param [output-format ""] fmt)
