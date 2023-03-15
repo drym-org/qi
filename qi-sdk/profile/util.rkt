@@ -3,12 +3,13 @@
 (provide average
          measure
          check-value
+         check-value-primes
          check-list
          check-values
          check-two-values
          run-benchmark
          run-summary-benchmark
-         run-competitive-benchmark
+         run-nonlocal-benchmark
          (for-space qi only-if)
          for/call
          write-csv
@@ -17,6 +18,8 @@
 (require (only-in racket/list
                   range
                   second)
+         (only-in racket/function
+                  curryr)
          (only-in adjutor
                   values->list)
          (only-in data/collection
@@ -57,6 +60,8 @@
     (for ([j how-many])
       (set! i (remainder (add1 i) len))
       (fn (vector-ref inputs i)))))
+
+(define check-value-primes (curryr check-value #(100 200 300)))
 
 ;; This uses the same list input each time. Not sure if that
 ;; may end up being cached at some level and thus obfuscate
@@ -122,23 +127,11 @@
 ;; Run different implementations of the same benchmark (e.g. a Racket vs a Qi
 ;; implementation) a specified number of times, and report the time taken
 ;; by each implementation.
-(define-syntax-parse-rule (run-competitive-benchmark name runner f-name n-times)
-  #:with f-builtin (datum->syntax #'name
-                     (string->symbol
-                      (string-append "b:"
-                                     (symbol->string
-                                      (syntax->datum #'f-name)))))
-  #:with f-qi (datum->syntax #'name
-                (string->symbol
-                 (string-append "q:"
-                                (symbol->string
-                                 (syntax->datum #'f-name)))))
-  (begin
-    (displayln (~a name ":"))
-    (for ([f (list f-builtin f-qi)]
-          [label (list "λ" "☯")])
-      (let ([ms (measure runner f n-times)])
-        (displayln (~a label ": " ms " ms"))))))
+(define (run-nonlocal-benchmark bm-name runner f n-times)
+  (displayln (~a bm-name ":") (current-error-port))
+  (let ([ms (measure runner f n-times)])
+    (displayln (~a ms " ms") (current-error-port))
+    (hash 'name bm-name 'unit "ms" 'value ms)))
 
 (define (write-csv data)
   (~> (data)
