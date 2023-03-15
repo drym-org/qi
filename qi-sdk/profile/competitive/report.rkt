@@ -25,7 +25,7 @@
       "reporting the results in a configurable output format.")))
 
 (flag (output-format #:param [output-format ""] fmt)
-  ("-o"
+  ("-f"
    "--format"
    "Output format to use, either 'json' or 'csv'. If none is specified, no output is generated.")
   (output-format fmt))
@@ -44,7 +44,7 @@
           (compute-regression before after))
         (format-output output (output-format)))))
 
-;; ;; To run benchmarks for a form interactively, use e.g.:
-;; ;; (run main #("-f" "fanout"))
+;; To run benchmarks for a form interactively, use e.g.:
+;; (run main #("-s" "composition"))
 
-(run main)
+(run main #("-s" "composition"))

@@ -15,11 +15,11 @@
          "regression.rkt"
          (submod "forms/benchmarks.rkt" main))
 
-(flag (forms #:param [forms null] name)
-  ("-f" "--form" "Forms to benchmark")
-  (forms (cons name (forms))))
+(flag (selected #:param [selected null] name)
+  ("-s" "--select" "Select form to benchmark")
+  (selected (cons name (selected))))
 
-(constraint (multi forms))
+(constraint (multi selected))
 
 (help
  (usage
@@ -28,7 +28,7 @@
       "in a configurable output format.")))
 
 (flag (output-format #:param [output-format ""] fmt)
-  ("-o"
+  ("-f"
    "--format"
    "Output format to use, either 'json' or 'csv'. If none is specified, no output is generated.")
   (output-format fmt))
@@ -49,7 +49,7 @@
 ;; https://github.com/countvajhula/cli/issues/3
 (program (main)
   (let* ([forms-data (if (member? (report-type) (list "all" "forms"))
-                         (benchmark (forms))
+                         (benchmark (selected))
                          null)]
          [require-data (if (member? (report-type) (list "all" "loading"))
                            (list (profile-load "qi"))
@@ -62,6 +62,6 @@
         (format-output output (output-format)))))
 
 ;; To run benchmarks for a form interactively, use e.g.:
-;; (run main #("-f" "fanout"))
+;; (run main #("-s" "fanout"))
 
 (run main)

@@ -18,7 +18,7 @@
   (~a "Measure module load time, i.e. the time taken by (require qi).")))
 
 (flag (output-format #:param [output-format ""] fmt)
-  ("-o"
+  ("-f"
    "--format"
    "Output format to use, either 'json' or 'csv'. If none is specified, no output is generated.")
   (output-format fmt))
