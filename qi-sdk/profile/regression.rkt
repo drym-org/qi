@@ -51,7 +51,7 @@
         ▽))
 
   (define results
-    (~>> (before)
+    (~>> (after)
          hash-keys
          △
          (><
