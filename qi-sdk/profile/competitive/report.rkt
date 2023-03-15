@@ -1,80 +1,44 @@
 #!/usr/bin/env racket
-#lang racket/base
+#lang cli
 
-(require (only-in data/collection
-                  cycle
-                  take
-                  in)
-         (only-in racket/list
-                  range)
-         (only-in racket/function
-                  curryr)
-         (prefix-in q: "qi.rkt")
-         (prefix-in b: "builtin.rkt")
-         "../util.rkt")
+(require racket/match
+         racket/format
+         relation
+         qi
+         (only-in "../util.rkt"
+                  only-if
+                  for/call
+                  write-csv
+                  format-output)
+         "../intrinsic/regression.rkt"
+         "intrinsic.rkt")
 
-(displayln "\nRunning flat benchmarks...")
+(help
+ (usage
+  (~a "Run competitive benchmarks between Qi and Racket, "
+      "reporting the results in a configurable output format.")))
 
-;; TODO: make these display the results as "side effects"
-;; in STDERR like the intrinsic benchmarking scripts.
-;; and configurable via CLI flags
+(flag (output-format #:param [output-format ""] fmt)
+  ("-o"
+   "--format"
+   "Output format to use, either 'json' or 'csv'. If none is specified, no output is generated.")
+  (output-format fmt))
 
-(run-competitive-benchmark "Conditionals"
-                           check-value
-                           cond-fn
-                           300000)
+(flag (regression-file #:param [regression-file #f] reg-file)
+  ("-r" "--regression" "'Before' data to compute regression against")
+  (regression-file reg-file))
 
-(run-competitive-benchmark "Composition"
-                           check-value
-                           compose-fn
-                           300000)
+(program (main)
+  (displayln "\nRunning competitive benchmarks..." (current-error-port))
 
-(run-competitive-benchmark "Root Mean Square"
-                           check-list
-                           root-mean-square
-                           500000)
+  (let ([output (benchmark 'qi)])
+    (if (regression-file)
+        (let ([before (parse-benchmarks (parse-json-file (regression-file)))]
+              [after (parse-benchmarks output)])
+          (compute-regression before after))
+        (format-output output (output-format)))))
 
-(run-competitive-benchmark "Filter-map"
-                           check-list
-                           filter-map-fn
-                           500000)
+;; ;; To run benchmarks for a form interactively, use e.g.:
+;; ;; (run main #("-f" "fanout"))
 
-(run-competitive-benchmark "Filter-map values"
-                           check-values
-                           filter-map-values
-                           500000)
-
-(run-competitive-benchmark "Double list"
-                           check-list
-                           double-list
-                           500000)
-
-(run-competitive-benchmark "Double values"
-                           check-values
-                           double-values
-                           500000)
-
-(displayln "\nRunning Recursive benchmarks...")
-
-(run-competitive-benchmark "Factorial"
-                           check-value
-                           fact
-                           100000)
-
-(run-competitive-benchmark "Pingala"
-                           check-value
-                           ping
-                           10000)
-
-(define check-value-primes (curryr check-value #(100 200 300)))
-
-(run-competitive-benchmark "Eratosthenes"
-                           check-value-primes
-                           eratos
-                           100)
-
-;; See https://en.wikipedia.org/wiki/Collatz_conjecture
-(run-competitive-benchmark "Collatz"
-                           check-value
-                           collatz
-                           10000)
+(run main)
