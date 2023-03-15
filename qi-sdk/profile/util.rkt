@@ -22,10 +22,6 @@
                   curryr)
          (only-in adjutor
                   values->list)
-         (only-in data/collection
-                  cycle
-                  take
-                  in)
          csv-writing
          json
          racket/format
@@ -94,6 +90,8 @@
 
 ;; Run a single benchmarking function a specified number of times
 ;; and report the time taken.
+;; TODO: this is very similar to run-nonlocal-benchmark and these
+;; should be unified.
 (define-syntax-parse-rule (run-benchmark f-name runner n-times)
   #:with name (datum->syntax #'f-name
                 ;; this is because of the name collision between
