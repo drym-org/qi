@@ -33,8 +33,12 @@
 (program (main)
   (displayln "\nRunning competitive benchmarks..." (current-error-port))
 
-  (let* ([racket-output (benchmark "racket" (selected))]
-         [qi-output (benchmark "qi" (selected))]
+  (let* ([racket-output
+          (begin (displayln "\nRunning Racket benchmarks..." (current-error-port))
+                 (benchmark "racket" (selected)))]
+         [qi-output
+          (begin (displayln "\nRunning Qi benchmarks..." (current-error-port))
+                 (benchmark "qi" (selected)))]
          [before (parse-benchmarks racket-output)]
          [after (parse-benchmarks qi-output)])
     (format-output (compute-regression before after)

@@ -8,7 +8,8 @@
 (require qi
          relation
          json
-         racket/format)
+         racket/format
+         racket/pretty)
 
 (define LOWER-THRESHOLD 0.75)
 (define HIGHER-THRESHOLD 1.5)
@@ -50,6 +51,10 @@
                 (hash 'name _ 'value _ 'unit "x")))
         ▽))
 
+  (define (show-results results)
+    (displayln "\nPerformance relative to baseline:" (current-error-port))
+    (pretty-display results (current-error-port)))
+
   (define results
     (~>> (after)
          hash-keys
@@ -61,6 +66,7 @@
            ▽))
          ▽
          (sort > #:key (☯ (~> cadr ->inexact)))
+         (ε show-results)
          reformat))
 
   results)
