@@ -1,13 +1,13 @@
 #lang racket/base
 
-(provide cond-fn
-         compose-fn
+(provide conditionals
+         composition
          root-mean-square
-         fact
-         ping
-         eratos
+         factorial
+         pingala
+         eratosthenes
          collatz
-         filter-map-fn
+         filter-map
          filter-map-values
          double-list
          double-values)
@@ -16,28 +16,28 @@
          (only-in racket/list range)
          qi)
 
-(define-switch cond-fn
+(define-switch conditionals
   [(< 5) sqr]
   [(> 5) add1]
   [else _])
 
-(define-flow compose-fn
+(define-flow composition
   (~> add1 sqr sub1))
 
 (define-flow root-mean-square
   (~> (-< (~>> △ (>< sqr) +)
           length) / sqrt))
 
-(define-switch fact
+(define-switch factorial
   [(< 2) 1]
-  [else (~> (-< _ (~> sub1 fact)) *)])
+  [else (~> (-< _ (~> sub1 factorial)) *)])
 
-(define-switch ping
+(define-switch pingala
   [(< 2) _]
   [else (~> (-< sub1
-                (- 2)) (>< ping) +)])
+                (- 2)) (>< pingala) +)])
 
-(define-flow (eratos n)
+(define-flow (eratosthenes n)
   (~> (-< (gen null) (~>> add1 (range 2) △))
       (feedback (while (~> (block 1) live?))
                 (then (~> 1> reverse))
@@ -54,7 +54,7 @@
                cons)]))
 
 
-(define-flow filter-map-fn
+(define-flow filter-map
   (~> △ (>< (if odd? sqr ⏚)) ▽))
 
 (define-flow filter-map-values
