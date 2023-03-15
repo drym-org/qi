@@ -42,11 +42,14 @@
   ("-r" "--regression" "'Before' data to compute regression against")
   (regression-file reg-file))
 
-;; Note: much of this file is duplicated across forms/report.rkt
+;; Note: much of this file is duplicated across local/report.rkt
 ;; and loading/report.rkt. It could be avoided if we had
 ;; "composition of commands", see:
 ;; https://github.com/countvajhula/cli/issues/3
 (program (main)
+  (displayln "\nRunning local (forms) benchmarks and measuring module load time..."
+             (current-error-port))
+
   (let* ([forms-data (if (member? (report-type) (list "all" "forms"))
                          (benchmark (selected))
                          null)]
