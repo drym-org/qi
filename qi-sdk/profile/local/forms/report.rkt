@@ -10,7 +10,7 @@
                   for/call
                   write-csv
                   format-output)
-         "../regression.rkt"
+         "../../regression.rkt"
          (submod "benchmarks.rkt" main))
 
 (flag (selected #:param [selected null] name)

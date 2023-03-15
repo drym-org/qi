@@ -182,14 +182,14 @@ profile-selected-forms:
 
 profile-competitive:
 	echo "Running competitive benchmarks..."
-	cd $(PACKAGE-NAME)-sdk/profile/competitive; racket report.rkt
+	cd $(PACKAGE-NAME)-sdk/profile/nonlocal; racket report.rkt
 
 profile: profile-competitive profile-forms
 
 performance-report:
-	@racket $(PACKAGE-NAME)-sdk/profile/intrinsic/report.rkt -o json
+	@racket $(PACKAGE-NAME)-sdk/profile/local/report.rkt -f json
 
 performance-regression-report:
-	@racket $(PACKAGE-NAME)-sdk/profile/intrinsic/report.rkt -r $(REF)
+	@racket $(PACKAGE-NAME)-sdk/profile/local/report.rkt -r $(REF)
 
 .PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile-forms profile-loading profile-selected-forms profile-competitive profile performance-report performance-regression-report
