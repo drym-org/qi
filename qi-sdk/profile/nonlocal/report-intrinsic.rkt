@@ -41,13 +41,14 @@
   (language lang))
 
 (program (main)
-  (displayln "\nRunning competitive benchmarks..." (current-error-port))
+  (displayln "\nRunning nonlocal benchmarks..." (current-error-port))
 
   (let ([output (benchmark (language) (selected))])
     (if (regression-file)
         (let ([before (parse-benchmarks (parse-json-file (regression-file)))]
               [after (parse-benchmarks output)])
-          (compute-regression before after))
+          (format-output (compute-regression before after)
+                         (output-format)))
         (format-output output (output-format)))))
 
 ;; To run benchmarks for a form interactively, use e.g.:

@@ -32,7 +32,8 @@
     (if (regression-file)
         (let ([before (parse-benchmarks (parse-json-file (regression-file)))]
               [after (parse-benchmarks output)])
-          (compute-regression before after))
+          (format-output (compute-regression before after)
+                         (output-format)))
         (format-output output (output-format)))))
 
 (run main)

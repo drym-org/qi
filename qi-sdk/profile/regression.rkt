@@ -19,6 +19,8 @@
       (read-json port))))
 
 (define (parse-benchmarks benchmarks)
+  ;; renames some forms so they're consistently named
+  ;; but otherwise leaves the original data unmodified
   (make-hash
    (map (☯ (~> (-< (~> (hash-ref 'name)
                        (switch
