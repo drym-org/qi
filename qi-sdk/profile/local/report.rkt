@@ -38,11 +38,10 @@
 (program (main)
   (let ([output (benchmark (selected))])
     (if (regression-file)
-        ;; TODO: regression ignores any flags and is a parallel path
-        ;; it should be properly incorporated into the CLI
         (let ([before (parse-benchmarks (parse-json-file (regression-file)))]
               [after (parse-benchmarks output)])
-          (compute-regression before after))
+          (format-output (compute-regression before after)
+                         (output-format)))
         (format-output output (output-format)))))
 
 ;; To run benchmarks for a form interactively, use e.g.:
