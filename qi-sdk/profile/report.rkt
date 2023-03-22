@@ -7,7 +7,8 @@
                   format-output)
          "loading/loadlib.rkt"
          "regression.rkt"
-         (submod "local/benchmarks.rkt" main))
+         (submod "local/benchmarks.rkt" main)
+         (prefix-in n: "nonlocal/intrinsic.rkt"))
 
 (flag (selected #:param [selected null] name)
   ("-s" "--select" "Select form to benchmark")
@@ -30,7 +31,7 @@
 (flag (type #:param [report-type "all"] typ)
   ("-t"
    "--type"
-   "Type of report, either `local`, `loading` or `all` (default `all`)")
+   "Type of report, either `local`, `nonlocal`, `loading` or `all` (default `all`)")
   (report-type typ))
 
 (flag (regression-file #:param [regression-file #f] reg-file)
@@ -48,10 +49,13 @@
   (let* ([local-data (if (member? (report-type) (list "all" "local"))
                          (benchmark (selected))
                          null)]
+         [nonlocal-data (if (member? (report-type) (list "all" "nonlocal"))
+                            (n:benchmark "qi" (selected))
+                            null)]
          [require-data (if (member? (report-type) (list "all" "loading"))
                            (list (profile-load "qi"))
                            null)]
-         [output (append local-data require-data)])
+         [output (~ local-data nonlocal-data require-data)])
     (if (regression-file)
         (let ([before (parse-benchmarks (parse-json-file (regression-file)))]
               [after (parse-benchmarks output)])
