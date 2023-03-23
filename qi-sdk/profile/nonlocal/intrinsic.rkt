@@ -29,7 +29,6 @@
 ;; uninstalled.
 
 (define-runtime-path lexical-module-path ".")
-(current-load-relative-directory lexical-module-path)
 
 (define (benchmark language benchmarks-to-run)
   (let ([namespace (make-base-namespace)]
@@ -37,11 +36,13 @@
                                (map bm-name specs)
                                benchmarks-to-run)])
     (cond [(equal? "qi" language)
-           (eval '(require "qi/main.rkt")
-                 namespace)]
+           (parameterize ([current-load-relative-directory lexical-module-path])
+             (eval '(require "qi/main.rkt")
+                   namespace))]
           [(equal? "racket" language)
-           (eval '(require "racket/main.rkt")
-                 namespace)])
+           (parameterize ([current-load-relative-directory lexical-module-path])
+             (eval '(require "racket/main.rkt")
+                   namespace))])
 
     (for/list ([spec specs]
                #:when (member (bm-name spec) benchmarks-to-run))
