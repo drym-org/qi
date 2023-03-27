@@ -387,7 +387,46 @@ A nested function application can always be converted to a sequential flow.
 
 @subsection{Converting a Function to a Closure}
 
+@subsubsection{Basic Recipe}
+
 Sometimes you may find you want to go from something like @racket[(~> f1 f2)] to a similar flow except that one of the functions is itself parameterized by an input, i.e. it is a closure. If @racket[f1] is the one that needs to be a closure, you can do it like this: @racket[(~> (==* (clos f1) _) apply f2)], assuming that the closed-over argument to @racket[f1] is passed in as the first input, and the remaining inputs are the data inputs to the flow. Closures are useful in a wide variety of situations, however, and this isn't a one-size-fits-all formula.
+
+@subsubsection{Definition vs Invocation Inputs}
+
+A flow defined using @racket[clos] retains all of the inputs from the definition site when it is applied at the invocation site. Referring to inputs within the flow definition thus means these combined "definition site + invocation site" inputs (in that order, unless modulated by a containing threading form), @emph{not} the inputs available at the definition site alone. So for instance, if you only need access to a subset of definition-site inputs rather than all of them, these should be filtered prior to passing them in to @racket[clos] as, otherwise, you would unwittingly be filtering out invocation site inputs too. The following example illustrates this.
+
+If you are interested in creating a @racket[string-append]-derived function that prepends a prefix to an input, where the prefix is itself determined at runtime, you might attempt it this way:
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+    (~> ("prefix-" "something")
+        (-< (clos (~> 1> string-append))
+            2>)
+        apply)
+  ]
+
+... but this does not produce the expected output for the aforementioned reason, that the body of the @racket[clos] form refers to the inputs ("prefix-", "something", "something"), so that selecting the first one with @racket[1>] means there is only one input being passed to @racket[string-append] in producing the result. Instead, the following is what we want:
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+    (~> ("prefix-" "something")
+        (-< (~> 1> (clos string-append))
+            2>)
+        apply)
+  ]
+
+Of course, in this particular example, using a @racket[relay] instead of a @racket[tee] junction would avoid the issue altogether.
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+    (~> ("prefix-" "something")
+        (== (clos string-append)
+            _)
+        apply)
+  ]
 
 @subsection{Converting a Macro to a Flow}
 
