@@ -1,56 +1,56 @@
-'(("Sid" . 34.68)
-  ("Racket" . 11.13)
-  (("Michael" "Sid") . 9.95)
-  ("Ben" . 6.38)
-  ("Noah" . 4.23)
-  ("typed-stack" . 3.23)
-  ("Stephen" . 3.01)
-  ("adjutor" . 2.42)
-  ("mischief" . 2.42)
-  ("Jay" . 2.02)
-  ("Michael" . 1.78)
-  ("rackunit" . 1.38)
-  (("Ben" "Sid") . 1.04)
-  ("Cassie" . 0.95)
-  ("Sam" . 0.87)
-  ("Kasivajhula 2014-" . 0.83)
-  ("Sergiu" . 0.78)
-  ("greg-racket-makefile" . 0.69)
-  ("Laurent" . 0.62)
-  ("Nia" . 0.59)
-  ("metapict" . 0.58)
-  ("cover" . 0.58)
-  ("Haskell" . 0.56)
-  ("Scheme" . 0.56)
-  ("Bogdan" . 0.52)
-  ("racket-collections" . 0.46)
-  ("cover-coveralls" . 0.46)
-  ("relation" . 0.46)
-  (("Jesse" "William") . 0.43)
-  ("APL" . 0.43)
-  ("Anonymous" . 0.42)
-  ("Threading macro" . 0.42)
-  ("pipeR" . 0.42)
-  ("Clojure" . 0.39)
-  ("Rash" . 0.35)
-  ("Lisp" . 0.35)
-  ("Symex" . 0.27)
-  ("Debug" . 0.23)
-  ("Soegaard" . 0.23)
-  ("1e1001" . 0.22)
-  ("Scratch (MIT)" . 0.22)
-  ("VHDL" . 0.21)
-  ("Verilog" . 0.21)
-  ("Hsiao-Peng et. al. 1999" . 0.21)
-  ("jo-sm" . 0.21)
-  ("Unix pipelines" . 0.21)
-  ("Scala" . 0.21)
-  ("Erlang" . 0.21)
-  ("Ballantyne et al 2020" . 0.17)
-  (("Sorawee" "Jack") . 0.16)
-  ("Sarna" . 0.15)
-  ("ML" . 0.14)
-  ("Hughes 2000" . 0.13)
-  ("Vim" . 0.13)
-  ("Python" . 0.04)
-  ("Ruby" . 0.04))
+Sid,34.68
+Racket,11.13
+(Michael Sid),9.95
+Ben,6.38
+Noah,4.23
+typed-stack,3.23
+Stephen,3.01
+adjutor,2.42
+mischief,2.42
+Jay,2.02
+Michael,1.78
+rackunit,1.38
+(Ben Sid),1.04
+Cassie,0.95
+Sam,0.87
+Kasivajhula 2014-,0.83
+Sergiu,0.78
+greg-racket-makefile,0.69
+Laurent,0.62
+Nia,0.59
+metapict,0.58
+cover,0.58
+Haskell,0.56
+Scheme,0.56
+Bogdan,0.52
+racket-collections,0.46
+cover-coveralls,0.46
+relation,0.46
+(Jesse William),0.43
+APL,0.43
+Anonymous,0.42
+Threading macro,0.42
+pipeR,0.42
+Clojure,0.39
+Rash,0.35
+Lisp,0.35
+Symex,0.27
+Debug,0.23
+Soegaard,0.23
+1e1001,0.22
+Scratch (MIT),0.22
+VHDL,0.21
+Verilog,0.21
+Hsiao-Peng et. al. 1999,0.21
+jo-sm,0.21
+Unix pipelines,0.21
+Scala,0.21
+Erlang,0.21
+Ballantyne et al 2020,0.17
+(Sorawee Jack),0.16
+Sarna,0.15
+ML,0.14
+Hughes 2000,0.13
+Vim,0.13
+Python,0.04
+Ruby,0.04
