@@ -1,58 +1,59 @@
-Sid,32.5992,1
-Racket,10.4622,1
-(Michael Sid),9.353,1
-Ben,5.9972,1
-Noah,3.9762,1
-typed-stack,3.0362,1
-Stephen,2.8294,1
-adjutor,2.2748,1
-mischief,2.2748,1
-Jay,1.8988,1
-Michael,1.6732,1
-rackunit,1.2972,1
-(Ben Sid),0.9776,1
-Cassie,0.893,1
-Sam,0.8178,1
-Kasivajhula 2014-,0.7802,1
-Sergiu,0.7332,1
-greg-racket-makefile,0.6486,1
-Laurent,0.5828,1
-Nia,0.5546,1
-metapict,0.5452,1
-cover,0.5452,1
-Haskell,0.5264,1
-Scheme,0.5264,1
-Bogdan,0.4888,1
-racket-collections,0.4324,1
-cover-coveralls,0.4324,1
-relation,0.4324,1
-(Jesse William),0.4042,1
-APL,0.4042,1
-Anonymous,0.3948,1
-Threading macro,0.3948,1
-pipeR,0.3948,1
-Clojure,0.3666,1
-Rash,0.329,1
-Lisp,0.329,1
-Symex,0.2538,1
-Debug,0.2162,1
-Soegaard,0.2162,1
-1e1001,0.2068,1
-Scratch (MIT),0.2068,1
-VHDL,0.1974,1
-Verilog,0.1974,1
-Hsiao-Peng et. al. 1999,0.1974,1
-jo-sm,0.1974,1
-Unix pipelines,0.1974,1
-Scala,0.1974,1
-Erlang,0.1974,1
-Ballantyne et al 2020,0.1598,1
-(Sorawee Jack),0.1504,1
-Sarna,0.141,1
-ML,0.1316,1
-Hughes 2000,0.1222,1
-Vim,0.1222,1
-Python,0.0376,1
-Ruby,0.047,1
+Sid,32.58764362,1
+Racket,10.45849116,1
+(Michael Sid),9.349684373,1
+Ben,5.995074,1
+Noah,3.974790442,1
+typed-stack,3.035123671,1
+Stephen,2.828396981,1
+adjutor,2.273993586,1
+mischief,2.273993586,1
+Jay,1.898126878,1
+Michael,1.672606853,1
+rackunit,1.296740144,1
+(Ben Sid),0.977253442,1
+Cassie,0.8926834326,1
+Sam,0.8175100909,1
+Kasivajhula 2014-,0.77992342,1
+Sergiu,0.7329400815,1
+greg-racket-makefile,0.6483700721,1
+Laurent,0.5825933981,1
+Nia,0.554403395,1
+metapict,0.5450067273,1
+cover,0.5450067273,1
+Haskell,0.5262133918,1
+Scheme,0.5262133918,1
+Bogdan,0.488626721,1
+racket-collections,0.4322467147,1
+cover-coveralls,0.4322467147,1
+relation,0.4322467147,1
+(Jesse William),0.4040567116,1
+APL,0.4040567116,1
+Anonymous,0.3946600439,1
+Threading macro,0.3946600439,1
+pipeR,0.3946600439,1
+Clojure,0.3664700407,1
+Rash,0.3288833699,1
+Lisp,0.3288833699,1
+Symex,0.2537100282,1
+Debug,0.2161233574,1
+Soegaard,0.2161233574,1
+1e1001,0.2067266896,1
+Scratch (MIT),0.2067266896,1
+VHDL,0.1973300219,1
+Verilog,0.1973300219,1
+Hsiao-Peng et. al. 1999,0.1973300219,1
+jo-sm,0.1973300219,1
+Unix pipelines,0.1973300219,1
+Scala,0.1973300219,1
+Erlang,0.1973300219,1
+Ballantyne et al 2020,0.1597433511,1
+(Sorawee Jack),0.1503466834,1
+Sarna,0.1409500157,1
+ML,0.131553348,1
+Hughes 2000,0.1221566802,1
+Vim,0.1221566802,1
+Python,0.03758667085,1
+Ruby,0.04698333856,1
 DIA,5,0
 Old Abe,1,0
+Vijay,0.03332293216,1
