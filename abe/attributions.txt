@@ -53,6 +53,6 @@ ML,0.1316
 Hughes 2000,0.1222
 Vim,0.1222
 Python,0.0376
-Ruby,0.0376
+Ruby,0.047
 DIA,5
 Old Abe,1
