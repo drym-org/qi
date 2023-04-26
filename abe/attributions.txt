@@ -1,56 +1,58 @@
-Sid,34.68
-Racket,11.13
-(Michael Sid),9.95
-Ben,6.38
-Noah,4.23
-typed-stack,3.23
-Stephen,3.01
-adjutor,2.42
-mischief,2.42
-Jay,2.02
-Michael,1.78
-rackunit,1.38
-(Ben Sid),1.04
-Cassie,0.95
-Sam,0.87
-Kasivajhula 2014-,0.83
-Sergiu,0.78
-greg-racket-makefile,0.69
-Laurent,0.62
-Nia,0.59
-metapict,0.58
-cover,0.58
-Haskell,0.56
-Scheme,0.56
-Bogdan,0.52
-racket-collections,0.46
-cover-coveralls,0.46
-relation,0.46
-(Jesse William),0.43
-APL,0.43
-Anonymous,0.42
-Threading macro,0.42
-pipeR,0.42
-Clojure,0.39
-Rash,0.35
-Lisp,0.35
-Symex,0.27
-Debug,0.23
-Soegaard,0.23
-1e1001,0.22
-Scratch (MIT),0.22
-VHDL,0.21
-Verilog,0.21
-Hsiao-Peng et. al. 1999,0.21
-jo-sm,0.21
-Unix pipelines,0.21
-Scala,0.21
-Erlang,0.21
-Ballantyne et al 2020,0.17
-(Sorawee Jack),0.16
-Sarna,0.15
-ML,0.14
-Hughes 2000,0.13
-Vim,0.13
-Python,0.04
-Ruby,0.04
+Sid,32.5992
+Racket,10.4622
+(Michael Sid),9.353
+Ben,5.9972
+Noah,3.9762
+typed-stack,3.0362
+Stephen,2.8294
+adjutor,2.2748
+mischief,2.2748
+Jay,1.8988
+Michael,1.6732
+rackunit,1.2972
+(Ben Sid),0.9776
+Cassie,0.893
+Sam,0.8178
+Kasivajhula 2014-,0.7802
+Sergiu,0.7332
+greg-racket-makefile,0.6486
+Laurent,0.5828
+Nia,0.5546
+metapict,0.5452
+cover,0.5452
+Haskell,0.5264
+Scheme,0.5264
+Bogdan,0.4888
+racket-collections,0.4324
+cover-coveralls,0.4324
+relation,0.4324
+(Jesse William),0.4042
+APL,0.4042
+Anonymous,0.3948
+Threading macro,0.3948
+pipeR,0.3948
+Clojure,0.3666
+Rash,0.329
+Lisp,0.329
+Symex,0.2538
+Debug,0.2162
+Soegaard,0.2162
+1e1001,0.2068
+Scratch (MIT),0.2068
+VHDL,0.1974
+Verilog,0.1974
+Hsiao-Peng et. al. 1999,0.1974
+jo-sm,0.1974
+Unix pipelines,0.1974
+Scala,0.1974
+Erlang,0.1974
+Ballantyne et al 2020,0.1598
+(Sorawee Jack),0.1504
+Sarna,0.141
+ML,0.1316
+Hughes 2000,0.1222
+Vim,0.1222
+Python,0.0376
+Ruby,0.047
+DIA,5
+Old Abe,1
