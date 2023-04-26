@@ -1,58 +1,58 @@
-Sid,32.5992
-Racket,10.4622
-(Michael Sid),9.353
-Ben,5.9972
-Noah,3.9762
-typed-stack,3.0362
-Stephen,2.8294
-adjutor,2.2748
-mischief,2.2748
-Jay,1.8988
-Michael,1.6732
-rackunit,1.2972
-(Ben Sid),0.9776
-Cassie,0.893
-Sam,0.8178
-Kasivajhula 2014-,0.7802
-Sergiu,0.7332
-greg-racket-makefile,0.6486
-Laurent,0.5828
-Nia,0.5546
-metapict,0.5452
-cover,0.5452
-Haskell,0.5264
-Scheme,0.5264
-Bogdan,0.4888
-racket-collections,0.4324
-cover-coveralls,0.4324
-relation,0.4324
-(Jesse William),0.4042
-APL,0.4042
-Anonymous,0.3948
-Threading macro,0.3948
-pipeR,0.3948
-Clojure,0.3666
-Rash,0.329
-Lisp,0.329
-Symex,0.2538
-Debug,0.2162
-Soegaard,0.2162
-1e1001,0.2068
-Scratch (MIT),0.2068
-VHDL,0.1974
-Verilog,0.1974
-Hsiao-Peng et. al. 1999,0.1974
-jo-sm,0.1974
-Unix pipelines,0.1974
-Scala,0.1974
-Erlang,0.1974
-Ballantyne et al 2020,0.1598
-(Sorawee Jack),0.1504
-Sarna,0.141
-ML,0.1316
-Hughes 2000,0.1222
-Vim,0.1222
-Python,0.0376
-Ruby,0.047
-DIA,5
-Old Abe,1
+Sid,32.5992,1
+Racket,10.4622,1
+(Michael Sid),9.353,1
+Ben,5.9972,1
+Noah,3.9762,1
+typed-stack,3.0362,1
+Stephen,2.8294,1
+adjutor,2.2748,1
+mischief,2.2748,1
+Jay,1.8988,1
+Michael,1.6732,1
+rackunit,1.2972,1
+(Ben Sid),0.9776,1
+Cassie,0.893,1
+Sam,0.8178,1
+Kasivajhula 2014-,0.7802,1
+Sergiu,0.7332,1
+greg-racket-makefile,0.6486,1
+Laurent,0.5828,1
+Nia,0.5546,1
+metapict,0.5452,1
+cover,0.5452,1
+Haskell,0.5264,1
+Scheme,0.5264,1
+Bogdan,0.4888,1
+racket-collections,0.4324,1
+cover-coveralls,0.4324,1
+relation,0.4324,1
+(Jesse William),0.4042,1
+APL,0.4042,1
+Anonymous,0.3948,1
+Threading macro,0.3948,1
+pipeR,0.3948,1
+Clojure,0.3666,1
+Rash,0.329,1
+Lisp,0.329,1
+Symex,0.2538,1
+Debug,0.2162,1
+Soegaard,0.2162,1
+1e1001,0.2068,1
+Scratch (MIT),0.2068,1
+VHDL,0.1974,1
+Verilog,0.1974,1
+Hsiao-Peng et. al. 1999,0.1974,1
+jo-sm,0.1974,1
+Unix pipelines,0.1974,1
+Scala,0.1974,1
+Erlang,0.1974,1
+Ballantyne et al 2020,0.1598,1
+(Sorawee Jack),0.1504,1
+Sarna,0.141,1
+ML,0.1316,1
+Hughes 2000,0.1222,1
+Vim,0.1222,1
+Python,0.0376,1
+Ruby,0.047,1
+DIA,5,0
+Old Abe,1,0
