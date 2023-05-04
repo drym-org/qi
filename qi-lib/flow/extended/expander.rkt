@@ -1,7 +1,7 @@
 #lang racket/base
 
 (provide (for-syntax qi-macro
-                     floe)
+                     closed-floe)
          (for-space qi
                     (all-defined-out)
                     (rename-out [ground ⏚]
@@ -26,13 +26,13 @@
   (extension-class qi-macro
                    #:binding-space qi)
 
-  (nonterminal floe
+  (nonterminal closed-floe
     #:description "a flow expression"
 
-    f:threading-floe
+    f:floe
     #:binding (nest-one f []))
 
-  (nonterminal/nesting binding-floe (nested)
+  (nonterminal/nesting floe (nested)
     #:description "a flow expression"
     #:allow-extension qi-macro
     #:binding-space qi
@@ -40,37 +40,23 @@
     (as v:racket-var ...+)
     #:binding {(bind v) nested}
 
-    f:threading-floe
-    #:binding (nest-one f nested))
-
-  (nonterminal/nesting threading-floe (nested)
-    #:description "a flow expression"
-    #:allow-extension qi-macro
-    #:binding-space qi
-
-    (thread f:binding-floe ...)
+    (thread f:floe ...)
     #:binding (nest f nested)
 
-    (tee f:binding-floe ...)
+    (tee f:floe ...)
     #:binding (nest f nested)
     tee
     ;; Note: `#:binding nested` is the implicit binding rule here
 
-    (relay f:binding-floe ...)
+    (relay f:floe ...)
     #:binding (nest f nested)
     relay
 
     ;; [f nested] is the implicit binding rule
     ;; anything not mentioned (e.g. nested) is treated as a
     ;; subexpression that's not in any scope
-    ;; Note: this could be at the top level floe after
-    ;; binding-floe, but that isnt supported atm because
-    ;; it doesn't backtrack
-    _:simple-floe)
-
-  (nonterminal simple-floe
-    #:description "a flow expression"
-    #:binding-space qi
+    ;; Note: once a nonterminal is chosen, it doesn't backtrack
+    ;; to consider alternatives
 
     (gen e:racket-expr ...)
     ;; Ad hoc expansion rule to allow _ to be used in application
@@ -83,7 +69,7 @@
     _
     ground
     amp
-    (amp f:floe)
+    (amp f:closed-floe)
     (~>/form (amp f0:clause f:clause ...)
              ;; potentially pull out as a phase 1 function
              ;; just a stopgap until better error messages
@@ -91,17 +77,17 @@
                "(>< flo)"
                "amp expects a single flow specification, but it received many."))
     pass
-    (pass f:floe)
+    (pass f:closed-floe)
     sep
-    (sep f:floe)
+    (sep f:closed-floe)
     collect
     NOT
     XOR
-    (and f:floe ...)
-    (or f:floe ...)
-    (not f:floe)
-    (all f:floe)
-    (any f:floe)
+    (and f:closed-floe ...)
+    (or f:closed-floe ...)
+    (not f:closed-floe)
+    (all f:closed-floe)
+    (any f:closed-floe)
     (select n:number ...)
     (~>/form (select arg ...)
              (report-syntax-error this-syntax
@@ -112,62 +98,62 @@
                "(block <number> ...)"))
     (fanout n:racket-expr)
     fanout
-    (group n:racket-expr e1:floe e2:floe)
+    (group n:racket-expr e1:closed-floe e2:closed-floe)
     group
     (~>/form (group arg ...)
              (report-syntax-error this-syntax
                "(group <number> <selection flow> <remainder flow>)"))
-    (if consequent:floe
-        alternative:floe)
-    (if condition:floe
-        consequent:floe
-        alternative:floe)
-    (sieve condition:floe
-           sonex:floe
-           ronex:floe)
+    (if consequent:closed-floe
+        alternative:closed-floe)
+    (if condition:closed-floe
+        consequent:closed-floe
+        alternative:closed-floe)
+    (sieve condition:closed-floe
+           sonex:closed-floe
+           ronex:closed-floe)
     sieve
     (~>/form (sieve arg ...)
              (report-syntax-error this-syntax
                "(sieve <predicate flow> <selection flow> <remainder flow>)"))
     (partition)
-    (partition [cond:floe body:floe] ...+)
-    (try flo:floe
-      [error-condition-flo:floe error-handler-flo:floe]
+    (partition [cond:closed-floe body:closed-floe] ...+)
+    (try flo:closed-floe
+      [error-condition-flo:closed-floe error-handler-flo:closed-floe]
       ...+)
     (~>/form (try arg ...)
              (report-syntax-error this-syntax
                "(try <flo> [error-predicate-flo error-handler-flo] ...)"))
     >>
-    (>> fn:floe init:floe)
-    (>> fn:floe)
+    (>> fn:closed-floe init:closed-floe)
+    (>> fn:closed-floe)
     <<
-    (<< fn:floe init:floe)
-    (<< fn:floe)
-    (feedback ((~datum while) tilex:floe)
-              ((~datum then) thenex:floe)
-              onex:floe)
-    (feedback ((~datum while) tilex:floe)
-              ((~datum then) thenex:floe))
-    (feedback ((~datum while) tilex:floe) onex:floe)
-    (feedback ((~datum while) tilex:floe))
+    (<< fn:closed-floe init:closed-floe)
+    (<< fn:closed-floe)
+    (feedback ((~datum while) tilex:closed-floe)
+              ((~datum then) thenex:closed-floe)
+              onex:closed-floe)
+    (feedback ((~datum while) tilex:closed-floe)
+              ((~datum then) thenex:closed-floe))
+    (feedback ((~datum while) tilex:closed-floe) onex:closed-floe)
+    (feedback ((~datum while) tilex:closed-floe))
     (feedback n:racket-expr
-              ((~datum then) thenex:floe)
-              onex:floe)
+              ((~datum then) thenex:closed-floe)
+              onex:closed-floe)
     (feedback n:racket-expr
-              ((~datum then) thenex:floe))
-    (feedback n:racket-expr onex:floe)
-    (feedback onex:floe)
+              ((~datum then) thenex:closed-floe))
+    (feedback n:racket-expr onex:closed-floe)
+    (feedback onex:closed-floe)
     feedback
-    (loop pred:floe mapex:floe combex:floe retex:floe)
-    (loop pred:floe mapex:floe combex:floe)
-    (loop pred:floe mapex:floe)
-    (loop mapex:floe)
+    (loop pred:closed-floe mapex:closed-floe combex:closed-floe retex:closed-floe)
+    (loop pred:closed-floe mapex:closed-floe combex:closed-floe)
+    (loop pred:closed-floe mapex:closed-floe)
+    (loop mapex:closed-floe)
     loop
-    (loop2 pred:floe mapex:floe combex:floe)
+    (loop2 pred:closed-floe mapex:closed-floe combex:closed-floe)
     appleye
     (~> (~literal apply) #'appleye)
     clos
-    (clos onex:floe)
+    (clos onex:closed-floe)
     (esc ex:racket-expr)
 
     ;; backwards compat macro extensibility via Racket macros
