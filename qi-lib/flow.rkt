@@ -34,7 +34,7 @@ in the flow macro.
 
 (syntax-spec
   (host-interface/expression
-    (flow f:floe ...)
+    (flow f:closed-floe ...)
     (syntax-parse #'(f ...)
       [(f) (compile-flow #'f)]
       ;; a non-flow
