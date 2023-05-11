@@ -33,9 +33,9 @@ This project follows Attribution-Based Economics as described in `drym-org/found
 
 Additionally, if your voluntary payments exceed the agreed-upon "market price" of the project (see `price.txt <https://github.com/drym-org/qi/blob/main/abe/price.txt>`_), that additional amount will be treated as an investment, entitling you to a share in future revenues, including payments made to the project in the future or attributive revenue from other projects.
 
-NOTE: This project will distribute payments according to the ABE guidelines specified in the constitution. In particular, it may take up to 30 days to distribute the initial payments if DIA has not already been conducted for this project. After that, payments will be distributed to contributors (including investors) biweekly.
+This project will distribute payments according to the ABE guidelines specified in the constitution. In particular, it may take up to 90 days to distribute the initial payments if DIA has not already been conducted for this project. After that, payments will be distributed to contributors (including investors) at each meeting of the `DIA congress <https://github.com/drym-org/dia-qi>`__ (e.g. approximately quarterly).
 
 Non-Ownership
 =============
 
-This work is not owned by anyone. Please see the `Declaration of Non-Ownership <https://github.com/drym-org/foundation/blob/main/DECLARATION-OF-NON-OWNERSHIP.md>`_.
+This work is not owned by anyone. Please see the `Declaration of Non-Ownership <https://github.com/drym-org/foundation/blob/main/Declaration_of_Non_Ownership.md>`_.
