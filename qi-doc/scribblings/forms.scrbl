@@ -19,6 +19,8 @@
 
 @(define diagram-eval (make-base-eval))
 @(diagram-eval '(require metapict))
+@;{For an explanation of the special handling of `__` in code blocks and in examples, see racket/scribble#369}
+@(define my-__ @racketidfont{__})
 
 @title[#:tag "Qi_Forms"]{The Qi Language}
 
@@ -842,8 +844,6 @@ A parenthesized expression that isn't one of the Qi forms is treated as @emph{pa
 
 Usually, the @racket[_] symbol indicates the trivial or identity flow, simply passing the inputs through unchanged. Within a partial application, however, the underscore indicates argument positions. If the expression includes a double underscore, @racket[___], then it is treated as a blanket template such that the runtime arguments (however many there may be) are passed starting at the position indicated by the placeholder. Another type of template is indicated by using one or more single underscores. In this case, a specific number of runtime arguments are expected (corresponding to the number of blanks indicated by underscores). Note that this could even include the function to be applied, if that position is templatized. This more fine-grained template is powered under the hood by @seclink["top" #:indirect? #t #:doc '(lib "fancy-app/main.scrbl")]{Fancy App: Scala-Style Magic Lambdas}.
 
-@bold{N.B.}: In the examples below, and elsewhere in these docs, for some reason the double underscore renders in such a way that it is indistinguishable from a single underscore. You will have to infer from context which one is being used, that is, if more than one argument is being passed to a position, it must be a double underscore!
-
 @examples[
     #:eval eval-for-docs
     ((☯ (* 3)) 7)
@@ -853,8 +853,8 @@ Usually, the @racket[_] symbol indicates the trivial or identity flow, simply pa
     ((☯ (< 5 _ 7 _ 10)) 6 9)
     ((☯ (< 5 _ 7 _ 10)) 6 11)
     ((☯ (~> (clos *) (_ 3))) 10)
-    ((☯ (< 5 __ 10)) 6 7 8)
-    ((☯ (< 5 __ 10)) 6 7 11)
+	(eval:alts #, @racket[((☯ (< 5 #,my-__ 10)) 6 7 8)]  ((☯ (< 5 __ 10)) 6 7 8))
+	(eval:alts #, @racket[((☯ (< 5 #,my-__ 10)) 6 7 11)]  ((☯ (< 5 __ 10)) 6 7 11))
   ]
 
 @section{Utilities}
