@@ -442,7 +442,7 @@ Flows are expected to be @seclink["What_is_a_Flow_"]{function-valued} at runtime
         (esc (λ (x) (double-me x))))
   ]
 
-But this can be cumbersome for anything other than a one-off use of a macro, and it also doesn't take advantage of the syntactic conveniences (such as templates) that Qi already offers. You could write Qi macros to wrap these "foreign" macros and provide all of Qi's usual syntactic behavior, but luckily, you don't need to! Simply use @racket[define-qi-foreign-syntaxes] to "register" any such foreign macros (i.e. macros in any language other than Qi, including Racket) as Qi forms, and then you can use them in the same way as any other function, except that the catch-all @racket[__] template isn't supported.
+But this can be cumbersome for anything other than a one-off use of a macro, and it also doesn't take advantage of the syntactic conveniences (such as templates) that Qi already offers. You could write Qi macros to wrap these "foreign" macros and provide all of Qi's usual syntactic behavior, but luckily, you don't need to! Simply use @racket[define-qi-foreign-syntaxes] to "register" any such foreign macros (i.e. macros in any language other than Qi, including Racket) as Qi forms, and then you can use them in the same way as any other function, except that the catch-all @racket[___] template isn't supported.
 
 Using this approach, you would need to register each such foreign macro using @racket[define-qi-foreign-syntaxes] prior to use. Even though you can register as many as you like with a single declaration, this may feel like an impedance, especially for deep integrations with other DSLs where there may be a large number of such forms. See @secref["Qi_Dialect_Interop"] for yet another approach.
 

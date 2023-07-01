@@ -190,7 +190,7 @@ See also @racket[on] and @racket[~>], which are shorthands to invoke the flow wi
 @defform[(~> (args ...) flow-expr ...)]
 @defform[(~>> (args ...) flow-expr ...)]
 )]{
-  These @emph{Racket} forms leverage the identically-named @emph{Qi} forms to thread inputs through a sequence of flows. @racket[~>] threads arguments in the first position by default, while @racket[~>>] uses the last position, but in either case the positions can instead be explicitly indicated by using @racket[_] or @racket[__].
+  These @emph{Racket} forms leverage the identically-named @emph{Qi} forms to thread inputs through a sequence of flows. @racket[~>] threads arguments in the first position by default, while @racket[~>>] uses the last position, but in either case the positions can instead be explicitly indicated by using @racket[_] or @racket[___].
 
   @margin-note{In these docs, we'll sometimes refer to the host language as "Racket" for convenience, but it should be understood that Qi may be used with any host language.}
 
@@ -345,7 +345,7 @@ The first and most common way is to simply wrap the expression with a @racket[ge
 
 @subsection{Using Racket to Define Flows}
 
-The second way is if you want to describe a flow using the host language instead of Qi. In this case, use the @racket[esc] form. The wrapped expression in this case @emph{must} evaluate to a function, since functions are the only values describable in the host language that can be treated as flows. Note that use of @racket[esc] is unnecessary for function identifiers since these are @seclink["Identifiers"]{usable as flows directly}, and these can even be @seclink["Templates_and_Partial_Application"]{partially applied using standard application syntax}, optionally with @racket[_] and @racket[__] to indicate argument placement. But you may still need @racket[esc] in the specific case where the identifier collides with a Qi form.
+The second way is if you want to describe a flow using the host language instead of Qi. In this case, use the @racket[esc] form. The wrapped expression in this case @emph{must} evaluate to a function, since functions are the only values describable in the host language that can be treated as flows. Note that use of @racket[esc] is unnecessary for function identifiers since these are @seclink["Identifiers"]{usable as flows directly}, and these can even be @seclink["Templates_and_Partial_Application"]{partially applied using standard application syntax}, optionally with @racket[_] and @racket[___] to indicate argument placement. But you may still need @racket[esc] in the specific case where the identifier collides with a Qi form.
 
 @examples[
     #:eval eval-for-docs
@@ -372,7 +372,7 @@ So, function applications where all of the arguments are provided syntactically,
 Flows are expected to be @seclink["What_is_a_Flow_"]{functions}, and so you cannot naively use a macro as a flow. But there are many ways in which you can. If you'd just like to use such a macro in a one-off manner, see @secref["Converting_a_Macro_to_a_Flow"] for an ad hoc way to do this. But a simpler and more complete way in many cases is to first register the macro (or any number of such macros) using @racket[define-qi-foreign-syntaxes] prior to use.
 
 @defform[(define-qi-foreign-syntaxes form ...)]{
-  This form allows you to register "foreign macros" for use with Qi. These could be Racket macros, or the forms of another DSL. By simply registering such forms by name using this form, you can for the most part use them just as if they were functions, except that the catch-all template @racket[__] isn't supported for such macros.
+  This form allows you to register "foreign macros" for use with Qi. These could be Racket macros, or the forms of another DSL. By simply registering such forms by name using this form, you can for the most part use them just as if they were functions, except that the catch-all template @racket[___] isn't supported for such macros.
 
 @examples[
     #:eval eval-for-docs
@@ -384,7 +384,7 @@ Flows are expected to be @seclink["What_is_a_Flow_"]{functions}, and so you cann
     (~> (5 4) (subtract-two _ _) double-me)
   ]
 
-By doing this, you can thread multiple values through such syntaxes in the same manner as functions. The catch-all template @racket[__] isn't supported though, since macros (unlike functions) require all the "arguments" to be supplied syntactically at compile time. So while any number of arguments may be supplied to such macros, it must be a @emph{specific} rather than an @emph{arbitrary} number of them, which may be indicated syntactically via @racket[_] to indicate individual expected arguments and their positions.
+By doing this, you can thread multiple values through such syntaxes in the same manner as functions. The catch-all template @racket[___] isn't supported though, since macros (unlike functions) require all the "arguments" to be supplied syntactically at compile time. So while any number of arguments may be supplied to such macros, it must be a @emph{specific} rather than an @emph{arbitrary} number of them, which may be indicated syntactically via @racket[_] to indicate individual expected arguments and their positions.
 
 Note that for a foreign macro used in identifier form (such as @racket[double-me] in the example above), it assumes a @emph{single} argument. This is different from function identifiers where they receive as many values as may happen to be flowing at runtime. With macros, as we saw, we cannot provide them an arbitrary number of arguments. If more than one argument is anticipated, explicitly indicate them using a @racket[_] template.
 
