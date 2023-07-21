@@ -8,7 +8,8 @@
 (require qi
          relation
          json
-         racket/format)
+         racket/format
+         racket/pretty)
 
 (define LOWER-THRESHOLD 0.75)
 (define HIGHER-THRESHOLD 1.5)
@@ -19,6 +20,8 @@
       (read-json port))))
 
 (define (parse-benchmarks benchmarks)
+  ;; renames some forms so they're consistently named
+  ;; but otherwise leaves the original data unmodified
   (make-hash
    (map (☯ (~> (-< (~> (hash-ref 'name)
                        (switch
@@ -42,8 +45,18 @@
             1
             (~r #:precision 2))))
 
+  (define-flow reformat
+    (~> △
+        (>< (~> (-< car cadr)
+                (hash 'name _ 'value _ 'unit "x")))
+        ▽))
+
+  (define (show-results results)
+    (displayln "\nPerformance relative to baseline:" (current-error-port))
+    (pretty-display results (current-error-port)))
+
   (define results
-    (~>> (before)
+    (~>> (after)
          hash-keys
          △
          (><
@@ -52,6 +65,8 @@
                calculate-ratio)
            ▽))
          ▽
-         (sort > #:key (☯ (~> cadr ->inexact)))))
+         (sort > #:key (☯ (~> cadr ->inexact)))
+         (ε show-results)
+         reformat))
 
   results)

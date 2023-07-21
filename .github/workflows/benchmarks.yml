@@ -25,7 +25,7 @@ jobs:
         run: make install-sdk
       - name: Run benchmark
         shell: 'bash --noprofile --norc -eo pipefail {0}'
-        run: make form-performance-report | tee benchmarks.txt
+        run: make performance-report | tee benchmarks.txt
       - name: Store benchmark result
         uses: benchmark-action/github-action-benchmark@v1
         with:
