@@ -11,3 +11,4 @@ coverage
 *.css
 *.js
 MathJax
+katex
