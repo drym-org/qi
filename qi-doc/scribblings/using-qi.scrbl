@@ -210,6 +210,21 @@ Since flows are just functions, you can use them anywhere that you would normall
 
 The Qi version expresses the essential idea without introducing arcane concepts (such as currying).
 
+@section{The Value in Values}
+
+Racket exhibits a @seclink["values-model" #:doc '(lib "scribblings/reference/reference.scrbl")]{satisfying symmetry} between input arguments and return values, allowing functions to return multiple values just as they accept multiple arguments. But syntactically, working with multiple values in Racket can be cumbersome, as we see in this example where we simply collect the return values of the built-in @racket[time-apply] utility into a list:
+
+@codeblock{
+(call-with-values (λ _ (time-apply + (list 1 2 3)))
+                  list)
+}
+
+In Qi, a function returning multiple values is just another flow and doesn't require special handling, making it a good choice in such cases:
+
+@codeblock{
+(~> () (time-apply + (list 1 2 3)) list)
+}
+
 @section{Making the Switch}
 
 Scheme code in the wild is littered with @racket[cond] expressions resembling these:
