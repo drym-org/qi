@@ -219,7 +219,7 @@ Racket exhibits a @seclink["values-model" #:doc '(lib "scribblings/reference/ref
                   list)
 }
 
-In Qi, a function returning multiple values is just another flow and doesn't require special handling, making it a good choice in such cases:
+The symmetry between arguments and return values is even more apparent and natural in Qi, where functions are seen as @tech[#:doc '(lib "qi/scribblings/qi.scrbl")]{flows}, and arguments and return values as inputs and outputs, respectively. Thus, a function returning multiple values is just another flow and doesn't require special handling, making Qi a good choice in such cases:
 
 @codeblock{
 (~> () (time-apply + (list 1 2 3)) list)
