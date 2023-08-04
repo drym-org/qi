@@ -5,6 +5,7 @@
          check-value
          check-value-primes
          check-list
+         check-large-list
          check-values
          check-two-values
          run-benchmark
@@ -67,6 +68,12 @@
 (define (check-list fn how-many)
   ;; call a function with a single list argument
   (let ([vs (range 10)])
+    (for ([i how-many])
+      (fn vs))))
+
+(define (check-large-list fn how-many)
+  ;; call a function with a single list argument
+  (let ([vs (range 1000)])
     (for ([i how-many])
       (fn vs))))
 

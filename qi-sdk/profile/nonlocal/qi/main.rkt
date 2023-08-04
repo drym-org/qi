@@ -1,5 +1,7 @@
 #lang racket/base
 
+(require racket/match)
+
 (provide conditionals
          composition
          root-mean-square
@@ -54,8 +56,191 @@
                cons)]))
 
 
-(define-flow filter-map
-  (~> △ (>< (if odd? sqr ⏚)) ▽))
+;; (define-flow filter-map
+;;   (~> △ (>< (if odd? sqr ⏚)) ▽))
+
+;; (define-flow filter-map
+;;   (~>> (filter odd?) (map sqr)))
+
+;; (define (filter-map lst)
+;;   (foldr (λ (v vs)
+;;            (if (odd? v)
+;;                (cons (sqr v) vs)
+;;                vs))
+;;          null
+;;          lst))
+
+(struct stream (next state)
+  #:transparent)
+
+(define (map-stream f s)
+  (define (next state)
+    (match ((stream-next s) state)
+      ['done 'done]
+      [(cons 'skip new-state) (cons 'skip new-state)]
+      [(list 'yield value new-state)
+       (list 'yield (f value) new-state)]))
+  (stream next (stream-state s)))
+
+(define (filter-stream f s)
+  (define (next state)
+    (match ((stream-next s) state)
+      ['done 'done]
+      [(cons 'skip new-state) (cons 'skip new-state)]
+      [(list 'yield value new-state)
+       (if (f value)
+           (list 'yield value new-state)
+           (cons 'skip new-state))]))
+  (stream next (stream-state s)))
+
+(define (list->stream lst)
+  (define (next state)
+    (cond [(null? state) 'done]
+          [else (list 'yield (car state) (cdr state))]))
+  (stream next lst))
+
+(define (stream->list s)
+  (match ((stream-next s) (stream-state s))
+    ['done null]
+    [(cons 'skip state)
+     (stream->list (stream (stream-next s) state))]
+    [(list 'yield value state)
+     (cons value
+           (stream->list (stream (stream-next s) state)))]))
+
+;; (define (filter-map lst)
+;;   (let ([s (list->stream lst)])
+;;     (stream->list (map-stream sqr (filter-stream odd? s)))))
+
+;; This is the result of inline all of the stream operations
+;; (define (filter-map lst)
+;;   (define (next-list->stream state)
+;;     (cond [(null? state) 'done]
+;;           [else (list 'yield (car state) (cdr state))]))
+;;   (let ([s (stream next-list->stream lst)])
+;;     (define (next-filter-stream state)
+;;       (match ((stream-next s) state)
+;;         ['done 'done]
+;;         [(cons 'skip new-state) (cons 'skip new-state)]
+;;         [(list 'yield value new-state)
+;;          (if (odd? value)
+;;              (list 'yield value new-state)
+;;              (cons 'skip new-state))]))
+;;     (let ([s (stream next-filter-stream (stream-state s))])
+;;       (define (next-map-stream state)
+;;         (match ((stream-next s) state)
+;;           ['done 'done]
+;;           [(cons 'skip new-state) (cons 'skip new-state)]
+;;           [(list 'yield value new-state)
+;;            (list 'yield (sqr value) new-state)]))
+;;       (let ([s (stream next-map-stream (stream-state s))])
+;;         (stream->list s)))))
+
+;; partially evaluate accessors to stream constructor
+;; (define (filter-map lst)
+;;   (define (next-list->stream state)
+;;     (cond [(null? state) 'done]
+;;           [else (list 'yield (car state) (cdr state))]))
+;;   (let ([s (stream next-list->stream lst)])
+;;     (define (next-filter-stream state)
+;;       (match (next-list->stream state)
+;;         ['done 'done]
+;;         [(cons 'skip new-state) (cons 'skip new-state)]
+;;         [(list 'yield value new-state)
+;;          (if (odd? value)
+;;              (list 'yield value new-state)
+;;              (cons 'skip new-state))]))
+;;     (let ([s (stream next-filter-stream lst)])
+;;       (define (next-map-stream state)
+;;         (match (next-filter-stream state)
+;;           ['done 'done]
+;;           [(cons 'skip new-state) (cons 'skip new-state)]
+;;           [(list 'yield value new-state)
+;;            (list 'yield (sqr value) new-state)]))
+;;       (let ([s (stream next-map-stream lst)])
+;;         (stream->list s)))))
+
+;; dead code elimination (eliminate unused binding forms)
+;; (define (filter-map lst)
+;;   (define (next-list->stream state)
+;;     (cond [(null? state) 'done]
+;;           [else (list 'yield (car state) (cdr state))]))
+;;   (define (next-filter-stream state)
+;;     (match (next-list->stream state)
+;;       ['done 'done]
+;;       [(cons 'skip new-state) (cons 'skip new-state)]
+;;       [(list 'yield value new-state)
+;;        (if (odd? value)
+;;            (list 'yield value new-state)
+;;            (cons 'skip new-state))]))
+;;   (define (next-map-stream state)
+;;     (match (next-filter-stream state)
+;;       ['done 'done]
+;;       [(cons 'skip new-state) (cons 'skip new-state)]
+;;       [(list 'yield value new-state)
+;;        (list 'yield (sqr value) new-state)]))
+;;   (let ([s (stream next-map-stream lst)])
+;;     (stream->list s)))
+
+;; case of case
+;; when there is a conditional based on the return value of a conditional
+;; invert which conditional is checked first
+;; (define (filter-map lst)
+;;   (define (next-list->stream state)
+;;     (cond [(null? state) 'done]
+;;           [else (list 'yield (car state) (cdr state))]))
+;;   (define (next-filter-stream state)
+;;     (cond [(null? state) (match 'done
+;;                            ['done 'done]
+;;                            [(cons 'skip new-state) (cons 'skip new-state)]
+;;                            [(list 'yield value new-state)
+;;                             (if (odd? value)
+;;                                 (list 'yield value new-state)
+;;                                 (cons 'skip new-state))])]
+;;           [else (match (list 'yield (car state) (cdr state))
+;;                   ['done 'done]
+;;                   [(cons 'skip new-state) (cons 'skip new-state)]
+;;                   [(list 'yield value new-state)
+;;                    (if (odd? value)
+;;                        (list 'yield value new-state)
+;;                        (cons 'skip new-state))])]))
+;;   (define (next-map-stream state)
+;;     (match (next-filter-stream state)
+;;       ['done 'done]
+;;       [(cons 'skip new-state) (cons 'skip new-state)]
+;;       [(list 'yield value new-state)
+;;        (list 'yield (sqr value) new-state)]))
+;;   (let ([s (stream next-map-stream lst)])
+;;     (stream->list s)))
+
+;; partially evaluate match on known argument
+(define (filter-map lst)
+  (define (next-list->stream state)
+    (cond [(null? state) 'done]
+          [else (list 'yield (car state) (cdr state))]))
+  (define (next-filter-stream state)
+    (cond [(null? state) (match 'done
+                           ['done 'done]
+                           [(cons 'skip new-state) (cons 'skip new-state)]
+                           [(list 'yield value new-state)
+                            (if (odd? value)
+                                (list 'yield value new-state)
+                                (cons 'skip new-state))])]
+          [else (match (list 'yield (car state) (cdr state))
+                  ['done 'done]
+                  [(cons 'skip new-state) (cons 'skip new-state)]
+                  [(list 'yield value new-state)
+                   (if (odd? value)
+                       (list 'yield value new-state)
+                       (cons 'skip new-state))])]))
+  (define (next-map-stream state)
+    (match (next-filter-stream state)
+      ['done 'done]
+      [(cons 'skip new-state) (cons 'skip new-state)]
+      [(list 'yield value new-state)
+       (list 'yield (sqr value) new-state)]))
+  (let ([s (stream next-map-stream lst)])
+    (stream->list s)))
 
 (define-flow filter-map-values
   (>< (if odd? sqr ⏚)))
