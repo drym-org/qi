@@ -19,6 +19,8 @@ Read `the documentation <https://docs.racket-lang.org/qi/index.html>`_ to learn 
 
 In case the main documentation is unavailable, read the `backup docs <https://drym-org.github.io/qi/>`_.
 
+Benchmark summaries are available on the `backup docs site <https://drym-org.github.io/qi/benchmarks/>`_.
+
 Supporting this Project
 =======================
 
