@@ -12,14 +12,14 @@
 
 qi
 ===
-Another way to structure computations.
+An embeddable flow-oriented language.
 
 Install it from the `Racket Package Index <https://pkgs.racket-lang.org/package/qi>`_.
 Read `the documentation <https://docs.racket-lang.org/qi/index.html>`_ to learn more. See `the Wiki <https://github.com/drym-org/qi/wiki>`_ for community resources, events, and developer documentation.
 
 In case the main documentation is unavailable, read the `backup docs <https://drym-org.github.io/qi/>`_.
 
-Benchmark summaries are available on the `backup docs site <https://drym-org.github.io/qi/benchmarks/>`_.
+The `benchmark summaries <https://drym-org.github.io/qi/benchmarks/>`_ provide some visibility into performance trends.
 
 Supporting this Project
 =======================
