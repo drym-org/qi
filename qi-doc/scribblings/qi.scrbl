@@ -1,6 +1,5 @@
-#lang scribble/doc
-@require[scribble/manual
-         scribble-abbrevs/manual
+#lang scribble/manual
+@require[scribble-abbrevs/manual
          @for-label[qi
                     racket]]
 
