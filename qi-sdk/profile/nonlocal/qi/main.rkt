@@ -2,6 +2,8 @@
 
 (require racket/match)
 
+(require racket/performance-hint)
+
 (provide conditionals
          composition
          root-mean-square
@@ -99,14 +101,67 @@
           [else (list 'yield (car state) (cdr state))]))
   (stream next lst))
 
+;; continuation version
+;; a lambda that does not escape is equivalent to a goto
+;; lambda the ultimate goto by guy steele
+(begin-encourage-inline
+  (define-inline (cstream->list next)
+    (λ (state)
+      (let loop ([state state])
+        ((next (λ () null)
+               (λ (state) (loop state))
+               (λ (value state)
+                 (cons value (loop state))))
+         state))))
+
+  (define-inline (list->cstream-next done skip yield)
+    (λ (state)
+      (cond [(null? state) (done)]
+            [else (yield (car state) (cdr state))])))
+
+  (define-inline ((map-cstream-next f next) done skip yield)
+    (next done
+          skip
+          (λ (value state)
+            (yield (f value) state))))
+
+  (define-inline ((filter-cstream-next f next) done skip yield)
+    (next done
+          skip
+          (λ (value state)
+            (if (f value)
+                (yield value state)
+                (skip state))))))
+
+;; except for cstream->list, it's all CPS with tail recursion
+(define (filter-map lst)
+  ((cstream->list
+    (map-cstream-next sqr
+                      (filter-cstream-next odd?
+                                           list->cstream-next)))
+   lst))
+
+
+;; (define (stream->list s)
+;;   (match ((stream-next s) (stream-state s))
+;;     ['done null]
+;;     [(cons 'skip state)
+;;      (stream->list (stream (stream-next s) state))]
+;;     [(list 'yield value state)
+;;      (cons value
+;;            (stream->list (stream (stream-next s) state)))]))
+
 (define (stream->list s)
-  (match ((stream-next s) (stream-state s))
-    ['done null]
-    [(cons 'skip state)
-     (stream->list (stream (stream-next s) state))]
-    [(list 'yield value state)
-     (cons value
-           (stream->list (stream (stream-next s) state)))]))
+  (let ([next (stream-next s)]
+        [state (stream-state s)])
+    (let loop ([state state])
+      (match (next state)
+        ['done null]
+        [(cons 'skip state)
+         (loop state)]
+        [(list 'yield value state)
+         (cons value
+               (loop state))]))))
 
 ;; (define (filter-map lst)
 ;;   (let ([s (list->stream lst)])
@@ -182,6 +237,131 @@
 ;;   (let ([s (stream next-map-stream lst)])
 ;;     (stream->list s)))
 
+;; inline stream->list as well
+;; (define (filter-map lst)
+;;   (define (next-list->stream state)
+;;     (cond [(null? state) 'done]
+;;           [else (list 'yield (car state) (cdr state))]))
+;;   (define (next-filter-stream state)
+;;     (match (next-list->stream state)
+;;       ['done 'done]
+;;       [(cons 'skip new-state) (cons 'skip new-state)]
+;;       [(list 'yield value new-state)
+;;        (if (odd? value)
+;;            (list 'yield value new-state)
+;;            (cons 'skip new-state))]))
+;;   (define (next-map-stream state)
+;;     (match (next-filter-stream state)
+;;       ['done 'done]
+;;       [(cons 'skip new-state) (cons 'skip new-state)]
+;;       [(list 'yield value new-state)
+;;        (list 'yield (sqr value) new-state)]))
+;;   (let ([next next-map-stream]
+;;         [state lst])
+;;     (let loop ([state state])
+;;       (match (next state)
+;;         ['done null]
+;;         [(cons 'skip state)
+;;          (loop state)]
+;;         [(list 'yield value state)
+;;          (cons value
+;;                (loop state))]))))
+
+;; try with inlining macro
+;; (require racket/performance-hint)
+
+;; (define (filter-map lst)
+;;   (define-inline (next-list->stream state)
+;;     (cond [(null? state) 'done]
+;;           [else (list 'yield (car state) (cdr state))]))
+;;   (define-inline (next-filter-stream state)
+;;     (match (next-list->stream state)
+;;       ['done 'done]
+;;       [(cons 'skip new-state) (cons 'skip new-state)]
+;;       [(list 'yield value new-state)
+;;        (if (odd? value)
+;;            (list 'yield value new-state)
+;;            (cons 'skip new-state))]))
+;;   (define-inline (next-map-stream state)
+;;     (match (next-filter-stream state)
+;;       ['done 'done]
+;;       [(cons 'skip new-state) (cons 'skip new-state)]
+;;       [(list 'yield value new-state)
+;;        (list 'yield (sqr value) new-state)]))
+;;   (let ([next next-map-stream]
+;;         [state lst])
+;;     (let loop ([state state])
+;;       (match (next state)
+;;         ['done null]
+;;         [(cons 'skip state)
+;;          (loop state)]
+;;         [(list 'yield value state)
+;;          (cons value
+;;                (loop state))]))))
+
+;; return multiple values -- instead of cons skip or list yield, return values instead
+;; always return exactly three values
+;; (values skip new-state #f)
+;; (values done #f #f)
+;; every match is going to be a case on the first value of the return
+;; chez scheme would kick in and result could be pretty good (CP0)
+;; (define (filter-map lst)
+;;   (define-inline (next-list->stream state)
+;;     (cond [(null? state) 'done]
+;;           [else (list 'yield (car state) (cdr state))]))
+;;   (define-inline (next-filter-stream state)
+;;     (match (next-list->stream state)
+;;       ['done 'done]
+;;       [(cons 'skip new-state) (cons 'skip new-state)]
+;;       [(list 'yield value new-state)
+;;        (if (odd? value)
+;;            (list 'yield value new-state)
+;;            (cons 'skip new-state))]))
+;;   (define-inline (next-map-stream state)
+;;     (match (next-filter-stream state)
+;;       ['done 'done]
+;;       [(cons 'skip new-state) (cons 'skip new-state)]
+;;       [(list 'yield value new-state)
+;;        (list 'yield (sqr value) new-state)]))
+;;   (let ([next next-map-stream]
+;;         [state lst])
+;;     (let loop ([state state])
+;;       (match (next state)
+;;         ['done null]
+;;         [(cons 'skip state)
+;;          (loop state)]
+;;         [(list 'yield value state)
+;;          (cons value
+;;                (loop state))]))))
+
+;; inline next-list->stream into next-filter-stream
+;; (define (filter-map lst)
+;;   (define (next-filter-stream state)
+;;     (match (cond [(null? state) 'done]
+;;                  [else (list 'yield (car state) (cdr state))])
+;;       ['done 'done]
+;;       [(cons 'skip new-state) (cons 'skip new-state)]
+;;       [(list 'yield value new-state)
+;;        (if (odd? value)
+;;            (list 'yield value new-state)
+;;            (cons 'skip new-state))]))
+;;   (define (next-map-stream state)
+;;     (match (next-filter-stream state)
+;;       ['done 'done]
+;;       [(cons 'skip new-state) (cons 'skip new-state)]
+;;       [(list 'yield value new-state)
+;;        (list 'yield (sqr value) new-state)]))
+;;   (let ([next next-map-stream]
+;;         [state lst])
+;;     (let loop ([state state])
+;;       (match (next state)
+;;         ['done null]
+;;         [(cons 'skip state)
+;;          (loop state)]
+;;         [(list 'yield value state)
+;;          (cons value
+;;                (loop state))]))))
+
 ;; case of case
 ;; when there is a conditional based on the return value of a conditional
 ;; invert which conditional is checked first
@@ -214,33 +394,35 @@
 ;;     (stream->list s)))
 
 ;; partially evaluate match on known argument
-(define (filter-map lst)
-  (define (next-list->stream state)
-    (cond [(null? state) 'done]
-          [else (list 'yield (car state) (cdr state))]))
-  (define (next-filter-stream state)
-    (cond [(null? state) (match 'done
-                           ['done 'done]
-                           [(cons 'skip new-state) (cons 'skip new-state)]
-                           [(list 'yield value new-state)
-                            (if (odd? value)
-                                (list 'yield value new-state)
-                                (cons 'skip new-state))])]
-          [else (match (list 'yield (car state) (cdr state))
-                  ['done 'done]
-                  [(cons 'skip new-state) (cons 'skip new-state)]
-                  [(list 'yield value new-state)
-                   (if (odd? value)
-                       (list 'yield value new-state)
-                       (cons 'skip new-state))])]))
-  (define (next-map-stream state)
-    (match (next-filter-stream state)
-      ['done 'done]
-      [(cons 'skip new-state) (cons 'skip new-state)]
-      [(list 'yield value new-state)
-       (list 'yield (sqr value) new-state)]))
-  (let ([s (stream next-map-stream lst)])
-    (stream->list s)))
+;; (define (filter-map lst)
+;;   (define (next-list->stream state)
+;;     (cond [(null? state) 'done]
+;;           [else (list 'yield (car state) (cdr state))]))
+;;   (define (next-filter-stream state)
+;;     (cond [(null? state) (match 'done
+;;                            ['done 'done]
+;;                            [(cons 'skip new-state) (cons 'skip new-state)]
+;;                            [(list 'yield value new-state)
+;;                             (if (odd? value)
+;;                                 (list 'yield value new-state)
+;;                                 (cons 'skip new-state))])]
+;;           [else (match (list 'yield (car state) (cdr state))
+;;                   ['done 'done]
+;;                   [(cons 'skip new-state) (cons 'skip new-state)]
+;;                   [(list 'yield value new-state)
+;;                    (if (odd? value)
+;;                        (list 'yield value new-state)
+;;                        (cons 'skip new-state))])]))
+;;   (define (next-map-stream state)
+;;     (match (next-filter-stream state)
+;;       ['done 'done]
+;;       [(cons 'skip new-state) (cons 'skip new-state)]
+;;       [(list 'yield value new-state)
+;;        (list 'yield (sqr value) new-state)]))
+;;   (let ([s (stream next-map-stream lst)])
+;;     (stream->list s)))
+
+;; 
 
 (define-flow filter-map-values
   (>< (if odd? sqr ⏚)))
