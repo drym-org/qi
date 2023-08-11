@@ -307,32 +307,44 @@
 ;; chez scheme would kick in and result could be pretty good (CP0)
 ;; (define (filter-map lst)
 ;;   (define-inline (next-list->stream state)
-;;     (cond [(null? state) 'done]
-;;           [else (list 'yield (car state) (cdr state))]))
+;;     (cond [(null? state) (values 'done #f #f)]
+;;           [else (values 'yield (car state) (cdr state))]))
 ;;   (define-inline (next-filter-stream state)
-;;     (match (next-list->stream state)
-;;       ['done 'done]
-;;       [(cons 'skip new-state) (cons 'skip new-state)]
-;;       [(list 'yield value new-state)
-;;        (if (odd? value)
-;;            (list 'yield value new-state)
-;;            (cons 'skip new-state))]))
+;;     (call-with-values
+;;      (λ ()
+;;        (next-list->stream state))
+;;      (λ (type value new-state)
+;;        (case type
+;;          [(done) (values 'done #f #f)]
+;;          [(skip) (values 'skip #f new-state)]
+;;          [(yield)
+;;           (if (odd? value)
+;;               (values 'yield value new-state)
+;;               (values 'skip #f new-state))]))))
 ;;   (define-inline (next-map-stream state)
-;;     (match (next-filter-stream state)
-;;       ['done 'done]
-;;       [(cons 'skip new-state) (cons 'skip new-state)]
-;;       [(list 'yield value new-state)
-;;        (list 'yield (sqr value) new-state)]))
+;;     (call-with-values
+;;      (λ ()
+;;        (next-filter-stream state))
+;;      (λ (type value new-state)
+;;        (case type
+;;          [(done) (values 'done #f #f)]
+;;          [(skip) (values 'skip #f new-state)]
+;;          [(yield)
+;;           (values 'yield (sqr value) new-state)]))))
 ;;   (let ([next next-map-stream]
 ;;         [state lst])
 ;;     (let loop ([state state])
-;;       (match (next state)
-;;         ['done null]
-;;         [(cons 'skip state)
-;;          (loop state)]
-;;         [(list 'yield value state)
-;;          (cons value
-;;                (loop state))]))))
+;;       (call-with-values
+;;        (λ ()
+;;          (next state))
+;;        (λ (type value new-state)
+;;          (case type
+;;            [(done) null]
+;;            [(skip)
+;;             (loop new-state)]
+;;            [(yield)
+;;             (cons value
+;;                   (loop new-state))]))))))
 
 ;; inline next-list->stream into next-filter-stream
 ;; (define (filter-map lst)
