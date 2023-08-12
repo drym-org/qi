@@ -411,20 +411,13 @@
 ;;     (cond [(null? state) 'done]
 ;;           [else (list 'yield (car state) (cdr state))]))
 ;;   (define (next-filter-stream state)
-;;     (cond [(null? state) (match 'done
-;;                            ['done 'done]
-;;                            [(cons 'skip new-state) (cons 'skip new-state)]
-;;                            [(list 'yield value new-state)
-;;                             (if (odd? value)
-;;                                 (list 'yield value new-state)
-;;                                 (cons 'skip new-state))])]
-;;           [else (match (list 'yield (car state) (cdr state))
-;;                   ['done 'done]
-;;                   [(cons 'skip new-state) (cons 'skip new-state)]
-;;                   [(list 'yield value new-state)
-;;                    (if (odd? value)
-;;                        (list 'yield value new-state)
-;;                        (cons 'skip new-state))])]))
+;;     (cond [(null? state) 'done]
+;;           [else
+;;            (let ([value (car state)]
+;;                  [new-state (cdr state)])
+;;              (if (odd? value)
+;;                  (list 'yield value new-state)
+;;                  (cons 'skip new-state)))]))
 ;;   (define (next-map-stream state)
 ;;     (match (next-filter-stream state)
 ;;       ['done 'done]
