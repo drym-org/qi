@@ -141,6 +141,15 @@
                                            list->cstream-next)))
    lst))
 
+;; hand-coded iteration (representing the upper bound on performance)
+;; (define (filter-map lst)
+;;   (if (null? lst)
+;;       '()
+;;       (let ([v (car lst)])
+;;         (if (odd? v)
+;;             (cons (sqr v) (filter-map (cdr lst)))
+;;             (filter-map (cdr lst))))))
+
 
 ;; (define (stream->list s)
 ;;   (match ((stream-next s) (stream-state s))
