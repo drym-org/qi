@@ -14,11 +14,33 @@
          racket/undefined
          (prefix-in fancy: fancy-app))
 
+(define-syntax inline-compose1
+  (syntax-rules ()
+    [(_ f) f]
+    [(_ f1 f ...) (f1 (inline-compose1 f ...))]))
+
 (begin-for-syntax
   ;; note: this does not return compiled code but instead,
   ;; syntax whose expansion compiles the code
   (define (compile-flow stx)
     (process-bindings (optimize-flow stx)))
+
+  (define-syntax-class fusable-list-operation
+    #:attributes (next)
+    (pattern ((~literal map) f)
+      #:attr next #'map-cstream-next)
+    (pattern ((~literal filter) f)
+      #:attr next #'filter-cstream-next))
+
+  (define (generate-fused-operation ops)
+    (displayln ops (current-error-port))
+    (syntax-parse (reverse ops)
+      [(op:fusable-list-operation ...)
+       #'(esc (λ (lst)
+                ((cstream->list
+                  (inline-compose1 op.next ...
+                                   list->cstream-next))
+                 lst)))]))
 
   (define (optimization-pass stx)
     ;; TODO: the "active" components of the expansions should be
@@ -26,8 +48,8 @@
     ;; call to the optimizer
     (syntax-parse stx
       ;; restorative optimization for "all"
-      [((~datum thread) ((~datum amp) onex) (~datum AND))
-       #`(esc (give (curry andmap #,(compile-flow #'onex))))]
+      [((~datum thread) f:fusable-list-operation ...+)
+       (generate-fused-operation (attribute f))]
       ;; "deforestation" for values
       ;; (~> (pass f) (>< g)) → (>< (if f g ⏚))
       [((~datum thread) _0 ... ((~datum pass) f) ((~datum amp) g) _1 ...)

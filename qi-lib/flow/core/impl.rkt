@@ -19,7 +19,11 @@
          values->list
          feedback-times
          feedback-while
-         kw-helper)
+         kw-helper
+         cstream->list
+         list->cstream-next
+         map-cstream-next
+         filter-cstream-next)
 
 (require racket/match
          (only-in racket/function
@@ -29,7 +33,8 @@
          racket/list
          racket/format
          syntax/parse/define
-         (for-syntax racket/base))
+         (for-syntax racket/base)
+         racket/performance-hint)
 
 (define-syntax-parse-rule (values->list body:expr ...+)
   (call-with-values (λ () body ...) list))
@@ -235,3 +240,32 @@
           (loop (values->list
                  (apply f args)))
           (apply then-f args)))))
+
+(begin-encourage-inline
+  (define-inline (cstream->list next)
+    (λ (state)
+      (let loop ([state state])
+        ((next (λ () null)
+               (λ (state) (loop state))
+               (λ (value state)
+                 (cons value (loop state))))
+         state))))
+
+  (define-inline (list->cstream-next done skip yield)
+    (λ (state)
+      (cond [(null? state) (done)]
+            [else (yield (car state) (cdr state))])))
+
+  (define-inline ((map-cstream-next f next) done skip yield)
+    (next done
+          skip
+          (λ (value state)
+            (yield (f value) state))))
+
+  (define-inline ((filter-cstream-next f next) done skip yield)
+    (next done
+          skip
+          (λ (value state)
+            (if (f value)
+                (yield value state)
+                (skip state))))))
