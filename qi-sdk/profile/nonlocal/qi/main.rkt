@@ -13,6 +13,7 @@
          collatz
          filter-map
          filter-map-values
+         range-map-sum
          double-list
          double-values)
 
@@ -140,6 +141,12 @@
                       (filter-cstream-next odd?
                                            list->cstream-next)))
    lst))
+
+(define (~sum vs)
+  (apply + vs))
+
+(define-flow range-map-sum
+  (~>> (range 1) (map sqr) ~sum))
 
 ;; hand-coded iteration (representing the upper bound on performance)
 ;; (define (filter-map lst)
