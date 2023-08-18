@@ -3,7 +3,8 @@
 (provide average
          measure
          check-value
-         check-value-primes
+         check-value-medium-large
+         check-value-large
          check-list
          check-large-list
          check-values
@@ -58,7 +59,9 @@
       (set! i (remainder (add1 i) len))
       (fn (vector-ref inputs i)))))
 
-(define check-value-primes (curryr check-value #(100 200 300)))
+(define check-value-medium-large (curryr check-value #(100 200 300)))
+
+(define check-value-large (curryr check-value #(1000)))
 
 ;; This uses the same list input each time. Not sure if that
 ;; may end up being cached at some level and thus obfuscate

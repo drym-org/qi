@@ -48,6 +48,8 @@
                #:when (member (bm-name spec) benchmarks-to-run))
       (let ([name (bm-name spec)]
             [exerciser (bm-exerciser spec)]
-            [f (eval (read (open-input-string (bm-name spec))) namespace)]
+            [f (eval
+                ;; the first datum in the benchmark name needs to be a function name
+                (read (open-input-string (bm-name spec))) namespace)]
             [n-times (bm-times spec)])
         (run-nonlocal-benchmark name exerciser f n-times)))))
