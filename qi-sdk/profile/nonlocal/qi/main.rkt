@@ -135,12 +135,15 @@
                 (skip state))))))
 
 ;; except for cstream->list, it's all CPS with tail recursion
-(define (filter-map lst)
-  ((cstream->list
-    (map-cstream-next sqr
-                      (filter-cstream-next odd?
-                                           list->cstream-next)))
-   lst))
+;; (define (filter-map lst)
+;;   ((cstream->list
+;;     (map-cstream-next sqr
+;;                       (filter-cstream-next odd?
+;;                                            list->cstream-next)))
+;;    lst))
+
+(define-flow filter-map
+  (~>> (filter odd?) (map sqr)))
 
 (define (~sum vs)
   (apply + vs))
