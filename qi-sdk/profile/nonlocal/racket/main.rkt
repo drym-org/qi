@@ -9,6 +9,7 @@
          collatz
          filter-map
          filter-map-values
+         range-map-sum
          double-list
          double-values)
 
@@ -61,6 +62,12 @@
 (define (filter-map-values . vs)
   (apply values
          (map sqr (filter odd? vs))))
+
+(define (~sum vs)
+  (apply + vs))
+
+(define (range-map-sum n)
+  (~sum (map sqr (range 1 n))))
 
 (define (double-list lst)
   (apply append (map (λ (v) (list v v)) lst)))
