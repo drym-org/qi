@@ -47,9 +47,12 @@
     ;; optimized, i.e. they should be wrapped with a recursive
     ;; call to the optimizer
     (syntax-parse stx
-      ;; restorative optimization for "all"
+      ;; stream fusion for list operations
       [((~datum thread) f:fusable-list-operation ...+)
        (generate-fused-operation (attribute f))]
+      ;; restorative optimization for "all"
+      [((~datum thread) ((~datum amp) onex) (~datum AND))
+       #`(esc (give (curry andmap #,(compile-flow #'onex))))]
       ;; "deforestation" for values
       ;; (~> (pass f) (>< g)) → (>< (if f g ⏚))
       [((~datum thread) _0 ... ((~datum pass) f) ((~datum amp) g) _1 ...)
