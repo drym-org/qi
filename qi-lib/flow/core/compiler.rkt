@@ -14,10 +14,15 @@
          racket/undefined
          (prefix-in fancy: fancy-app))
 
+;; "Composes" higher-order functions inline by directly applying them
+;; to the result of each subsequent application, with the last argument
+;; being passed to the penultimate application as a (single) argument.
+;; This is specialized to our implementation of stream fusion in the
+;; arguments it expects and how it uses them.
 (define-syntax inline-compose1
   (syntax-rules ()
     [(_ f) f]
-    [(_ f1 f ...) (f1 (inline-compose1 f ...))]))
+    [(_ [op f] rest ...) (op f (inline-compose1 rest ...))]))
 
 (begin-for-syntax
   ;; note: this does not return compiled code but instead,
@@ -26,19 +31,23 @@
     (process-bindings (optimize-flow stx)))
 
   (define-syntax-class fusable-list-operation
-    #:attributes (next)
-    (pattern ((~literal map) f)
+    #:attributes (f next)
+    #:datum-literals (#%host-expression #%partial-application)
+    (pattern (#%partial-application
+              ((#%host-expression (~literal map))
+               (#%host-expression f)))
       #:attr next #'map-cstream-next)
-    (pattern ((~literal filter) f)
+    (pattern (#%partial-application
+              ((#%host-expression (~literal filter))
+               (#%host-expression f)))
       #:attr next #'filter-cstream-next))
 
   (define (generate-fused-operation ops)
-    (displayln ops (current-error-port))
     (syntax-parse (reverse ops)
       [(op:fusable-list-operation ...)
        #'(esc (λ (lst)
                 ((cstream->list
-                  (inline-compose1 op.next ...
+                  (inline-compose1 [op.next op.f] ...
                                    list->cstream-next))
                  lst)))]))
 

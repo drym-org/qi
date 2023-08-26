@@ -126,6 +126,8 @@
     [(cons v vs) (append (values->list (f v))
                          (~map f vs))]))
 
+;; Note: can probably get rid of implicit packing to args, and the
+;; final apply values
 (define (map-values f . args)
   (apply values (~map f args)))
 
@@ -241,6 +243,7 @@
                  (apply f args)))
           (apply then-f args)))))
 
+;; Stream fusion
 (begin-encourage-inline
   (define-inline (cstream->list next)
     (λ (state)
@@ -256,16 +259,18 @@
       (cond [(null? state) (done)]
             [else (yield (car state) (cdr state))])))
 
-  (define-inline ((map-cstream-next f next) done skip yield)
-    (next done
-          skip
-          (λ (value state)
-            (yield (f value) state))))
+  (define-inline (map-cstream-next f next)
+    (λ (done skip yield)
+      (next done
+            skip
+            (λ (value state)
+              (yield (f value) state)))))
 
-  (define-inline ((filter-cstream-next f next) done skip yield)
-    (next done
-          skip
-          (λ (value state)
-            (if (f value)
-                (yield value state)
-                (skip state))))))
+  (define-inline (filter-cstream-next f next)
+    (λ (done skip yield)
+      (next done
+            skip
+            (λ (value state)
+              (if (f value)
+                  (yield value state)
+                  (skip state)))))))

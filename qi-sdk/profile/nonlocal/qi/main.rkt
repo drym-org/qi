@@ -105,34 +105,34 @@
 ;; continuation version
 ;; a lambda that does not escape is equivalent to a goto
 ;; lambda the ultimate goto by guy steele
-(begin-encourage-inline
-  (define-inline (cstream->list next)
-    (λ (state)
-      (let loop ([state state])
-        ((next (λ () null)
-               (λ (state) (loop state))
-               (λ (value state)
-                 (cons value (loop state))))
-         state))))
+;; (begin-encourage-inline
+;;   (define-inline (cstream->list next)
+;;     (λ (state)
+;;       (let loop ([state state])
+;;         ((next (λ () null)
+;;                (λ (state) (loop state))
+;;                (λ (value state)
+;;                  (cons value (loop state))))
+;;          state))))
 
-  (define-inline (list->cstream-next done skip yield)
-    (λ (state)
-      (cond [(null? state) (done)]
-            [else (yield (car state) (cdr state))])))
+;;   (define-inline (list->cstream-next done skip yield)
+;;     (λ (state)
+;;       (cond [(null? state) (done)]
+;;             [else (yield (car state) (cdr state))])))
 
-  (define-inline ((map-cstream-next f next) done skip yield)
-    (next done
-          skip
-          (λ (value state)
-            (yield (f value) state))))
+;;   (define-inline ((map-cstream-next f next) done skip yield)
+;;     (next done
+;;           skip
+;;           (λ (value state)
+;;             (yield (f value) state))))
 
-  (define-inline ((filter-cstream-next f next) done skip yield)
-    (next done
-          skip
-          (λ (value state)
-            (if (f value)
-                (yield value state)
-                (skip state))))))
+;;   (define-inline ((filter-cstream-next f next) done skip yield)
+;;     (next done
+;;           skip
+;;           (λ (value state)
+;;             (if (f value)
+;;                 (yield value state)
+;;                 (skip state))))))
 
 ;; except for cstream->list, it's all CPS with tail recursion
 ;; (define (filter-map lst)
