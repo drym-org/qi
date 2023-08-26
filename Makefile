@@ -104,25 +104,25 @@ test:
 	raco test -exp $(PACKAGE-NAME)-{lib,test,doc,probe}
 
 test-flow:
-	racket $(PACKAGE-NAME)-test/tests/flow.rkt
+	racket -y $(PACKAGE-NAME)-test/tests/flow.rkt
 
 test-on:
-	racket $(PACKAGE-NAME)-test/tests/on.rkt
+	racket -y $(PACKAGE-NAME)-test/tests/on.rkt
 
 test-threading:
-	racket $(PACKAGE-NAME)-test/tests/threading.rkt
+	racket -y $(PACKAGE-NAME)-test/tests/threading.rkt
 
 test-switch:
-	racket $(PACKAGE-NAME)-test/tests/switch.rkt
+	racket -y $(PACKAGE-NAME)-test/tests/switch.rkt
 
 test-definitions:
-	racket $(PACKAGE-NAME)-test/tests/definitions.rkt
+	racket -y $(PACKAGE-NAME)-test/tests/definitions.rkt
 
 test-macro:
-	racket $(PACKAGE-NAME)-test/tests/macro.rkt
+	racket -y $(PACKAGE-NAME)-test/tests/macro.rkt
 
 test-util:
-	racket $(PACKAGE-NAME)-test/tests/util.rkt
+	racket -y $(PACKAGE-NAME)-test/tests/util.rkt
 
 test-probe:
 	raco test -exp $(PACKAGE-NAME)-probe
