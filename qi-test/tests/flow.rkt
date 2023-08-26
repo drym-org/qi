@@ -1494,25 +1494,32 @@
     ;; these are collected from counterexamples to candidate equivalences
     ;; that turned up during code review. They ensure that some tempting
     ;; "equivalences" that are not really equivalences are formally checked
-    (let ()
-      (define-flow g (-< add1 sub1))
-      (define-flow f positive?)
-      (define (f* x y) (= (sub1 x) (add1 y)))
-      (define (amp-pass g f) (☯ (~> (>< g) (pass f) ▽)))
-      (define (amp-if g f) (☯ (~> (>< (~> g (if f _ ground))) ▽)))
-      (check-equal? (apply (amp-pass g f) (range -3 4))
-                    (list 1 2 3 1 4 2))
-      (check-exn exn:fail?
-                 (thunk (apply (amp-if g f) (range -3 4))))
-      (check-exn exn:fail?
-                 (thunk (apply (amp-pass g f*) (range -3 4))))
-      (check-equal? (apply (amp-if g f*) (range -3 4))
-                    (list -2 -4 -1 -3 0 -2 1 -1 2 0 3 1 4 2)))
-    (let ()
-      (check-equal? ((☯ (~> (>< string->number) (pass _))) "a" "2" "c")
-                    2)
-      (check-equal? ((☯ (~> (>< (if _ string->number ground)) ▽)) "a" "2" "c")
-                    (list #f 2 #f))))))
+    (test-suite
+     "counterexamples"
+     (let ()
+       (define-flow g (-< add1 sub1))
+       (define-flow f positive?)
+       (define (f* x y) (= (sub1 x) (add1 y)))
+       (define (amp-pass g f) (☯ (~> (>< g) (pass f) ▽)))
+       (define (amp-if g f) (☯ (~> (>< (~> g (if f _ ground))) ▽)))
+       (check-equal? (apply (amp-pass g f) (range -3 4))
+                     (list 1 2 3 1 4 2))
+       (check-exn exn:fail?
+                  (thunk (apply (amp-if g f) (range -3 4))))
+       (check-exn exn:fail?
+                  (thunk (apply (amp-pass g f*) (range -3 4))))
+       (check-equal? (apply (amp-if g f*) (range -3 4))
+                     (list -2 -4 -1 -3 0 -2 1 -1 2 0 3 1 4 2)))
+     (let ()
+       (check-equal? ((☯ (~> (>< string->number) (pass _))) "a" "2" "c")
+                     2)
+       (check-equal? ((☯ (~> (>< (if _ string->number ground)) ▽)) "a" "2" "c")
+                     (list #f 2 #f))))
+    (test-suite
+     "general"
+     (check-equal? ((☯ (~>> (filter odd?) (map sqr)))
+                    (list 1 2 3 4 5))
+                   (list 1 9 25))))))
 
 (module+ main
   (void (run-tests tests)))
