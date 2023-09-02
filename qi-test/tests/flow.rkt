@@ -1519,7 +1519,14 @@
      "general"
      (check-equal? ((☯ (~>> (filter odd?) (map sqr)))
                     (list 1 2 3 4 5))
-                   (list 1 9 25))))))
+                   (list 1 9 25))
+     ;; TODO: need a better way to validate that optimizations are
+     ;; happening, that they preserve semantics, and that they
+     ;; rewrite expressions as expected
+     (check-equal? ((☯ (~>> values (filter odd?) (map sqr) values))
+                    (list 1 2 3 4 5))
+                   (list 1 9 25)
+                   "optimizes subexpressions")))))
 
 (module+ main
   (void (run-tests tests)))
