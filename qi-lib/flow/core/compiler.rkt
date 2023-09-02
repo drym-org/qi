@@ -42,6 +42,9 @@
                (#%host-expression f)))
       #:attr next #'filter-cstream-next))
 
+  (define-syntax-class non-fusable
+    (pattern (~not _:fusable-list-operation)))
+
   (define (generate-fused-operation ops)
     (syntax-parse (reverse ops)
       [(op:fusable-list-operation ...)
@@ -51,14 +54,11 @@
                                    list->cstream-next))
                  lst)))]))
 
-  (define (optimization-pass stx)
+  (define (normalize-rewrites stx)
     ;; TODO: the "active" components of the expansions should be
     ;; optimized, i.e. they should be wrapped with a recursive
     ;; call to the optimizer
     (syntax-parse stx
-      ;; stream fusion for list operations
-      [((~datum thread) f:fusable-list-operation ...+)
-       (generate-fused-operation (attribute f))]
       ;; restorative optimization for "all"
       [((~datum thread) ((~datum amp) onex) (~datum AND))
        #`(esc (give (curry andmap #,(compile-flow #'onex))))]
@@ -68,7 +68,7 @@
        #'(thread _0 ... (amp (if f g ground)) _1 ...)]
       ;; merge amps in sequence
       [((~datum thread) _0 ... ((~datum amp) f) ((~datum amp) g) _1 ...)
-       #`(thread _0 ... #,(optimization-pass #'(amp (thread f g))) _1 ...)]
+       #`(thread _0 ... #,(normalize-rewrites #'(amp (thread f g))) _1 ...)]
       ;; merge pass filters in sequence
       [((~datum thread) _0 ... ((~datum pass) f) ((~datum pass) g) _1 ...)
        #'(thread _0 ... (pass (and f g)) _1 ...)]
@@ -79,7 +79,7 @@
       [((~datum thread) f)
        #'f]
       ;; associative laws for ~>
-      [((~datum thread) _0 ... ((~datum thread) f ...) _1 ...)
+      [((~datum thread) _0 ... ((~datum thread) f ...) _1 ...) ; note: greedy matching
        #'(thread _0 ... f ... _1 ...)]
       ;; left and right identity for ~>
       [((~datum thread) _0 ... (~datum _) _1 ...)
@@ -139,11 +139,37 @@
       ;; return syntax unchanged if there are no known optimizations
       [_ stx]))
 
+  ;; 0. "Qi-normal form"
+  ;; 1. deforestation pass
+  ;; 2. other passes ...
+  ;; e.g.:
+  ;; changing internal representation to lists from values - may affect passes
+  ;; passes as distinct stages is safe and interesting, a conservative start
+  ;; one challenge: traversing the syntax tree
+  (define (deforest-rewrite stx)
+    (syntax-parse stx
+      [((~datum thread) _0:non-fusable ... f:fusable-list-operation ...+ _1 ...)
+       #:with fused (generate-fused-operation (attribute f))
+       #'(thread _0 ... fused _1 ...)]
+      [_ this-syntax]))
+
+  (define ((fix f) init-val)
+    (let ([new-val (f init-val)])
+      (if (eq? new-val init-val)
+          new-val
+          ((fix f) new-val))))
+
+  (define (deforest-pass stx)
+    (find-and-map/qi (fix deforest-rewrite)
+                     stx))
+
+  (define (normalize-pass stx)
+    (find-and-map/qi (fix normalize-rewrites)
+                     stx))
+
   (define (optimize-flow stx)
-    (let ([optimized (optimization-pass stx)])
-      (if (eq? optimized stx)
-          stx
-          (optimize-flow optimized)))))
+    ;; (deforest-pass (normalize-pass stx))
+    (deforest-pass (normalize-pass stx))))
 
 ;; Transformation rules for the `as` binding form:
 ;;

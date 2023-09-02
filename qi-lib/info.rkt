@@ -6,6 +6,7 @@
                ("fancy-app" #:version "1.1")
                ;; this git URL should be changed to a named package spec
                ;; once syntax-spec is on the package index
+               ;; "syntax-spec-v1"
                "git://github.com/michaelballantyne/syntax-spec.git#main"))
 (define build-deps '())
 (define clean '("compiled" "private/compiled"))
