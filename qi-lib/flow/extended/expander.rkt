@@ -12,7 +12,7 @@
                                 [sep △]
                                 [collect ▽])))
 
-(require syntax-spec
+(require syntax-spec-v1
          (for-syntax "../aux-syntax.rkt"
                      "syntax.rkt"
                      racket/base
