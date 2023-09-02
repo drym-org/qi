@@ -1,6 +1,7 @@
 #lang racket/base
 
-(require racket/match)
+(require racket/match
+         racket/function)
 
 (require racket/performance-hint)
 
@@ -62,14 +63,31 @@
 ;; (define-flow filter-map
 ;;   (~> △ (>< (if odd? sqr ⏚)) ▽))
 
+;; (define-flow filter-map
+;;   (~>> (filter odd?) (map sqr)))
+
 (define-flow filter-map
-  (~>> (filter odd?) (map sqr)))
+  (~>> values
+       (~> (filter odd?)
+           (map sqr))))
+
+;; (define-flow filter-map
+;;   (~>> (filter odd?)
+;;        (map sqr)
+;;        identity
+;;        (filter (λ (v) (< v 10)))
+;;        (map sqr)))
 
 (define (~sum vs)
   (apply + vs))
 
 (define-flow range-map-sum
   (~>> (range 1) (map sqr) ~sum))
+
+;; (define filter-double
+;;   (map (☯ (when odd?
+;;             (-< _ _)))
+;;        (list 1 2 3 4 5)))
 
 (define-flow filter-map-values
   (>< (if odd? sqr ⏚)))
