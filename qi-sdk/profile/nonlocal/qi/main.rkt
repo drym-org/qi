@@ -13,6 +13,7 @@
          eratosthenes
          collatz
          filter-map
+         filter-map-foldr
          filter-map-values
          range-map-sum
          double-list
@@ -70,6 +71,11 @@
   (~>> values
        (~> (filter odd?)
            (map sqr))))
+
+(define-flow filter-map-foldr
+  (~>> (filter odd?)
+       (map sqr)
+       (foldr + 0)))
 
 ;; (define-flow filter-map
 ;;   (~>> (filter odd?)
