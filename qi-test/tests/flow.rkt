@@ -1516,13 +1516,16 @@
      (check-equal? ((☯ (~>> (filter odd?) (map sqr)))
                     (list 1 2 3 4 5))
                    (list 1 9 25))
-     ;; TODO: need a better way to validate that optimizations are
-     ;; happening, that they preserve semantics, and that they
-     ;; rewrite expressions as expected
      (check-equal? ((☯ (~>> values (filter odd?) (map sqr) values))
                     (list 1 2 3 4 5))
                    (list 1 9 25)
-                   "optimizes subexpressions")))))
+                   "optimizes subexpressions")
+     (check-equal? ((☯ (~>> (filter odd?) (map sqr) (foldr + 0)))
+                    (list 1 2 3 4 5))
+                   35)
+     (check-equal? ((☯ (~>> (filter odd?) (map sqr) (foldl + 0)))
+                    (list 1 2 3 4 5))
+                   35)))))
 
 (module+ main
   (void (run-tests tests)))
