@@ -26,6 +26,9 @@
         (bm "filter-map (large list)"
             check-large-list
             50000)
+        (bm "filter-map-foldr"
+            check-large-list
+            50000)
         (bm "range-map-sum"
             check-value-large
             5000)

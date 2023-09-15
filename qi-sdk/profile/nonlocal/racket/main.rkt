@@ -8,6 +8,7 @@
          eratosthenes
          collatz
          filter-map
+         filter-map-foldr
          filter-map-values
          range-map-sum
          double-list
@@ -58,6 +59,9 @@
 
 (define (filter-map lst)
   (map sqr (filter odd? lst)))
+
+(define (filter-map-foldr lst)
+  (foldr + 0 (map sqr (filter odd? lst))))
 
 (define (filter-map-values . vs)
   (apply values
