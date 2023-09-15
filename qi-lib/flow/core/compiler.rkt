@@ -1,6 +1,9 @@
 #lang racket/base
 
-(provide (for-syntax compile-flow))
+(provide (for-syntax compile-flow
+                     ;; TODO: only used in unit tests, maybe try
+                     ;; using a submodule to avoid providing these usually
+                     deforest-rewrite))
 
 (require (for-syntax racket/base
                      syntax/parse
