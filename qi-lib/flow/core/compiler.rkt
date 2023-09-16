@@ -45,11 +45,26 @@
                (#%host-expression f)))
       #:attr next #'filter-cstream-next))
 
+  (define-syntax-class fusable-fold-operation
+    #:attributes (op init end)
+    #:datum-literals (#%host-expression #%partial-application)
+    (pattern (#%partial-application
+              ((#%host-expression (~literal foldr))
+               (#%host-expression op)
+               (#%host-expression init)))
+      #:attr end #'(foldr-cstream op init)))
+
   (define-syntax-class non-fusable
     (pattern (~not _:fusable-list-operation)))
 
   (define (generate-fused-operation ops)
     (syntax-parse (reverse ops)
+      [(g:fusable-fold-operation op:fusable-list-operation ...)
+       #`(esc (λ (lst)
+                ((#,@#'g.end
+                  (inline-compose1 [op.next op.f] ...
+                                   list->cstream-next))
+                 lst)))]
       [(op:fusable-list-operation ...)
        #'(esc (λ (lst)
                 ((cstream->list
@@ -151,6 +166,12 @@
   ;; one challenge: traversing the syntax tree
   (define (deforest-rewrite stx)
     (syntax-parse stx
+      [((~datum thread) _0:non-fusable ...
+                        f:fusable-list-operation ...+
+                        g:fusable-fold-operation
+                        _1 ...)
+       #:with fused (generate-fused-operation (syntax->list #'(f ... g)))
+       #'(thread _0 ... fused _1 ...)]
       [((~datum thread) _0:non-fusable ... f:fusable-list-operation ...+ _1 ...)
        #:with fused (generate-fused-operation (attribute f))
        #'(thread _0 ... fused _1 ...)]
