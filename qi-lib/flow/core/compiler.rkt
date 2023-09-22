@@ -36,13 +36,19 @@
   (define-syntax-class fusable-list-operation
     #:attributes (f next)
     #:datum-literals (#%host-expression #%partial-application)
-    (pattern (#%partial-application
-              ((#%host-expression (~literal map))
-               (#%host-expression f)))
+    (pattern (~and (#%partial-application
+                    ((#%host-expression (~literal map))
+                     (#%host-expression f)))
+                   stx)
+      #:do [(define chirality (syntax-property #'stx 'chirality))]
+      #:when (and chirality (eq? chirality 'right))
       #:attr next #'map-cstream-next)
-    (pattern (#%partial-application
-              ((#%host-expression (~literal filter))
-               (#%host-expression f)))
+    (pattern (~and (#%partial-application
+                    ((#%host-expression (~literal filter))
+                     (#%host-expression f)))
+                   stx)
+      #:do [(define chirality (syntax-property #'stx 'chirality))]
+      #:when (and chirality (eq? chirality 'right))
       #:attr next #'filter-cstream-next))
 
   (define-syntax-class fusable-fold-operation
@@ -52,6 +58,8 @@
               ((#%host-expression (~literal foldr))
                (#%host-expression op)
                (#%host-expression init)))
+      #:do [(define chirality (syntax-property #'stx 'chirality))]
+      #:when (and chirality (eq? chirality 'right))
       #:attr end #'(foldr-cstream op init)))
 
   (define-syntax-class non-fusable
@@ -173,18 +181,22 @@
        #:with fused (generate-fused-operation (syntax->list #'(f ... g)))
        #'(thread _0 ... fused _1 ...)]
       [((~datum thread) _0:non-fusable ... f:fusable-list-operation ...+ _1 ...)
-       #:with fused (generate-fused-operation (attribute f))
+       #:with fused (generate-fused-operation (syntax->list #'(f ...)))
        #'(thread _0 ... fused _1 ...)]
-      [_ this-syntax]))
+      [_ #f]))
 
   (define ((fix f) init-val)
+    ;; may need to be modified to handle #f as a special terminator
     (let ([new-val (f init-val)])
       (if (eq? new-val init-val)
           new-val
           ((fix f) new-val))))
 
   (define (deforest-pass stx)
-    (find-and-map/qi (fix deforest-rewrite)
+    ;; Note: deforestation happens only for threading,
+    ;; and the normalize pass strips the threading form
+    ;; if it contains only one expression, so this would not be hit.
+    (find-and-map/qi deforest-rewrite
                      stx))
 
   (define (normalize-pass stx)
