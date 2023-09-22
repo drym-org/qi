@@ -16,6 +16,26 @@
     ;; (~>> values (filter odd?) (map sqr) values)
     (check-equal? (syntax->datum
                    (deforest-rewrite
+                     #'(thread (#%partial-application
+                                ((#%host-expression filter)
+                                 (#%host-expression odd?))))))
+                  '(thread
+                    (esc
+                     (λ (lst)
+                       ((cstream->list (inline-compose1 (filter-cstream-next odd?) list->cstream-next)) lst))))
+                  "deforestation of map -- note this tests the rule in isolation; with normalization this would never be necessary")
+    (check-equal? (syntax->datum
+                   (deforest-rewrite
+                     #'(thread (#%partial-application
+                                ((#%host-expression map)
+                                 (#%host-expression sqr))))))
+                  '(thread
+                    (esc
+                     (λ (lst)
+                       ((cstream->list (inline-compose1 (map-cstream-next sqr) list->cstream-next)) lst))))
+                  "deforestation of filter -- note this tests the rule in isolation; with normalization this would never be necessary")
+    (check-equal? (syntax->datum
+                   (deforest-rewrite
                      #'(thread values
                                (#%partial-application
                                 ((#%host-expression filter)
@@ -37,7 +57,10 @@
                           list->cstream-next))
                         lst)))
                     values)
-                  "deforestation in arbitrary positions"))))
+                  "deforestation in arbitrary positions"))
+   (test-suite
+    "fixed point"
+    null)))
 
 (module+ main
   (void (run-tests tests)))
