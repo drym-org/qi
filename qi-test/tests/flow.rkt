@@ -1534,7 +1534,7 @@
                 (thunk
                  ((☯ (~>> (filter odd?) (~> (foldr + 0))))
                   (list 1 2 3 4 5)))
-                "(foldlr) doforestation should only be done for right threading")
+                "(foldr) doforestation should only be done for right threading")
      (check-equal? ((☯ (~>> values (filter odd?) (map sqr) values))
                     (list 1 2 3 4 5))
                    (list 1 9 25)
