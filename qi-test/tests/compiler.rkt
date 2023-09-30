@@ -57,6 +57,29 @@
                           list->cstream-next))
                         lst)))
                     values)
+                  "deforestation in arbitrary positions")
+    (check-equal? (syntax->datum
+                   (deforest-rewrite
+                     #'(thread (#%partial-application
+                                ((#%host-expression map)
+                                 (#%host-expression string-upcase)))
+                               (#%partial-application
+                                ((#%host-expression foldl)
+                                 (#%host-expression string-append)
+                                 (#%host-expression "I"))))))
+                  '(thread
+                    values
+                    (esc
+                     (λ (lst)
+                       ((cstream->list
+                         (inline-compose1
+                          (map-cstream-next
+                           sqr)
+                          (filter-cstream-next
+                           odd?)
+                          list->cstream-next))
+                        lst)))
+                    values)
                   "deforestation in arbitrary positions"))
    (test-suite
     "fixed point"
