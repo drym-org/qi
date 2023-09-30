@@ -24,7 +24,8 @@
          list->cstream-next
          map-cstream-next
          filter-cstream-next
-         foldr-cstream)
+         foldr-cstream
+         foldl-cstream)
 
 (require racket/match
          (only-in racket/function
@@ -262,6 +263,15 @@
                (λ (state) (loop state))
                (λ (value state)
                  (op value (loop state))))
+         state))))
+
+  (define-inline (foldl-cstream op init next)
+    (λ (state)
+      (let loop ([acc init] [state state])
+        ((next (λ () acc)
+               (λ (state) (loop acc state))
+               (λ (value state)
+                 (loop (op value acc) state)))
          state))))
 
   (define-inline (list->cstream-next done skip yield)

@@ -54,13 +54,22 @@
   (define-syntax-class fusable-fold-operation
     #:attributes (op init end)
     #:datum-literals (#%host-expression #%partial-application)
-    (pattern (#%partial-application
-              ((#%host-expression (~literal foldr))
-               (#%host-expression op)
-               (#%host-expression init)))
+    (pattern (~and (#%partial-application
+                    ((#%host-expression (~literal foldr))
+                     (#%host-expression op)
+                     (#%host-expression init)))
+                   stx)
       #:do [(define chirality (syntax-property #'stx 'chirality))]
       #:when (and chirality (eq? chirality 'right))
-      #:attr end #'(foldr-cstream op init)))
+      #:attr end #'(foldr-cstream op init))
+    (pattern (~and (#%partial-application
+                    ((#%host-expression (~literal foldl))
+                     (#%host-expression op)
+                     (#%host-expression init)))
+                   stx)
+      #:do [(define chirality (syntax-property #'stx 'chirality))]
+      #:when (and chirality (eq? chirality 'right))
+      #:attr end #'(foldl-cstream op init)))
 
   (define-syntax-class non-fusable
     (pattern (~not _:fusable-list-operation)))

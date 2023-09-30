@@ -1544,7 +1544,13 @@
                    35)
      (check-equal? ((☯ (~>> (filter odd?) (map sqr) (foldl + 0)))
                     (list 1 2 3 4 5))
-                   35)))))
+                   35)
+     (check-equal? ((☯ (~>> (map string-upcase) (foldr string-append "I")))
+                    (list "a" "b" "c"))
+                   "ABCI")
+     (check-equal? ((☯ (~>> (map string-upcase) (foldl string-append "I")))
+                    (list "a" "b" "c"))
+                   "CBAI")))))
 
 (module+ main
   (void (run-tests tests)))
