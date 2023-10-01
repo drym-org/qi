@@ -124,6 +124,9 @@ test-macro:
 test-util:
 	racket -y $(PACKAGE-NAME)-test/tests/util.rkt
 
+test-compiler:
+	racket -y $(PACKAGE-NAME)-test/tests/compiler.rkt
+
 test-probe:
 	raco test -exp $(PACKAGE-NAME)-probe
 
@@ -193,4 +196,4 @@ performance-report:
 performance-regression-report:
 	@racket $(PACKAGE-NAME)-sdk/profile/report.rkt -r $(REF)
 
-.PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile-local profile-loading profile-selected-forms profile-competitive profile-nonlocal profile performance-report performance-regression-report
+.PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-compiler test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile-local profile-loading profile-selected-forms profile-competitive profile-nonlocal profile performance-report performance-regression-report
