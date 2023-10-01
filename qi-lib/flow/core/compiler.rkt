@@ -161,7 +161,7 @@
       [((~datum thread) _0:non-fusable ... f:fusable-list-operation ...+ _1 ...)
        #:with fused (generate-fused-operation (syntax->list #'(f ...)))
        #'(thread _0 ... fused _1 ...)]
-      [_ #f]))
+      [_ this-syntax]))
 
   (define ((fix f) init-val)
     ;; may need to be modified to handle #f as a special terminator
@@ -174,7 +174,7 @@
     ;; Note: deforestation happens only for threading,
     ;; and the normalize pass strips the threading form
     ;; if it contains only one expression, so this would not be hit.
-    (find-and-map/qi deforest-rewrite
+    (find-and-map/qi (fix deforest-rewrite)
                      stx))
 
   (define (normalize-pass stx)
