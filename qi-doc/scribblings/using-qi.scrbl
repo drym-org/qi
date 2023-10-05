@@ -60,11 +60,11 @@ In Qi, it would be something like:
 
 @codeblock{
     (define-flow rms
-      (~> (-< (~> △ (>< sqr) +)
-              length) / sqrt))
+      (~> △ (-< (~> (>< sqr) +)
+                count) / sqrt))
 }
 
-This first uses the tee junction, @racket[-<], to fork the input down two flows, one to compute the sum of squares and the other to compute the length. In computing the sum of squares, the input list is first separated into its component values using @racket[△]. Then, @racket[><] "maps" these values under the @racket[sqr] flow to yield the squares of the input values which are then summed. These values are combined downstream to yield the mean of the squares, whose square root produced as the result.
+This first uses the "prism" @racket[△] to separate the input list into its component values. Then it uses a tee junction, @racket[-<], to fork these values down two flows, one to compute the sum of squares and the other to count how many values there are. In computing the sum of squares, @racket[><] "maps" the input values under the @racket[sqr] flow to yield the squares of the input values which are then summed. This is then divided by the count to yield the mean of the squares, whose square root is then produced as the result.
 
 Here, there are reasons to favor either representation. The Racket version doesn't have too much redundancy so it is a fine way to express the computation. The Qi version eliminates the redundant references to the input (as it usually does), but aside from that it is primarily distinguished as being a way to express the computation as a series of transformations evaluated sequentially, while the Racket version expresses it as a compound expression to be evaluated hierarchically. They're just @emph{different} and neither is necessarily better.
 
