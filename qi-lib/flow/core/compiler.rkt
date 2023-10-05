@@ -89,7 +89,7 @@
                                    list->cstream-next))
                  lst)))]))
 
-  (define (normalize-rewrites stx)
+  (define (normalize-rewrite stx)
     ;; TODO: the "active" components of the expansions should be
     ;; optimized, i.e. they should be wrapped with a recursive
     ;; call to the optimizer
@@ -103,7 +103,7 @@
        #'(thread _0 ... (amp (if f g ground)) _1 ...)]
       ;; merge amps in sequence
       [((~datum thread) _0 ... ((~datum amp) f) ((~datum amp) g) _1 ...)
-       #`(thread _0 ... #,(normalize-rewrites #'(amp (thread f g))) _1 ...)]
+       #`(thread _0 ... #,(normalize-rewrite #'(amp (thread f g))) _1 ...)]
       ;; merge pass filters in sequence
       [((~datum thread) _0 ... ((~datum pass) f) ((~datum pass) g) _1 ...)
        #'(thread _0 ... (pass (and f g)) _1 ...)]
@@ -178,7 +178,7 @@
                      stx))
 
   (define (normalize-pass stx)
-    (find-and-map/qi (fix normalize-rewrites)
+    (find-and-map/qi (fix normalize-rewrite)
                      stx))
 
   (define (optimize-flow stx)
