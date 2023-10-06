@@ -9,6 +9,7 @@
          collatz
          filter-map
          filter-map-foldr
+         filter-map-foldl
          filter-map-values
          range-map-sum
          double-list
@@ -62,6 +63,9 @@
 
 (define (filter-map-foldr lst)
   (foldr + 0 (map sqr (filter odd? lst))))
+
+(define (filter-map-foldl lst)
+  (foldl + 0 (map sqr (filter odd? lst))))
 
 (define (filter-map-values . vs)
   (apply values
