@@ -10,7 +10,8 @@
                      racket/match
                      (only-in racket/list make-list)
                      "syntax.rkt"
-                     "../aux-syntax.rkt")
+                     "../aux-syntax.rkt"
+                     macro-debugger/emit)
          "impl.rkt"
          (only-in racket/list make-list)
          racket/function
@@ -270,8 +271,12 @@
     ;; TODO: use syntax-parse and match ~> specifically.
     ;; Since macros are expanded "outside in," presumably
     ;; it will naturally wrap the outermost ~>
-    (wrap-with-scopes #`(qi0->racket #,(rewrite-all-bindings stx))
-                      (bound-identifiers stx))))
+    (let ([stx1 (wrap-with-scopes #`(qi0->racket #,(rewrite-all-bindings stx))
+                                  (bound-identifiers stx))])
+      (emit-local-step stx stx1 #:id #'process-bindings)
+      stx1))
+
+  )
 
 (define-syntax (qi0->racket stx)
   ;; this is a macro so it receives the entire expression
