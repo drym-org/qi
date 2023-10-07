@@ -33,7 +33,9 @@
   (define (compile-flow stx)
     (process-bindings (optimize-flow stx)))
 
-  (define-syntax-class fusable-list-operation
+  ;; TODO: define another syntax class, fusable-stream-producer,
+  ;; to match e.g. `upto` (range) and `unfold`.
+  (define-syntax-class fusable-stream-transformer
     #:attributes (f next)
     #:datum-literals (#%host-expression #%partial-application)
     (pattern (~and (#%partial-application
@@ -51,7 +53,7 @@
       #:when (and chirality (eq? chirality 'right))
       #:attr next #'filter-cstream-next))
 
-  (define-syntax-class fusable-fold-operation
+  (define-syntax-class fusable-stream-consumer
     #:attributes (op init end)
     #:datum-literals (#%host-expression #%partial-application)
     (pattern (~and (#%partial-application
@@ -72,18 +74,22 @@
       #:attr end #'(foldl-cstream op init)))
 
   (define-syntax-class non-fusable
-    (pattern (~not _:fusable-list-operation)))
+    (pattern (~not _:fusable-stream-transformer)))
 
   (define (generate-fused-operation ops)
     (syntax-parse (reverse ops)
-      [(g:fusable-fold-operation op:fusable-list-operation ...)
+      ;; TODO: add a new rule here for a fusable-stream-producer at the end
+      [(g:fusable-stream-consumer op:fusable-stream-transformer ...)
        #`(esc (λ (lst)
                 ((#,@#'g.end
                   (inline-compose1 [op.next op.f] ...
                                    list->cstream-next))
                  lst)))]
-      [(op:fusable-list-operation ...)
+      [(op:fusable-stream-transformer ...)
        #'(esc (λ (lst)
+                ;; have a contract here for the input
+                ;; validate it's a list, and error message
+                ;; can include the op syntax object
                 ((cstream->list
                   (inline-compose1 [op.next op.f] ...
                                    list->cstream-next))
@@ -153,12 +159,12 @@
   (define (deforest-rewrite stx)
     (syntax-parse stx
       [((~datum thread) _0:non-fusable ...
-                        f:fusable-list-operation ...+
-                        g:fusable-fold-operation
+                        f:fusable-stream-transformer ...+
+                        g:fusable-stream-consumer
                         _1 ...)
        #:with fused (generate-fused-operation (syntax->list #'(f ... g)))
        #'(thread _0 ... fused _1 ...)]
-      [((~datum thread) _0:non-fusable ... f:fusable-list-operation ...+ _1 ...)
+      [((~datum thread) _0:non-fusable ... f:fusable-stream-transformer ...+ _1 ...)
        #:with fused (generate-fused-operation (syntax->list #'(f ...)))
        #'(thread _0 ... fused _1 ...)]
       [_ this-syntax]))
