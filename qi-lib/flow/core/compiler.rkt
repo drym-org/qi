@@ -170,11 +170,18 @@
        #'(thread _0 ... fused _1 ...)]
       [_ this-syntax]))
 
+  ;; Applies f repeatedly to the init-val terminating the loop if the
+  ;; result of f is #f or the new syntax object is eq? to the previous
+  ;; (possibly initial) one.
+  ;;
+  ;; Caveats:
+  ;;   * the syntax object is not inspected, only eq? is used
+  ;;   * comparison is performed only between consecutive steps (does not handle cyclic occurences)
   (define ((fix f) init-val)
-    ;; may need to be modified to handle #f as a special terminator
     (let ([new-val (f init-val)])
-      (if (eq? new-val init-val)
-          new-val
+      (if (or (not new-val)
+              (eq? new-val init-val))
+          init-val
           ((fix f) new-val))))
 
   (define (deforest-pass stx)
