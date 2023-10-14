@@ -29,6 +29,19 @@
     [(_ [op f] rest ...) (op f (inline-compose1 rest ...))]))
 
 (begin-for-syntax
+
+  ;; currently does not distinguish substeps of a parent expansion step
+  (define-syntax-rule (qi-expansion-step name stx0 stx1)
+    (let ()
+      (emit-local-step stx0 stx1 #:id #'name)
+      stx1))
+
+  (define-syntax-rule (define-qi-expansion-step (name stx0)
+                        body ...)
+    (define (name stx0)
+      (let ([stx1 (let () body ...)])
+        (qi-expansion-step name stx0 stx1))))
+
   ;; note: this does not return compiled code but instead,
   ;; syntax whose expansion compiles the code
   (define (compile-flow stx)
@@ -96,10 +109,11 @@
                                    list->cstream-next))
                  lst)))]))
 
-  (define (normalize-rewrite stx)
+  (define-qi-expansion-step (normalize-rewrite stx)
     ;; TODO: the "active" components of the expansions should be
     ;; optimized, i.e. they should be wrapped with a recursive
     ;; call to the optimizer
+    ;; TODO: eliminate outdated rules here
     (syntax-parse stx
       ;; restorative optimization for "all"
       [((~datum thread) ((~datum amp) onex) (~datum AND))
@@ -274,16 +288,12 @@
     (with-syntax ([(v ...) ids])
       #`(let ([v undefined] ...) #,stx)))
 
-  (define (process-bindings stx)
+  (define-qi-expansion-step (process-bindings stx)
     ;; TODO: use syntax-parse and match ~> specifically.
     ;; Since macros are expanded "outside in," presumably
     ;; it will naturally wrap the outermost ~>
-    (let ([stx1 (wrap-with-scopes #`(qi0->racket #,(rewrite-all-bindings stx))
-                                  (bound-identifiers stx))])
-      (emit-local-step stx stx1 #:id #'process-bindings)
-      stx1))
-
-  )
+    (wrap-with-scopes #`(qi0->racket #,(rewrite-all-bindings stx))
+                      (bound-identifiers stx))))
 
 (define-syntax (qi0->racket stx)
   ;; this is a macro so it receives the entire expression
