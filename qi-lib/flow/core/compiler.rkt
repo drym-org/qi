@@ -54,7 +54,7 @@
     (pattern (~and (esc (#%host-expression (~literal range)))
                    stx)
       #:attr next #'range->cstream-next
-      #:attr prepare #'range->cstream-args)
+      #:attr prepare #'range->cstream-prepare)
     (pattern (~and ((#%partial-application
                      (#%host-expression (~literal range)))
                     (#%host-expression arg) ...)
@@ -64,7 +64,7 @@
                           #'curry
                           #'curryr)
       #:attr next #'range->cstream-next
-      #:attr prepare #'(vindaloo range->cstream-args arg ...)))
+      #:attr prepare #'(vindaloo range->cstream-prepare arg ...)))
 
   (define-syntax-class fusable-stream-transformer
     #:attributes (f next)

@@ -23,7 +23,7 @@
          cstream->list
          list->cstream-next
          range->cstream-next
-         range->cstream-args
+         range->cstream-prepare
          map-cstream-next
          filter-cstream-next
          foldr-cstream
@@ -282,14 +282,16 @@
 
 (define-inline (range->cstream-next done skip yield)
   (λ (state)
-    (match-define (cons l h) state)
+    (match-define (list l h s) state)
     (cond [(< l h)
-           (yield l (cons (add1 l) h))]
+           (yield l (cons (+ l s) (cdr state)))]
           [else (done)])))
 
-(define-inline (range->cstream-args h/l (maybe-h #f))
-  (cons (if maybe-h h/l 0)
-        (or maybe-h h/l)))
+(define range->cstream-prepare
+  (case-lambda
+    [(h) (list 0 h 1)]
+    [(l h) (list l h 1)]
+    [(l h s) (list l h s)]))
 
 (define-inline (map-cstream-next f next)
   (λ (done skip yield)
