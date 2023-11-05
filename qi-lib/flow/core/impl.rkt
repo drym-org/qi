@@ -22,6 +22,8 @@
          kw-helper
          cstream->list
          list->cstream-next
+         range->cstream-next
+         range->cstream-args
          map-cstream-next
          filter-cstream-next
          foldr-cstream
@@ -278,6 +280,17 @@
     (cond [(null? state) (done)]
           [else (yield (car state) (cdr state))])))
 
+(define-inline (range->cstream-next done skip yield)
+  (λ (state)
+    (match-define (cons l h) state)
+    (cond [(< l h)
+           (yield l (cons (add1 l) h))]
+          [else (done)])))
+
+(define-inline (range->cstream-args h/l (maybe-h #f))
+  (cons (if maybe-h h/l 0)
+        (or maybe-h h/l)))
+
 (define-inline (map-cstream-next f next)
   (λ (done skip yield)
     (next done
@@ -292,4 +305,4 @@
           (λ (value state)
             (if (f value)
                 (yield value state)
-                (skip state)))))))
+                (skip state))))))

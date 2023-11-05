@@ -16,7 +16,8 @@
          (only-in racket/list make-list)
          racket/function
          racket/undefined
-         (prefix-in fancy: fancy-app))
+         (prefix-in fancy: fancy-app)
+         racket/list)
 
 ;; "Composes" higher-order functions inline by directly applying them
 ;; to the result of each subsequent application, with the last argument
@@ -49,6 +50,16 @@
 
   ;; TODO: define another syntax class, fusable-stream-producer,
   ;; to match e.g. `upto` (range) and `unfold`.
+  (define-syntax-class fusable-stream-producer
+    #:attributes (next args)
+    #:datum-literals (#%host-expression #%partial-application)
+    (pattern (~and ((~literal esc) (#%host-expression (~literal range)))
+                   stx)
+      #:do [(define chirality (syntax-property #'stx 'chirality))]
+      #:when (and chirality (eq? chirality 'right))
+      #:attr next #'range->cstream-next
+      #:attr args #'range->cstream-args))
+
   (define-syntax-class fusable-stream-transformer
     #:attributes (f next)
     #:datum-literals (#%host-expression #%partial-application)
@@ -92,7 +103,12 @@
 
   (define (generate-fused-operation ops)
     (syntax-parse (reverse ops)
-      ;; TODO: add a new rule here for a fusable-stream-producer at the end
+      [(g:fusable-stream-consumer op:fusable-stream-transformer ... p:fusable-stream-producer)
+       #`(esc (λ args
+                ((#,@#'g.end
+                  (inline-compose1 [op.next op.f] ...
+                                   p.next))
+                 (apply p.args args))))]
       [(g:fusable-stream-consumer op:fusable-stream-transformer ...)
        #`(esc (λ (lst)
                 ((#,@#'g.end
@@ -173,6 +189,13 @@
   ;; one challenge: traversing the syntax tree
   (define (deforest-rewrite stx)
     (syntax-parse stx
+      [((~datum thread) _0:non-fusable ...
+                        p:fusable-stream-producer
+                        f:fusable-stream-transformer ...+
+                        g:fusable-stream-consumer
+                        _1 ...)
+       #:with fused (generate-fused-operation (syntax->list #'(p f ... g)))
+       #'(thread _0 ... fused _1 ...)]
       [((~datum thread) _0:non-fusable ...
                         f:fusable-stream-transformer ...+
                         g:fusable-stream-consumer
