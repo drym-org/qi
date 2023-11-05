@@ -48,17 +48,23 @@
   (define (compile-flow stx)
     (process-bindings (optimize-flow stx)))
 
-  ;; TODO: define another syntax class, fusable-stream-producer,
-  ;; to match e.g. `upto` (range) and `unfold`.
   (define-syntax-class fusable-stream-producer
-    #:attributes (next args)
-    #:datum-literals (#%host-expression #%partial-application)
-    (pattern (~and ((~literal esc) (#%host-expression (~literal range)))
+    #:attributes (next prepare)
+    #:datum-literals (#%host-expression #%partial-application esc)
+    (pattern (~and (esc (#%host-expression (~literal range)))
+                   stx)
+      #:attr next #'range->cstream-next
+      #:attr prepare #'range->cstream-args)
+    (pattern (~and ((#%partial-application
+                     (#%host-expression (~literal range)))
+                    (#%host-expression arg) ...)
                    stx)
       #:do [(define chirality (syntax-property #'stx 'chirality))]
-      #:when (and chirality (eq? chirality 'right))
+      #:with vindaloo (if (and chirality (eq? chirality 'right))
+                          #'curry
+                          #'curryr)
       #:attr next #'range->cstream-next
-      #:attr args #'range->cstream-args))
+      #:attr prepare #'(vindaloo range->cstream-args arg ...)))
 
   (define-syntax-class fusable-stream-transformer
     #:attributes (f next)
@@ -108,7 +114,7 @@
                 ((#,@#'g.end
                   (inline-compose1 [op.next op.f] ...
                                    p.next))
-                 (apply p.args args))))]
+                 (apply p.prepare args))))]
       [(g:fusable-stream-consumer op:fusable-stream-transformer ...)
        #`(esc (λ (lst)
                 ((#,@#'g.end
