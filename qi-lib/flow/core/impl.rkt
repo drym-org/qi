@@ -246,67 +246,51 @@
           (apply then-f args)))))
 
 ;; Stream fusion
-(define-inline (cstream->list next)
-  (λ state
+(begin-encourage-inline
+  (define-inline (cstream->list next)
+    (λ (state)
       (let loop ([state state])
-        (apply
-         (next (λ () null)
+        ((next (λ () null)
                (λ (state) (loop state))
                (λ (value state)
-                 ;; Must be a list with single value
-                 (cons (car value) (loop state))))
+                 (cons value (loop state))))
          state))))
 
-(define-inline (foldr-cstream op init next)
-  (λ state
-    (let loop ([state state])
-      (apply
-       (next (λ () init)
-             (λ (state) (loop state))
-             (λ (vals state)
-               ;; Vals must be a list with single value, the result
-               ;; must be single value as it is technically being
-               ;; merged into implicit accumulator (see foldl-cstream)
-               (op (car vals) (loop state))))
-       state))))
+  (define-inline (foldr-cstream op init next)
+    (λ (state)
+      (let loop ([state state])
+        ((next (λ () init)
+               (λ (state) (loop state))
+               (λ (value state)
+                 (op value (loop state))))
+         state))))
 
-(define-inline (foldl-cstream op init next)
-  (λ state
-    (let loop ([acc init] [state state])
-      (apply
-       (next (λ () acc)
-             (λ (state) (loop acc state))
-             (λ (value state)
-               ;; Value must be a list with single value and the value
-               ;; stored in the accumulator must be a single value,
-               ;; not a list of results
-               (loop (op (car value) acc) state)))
-       state))))
+  (define-inline (foldl-cstream op init next)
+    (λ (state)
+      (let loop ([acc init] [state state])
+        ((next (λ () acc)
+               (λ (state) (loop acc state))
+               (λ (value state)
+                 (loop (op value acc) state)))
+         state))))
 
-;; Proper name should probably be lists->cstream-next
-(define-inline (list->cstream-next done skip yield)
-  (lambda states
-    (cond ((andmap null? states)
-           (done))
-          ;; yield is always called with a list of values taken from
-          ;; car of all lists passed as arguments of this procedure
-          (else (yield (map car states) (map cdr states))))))
+  (define-inline (list->cstream-next done skip yield)
+    (λ (state)
+      (cond [(null? state) (done)]
+            [else (yield (car state) (cdr state))])))
 
-(define-inline (map-cstream-next f next)
-  (lambda (done skip yield)
-    (next done
-          skip
-          (lambda (vals states)
-            ;; The resulting value must be wrapped in a list as any
-            ;; yield expects list of values as its first argument
-            (yield (list (apply f vals)) states)))))
-
-(define-inline (filter-cstream-next f next)
+  (define-inline (map-cstream-next f next)
     (λ (done skip yield)
       (next done
             skip
-            (λ (vals state)
-              (if (f (car vals))
-                  ;; vals is already a list of values
-                  (yield vals state)
-                  (skip state))))))
+            (λ (value state)
+              (yield (f value) state)))))
+
+  (define-inline (filter-cstream-next f next)
+    (λ (done skip yield)
+      (next done
+            skip
+            (λ (value state)
+              (if (f value)
+                  (yield value state)
+                  (skip state)))))))
