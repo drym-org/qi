@@ -246,51 +246,50 @@
           (apply then-f args)))))
 
 ;; Stream fusion
-(begin-encourage-inline
-  (define-inline (cstream->list next)
-    (λ (state)
-      (let loop ([state state])
-        ((next (λ () null)
-               (λ (state) (loop state))
-               (λ (value state)
-                 (cons value (loop state))))
-         state))))
+(define-inline (cstream->list next)
+  (λ (state)
+    (let loop ([state state])
+      ((next (λ () null)
+             (λ (state) (loop state))
+             (λ (value state)
+               (cons value (loop state))))
+       state))))
 
-  (define-inline (foldr-cstream op init next)
-    (λ (state)
-      (let loop ([state state])
-        ((next (λ () init)
-               (λ (state) (loop state))
-               (λ (value state)
-                 (op value (loop state))))
-         state))))
+(define-inline (foldr-cstream op init next)
+  (λ (state)
+    (let loop ([state state])
+      ((next (λ () init)
+             (λ (state) (loop state))
+             (λ (value state)
+               (op value (loop state))))
+       state))))
 
-  (define-inline (foldl-cstream op init next)
-    (λ (state)
-      (let loop ([acc init] [state state])
-        ((next (λ () acc)
-               (λ (state) (loop acc state))
-               (λ (value state)
-                 (loop (op value acc) state)))
-         state))))
+(define-inline (foldl-cstream op init next)
+  (λ (state)
+    (let loop ([acc init] [state state])
+      ((next (λ () acc)
+             (λ (state) (loop acc state))
+             (λ (value state)
+               (loop (op value acc) state)))
+       state))))
 
-  (define-inline (list->cstream-next done skip yield)
-    (λ (state)
-      (cond [(null? state) (done)]
-            [else (yield (car state) (cdr state))])))
+(define-inline (list->cstream-next done skip yield)
+  (λ (state)
+    (cond [(null? state) (done)]
+          [else (yield (car state) (cdr state))])))
 
-  (define-inline (map-cstream-next f next)
-    (λ (done skip yield)
-      (next done
-            skip
-            (λ (value state)
-              (yield (f value) state)))))
+(define-inline (map-cstream-next f next)
+  (λ (done skip yield)
+    (next done
+          skip
+          (λ (value state)
+            (yield (f value) state)))))
 
-  (define-inline (filter-cstream-next f next)
-    (λ (done skip yield)
-      (next done
-            skip
-            (λ (value state)
-              (if (f value)
-                  (yield value state)
-                  (skip state)))))))
+(define-inline (filter-cstream-next f next)
+  (λ (done skip yield)
+    (next done
+          skip
+          (λ (value state)
+            (if (f value)
+                (yield value state)
+                (skip state)))))))
