@@ -16,7 +16,8 @@
          (only-in racket/list make-list)
          racket/function
          racket/undefined
-         (prefix-in fancy: fancy-app))
+         (prefix-in fancy: fancy-app)
+         racket/list)
 
 ;; "Composes" higher-order functions inline by directly applying them
 ;; to the result of each subsequent application, with the last argument
@@ -47,18 +48,35 @@
   (define (compile-flow stx)
     (process-bindings (optimize-flow stx)))
 
-  ;; TODO: define another syntax class, fusable-stream-producer,
-  ;; to match e.g. `upto` (range) and `unfold`.
-  (define-syntax-class fusable-stream-transformer
-    #:attributes (f next)
-    #:datum-literals (#%host-expression #%partial-application)
+  ;; Used for producing the stream from particular
+  ;; expressions. Implicit producer is list->cstream-next and it is
+  ;; not created by using this class but rather explicitly used when
+  ;; no syntax class producer is matched.
+  (define-syntax-class fusable-stream-producer
+    #:attributes (next prepare)
+    #:datum-literals (#%host-expression #%partial-application esc)
+    (pattern (~and (esc (#%host-expression (~literal range)))
+                   stx)
+      #:attr next #'range->cstream-next
+      #:attr prepare #'range->cstream-prepare)
     (pattern (~and (#%partial-application
-                    ((#%host-expression (~literal map))
-                     (#%host-expression f)))
+                    ((#%host-expression (~literal range))
+                     (#%host-expression arg) ...))
                    stx)
       #:do [(define chirality (syntax-property #'stx 'chirality))]
-      #:when (and chirality (eq? chirality 'right))
-      #:attr next #'map-cstream-next)
+      #:with vindaloo (if (and chirality (eq? chirality 'right))
+                          #'curry
+                          #'curryr)
+      #:attr next #'range->cstream-next
+      #:attr prepare #'(vindaloo range->cstream-prepare arg ...)))
+
+  ;; Matches any stream transformer that can be in the head position
+  ;; of the fused sequence even when there is no explicit
+  ;; producer. Procedures accepting variable number of arguments like
+  ;; `map` cannot be in this class.
+  (define-syntax-class fusable-stream-transformer0
+    #:attributes (f next)
+    #:datum-literals (#%host-expression #%partial-application)
     (pattern (~and (#%partial-application
                     ((#%host-expression (~literal filter))
                      (#%host-expression f)))
@@ -67,6 +85,31 @@
       #:when (and chirality (eq? chirality 'right))
       #:attr next #'filter-cstream-next))
 
+  ;; All implemented stream transformers - within the stream, only
+  ;; single value is being passed and therefore procedures like `map`
+  ;; can (and should) be matched.
+  (define-syntax-class fusable-stream-transformer
+    #:attributes (f next)
+    #:datum-literals (#%host-expression #%partial-application)
+    (pattern (~and (#%partial-application
+                    ((#%host-expression (~literal map))
+                     (#%host-expression f)))
+                   stx)
+             #:do [(define chirality (syntax-property #'stx 'chirality))]
+             #:when (and chirality (eq? chirality 'right))
+             #:attr next #'map-cstream-next)
+    (pattern (~and (#%partial-application
+                    ((#%host-expression (~literal filter))
+                     (#%host-expression f)))
+                   stx)
+             #:do [(define chirality (syntax-property #'stx 'chirality))]
+             #:when (and chirality (eq? chirality 'right))
+             #:attr next #'filter-cstream-next))
+
+  ;; Terminates the fused sequence (consumes the stream) and produces
+  ;; an actual result value. The implicit consumer is cstream->list is
+  ;; not part of this class as it is added explicitly when generating
+  ;; the fused operation.
   (define-syntax-class fusable-stream-consumer
     #:attributes (op init end)
     #:datum-literals (#%host-expression #%partial-application)
@@ -88,17 +131,50 @@
       #:attr end #'(foldl-cstream op init)))
 
   (define-syntax-class non-fusable
-    (pattern (~not _:fusable-stream-transformer)))
+    (pattern (~not (~or _:fusable-stream-transformer
+                        _:fusable-stream-producer
+                        _:fusable-stream-consumer))))
 
+  ;; Generates a syntax for the fused operation for given
+  ;; sequence. The syntax list must already conform to the rule that
+  ;; if the first operation is a fusable-stream-transformer, it must
+  ;; be a fusable-stream-transformer0 as well!
   (define (generate-fused-operation ops)
     (syntax-parse (reverse ops)
-      ;; TODO: add a new rule here for a fusable-stream-producer at the end
-      [(g:fusable-stream-consumer op:fusable-stream-transformer ...)
+      [(g:fusable-stream-consumer
+        op:fusable-stream-transformer ...
+        p:fusable-stream-producer)
+       ;; Contract probably not needed (prepare should produce
+       ;; meaningful error messages)
+       #`(esc (λ args
+                ((#,@#'g.end
+                  (inline-compose1 [op.next op.f] ...
+                                   p.next))
+                 (apply p.prepare args))))]
+      [(g:fusable-stream-consumer
+        p:fusable-stream-producer)
+       ;; dtto
+       #`(esc (λ args
+                ((#,@#'g.end p.next)
+                 (apply p.prepare args))))]
+      ;; The list must contain fusable-stream-transformer0 as the last element!
+      [(g:fusable-stream-consumer
+        op:fusable-stream-transformer ...)
+       ;; TODO: Add contract
        #`(esc (λ (lst)
                 ((#,@#'g.end
                   (inline-compose1 [op.next op.f] ...
                                    list->cstream-next))
                  lst)))]
+      [(op:fusable-stream-transformer ...
+        p:fusable-stream-producer)
+       ;; dtto
+       #`(esc (λ args
+                ((cstream->list
+                  (inline-compose1 [op.next op.f] ...
+                                   p.next))
+                 (apply p.prepare args))))]
+      ;; dtto
       [(op:fusable-stream-transformer ...)
        #'(esc (λ (lst)
                 ;; have a contract here for the input
@@ -107,7 +183,8 @@
                 ((cstream->list
                   (inline-compose1 [op.next op.f] ...
                                    list->cstream-next))
-                 lst)))]))
+                 lst)))]
+      ))
 
   (define-qi-expansion-step (normalize-rewrite stx)
     ;; TODO: the "active" components of the expansions should be
@@ -174,13 +251,36 @@
   (define (deforest-rewrite stx)
     (syntax-parse stx
       [((~datum thread) _0:non-fusable ...
+                        p:fusable-stream-producer
                         f:fusable-stream-transformer ...+
                         g:fusable-stream-consumer
                         _1 ...)
-       #:with fused (generate-fused-operation (syntax->list #'(f ... g)))
+       #:with fused (generate-fused-operation (syntax->list #'(p f ... g)))
        #'(thread _0 ... fused _1 ...)]
-      [((~datum thread) _0:non-fusable ... f:fusable-stream-transformer ...+ _1 ...)
-       #:with fused (generate-fused-operation (syntax->list #'(f ...)))
+      [((~datum thread) _0:non-fusable ...
+                        p:fusable-stream-producer
+                        g:fusable-stream-consumer
+                        _1 ...)
+       #:with fused (generate-fused-operation (syntax->list #'(p g)))
+       #'(thread _0 ... fused _1 ...)]
+      [((~datum thread) _0:non-fusable ...
+                        f1:fusable-stream-transformer0
+                        f:fusable-stream-transformer ...+
+                        g:fusable-stream-consumer
+                        _1 ...)
+       #:with fused (generate-fused-operation (syntax->list #'(f1 f ... g)))
+       #'(thread _0 ... fused _1 ...)]
+      [((~datum thread) _0:non-fusable ...
+                        p:fusable-stream-producer
+                        f:fusable-stream-transformer ...+
+                        _1 ...)
+       #:with fused (generate-fused-operation (syntax->list #'(p f ...)))
+       #'(thread _0 ... fused _1 ...)]
+      [((~datum thread) _0:non-fusable ...
+                        f1:fusable-stream-transformer0
+                        f:fusable-stream-transformer ...+
+                        _1 ...)
+       #:with fused (generate-fused-operation (syntax->list #'(f1 f ...)))
        #'(thread _0 ... fused _1 ...)]
       [_ this-syntax]))
 
