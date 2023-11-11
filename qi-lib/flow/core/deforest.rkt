@@ -33,8 +33,7 @@
   (define-syntax-class fusable-stream-producer
     #:attributes (next prepare)
     #:datum-literals (#%host-expression #%partial-application esc)
-    (pattern (~and (esc (#%host-expression (~literal range)))
-                   stx)
+    (pattern (esc (#%host-expression (~literal range)))
              #:attr next #'range->cstream-next
              #:attr prepare #'range->cstream-prepare)
     (pattern (~and (#%partial-application
@@ -111,7 +110,9 @@
              #:when (and chirality (eq? chirality 'right))
              #:attr end #'(foldl-cstream-next op init))
     (pattern (~literal cstream->list)
-             #:attr end #'(cstream-next->list)))
+             #:attr end #'(cstream-next->list))
+    (pattern (esc (#%host-expression (~literal car)))
+             #:attr end #'(car-cstream-next)))
 
   (define-syntax-class non-fusable
     (pattern (~not (~or _:fusable-stream-transformer
@@ -246,3 +247,11 @@
              (λ (value state)
                (loop (op value acc) state)))
        state))))
+
+(define-inline (car-cstream-next next)
+  (λ (state)
+    (let loop ([state state])
+      ((next (λ () (error 'car "Empty list!"))
+             (λ (state) (loop state))
+             (λ (value state)
+               value))))))
