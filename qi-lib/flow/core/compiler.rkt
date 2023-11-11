@@ -20,16 +20,6 @@
          racket/list
          "deforest.rkt")
 
-;; "Composes" higher-order functions inline by directly applying them
-;; to the result of each subsequent application, with the last argument
-;; being passed to the penultimate application as a (single) argument.
-;; This is specialized to our implementation of stream fusion in the
-;; arguments it expects and how it uses them.
-(define-syntax inline-compose1
-  (syntax-rules ()
-    [(_ f) f]
-    [(_ [op f] rest ...) (op f (inline-compose1 rest ...))]))
-
 (begin-for-syntax
 
   ;; currently does not distinguish substeps of a parent expansion step

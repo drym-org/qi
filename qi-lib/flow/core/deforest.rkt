@@ -5,7 +5,24 @@
 (require (for-syntax racket/base
                      syntax/parse)
          racket/performance-hint
-         racket/match)
+         racket/match
+         racket/function
+         racket/list)
+
+;; These bindings are used for ~literal matching to introduce implicit
+;; producer/consumer when none is explicitly given in the flow.
+(define-syntax cstream->list #'-cstream->list)
+(define-syntax list->cstream #'-list->cstream)
+
+;; "Composes" higher-order functions inline by directly applying them
+;; to the result of each subsequent application, with the last argument
+;; being passed to the penultimate application as a (single) argument.
+;; This is specialized to our implementation of stream fusion in the
+;; arguments it expects and how it uses them.
+(define-syntax inline-compose1
+  (syntax-rules ()
+    [(_ f) f]
+    [(_ [op f] rest ...) (op f (inline-compose1 rest ...))]))
 
 (begin-for-syntax
 
@@ -29,7 +46,10 @@
                                  #'curry
                                  #'curryr)
              #:attr next #'range->cstream-next
-             #:attr prepare #'(vindaloo range->cstream-prepare arg ...)))
+             #:attr prepare #'(vindaloo range->cstream-prepare arg ...))
+    (pattern (~literal list->cstream)
+             #:attr next #'list->cstream-next
+             #:attr prepare #'identity))
 
   ;; Matches any stream transformer that can be in the head position
   ;; of the fused sequence even when there is no explicit
@@ -72,7 +92,7 @@
   ;; not part of this class as it is added explicitly when generating
   ;; the fused operation.
   (define-syntax-class fusable-stream-consumer
-    #:attributes (op init end)
+    #:attributes (end)
     #:datum-literals (#%host-expression #%partial-application)
     (pattern (~and (#%partial-application
                     ((#%host-expression (~literal foldr))
@@ -81,7 +101,7 @@
                    stx)
              #:do [(define chirality (syntax-property #'stx 'chirality))]
              #:when (and chirality (eq? chirality 'right))
-             #:attr end #'(foldr-cstream op init))
+             #:attr end #'(foldr-cstream-next op init))
     (pattern (~and (#%partial-application
                     ((#%host-expression (~literal foldl))
                      (#%host-expression op)
@@ -89,7 +109,9 @@
                    stx)
              #:do [(define chirality (syntax-property #'stx 'chirality))]
              #:when (and chirality (eq? chirality 'right))
-             #:attr end #'(foldl-cstream op init)))
+             #:attr end #'(foldl-cstream-next op init))
+    (pattern (~literal cstream->list)
+             #:attr end #'(cstream-next->list)))
 
   (define-syntax-class non-fusable
     (pattern (~not (~or _:fusable-stream-transformer
@@ -102,50 +124,16 @@
   ;; be a fusable-stream-transformer0 as well!
   (define (generate-fused-operation ops)
     (syntax-parse (reverse ops)
-      [(g:fusable-stream-consumer
-        op:fusable-stream-transformer ...
+      [(c:fusable-stream-consumer
+        t:fusable-stream-transformer ...
         p:fusable-stream-producer)
        ;; Contract probably not needed (prepare should produce
        ;; meaningful error messages)
        #`(esc (λ args
-                ((#,@#'g.end
-                  (inline-compose1 [op.next op.f] ...
+                ((#,@#'c.end
+                  (inline-compose1 [t.next t.f] ...
                                    p.next))
-                 (apply p.prepare args))))]
-      [(g:fusable-stream-consumer
-        p:fusable-stream-producer)
-       ;; dtto
-       #`(esc (λ args
-                ((#,@#'g.end p.next)
-                 (apply p.prepare args))))]
-      ;; The list must contain fusable-stream-transformer0 as the last element!
-      [(g:fusable-stream-consumer
-        op:fusable-stream-transformer ...)
-       ;; TODO: Add contract
-       #`(esc (λ (lst)
-                ((#,@#'g.end
-                  (inline-compose1 [op.next op.f] ...
-                                   list->cstream-next))
-                 lst)))]
-      [(op:fusable-stream-transformer ...
-                                      p:fusable-stream-producer)
-       ;; dtto
-       #`(esc (λ args
-                ((cstream->list
-                  (inline-compose1 [op.next op.f] ...
-                                   p.next))
-                 (apply p.prepare args))))]
-      ;; dtto
-      [(op:fusable-stream-transformer ...)
-       #'(esc (λ (lst)
-                ;; have a contract here for the input
-                ;; validate it's a list, and error message
-                ;; can include the op syntax object
-                ((cstream->list
-                  (inline-compose1 [op.next op.f] ...
-                                   list->cstream-next))
-                 lst)))]
-      ))
+                 (apply p.prepare args))))]))
 
   ;; 0. "Qi-normal form"
   ;; 1. deforestation pass
@@ -158,67 +146,41 @@
     (syntax-parse stx
       [((~datum thread) _0:non-fusable ...
                         p:fusable-stream-producer
-                        f:fusable-stream-transformer ...+
-                        g:fusable-stream-consumer
+                        ;; There can be zero transformers here:
+                        t:fusable-stream-transformer ...
+                        c:fusable-stream-consumer
                         _1 ...)
-       #:with fused (generate-fused-operation (syntax->list #'(p f ... g)))
+       #:with fused (generate-fused-operation
+                     (syntax->list #'(p t ... c)))
+       #'(thread _0 ... fused _1 ...)]
+      [((~datum thread) _0:non-fusable ...
+                        t1:fusable-stream-transformer0
+                        t:fusable-stream-transformer ...
+                        c:fusable-stream-consumer
+                        _1 ...)
+       #:with fused (generate-fused-operation
+                     (syntax->list #'(list->cstream t1 t ... c)))
        #'(thread _0 ... fused _1 ...)]
       [((~datum thread) _0:non-fusable ...
                         p:fusable-stream-producer
-                        g:fusable-stream-consumer
+                        ;; Must be 1 or more transformers here:
+                        t:fusable-stream-transformer ...+
                         _1 ...)
-       #:with fused (generate-fused-operation (syntax->list #'(p g)))
+       #:with fused (generate-fused-operation
+                     (syntax->list #'(p t ... cstream->list)))
        #'(thread _0 ... fused _1 ...)]
       [((~datum thread) _0:non-fusable ...
                         f1:fusable-stream-transformer0
                         f:fusable-stream-transformer ...+
-                        g:fusable-stream-consumer
                         _1 ...)
-       #:with fused (generate-fused-operation (syntax->list #'(f1 f ... g)))
-       #'(thread _0 ... fused _1 ...)]
-      [((~datum thread) _0:non-fusable ...
-                        p:fusable-stream-producer
-                        f:fusable-stream-transformer ...+
-                        _1 ...)
-       #:with fused (generate-fused-operation (syntax->list #'(p f ...)))
-       #'(thread _0 ... fused _1 ...)]
-      [((~datum thread) _0:non-fusable ...
-                        f1:fusable-stream-transformer0
-                        f:fusable-stream-transformer ...+
-                        _1 ...)
-       #:with fused (generate-fused-operation (syntax->list #'(f1 f ...)))
+       #:with fused (generate-fused-operation
+                     (syntax->list #'(list->cstream f1 f ... cstream->list)))
        #'(thread _0 ... fused _1 ...)]
       [_ this-syntax]))
 
   )
 
-;; Stream fusion
-(define-inline (cstream->list next)
-  (λ (state)
-    (let loop ([state state])
-      ((next (λ () null)
-             (λ (state) (loop state))
-             (λ (value state)
-               (cons value (loop state))))
-       state))))
-
-(define-inline (foldr-cstream op init next)
-  (λ (state)
-    (let loop ([state state])
-      ((next (λ () init)
-             (λ (state) (loop state))
-             (λ (value state)
-               (op value (loop state))))
-       state))))
-
-(define-inline (foldl-cstream op init next)
-  (λ (state)
-    (let loop ([acc init] [state state])
-      ((next (λ () acc)
-             (λ (state) (loop acc state))
-             (λ (value state)
-               (loop (op value acc) state)))
-       state))))
+;; Producers
 
 (define-inline (list->cstream-next done skip yield)
   (λ (state)
@@ -238,6 +200,8 @@
     [(l h) (list l h 1)]
     [(l h s) (list l h s)]))
 
+;; Transformers
+
 (define-inline (map-cstream-next f next)
   (λ (done skip yield)
     (next done
@@ -253,3 +217,32 @@
             (if (f value)
                 (yield value state)
                 (skip state))))))
+
+;; Consumers
+
+(define-inline (cstream-next->list next)
+  (λ (state)
+    (let loop ([state state])
+      ((next (λ () null)
+             (λ (state) (loop state))
+             (λ (value state)
+               (cons value (loop state))))
+       state))))
+
+(define-inline (foldr-cstream-next op init next)
+  (λ (state)
+    (let loop ([state state])
+      ((next (λ () init)
+             (λ (state) (loop state))
+             (λ (value state)
+               (op value (loop state))))
+       state))))
+
+(define-inline (foldl-cstream-next op init next)
+  (λ (state)
+    (let loop ([acc init] [state state])
+      ((next (λ () acc)
+             (λ (state) (loop acc state))
+             (λ (value state)
+               (loop (op value acc) state)))
+       state))))
