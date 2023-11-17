@@ -7,6 +7,7 @@
          pingala
          eratosthenes
          collatz
+         range-map
          filter-map
          filter-map-foldr
          filter-map-foldl
@@ -57,6 +58,9 @@
   (cond [(<= n 1) (list n)]
         [(odd? n) (cons n (collatz (+ (* 3 n) 1)))]
         [(even? n) (cons n (collatz (quotient n 2)))]))
+
+(define (range-map v)
+  (map sqr (range 0 v)))
 
 (define (filter-map lst)
   (map sqr (filter odd? lst)))

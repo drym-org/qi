@@ -12,6 +12,7 @@
          pingala
          eratosthenes
          collatz
+         range-map
          filter-map
          filter-map-foldr
          filter-map-foldl
@@ -82,6 +83,10 @@
   (~>> (filter odd?)
        (map sqr)
        (foldl + 0)))
+
+(define-flow range-map
+  (~>> (range 0)
+       (map sqr)))
 
 ;; (define-flow filter-map
 ;;   (~>> (filter odd?)
