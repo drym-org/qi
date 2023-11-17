@@ -21,8 +21,8 @@
             check-list
             500000)
         (bm "range-map"
-            check-value
-            500000)
+            check-value-large
+            50000)
         (bm "filter-map"
             check-list
             500000)
