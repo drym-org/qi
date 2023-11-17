@@ -68,6 +68,34 @@
                     "deforestation in arbitrary positions"))
     (let ([stx (map make-right-chiral
                     (syntax->list
+                     #`(values
+                        #,(cons 'thread (map make-right-chiral
+                                             (syntax->list
+                                              #'((#%partial-application
+                                                  ((#%host-expression filter)
+                                                   (#%host-expression odd?)))
+                                                 (#%partial-application
+                                                  ((#%host-expression map)
+                                                   (#%host-expression sqr))))))))))])
+      (check-equal? (syntax->datum
+                     (deforest-rewrite
+                       #`(thread #,@stx)))
+                    '(thread
+                      values
+                      (esc
+                       (λ (lst)
+                         ((cstream->list
+                           (inline-compose1
+                            (map-cstream-next
+                             sqr)
+                            (filter-cstream-next
+                             odd?)
+                            list->cstream-next))
+                          lst)))
+                      values)
+                    "deforestation in nested positions"))
+    (let ([stx (map make-right-chiral
+                    (syntax->list
                      #'((#%partial-application
                          ((#%host-expression filter)
                           (#%host-expression string-upcase)))
