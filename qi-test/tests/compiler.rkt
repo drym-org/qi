@@ -2,7 +2,7 @@
 
 (provide tests)
 
-(require (for-template qi/flow/core/compiler)
+(require (for-template qi/flow/core/deforest)
          (only-in qi/flow/extended/syntax
                   make-right-chiral)
          rackunit
@@ -16,18 +16,21 @@
    (test-suite
     "deforestation"
     ;; (~>> values (filter odd?) (map sqr) values)
-    (let ([stx (make-right-chiral
-                #'(#%partial-application
-                   ((#%host-expression filter)
-                    (#%host-expression odd?))))])
-      ;; note this tests the rule in isolation; with normalization this would never be necessary
+    (let ([stx (map make-right-chiral
+                    (syntax->list #'((#%partial-application
+                                      ((#%host-expression filter)
+                                       (#%host-expression odd?)))
+                                     (#%partial-application
+                                      ((#%host-expression map)
+                                       (#%host-expression sqr))))))])
       (check-equal? (syntax->datum
                      (deforest-rewrite
-                       #`(thread #,stx)))
+                       #`(thread #,@stx)))
                     '(thread
                       (esc
-                       (λ (lst)
-                         ((cstream->list (inline-compose1 (filter-cstream-next odd?) list->cstream-next)) lst))))
+                       (λ args
+                         ((cstream-next->list (inline-compose1 (map-cstream-next sqr) (filter-cstream-next odd?) list->cstream-next))
+                          (apply identity args)))))
                     "deforest filter"))
     (let ([stx (make-right-chiral
                 #'(#%partial-application
@@ -55,28 +58,29 @@
                     '(thread
                       values
                       (esc
-                       (λ (lst)
-                         ((cstream->list
+                       (λ args
+                         ((cstream-next->list
                            (inline-compose1
                             (map-cstream-next
                              sqr)
                             (filter-cstream-next
                              odd?)
                             list->cstream-next))
-                          lst)))
+                          (apply identity args))))
                       values)
                     "deforestation in arbitrary positions"))
     (let ([stx (map make-right-chiral
                     (syntax->list
                      #`(values
-                        #,(cons 'thread (map make-right-chiral
-                                             (syntax->list
-                                              #'((#%partial-application
-                                                  ((#%host-expression filter)
-                                                   (#%host-expression odd?)))
-                                                 (#%partial-application
-                                                  ((#%host-expression map)
-                                                   (#%host-expression sqr))))))))))])
+                        (thread
+                         #,@(map make-right-chiral
+                                 (syntax->list
+                                  #'((#%partial-application
+                                      ((#%host-expression filter)
+                                       (#%host-expression odd?)))
+                                     (#%partial-application
+                                      ((#%host-expression map)
+                                       (#%host-expression sqr))))))))))])
       (check-equal? (syntax->datum
                      (deforest-rewrite
                        #`(thread #,@stx)))
@@ -108,15 +112,15 @@
                        #`(thread #,@stx)))
                     '(thread
                       (esc
-                       (λ (lst)
-                         ((foldl-cstream
+                       (λ args
+                         ((foldl-cstream-next
                            string-append
                            "I"
                            (inline-compose1
                             (filter-cstream-next
                              string-upcase)
                             list->cstream-next))
-                          lst))))
+                          (apply identity args)))))
                     "deforestation in arbitrary positions")))
    (test-suite
     "fixed point"
