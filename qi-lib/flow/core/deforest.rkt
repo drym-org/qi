@@ -181,77 +181,81 @@
 
   )
 
-;; Producers
+(begin-encourage-inline
 
-(define-inline (list->cstream-next done skip yield)
-  (λ (state)
-    (cond [(null? state) (done)]
-          [else (yield (car state) (cdr state))])))
+  ;; Producers
 
-(define-inline (range->cstream-next done skip yield)
-  (λ (state)
-    (match-define (list l h s) state)
-    (cond [(< l h)
-           (yield l (cons (+ l s) (cdr state)))]
-          [else (done)])))
+  (define-inline (list->cstream-next done skip yield)
+    (λ (state)
+      (cond [(null? state) (done)]
+            [else (yield (car state) (cdr state))])))
 
-(define range->cstream-prepare
-  (case-lambda
-    [(h) (list 0 h 1)]
-    [(l h) (list l h 1)]
-    [(l h s) (list l h s)]))
+  (define-inline (range->cstream-next done skip yield)
+    (λ (state)
+      (match-define (list l h s) state)
+      (cond [(< l h)
+             (yield l (cons (+ l s) (cdr state)))]
+            [else (done)])))
 
-;; Transformers
+  (define range->cstream-prepare
+    (case-lambda
+      [(h) (list 0 h 1)]
+      [(l h) (list l h 1)]
+      [(l h s) (list l h s)]))
 
-(define-inline (map-cstream-next f next)
-  (λ (done skip yield)
-    (next done
-          skip
-          (λ (value state)
-            (yield (f value) state)))))
+  ;; Transformers
 
-(define-inline (filter-cstream-next f next)
-  (λ (done skip yield)
-    (next done
-          skip
-          (λ (value state)
-            (if (f value)
-                (yield value state)
-                (skip state))))))
+  (define-inline (map-cstream-next f next)
+    (λ (done skip yield)
+      (next done
+            skip
+            (λ (value state)
+              (yield (f value) state)))))
 
-;; Consumers
+  (define-inline (filter-cstream-next f next)
+    (λ (done skip yield)
+      (next done
+            skip
+            (λ (value state)
+              (if (f value)
+                  (yield value state)
+                  (skip state))))))
 
-(define-inline (cstream-next->list next)
-  (λ (state)
-    (let loop ([state state])
-      ((next (λ () null)
-             (λ (state) (loop state))
-             (λ (value state)
-               (cons value (loop state))))
-       state))))
+  ;; Consumers
 
-(define-inline (foldr-cstream-next op init next)
-  (λ (state)
-    (let loop ([state state])
-      ((next (λ () init)
-             (λ (state) (loop state))
-             (λ (value state)
-               (op value (loop state))))
-       state))))
+  (define-inline (cstream-next->list next)
+    (λ (state)
+      (let loop ([state state])
+        ((next (λ () null)
+               (λ (state) (loop state))
+               (λ (value state)
+                 (cons value (loop state))))
+         state))))
 
-(define-inline (foldl-cstream-next op init next)
-  (λ (state)
-    (let loop ([acc init] [state state])
-      ((next (λ () acc)
-             (λ (state) (loop acc state))
-             (λ (value state)
-               (loop (op value acc) state)))
-       state))))
+  (define-inline (foldr-cstream-next op init next)
+    (λ (state)
+      (let loop ([state state])
+        ((next (λ () init)
+               (λ (state) (loop state))
+               (λ (value state)
+                 (op value (loop state))))
+         state))))
 
-(define-inline (car-cstream-next next)
-  (λ (state)
-    (let loop ([state state])
-      ((next (λ () (error 'car "Empty list!"))
-             (λ (state) (loop state))
-             (λ (value state)
-               value))))))
+  (define-inline (foldl-cstream-next op init next)
+    (λ (state)
+      (let loop ([acc init] [state state])
+        ((next (λ () acc)
+               (λ (state) (loop acc state))
+               (λ (value state)
+                 (loop (op value acc) state)))
+         state))))
+
+  (define-inline (car-cstream-next next)
+    (λ (state)
+      (let loop ([state state])
+        ((next (λ () (error 'car "Empty list!"))
+               (λ (state) (loop state))
+               (λ (value state)
+                 value))))))
+
+  )
