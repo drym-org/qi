@@ -20,6 +20,9 @@
         (bm "root-mean-square"
             check-list
             500000)
+        (bm "range-map"
+            check-value
+            500000)
         (bm "filter-map"
             check-list
             500000)
