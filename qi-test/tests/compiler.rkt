@@ -20,6 +20,7 @@
                 #'(#%partial-application
                    ((#%host-expression filter)
                     (#%host-expression odd?))))])
+      ;; note this tests the rule in isolation; with normalization this would never be necessary
       (check-equal? (syntax->datum
                      (deforest-rewrite
                        #`(thread #,stx)))
@@ -27,19 +28,17 @@
                       (esc
                        (λ (lst)
                          ((cstream->list (inline-compose1 (filter-cstream-next odd?) list->cstream-next)) lst))))
-                    "deforestation of map -- note this tests the rule in isolation; with normalization this would never be necessary"))
+                    "deforest filter"))
     (let ([stx (make-right-chiral
                 #'(#%partial-application
                    ((#%host-expression map)
                     (#%host-expression sqr))))])
+      ;; note this tests the rule in isolation; with normalization this would never be necessary
       (check-equal? (syntax->datum
                      (deforest-rewrite
                        #`(thread #,stx)))
-                    '(thread
-                      (esc
-                       (λ (lst)
-                         ((cstream->list (inline-compose1 (map-cstream-next sqr) list->cstream-next)) lst))))
-                    "deforestation of filter -- note this tests the rule in isolation; with normalization this would never be necessary"))
+                    '(thread (#%partial-application ((#%host-expression map) (#%host-expression sqr))))
+                    "does not deforest map in the head position"))
     (let ([stx (map make-right-chiral
                     (syntax->list
                      #'(values
@@ -70,7 +69,7 @@
     (let ([stx (map make-right-chiral
                     (syntax->list
                      #'((#%partial-application
-                         ((#%host-expression map)
+                         ((#%host-expression filter)
                           (#%host-expression string-upcase)))
                         (#%partial-application
                          ((#%host-expression foldl)
@@ -86,7 +85,7 @@
                            string-append
                            "I"
                            (inline-compose1
-                            (map-cstream-next
+                            (filter-cstream-next
                              string-upcase)
                             list->cstream-next))
                           lst))))
