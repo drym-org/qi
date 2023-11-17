@@ -70,9 +70,8 @@
 ;;   (~>> (filter odd?) (map sqr)))
 
 (define-flow filter-map
-  (~>> values
-       (~>> (filter odd?)
-            (map sqr))))
+  (~>> (filter odd?)
+       (map sqr)))
 
 (define-flow filter-map-foldr
   (~>> (filter odd?)
