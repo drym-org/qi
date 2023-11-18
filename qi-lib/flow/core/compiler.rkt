@@ -88,7 +88,12 @@
       ;; and we can only know this at runtime.
       [((~datum thread) _0 ... (~datum collect) (~datum sep) _1 ...)
        #'(thread _0 ... _1 ...)]
-      ;; return syntax unchanged if there are no known optimizations
+      ;; collapse `values` and `_` inside a threading form
+      [((~datum thread) _0 ... (~literal values) _1 ...)
+       #'(thread _0 ... _1 ...)]
+      [((~datum thread) _0 ... (~datum _) _1 ...)
+       #'(thread _0 ... _1 ...)]
+      ;; return syntax unchanged if there are no applicable normalizations
       [_ stx]))
 
   ;; Applies f repeatedly to the init-val terminating the loop if the
