@@ -2,12 +2,20 @@
 
 (provide tests)
 
-(require (for-template qi/flow/core/deforest)
+(require (for-template qi/flow/core/deforest
+                       qi/flow/core/compiler)
          (only-in qi/flow/extended/syntax
                   make-right-chiral)
          rackunit
          rackunit/text-ui
          (only-in math sqr))
+
+(define-syntax-rule (test-normalize a b msg)
+  (check-equal? (syntax->datum
+                 (normalize-pass a))
+                (syntax->datum
+                 (normalize-pass b))
+                msg))
 
 (define tests
   (test-suite
@@ -15,7 +23,6 @@
 
    (test-suite
     "deforestation"
-    ;; (~>> values (filter odd?) (map sqr) values)
     (let ([stx (map make-right-chiral
                     (syntax->list #'((#%partial-application
                                       ((#%host-expression filter)
@@ -42,6 +49,7 @@
                        #`(thread #,stx)))
                     '(thread (#%partial-application ((#%host-expression map) (#%host-expression sqr))))
                     "does not deforest map in the head position"))
+    ;; (~>> values (filter odd?) (map sqr) values)
     (let ([stx (map make-right-chiral
                     (syntax->list
                      #'(values
@@ -71,35 +79,6 @@
                     "deforestation in arbitrary positions"))
     (let ([stx (map make-right-chiral
                     (syntax->list
-                     #`(values
-                        (thread
-                         #,@(map make-right-chiral
-                                 (syntax->list
-                                  #'((#%partial-application
-                                      ((#%host-expression filter)
-                                       (#%host-expression odd?)))
-                                     (#%partial-application
-                                      ((#%host-expression map)
-                                       (#%host-expression sqr))))))))))])
-      (check-equal? (syntax->datum
-                     (deforest-rewrite
-                       #`(thread #,@stx)))
-                    '(thread
-                      values
-                      (esc
-                       (λ (lst)
-                         ((cstream->list
-                           (inline-compose1
-                            (map-cstream-next
-                             sqr)
-                            (filter-cstream-next
-                             odd?)
-                            list->cstream-next))
-                          lst)))
-                      values)
-                    "deforestation in nested positions"))
-    (let ([stx (map make-right-chiral
-                    (syntax->list
                      #'((#%partial-application
                          ((#%host-expression filter)
                           (#%host-expression string-upcase)))
@@ -122,6 +101,21 @@
                             list->cstream-next))
                           (apply identity args)))))
                     "deforestation in arbitrary positions")))
+   (test-suite
+    "normalization"
+    (test-normalize #'(thread
+                       (thread (filter odd?)
+                               (map sqr)))
+                    #'(thread (filter odd?)
+                              (map sqr))
+                    "nested threads are collapsed")
+    (test-normalize #'(thread values
+                              sqr)
+                    #'(thread sqr)
+                    "values inside threading is elided")
+    (test-normalize #'(thread sqr)
+                    #'sqr
+                    "trivial threading is collapsed"))
    (test-suite
     "fixed point"
     null)))
