@@ -1,9 +1,7 @@
 #lang racket/base
 
 (provide (for-syntax compile-flow
-                     ;; TODO: only used in unit tests, maybe try
-                     ;; using a submodule to avoid providing these usually
-                     deforest-rewrite))
+                     normalize-pass))
 
 (require (for-syntax racket/base
                      syntax/parse
@@ -28,6 +26,11 @@
       (emit-local-step stx0 stx1 #:id #'name)
       stx1))
 
+  ;; TODO: move this to a common utils module for use in all
+  ;; modules implementing optimization passes
+  ;; Also, resolve
+  ;;   "syntax-local-expand-observer: not currently expanding"
+  ;; issue encountered in running compiler unit tests
   (define-syntax-rule (define-qi-expansion-step (name stx0)
                         body ...)
     (define (name stx0)
@@ -39,7 +42,7 @@
   (define (compile-flow stx)
     (process-bindings (optimize-flow stx)))
 
-  (define-qi-expansion-step (normalize-rewrite stx)
+  (define (normalize-rewrite stx)
     ;; TODO: the "active" components of the expansions should be
     ;; optimized, i.e. they should be wrapped with a recursive
     ;; call to the optimizer
