@@ -45,9 +45,6 @@
     ;; call to the optimizer
     ;; TODO: eliminate outdated rules here
     (syntax-parse stx
-      ;; restorative optimization for "all"
-      [((~datum thread) ((~datum amp) onex) (~datum AND))
-       #`(esc (give (curry andmap #,(compile-flow #'onex))))]
       ;; "deforestation" for values
       ;; (~> (pass f) (>< g)) → (>< (if f g ⏚))
       [((~datum thread) _0 ... ((~datum pass) f) ((~datum amp) g) _1 ...)
