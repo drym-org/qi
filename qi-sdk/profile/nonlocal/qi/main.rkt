@@ -82,6 +82,9 @@
        car))
 
 (define-flow range-map-sum
+  ;; TODO: this should be written as (apply +)
+  ;; and that should be normalized to (foldr/l + 0)
+  ;; (depending on which of foldl/foldr is more performant)
   (~>> (range 0) (map sqr) (foldr + 0)))
 
 (define-flow long-functional-pipeline

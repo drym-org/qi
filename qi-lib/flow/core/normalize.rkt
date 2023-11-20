@@ -9,9 +9,6 @@
 
   ;; 0. "Qi-normal form"
   (define (normalize-rewrite stx)
-    ;; TODO: the "active" components of the expansions should be
-    ;; optimized, i.e. they should be wrapped with a recursive
-    ;; call to the optimizer
     ;; TODO: eliminate outdated rules here
     (syntax-parse stx
       ;; "deforestation" for values
