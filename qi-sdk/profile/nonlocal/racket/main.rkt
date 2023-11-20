@@ -75,11 +75,8 @@
   (apply values
          (map sqr (filter odd? vs))))
 
-(define (~sum vs)
-  (apply + vs))
-
 (define (range-map-sum n)
-  (~sum (map sqr (range 1 n))))
+  (apply + (map sqr (range 0 n))))
 
 (define (double-list lst)
   (apply append (map (λ (v) (list v v)) lst)))
