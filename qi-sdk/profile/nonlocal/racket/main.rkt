@@ -7,7 +7,7 @@
          pingala
          eratosthenes
          collatz
-         range-map
+         range-map-car
          filter-map
          filter-map-foldr
          filter-map-foldl
@@ -60,9 +60,6 @@
         [(odd? n) (cons n (collatz (+ (* 3 n) 1)))]
         [(even? n) (cons n (collatz (quotient n 2)))]))
 
-(define (range-map v)
-  (map sqr (range 0 v)))
-
 (define (filter-map lst)
   (map sqr (filter odd? lst)))
 
@@ -71,6 +68,12 @@
 
 (define (filter-map-foldl lst)
   (foldl + 0 (map sqr (filter odd? lst))))
+
+(define (range-map-car v)
+  (car (map sqr (range 0 v))))
+
+(define (range-map-sum n)
+  (apply + (map sqr (range 0 n))))
 
 (define (long-functional-pipeline v)
   (foldl +
@@ -85,9 +88,6 @@
 (define (filter-map-values . vs)
   (apply values
          (map sqr (filter odd? vs))))
-
-(define (range-map-sum n)
-  (apply + (map sqr (range 0 n))))
 
 (define (double-list lst)
   (apply append (map (λ (v) (list v v)) lst)))
