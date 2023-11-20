@@ -1,10 +1,5 @@
 #lang racket/base
 
-(require racket/match
-         racket/function)
-
-(require racket/performance-hint)
-
 (provide conditionals
          composition
          root-mean-square
@@ -66,9 +61,6 @@
 
 ;; (define-flow filter-map
 ;;   (~> △ (>< (if odd? sqr ⏚)) ▽))
-
-;; (define-flow filter-map
-;;   (~>> (filter odd?) (map sqr)))
 
 (define-flow filter-map
   (~>> (filter odd?)
