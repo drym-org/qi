@@ -16,6 +16,7 @@
          filter-map
          filter-map-foldr
          filter-map-foldl
+         long-functional-pipeline
          filter-map-values
          range-map-sum
          double-list
@@ -87,12 +88,14 @@
   (~>> (range 0)
        (map sqr)))
 
-;; (define-flow filter-map
-;;   (~>> (filter odd?)
-;;        (map sqr)
-;;        identity
-;;        (filter (λ (v) (< v 10)))
-;;        (map sqr)))
+(define-flow long-functional-pipeline
+  (~>> (range 0)
+       (filter odd?)
+       (map sqr)
+       values
+       (filter (λ (v) (< (remainder v 10) 5)))
+       (map (λ (v) (* 2 v)))
+       (foldl + 0)))
 
 (define-flow range-map-sum
   (~>> (range 0) (map sqr) (foldr + 0)))
