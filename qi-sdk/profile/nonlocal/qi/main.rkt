@@ -7,7 +7,7 @@
          pingala
          eratosthenes
          collatz
-         range-map
+         range-map-car
          filter-map
          filter-map-foldr
          filter-map-foldl
@@ -76,9 +76,13 @@
        (map sqr)
        (foldl + 0)))
 
-(define-flow range-map
+(define-flow range-map-car
   (~>> (range 0)
-       (map sqr)))
+       (map sqr)
+       car))
+
+(define-flow range-map-sum
+  (~>> (range 0) (map sqr) (foldr + 0)))
 
 (define-flow long-functional-pipeline
   (~>> (range 0)
@@ -88,9 +92,6 @@
        (filter (λ (v) (< (remainder v 10) 5)))
        (map (λ (v) (* 2 v)))
        (foldl + 0)))
-
-(define-flow range-map-sum
-  (~>> (range 0) (map sqr) (foldr + 0)))
 
 ;; (define filter-double
 ;;   (map (☯ (when odd?

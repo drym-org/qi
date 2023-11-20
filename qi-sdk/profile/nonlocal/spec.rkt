@@ -20,7 +20,7 @@
         (bm "root-mean-square"
             check-list
             500000)
-        (bm "range-map"
+        (bm "range-map-car"
             check-value-large
             50000)
         (bm "filter-map"
