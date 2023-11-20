@@ -3,11 +3,13 @@
 (provide (for-syntax deforest-rewrite))
 
 (require (for-syntax racket/base
-                     syntax/parse)
+                     syntax/parse
+                     racket/syntax-srcloc)
          racket/performance-hint
          racket/match
          racket/function
-         racket/list)
+         racket/list
+         racket/contract/base)
 
 ;; These bindings are used for ~literal matching to introduce implicit
 ;; producer/consumer when none is explicitly given in the flow.
@@ -31,11 +33,13 @@
   ;; not created by using this class but rather explicitly used when
   ;; no syntax class producer is matched.
   (define-syntax-class fusable-stream-producer
-    #:attributes (next prepare)
+    #:attributes (next prepare contract name)
     #:datum-literals (#%host-expression #%partial-application esc)
     (pattern (esc (#%host-expression (~literal range)))
              #:attr next #'range->cstream-next
-             #:attr prepare #'range->cstream-prepare)
+             #:attr prepare #'range->cstream-prepare
+             #:attr contract #'any/c
+             #:attr name #''range)
     (pattern (~and (#%partial-application
                     ((#%host-expression (~literal range))
                      (#%host-expression arg) ...))
@@ -45,10 +49,14 @@
                                  #'curry
                                  #'curryr)
              #:attr next #'range->cstream-next
-             #:attr prepare #'(vindaloo range->cstream-prepare arg ...))
+             #:attr prepare #'(vindaloo range->cstream-prepare arg ...)
+             #:attr contract #'any/c
+             #:attr name #''range)
     (pattern (~literal list->cstream)
              #:attr next #'list->cstream-next
-             #:attr prepare #'identity))
+             #:attr prepare #'values
+             #:attr contract #'(-> list? any)
+             #:attr name #''list->cstream))
 
   ;; Matches any stream transformer that can be in the head position
   ;; of the fused sequence even when there is no explicit
@@ -123,7 +131,7 @@
   ;; sequence. The syntax list must already conform to the rule that
   ;; if the first operation is a fusable-stream-transformer, it must
   ;; be a fusable-stream-transformer0 as well!
-  (define (generate-fused-operation ops)
+  (define (generate-fused-operation ops ctx)
     (syntax-parse (reverse ops)
       [(c:fusable-stream-consumer
         t:fusable-stream-transformer ...
@@ -134,7 +142,13 @@
                 ((#,@#'c.end
                   (inline-compose1 [t.next t.f] ...
                                    p.next))
-                 (apply p.prepare args))))]))
+                 (apply (contract p.contract
+                                  p.prepare
+                                  p.name
+                                  '#,ctx
+                                  #f
+                                  #,(syntax-srcloc ctx))
+                        args))))]))
 
   ;; 0. "Qi-normal form"
   ;; 1. deforestation pass
@@ -152,7 +166,8 @@
                         c:fusable-stream-consumer
                         _1 ...)
        #:with fused (generate-fused-operation
-                     (syntax->list #'(p t ... c)))
+                     (syntax->list #'(p t ... c))
+                     stx)
        #'(thread _0 ... fused _1 ...)]
       [((~datum thread) _0:non-fusable ...
                         t1:fusable-stream-transformer0
@@ -160,7 +175,8 @@
                         c:fusable-stream-consumer
                         _1 ...)
        #:with fused (generate-fused-operation
-                     (syntax->list #'(list->cstream t1 t ... c)))
+                     (syntax->list #'(list->cstream t1 t ... c))
+                      stx)
        #'(thread _0 ... fused _1 ...)]
       [((~datum thread) _0:non-fusable ...
                         p:fusable-stream-producer
@@ -168,14 +184,16 @@
                         t:fusable-stream-transformer ...+
                         _1 ...)
        #:with fused (generate-fused-operation
-                     (syntax->list #'(p t ... cstream->list)))
+                     (syntax->list #'(p t ... cstream->list))
+                     stx)
        #'(thread _0 ... fused _1 ...)]
       [((~datum thread) _0:non-fusable ...
                         f1:fusable-stream-transformer0
                         f:fusable-stream-transformer ...+
                         _1 ...)
        #:with fused (generate-fused-operation
-                     (syntax->list #'(list->cstream f1 f ... cstream->list)))
+                     (syntax->list #'(list->cstream f1 f ... cstream->list))
+                     stx)
        #'(thread _0 ... fused _1 ...)]
       [_ this-syntax]))
 
