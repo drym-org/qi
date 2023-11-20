@@ -94,11 +94,8 @@
 ;;        (filter (λ (v) (< v 10)))
 ;;        (map sqr)))
 
-(define (~sum vs)
-  (apply + vs))
-
 (define-flow range-map-sum
-  (~>> (range 1) (map sqr) ~sum))
+  (~>> (range 0) (map sqr) (foldr + 0)))
 
 ;; (define filter-double
 ;;   (map (☯ (when odd?
