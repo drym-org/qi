@@ -20,6 +20,9 @@
         (bm "root-mean-square"
             check-list
             500000)
+        (bm "range-map-car"
+            check-value-large
+            50000)
         (bm "filter-map"
             check-list
             500000)
@@ -32,6 +35,9 @@
         (bm "filter-map-foldl"
             check-large-list
             50000)
+        (bm "long-functional-pipeline"
+            check-value-large
+            5000)
         (bm "range-map-sum"
             check-value-large
             5000)

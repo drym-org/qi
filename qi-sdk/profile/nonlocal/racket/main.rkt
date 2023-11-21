@@ -7,9 +7,11 @@
          pingala
          eratosthenes
          collatz
+         range-map-car
          filter-map
          filter-map-foldr
          filter-map-foldl
+         long-functional-pipeline
          filter-map-values
          range-map-sum
          double-list
@@ -67,15 +69,25 @@
 (define (filter-map-foldl lst)
   (foldl + 0 (map sqr (filter odd? lst))))
 
+(define (range-map-car v)
+  (car (map sqr (range 0 v))))
+
+(define (range-map-sum n)
+  (apply + (map sqr (range 0 n))))
+
+(define (long-functional-pipeline v)
+  (foldl +
+         0
+         (map (λ (v) (* 2 v))
+              (filter (λ (v) (< (remainder v 10) 5))
+                      (values
+                       (map sqr
+                            (filter odd?
+                                    (range 0 v))))))))
+
 (define (filter-map-values . vs)
   (apply values
          (map sqr (filter odd? vs))))
-
-(define (~sum vs)
-  (apply + vs))
-
-(define (range-map-sum n)
-  (~sum (map sqr (range 1 n))))
 
 (define (double-list lst)
   (apply append (map (λ (v) (list v v)) lst)))
