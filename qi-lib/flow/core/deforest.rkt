@@ -35,23 +35,49 @@
   (define-syntax-class fusable-stream-producer
     #:attributes (next prepare contract name)
     #:datum-literals (#%host-expression #%partial-application esc)
+    ;; Explicit range producers. We have to conver all four variants
+    ;; as they all come with different runtime contracts!
     (pattern (esc (#%host-expression (~literal range)))
              #:attr next #'range->cstream-next
              #:attr prepare #'range->cstream-prepare
-             #:attr contract #'any/c
+             #:attr contract #'(->* (real?) (real? real?) any)
              #:attr name #''range)
     (pattern (~and (#%partial-application
                     ((#%host-expression (~literal range))
-                     (#%host-expression arg) ...))
+                     (#%host-expression arg1)))
                    stx)
              #:do [(define chirality (syntax-property #'stx 'chirality))]
              #:with vindaloo (if (and chirality (eq? chirality 'right))
                                  #'curry
                                  #'curryr)
              #:attr next #'range->cstream-next
-             #:attr prepare #'(vindaloo range->cstream-prepare arg ...)
-             #:attr contract #'any/c
+             #:attr prepare #'(vindaloo range->cstream-prepare arg1)
+             #:attr contract #'(->* () (real? real?) any)
              #:attr name #''range)
+    (pattern (~and (#%partial-application
+                    ((#%host-expression (~literal range))
+                     (#%host-expression arg1)
+                     (#%host-expression arg2)))
+                   stx)
+             #:do [(define chirality (syntax-property #'stx 'chirality))]
+             #:with vindaloo (if (and chirality (eq? chirality 'right))
+                                 #'curry
+                                 #'curryr)
+             #:attr next #'range->cstream-next
+             #:attr prepare #'(vindaloo range->cstream-prepare arg1 arg2)
+             #:attr contract #'(->* () (real?) any)
+             #:attr name #''range)
+    (pattern (#%partial-application
+              ((#%host-expression (~literal range))
+               (#%host-expression arg1)
+               (#%host-expression arg2)
+               (#%host-expression arg3)))
+             #:attr next #'range->cstream-next
+             #:attr prepare #'(λ () (range->cstream-prepare arg1 arg2 arg3))
+             #:attr contract #'(-> any)
+             #:attr name #''range)
+
+    ;; The implicit stream producer from plain list.
     (pattern (~literal list->cstream)
              #:attr next #'list->cstream-next
              #:attr prepare #'values
@@ -136,8 +162,8 @@
       [(c:fusable-stream-consumer
         t:fusable-stream-transformer ...
         p:fusable-stream-producer)
-       ;; Contract probably not needed (prepare should produce
-       ;; meaningful error messages)
+       ;; A static runtime contract is placed at the beginning of the
+       ;; fused sequence.
        #`(esc (λ args
                 ((#,@#'c.end
                   (inline-compose1 [t.next t.f] ...
@@ -274,6 +300,7 @@
         ((next (λ () (error 'car "Empty list!"))
                (λ (state) (loop state))
                (λ (value state)
-                 value))))))
+                 value))
+         state))))
 
   )
