@@ -126,9 +126,7 @@
              #:attr next #'filter-cstream-next))
 
   ;; Terminates the fused sequence (consumes the stream) and produces
-  ;; an actual result value. The implicit consumer is cstream->list is
-  ;; not part of this class as it is added explicitly when generating
-  ;; the fused operation.
+  ;; an actual result value.
   (define-syntax-class fusable-stream-consumer
     #:attributes (end)
     #:datum-literals (#%host-expression #%partial-application)
@@ -153,40 +151,40 @@
     (pattern (esc (#%host-expression (~literal car)))
              #:attr end #'(car-cstream-next)))
 
+  ;; Used only in deforest-rewrite to properly recognize the end of
+  ;; fusable sequence.
   (define-syntax-class non-fusable
     (pattern (~not (~or _:fusable-stream-transformer
                         _:fusable-stream-producer
                         _:fusable-stream-consumer))))
 
   ;; Generates a syntax for the fused operation for given
-  ;; sequence. The syntax list must already conform to the rule that
-  ;; if the first operation is a fusable-stream-transformer, it must
-  ;; be a fusable-stream-transformer0 as well!
+  ;; sequence. The syntax list must already be in the following form:
+  ;; (producer transformer ... consumer)
   (define (generate-fused-operation ops ctx)
     (syntax-parse (reverse ops)
       [(c:fusable-stream-consumer
         t:fusable-stream-transformer ...
         p:fusable-stream-producer)
        ;; A static runtime contract is placed at the beginning of the
-       ;; fused sequence.
+       ;; fused sequence. And runtime checks for consumers are in
+       ;; their respective implementation procedure.
        #`(esc (contract p.contract
                         (p.curry
                          (p.prepare
                           (#,@#'c.end
                            (inline-compose1 [t.next t.f] ...
-                                            p.next))))
+                                            p.next)
+                           '#,ctx
+                           #,(syntax-srcloc ctx))))
                         p.name
                         '#,ctx
                         #f
                         #,(syntax-srcloc ctx)))]))
 
-  ;; 0. "Qi-normal form"
-  ;; 1. deforestation pass
-  ;; 2. other passes ...
-  ;; e.g.:
-  ;; changing internal representation to lists from values - may affect passes
-  ;; passes as distinct stages is safe and interesting, a conservative start
-  ;; one challenge: traversing the syntax tree
+  ;; Performs one step of deforestation rewrite. Should be used as
+  ;; many times as needed - until it returns the source syntax
+  ;; unchanged.
   (define (deforest-rewrite stx)
     (syntax-parse stx
       [((~datum thread) _0:non-fusable ...
@@ -274,7 +272,7 @@
 
   ;; Consumers
 
-  (define-inline (cstream-next->list next)
+  (define-inline (cstream-next->list next ctx src)
     (λ (state)
       (let loop ([state state])
         ((next (λ () null)
@@ -283,7 +281,7 @@
                  (cons value (loop state))))
          state))))
 
-  (define-inline (foldr-cstream-next op init next)
+  (define-inline (foldr-cstream-next op init next ctx src)
     (λ (state)
       (let loop ([state state])
         ((next (λ () init)
@@ -292,7 +290,7 @@
                  (op value (loop state))))
          state))))
 
-  (define-inline (foldl-cstream-next op init next)
+  (define-inline (foldl-cstream-next op init next ctx src)
     (λ (state)
       (let loop ([acc init] [state state])
         ((next (λ () acc)
@@ -301,10 +299,13 @@
                  (loop (op value acc) state)))
          state))))
 
-  (define-inline (car-cstream-next next)
+  (define-inline (car-cstream-next next ctx src)
     (λ (state)
       (let loop ([state state])
-        ((next (λ () (error 'car "Empty list!"))
+        ((next (λ () ((contract (-> pair? any)
+                                (λ (v) v)
+                                'car-cstream-next ctx #f
+                                src) '()))
                (λ (state) (loop state))
                (λ (value state)
                  value))
