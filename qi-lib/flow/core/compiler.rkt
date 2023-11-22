@@ -551,7 +551,4 @@ the DSL.
        #'(curry natex prarg-pre ...)]
       [((~datum #%blanket-template)
         (natex (~datum __) prarg-post ...+))
-       #'(curryr natex prarg-post ...)]
-      ;; TODO: this should be a compiler optimization
-      [((~datum #%blanket-template) (natex (~datum __)))
-       #'natex])))
+       #'(curryr natex prarg-post ...)])))
