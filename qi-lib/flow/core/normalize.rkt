@@ -59,5 +59,7 @@
        #'(thread _0 ... _1 ...)]
       [((~datum thread) _0 ... (~datum _) _1 ...)
        #'(thread _0 ... _1 ...)]
+      [((~datum #%blanket-template) (hex (~datum __)))
+       #'hex]
       ;; return syntax unchanged if there are no applicable normalizations
       [_ stx])))
