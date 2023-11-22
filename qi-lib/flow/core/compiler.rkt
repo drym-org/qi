@@ -1,9 +1,7 @@
 #lang racket/base
 
 (provide (for-syntax compile-flow
-                     ;; TODO: only used in unit tests, maybe try
-                     ;; using a submodule to avoid providing these usually
-                     deforest-rewrite))
+                     normalize-pass))
 
 (require (for-syntax racket/base
                      syntax/parse
@@ -18,7 +16,8 @@
          racket/undefined
          (prefix-in fancy: fancy-app)
          racket/list
-         "deforest.rkt")
+         "deforest.rkt"
+         "normalize.rkt")
 
 (begin-for-syntax
 
@@ -28,6 +27,11 @@
       (emit-local-step stx0 stx1 #:id #'name)
       stx1))
 
+  ;; TODO: move this to a common utils module for use in all
+  ;; modules implementing optimization passes
+  ;; Also, resolve
+  ;;   "syntax-local-expand-observer: not currently expanding"
+  ;; issue encountered in running compiler unit tests
   (define-syntax-rule (define-qi-expansion-step (name stx0)
                         body ...)
     (define (name stx0)
@@ -38,61 +42,6 @@
   ;; syntax whose expansion compiles the code
   (define (compile-flow stx)
     (process-bindings (optimize-flow stx)))
-
-  (define-qi-expansion-step (normalize-rewrite stx)
-    ;; TODO: the "active" components of the expansions should be
-    ;; optimized, i.e. they should be wrapped with a recursive
-    ;; call to the optimizer
-    ;; TODO: eliminate outdated rules here
-    (syntax-parse stx
-      ;; restorative optimization for "all"
-      [((~datum thread) ((~datum amp) onex) (~datum AND))
-       #`(esc (give (curry andmap #,(compile-flow #'onex))))]
-      ;; "deforestation" for values
-      ;; (~> (pass f) (>< g)) → (>< (if f g ⏚))
-      [((~datum thread) _0 ... ((~datum pass) f) ((~datum amp) g) _1 ...)
-       #'(thread _0 ... (amp (if f g ground)) _1 ...)]
-      ;; merge amps in sequence
-      [((~datum thread) _0 ... ((~datum amp) f) ((~datum amp) g) _1 ...)
-       #`(thread _0 ... #,(normalize-rewrite #'(amp (thread f g))) _1 ...)]
-      ;; merge pass filters in sequence
-      [((~datum thread) _0 ... ((~datum pass) f) ((~datum pass) g) _1 ...)
-       #'(thread _0 ... (pass (and f g)) _1 ...)]
-      ;; collapse deterministic conditionals
-      [((~datum if) (~datum #t) f g) #'f]
-      [((~datum if) (~datum #f) f g) #'g]
-      ;; trivial threading form
-      [((~datum thread) f)
-       #'f]
-      ;; associative laws for ~>
-      [((~datum thread) _0 ... ((~datum thread) f ...) _1 ...) ; note: greedy matching
-       #'(thread _0 ... f ... _1 ...)]
-      ;; left and right identity for ~>
-      [((~datum thread) _0 ... (~datum _) _1 ...)
-       #'(thread _0 ... _1 ...)]
-      ;; composition of identity flows is the identity flow
-      [((~datum thread) (~datum _) ...)
-       #'_]
-      ;; identity flows composed using a relay
-      [((~datum relay) (~datum _) ...)
-       #'_]
-      ;; amp and identity
-      [((~datum amp) (~datum _))
-       #'_]
-      ;; trivial tee junction
-      [((~datum tee) f)
-       #'f]
-      ;; merge adjacent gens
-      [((~datum tee) _0 ... ((~datum gen) a ...) ((~datum gen) b ...) _1 ...)
-       #'(tee _0 ... (gen a ... b ...) _1 ...)]
-      ;; prism identities
-      ;; Note: (~> ... △ ▽ ...) can't be rewritten to `values` since that's
-      ;; only valid if the input is in fact a list, and is an error otherwise,
-      ;; and we can only know this at runtime.
-      [((~datum thread) _0 ... (~datum collect) (~datum sep) _1 ...)
-       #'(thread _0 ... _1 ...)]
-      ;; return syntax unchanged if there are no known optimizations
-      [_ stx]))
 
   ;; Applies f repeatedly to the init-val terminating the loop if the
   ;; result of f is #f or the new syntax object is eq? to the previous

@@ -5,6 +5,7 @@
          check-value
          check-value-medium-large
          check-value-large
+         check-value-very-large
          check-list
          check-large-list
          check-values
@@ -62,6 +63,8 @@
 (define check-value-medium-large (curryr check-value #(100 200 300)))
 
 (define check-value-large (curryr check-value #(1000)))
+
+(define check-value-very-large (curryr check-value #(100000)))
 
 ;; This uses the same list input each time. Not sure if that
 ;; may end up being cached at some level and thus obfuscate
