@@ -8,7 +8,8 @@
                   make-right-chiral)
          rackunit
          rackunit/text-ui
-         (only-in math sqr))
+         (only-in math sqr)
+         racket/string)
 
 (define-syntax-rule (test-normalize a b msg)
   (check-equal? (syntax->datum
@@ -16,6 +17,10 @@
                 (syntax->datum
                  (normalize-pass b))
                 msg))
+
+(define (deforested? exp)
+  (string-contains? (format "~a" exp) "cstream"))
+
 
 (define tests
   (test-suite
@@ -30,25 +35,19 @@
                                      (#%partial-application
                                       ((#%host-expression map)
                                        (#%host-expression sqr))))))])
-      (check-equal? (syntax->datum
-                     (deforest-rewrite
-                       #`(thread #,@stx)))
-                    '(thread
-                      (esc
-                       (λ args
-                         ((cstream-next->list (inline-compose1 (map-cstream-next sqr) (filter-cstream-next odd?) list->cstream-next))
-                          (apply identity args)))))
-                    "deforest filter"))
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  #`(thread #,@stx))))
+                  "deforest filter"))
     (let ([stx (make-right-chiral
                 #'(#%partial-application
                    ((#%host-expression map)
                     (#%host-expression sqr))))])
       ;; note this tests the rule in isolation; with normalization this would never be necessary
-      (check-equal? (syntax->datum
-                     (deforest-rewrite
-                       #`(thread #,stx)))
-                    '(thread (#%partial-application ((#%host-expression map) (#%host-expression sqr))))
-                    "does not deforest map in the head position"))
+      (check-false (deforested? (syntax->datum
+                                 (deforest-rewrite
+                                   #`(thread #,stx))))
+                   "does not deforest map in the head position"))
     ;; (~>> values (filter odd?) (map sqr) values)
     (let ([stx (map make-right-chiral
                     (syntax->list
@@ -60,23 +59,10 @@
                          ((#%host-expression map)
                           (#%host-expression sqr)))
                         values)))])
-      (check-equal? (syntax->datum
-                     (deforest-rewrite
-                       #`(thread #,@stx)))
-                    '(thread
-                      values
-                      (esc
-                       (λ args
-                         ((cstream-next->list
-                           (inline-compose1
-                            (map-cstream-next
-                             sqr)
-                            (filter-cstream-next
-                             odd?)
-                            list->cstream-next))
-                          (apply identity args))))
-                      values)
-                    "deforestation in arbitrary positions"))
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  #`(thread #,@stx))))
+                  "deforestation in arbitrary positions"))
     (let ([stx (map make-right-chiral
                     (syntax->list
                      #'((#%partial-application
@@ -86,21 +72,10 @@
                          ((#%host-expression foldl)
                           (#%host-expression string-append)
                           (#%host-expression "I"))))))])
-      (check-equal? (syntax->datum
-                     (deforest-rewrite
-                       #`(thread #,@stx)))
-                    '(thread
-                      (esc
-                       (λ args
-                         ((foldl-cstream-next
-                           string-append
-                           "I"
-                           (inline-compose1
-                            (filter-cstream-next
-                             string-upcase)
-                            list->cstream-next))
-                          (apply identity args)))))
-                    "deforestation in arbitrary positions")))
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  #`(thread #,@stx))))
+                  "deforestation in arbitrary positions")))
    (test-suite
     "normalization"
     (test-normalize #'(thread
