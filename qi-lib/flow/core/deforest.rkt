@@ -33,7 +33,7 @@
   ;; not created by using this class but rather explicitly used when
   ;; no syntax class producer is matched.
   (define-syntax-class fusable-stream-producer
-    #:attributes (next prepare contract name)
+    #:attributes (next prepare contract name curry)
     #:datum-literals (#%host-expression #%partial-application esc)
     ;; Explicit range producers. We have to conver all four variants
     ;; as they all come with different runtime contracts!
@@ -41,7 +41,8 @@
              #:attr next #'range->cstream-next
              #:attr prepare #'range->cstream-prepare
              #:attr contract #'(->* (real?) (real? real?) any)
-             #:attr name #''range)
+             #:attr name #''range
+             #:attr curry #'(λ (v) v))
     (pattern (~and (#%partial-application
                     ((#%host-expression (~literal range))
                      (#%host-expression arg1)))
@@ -51,9 +52,10 @@
                                  #'curry
                                  #'curryr)
              #:attr next #'range->cstream-next
-             #:attr prepare #'(vindaloo range->cstream-prepare arg1)
+             #:attr prepare #'range->cstream-prepare
              #:attr contract #'(->* () (real? real?) any)
-             #:attr name #''range)
+             #:attr name #''range
+             #:attr curry #'(λ (v) (vindaloo v arg1)))
     (pattern (~and (#%partial-application
                     ((#%host-expression (~literal range))
                      (#%host-expression arg1)
@@ -64,25 +66,28 @@
                                  #'curry
                                  #'curryr)
              #:attr next #'range->cstream-next
-             #:attr prepare #'(vindaloo range->cstream-prepare arg1 arg2)
+             #:attr prepare #'range->cstream-prepare
              #:attr contract #'(->* () (real?) any)
-             #:attr name #''range)
+             #:attr name #''range
+             #:attr curry #'(λ (v) (vindaloo v arg1 arg2)))
     (pattern (#%partial-application
               ((#%host-expression (~literal range))
                (#%host-expression arg1)
                (#%host-expression arg2)
                (#%host-expression arg3)))
              #:attr next #'range->cstream-next
-             #:attr prepare #'(λ () (range->cstream-prepare arg1 arg2 arg3))
+             #:attr prepare #'range->cstream-prepare
              #:attr contract #'(-> any)
-             #:attr name #''range)
+             #:attr name #''range
+             #:attr curry #'(λ (v) (λ () (v arg1 arg2 arg3))))
 
     ;; The implicit stream producer from plain list.
     (pattern (~literal list->cstream)
              #:attr next #'list->cstream-next
-             #:attr prepare #'values
+             #:attr prepare #'list->cstream-prepare
              #:attr contract #'(-> list? any)
-             #:attr name #''list->cstream))
+             #:attr name #''list->cstream
+             #:attr curry #'(lambda (v) v)))
 
   ;; Matches any stream transformer that can be in the head position
   ;; of the fused sequence even when there is no explicit
@@ -164,17 +169,16 @@
         p:fusable-stream-producer)
        ;; A static runtime contract is placed at the beginning of the
        ;; fused sequence.
-       #`(esc (λ args
-                ((#,@#'c.end
-                  (inline-compose1 [t.next t.f] ...
-                                   p.next))
-                 (apply (contract p.contract
-                                  p.prepare
-                                  p.name
-                                  '#,ctx
-                                  #f
-                                  #,(syntax-srcloc ctx))
-                        args))))]))
+       #`(esc (contract p.contract
+                        (p.curry
+                         (p.prepare
+                          (#,@#'c.end
+                           (inline-compose1 [t.next t.f] ...
+                                            p.next))))
+                        p.name
+                        '#,ctx
+                        #f
+                        #,(syntax-srcloc ctx)))]))
 
   ;; 0. "Qi-normal form"
   ;; 1. deforestation pass
@@ -234,6 +238,9 @@
       (cond [(null? state) (done)]
             [else (yield (car state) (cdr state))])))
 
+  (define-inline ((list->cstream-prepare next) lst)
+    (next lst))
+
   (define-inline (range->cstream-next done skip yield)
     (λ (state)
       (match-define (list l h s) state)
@@ -241,11 +248,11 @@
              (yield l (cons (+ l s) (cdr state)))]
             [else (done)])))
 
-  (define range->cstream-prepare
+  (define (range->cstream-prepare next)
     (case-lambda
-      [(h) (list 0 h 1)]
-      [(l h) (list l h 1)]
-      [(l h s) (list l h s)]))
+      [(h) (next (list 0 h 1))]
+      [(l h) (next (list l h 1))]
+      [(l h s) (next (list l h s))]))
 
   ;; Transformers
 
