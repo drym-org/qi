@@ -37,49 +37,26 @@
     #:datum-literals (#%host-expression #%partial-application esc)
     ;; Explicit range producers. We have to conver all four variants
     ;; as they all come with different runtime contracts!
-    (pattern (esc (#%host-expression (~literal range)))
+    (pattern (~and (~or (esc (#%host-expression (~literal range)))
+                        (#%partial-application
+                         ((#%host-expression (~literal range))
+                          (#%host-expression arg) ...)))
+                   stx)
+             #:do [(define chirality (syntax-property #'stx 'chirality))
+                   (define num-args (if (attribute arg)
+                                        (length (syntax->list #'(arg ...)))
+                                        0))]
+             #:with vindaloo (if (and chirality (eq? chirality 'right))
+                                 #'curry
+                                 #'curryr)
              #:attr next #'range->cstream-next
              #:attr prepare #'range->cstream-prepare
              #:attr contract #'(->* (real?) (real? real?) any)
              #:attr name #''range
-             #:attr curry #'(λ (v) v))
-    (pattern (~and (#%partial-application
-                    ((#%host-expression (~literal range))
-                     (#%host-expression arg1)))
-                   stx)
-             #:do [(define chirality (syntax-property #'stx 'chirality))]
-             #:with vindaloo (if (and chirality (eq? chirality 'right))
-                                 #'curry
-                                 #'curryr)
-             #:attr next #'range->cstream-next
-             #:attr prepare #'range->cstream-prepare
-             #:attr contract #'(->* () (real? real?) any)
-             #:attr name #''range
-             #:attr curry #'(λ (v) (vindaloo v arg1)))
-    (pattern (~and (#%partial-application
-                    ((#%host-expression (~literal range))
-                     (#%host-expression arg1)
-                     (#%host-expression arg2)))
-                   stx)
-             #:do [(define chirality (syntax-property #'stx 'chirality))]
-             #:with vindaloo (if (and chirality (eq? chirality 'right))
-                                 #'curry
-                                 #'curryr)
-             #:attr next #'range->cstream-next
-             #:attr prepare #'range->cstream-prepare
-             #:attr contract #'(->* () (real?) any)
-             #:attr name #''range
-             #:attr curry #'(λ (v) (vindaloo v arg1 arg2)))
-    (pattern (#%partial-application
-              ((#%host-expression (~literal range))
-               (#%host-expression arg1)
-               (#%host-expression arg2)
-               (#%host-expression arg3)))
-             #:attr next #'range->cstream-next
-             #:attr prepare #'range->cstream-prepare
-             #:attr contract #'(-> any)
-             #:attr name #''range
-             #:attr curry #'(λ (v) (λ () (v arg1 arg2 arg3))))
+             #:attr curry (case num-args
+                            ((0) #'(λ (v) v))
+                            ((1 2) #'(λ (v) (vindaloo v arg ...)))
+                            ((3) #'(λ (v) (v arg ...)))))
 
     ;; The implicit stream producer from plain list.
     (pattern (~literal list->cstream)
@@ -169,18 +146,19 @@
        ;; A static runtime contract is placed at the beginning of the
        ;; fused sequence. And runtime checks for consumers are in
        ;; their respective implementation procedure.
-       #`(esc (contract p.contract
-                        (p.curry
-                         (p.prepare
-                          (#,@#'c.end
-                           (inline-compose1 [t.next t.f] ...
-                                            p.next)
-                           '#,ctx
-                           #,(syntax-srcloc ctx))))
-                        p.name
-                        '#,ctx
-                        #f
-                        #,(syntax-srcloc ctx)))]))
+       #`(esc
+          (p.curry
+           (contract p.contract
+                     (p.prepare
+                      (#,@#'c.end
+                       (inline-compose1 [t.next t.f] ...
+                                        p.next)
+                       '#,ctx
+                       #,(syntax-srcloc ctx)))
+                     p.name
+                     '#,ctx
+                     #f
+                     #,(syntax-srcloc ctx))))]))
 
   ;; Performs one step of deforestation rewrite. Should be used as
   ;; many times as needed - until it returns the source syntax
@@ -246,7 +224,7 @@
              (yield l (cons (+ l s) (cdr state)))]
             [else (done)])))
 
-  (define (range->cstream-prepare next)
+  (define-inline (range->cstream-prepare next)
     (case-lambda
       [(h) (next (list 0 h 1))]
       [(l h) (next (list l h 1))]
