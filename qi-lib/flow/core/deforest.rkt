@@ -3,11 +3,13 @@
 (provide (for-syntax deforest-rewrite))
 
 (require (for-syntax racket/base
-                     syntax/parse)
+                     syntax/parse
+                     racket/syntax-srcloc)
          racket/performance-hint
          racket/match
          racket/function
-         racket/list)
+         racket/list
+         racket/contract/base)
 
 ;; These bindings are used for ~literal matching to introduce implicit
 ;; producer/consumer when none is explicitly given in the flow.
@@ -31,24 +33,38 @@
   ;; not created by using this class but rather explicitly used when
   ;; no syntax class producer is matched.
   (define-syntax-class fusable-stream-producer
-    #:attributes (next prepare)
+    #:attributes (next prepare contract name curry)
     #:datum-literals (#%host-expression #%partial-application esc)
-    (pattern (esc (#%host-expression (~literal range)))
-             #:attr next #'range->cstream-next
-             #:attr prepare #'range->cstream-prepare)
-    (pattern (~and (#%partial-application
-                    ((#%host-expression (~literal range))
-                     (#%host-expression arg) ...))
+    ;; Explicit range producers. We have to conver all four variants
+    ;; as they all come with different runtime contracts!
+    (pattern (~and (~or (esc (#%host-expression (~literal range)))
+                        (#%partial-application
+                         ((#%host-expression (~literal range))
+                          (~seq (~between (#%host-expression arg) 1 3) ...))))
                    stx)
-             #:do [(define chirality (syntax-property #'stx 'chirality))]
+             #:do [(define chirality (syntax-property #'stx 'chirality))
+                   (define num-args (if (attribute arg)
+                                        (length (syntax->list #'(arg ...)))
+                                        0))]
              #:with vindaloo (if (and chirality (eq? chirality 'right))
                                  #'curry
                                  #'curryr)
              #:attr next #'range->cstream-next
-             #:attr prepare #'(vindaloo range->cstream-prepare arg ...))
+             #:attr prepare #'range->cstream-prepare
+             #:attr contract #'(->* (real?) (real? real?) any)
+             #:attr name #''range
+             #:attr curry (case num-args
+                            ((0) #'(λ (v) v))
+                            ((1 2) #'(λ (v) (vindaloo v arg ...)))
+                            ((3) #'(λ (v) (v arg ...)))))
+
+    ;; The implicit stream producer from plain list.
     (pattern (~literal list->cstream)
              #:attr next #'list->cstream-next
-             #:attr prepare #'identity))
+             #:attr prepare #'list->cstream-prepare
+             #:attr contract #'(-> list? any)
+             #:attr name #''list->cstream
+             #:attr curry #'(lambda (v) v)))
 
   ;; Matches any stream transformer that can be in the head position
   ;; of the fused sequence even when there is no explicit
@@ -87,9 +103,7 @@
              #:attr next #'filter-cstream-next))
 
   ;; Terminates the fused sequence (consumes the stream) and produces
-  ;; an actual result value. The implicit consumer is cstream->list is
-  ;; not part of this class as it is added explicitly when generating
-  ;; the fused operation.
+  ;; an actual result value.
   (define-syntax-class fusable-stream-consumer
     #:attributes (end)
     #:datum-literals (#%host-expression #%partial-application)
@@ -114,35 +128,41 @@
     (pattern (esc (#%host-expression (~literal car)))
              #:attr end #'(car-cstream-next)))
 
+  ;; Used only in deforest-rewrite to properly recognize the end of
+  ;; fusable sequence.
   (define-syntax-class non-fusable
     (pattern (~not (~or _:fusable-stream-transformer
                         _:fusable-stream-producer
                         _:fusable-stream-consumer))))
 
   ;; Generates a syntax for the fused operation for given
-  ;; sequence. The syntax list must already conform to the rule that
-  ;; if the first operation is a fusable-stream-transformer, it must
-  ;; be a fusable-stream-transformer0 as well!
-  (define (generate-fused-operation ops)
+  ;; sequence. The syntax list must already be in the following form:
+  ;; (producer transformer ... consumer)
+  (define (generate-fused-operation ops ctx)
     (syntax-parse (reverse ops)
       [(c:fusable-stream-consumer
         t:fusable-stream-transformer ...
         p:fusable-stream-producer)
-       ;; Contract probably not needed (prepare should produce
-       ;; meaningful error messages)
-       #`(esc (λ args
-                ((#,@#'c.end
-                  (inline-compose1 [t.next t.f] ...
-                                   p.next))
-                 (apply p.prepare args))))]))
+       ;; A static runtime contract is placed at the beginning of the
+       ;; fused sequence. And runtime checks for consumers are in
+       ;; their respective implementation procedure.
+       #`(esc
+          (p.curry
+           (contract p.contract
+                     (p.prepare
+                      (#,@#'c.end
+                       (inline-compose1 [t.next t.f] ...
+                                        p.next)
+                       '#,ctx
+                       #,(syntax-srcloc ctx)))
+                     p.name
+                     '#,ctx
+                     #f
+                     #,(syntax-srcloc ctx))))]))
 
-  ;; 0. "Qi-normal form"
-  ;; 1. deforestation pass
-  ;; 2. other passes ...
-  ;; e.g.:
-  ;; changing internal representation to lists from values - may affect passes
-  ;; passes as distinct stages is safe and interesting, a conservative start
-  ;; one challenge: traversing the syntax tree
+  ;; Performs one step of deforestation rewrite. Should be used as
+  ;; many times as needed - until it returns the source syntax
+  ;; unchanged.
   (define (deforest-rewrite stx)
     (syntax-parse stx
       [((~datum thread) _0:non-fusable ...
@@ -152,7 +172,8 @@
                         c:fusable-stream-consumer
                         _1 ...)
        #:with fused (generate-fused-operation
-                     (syntax->list #'(p t ... c)))
+                     (syntax->list #'(p t ... c))
+                     stx)
        #'(thread _0 ... fused _1 ...)]
       [((~datum thread) _0:non-fusable ...
                         t1:fusable-stream-transformer0
@@ -160,7 +181,8 @@
                         c:fusable-stream-consumer
                         _1 ...)
        #:with fused (generate-fused-operation
-                     (syntax->list #'(list->cstream t1 t ... c)))
+                     (syntax->list #'(list->cstream t1 t ... c))
+                      stx)
        #'(thread _0 ... fused _1 ...)]
       [((~datum thread) _0:non-fusable ...
                         p:fusable-stream-producer
@@ -168,14 +190,16 @@
                         t:fusable-stream-transformer ...+
                         _1 ...)
        #:with fused (generate-fused-operation
-                     (syntax->list #'(p t ... cstream->list)))
+                     (syntax->list #'(p t ... cstream->list))
+                     stx)
        #'(thread _0 ... fused _1 ...)]
       [((~datum thread) _0:non-fusable ...
                         f1:fusable-stream-transformer0
                         f:fusable-stream-transformer ...+
                         _1 ...)
        #:with fused (generate-fused-operation
-                     (syntax->list #'(list->cstream f1 f ... cstream->list)))
+                     (syntax->list #'(list->cstream f1 f ... cstream->list))
+                     stx)
        #'(thread _0 ... fused _1 ...)]
       [_ this-syntax]))
 
@@ -190,6 +214,9 @@
       (cond [(null? state) (done)]
             [else (yield (car state) (cdr state))])))
 
+  (define-inline ((list->cstream-prepare next) lst)
+    (next lst))
+
   (define-inline (range->cstream-next done skip yield)
     (λ (state)
       (match-define (list l h s) state)
@@ -197,11 +224,11 @@
              (yield l (cons (+ l s) (cdr state)))]
             [else (done)])))
 
-  (define range->cstream-prepare
+  (define-inline (range->cstream-prepare next)
     (case-lambda
-      [(h) (list 0 h 1)]
-      [(l h) (list l h 1)]
-      [(l h s) (list l h s)]))
+      [(h) (next (list 0 h 1))]
+      [(l h) (next (list l h 1))]
+      [(l h s) (next (list l h s))]))
 
   ;; Transformers
 
@@ -223,7 +250,7 @@
 
   ;; Consumers
 
-  (define-inline (cstream-next->list next)
+  (define-inline (cstream-next->list next ctx src)
     (λ (state)
       (let loop ([state state])
         ((next (λ () null)
@@ -232,7 +259,7 @@
                  (cons value (loop state))))
          state))))
 
-  (define-inline (foldr-cstream-next op init next)
+  (define-inline (foldr-cstream-next op init next ctx src)
     (λ (state)
       (let loop ([state state])
         ((next (λ () init)
@@ -241,7 +268,7 @@
                  (op value (loop state))))
          state))))
 
-  (define-inline (foldl-cstream-next op init next)
+  (define-inline (foldl-cstream-next op init next ctx src)
     (λ (state)
       (let loop ([acc init] [state state])
         ((next (λ () acc)
@@ -250,12 +277,16 @@
                  (loop (op value acc) state)))
          state))))
 
-  (define-inline (car-cstream-next next)
+  (define-inline (car-cstream-next next ctx src)
     (λ (state)
       (let loop ([state state])
-        ((next (λ () (error 'car "Empty list!"))
+        ((next (λ () ((contract (-> pair? any)
+                                (λ (v) v)
+                                'car-cstream-next ctx #f
+                                src) '()))
                (λ (state) (loop state))
                (λ (value state)
-                 value))))))
+                 value))
+         state))))
 
   )
