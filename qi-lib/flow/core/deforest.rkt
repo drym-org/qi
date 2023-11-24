@@ -40,7 +40,7 @@
     (pattern (~and (~or (esc (#%host-expression (~literal range)))
                         (#%partial-application
                          ((#%host-expression (~literal range))
-                          (#%host-expression arg) ...)))
+                          (~seq (~between (#%host-expression arg) 1 3) ...))))
                    stx)
              #:do [(define chirality (syntax-property #'stx 'chirality))
                    (define num-args (if (attribute arg)
