@@ -113,7 +113,6 @@
                (#%host-expression init)
                __))
       #:attr end #'(foldl-cstream-next op init))
-    #:datum-literals (#%host-expression #%partial-application #%fine-template)
     (pattern (~and (~or (#%partial-application
                          ((#%host-expression (~literal foldr))
                           (#%host-expression op)
@@ -122,7 +121,7 @@
                                ((#%host-expression (~literal foldr))
                                 (#%host-expression op)
                                 (#%host-expression init)
-                                _))
+                                (~datum _)))
                               with-fine-template))
                    stx)
              #:do [(define chirality (syntax-property #'stx 'chirality))]
@@ -137,20 +136,19 @@
                                ((#%host-expression (~literal foldl))
                                 (#%host-expression op)
                                 (#%host-expression init)
-                                _))
+                                (~datum _)))
                               with-fine-template))
                    stx)
              #:do [(define chirality (syntax-property #'stx 'chirality))]
              #:when (or (attribute with-fine-template)
                         (and chirality (eq? chirality 'right)))
              #:attr end #'(foldl-cstream-next op init))
->>>>>>> 2e8206c (Add support for #%fine-template in deforested consumers.)
     (pattern (~literal cstream->list)
              #:attr end #'(cstream-next->list))
     (pattern (~or (esc (#%host-expression (~literal car)))
                   (#%fine-template
                    ((#%host-expression (~literal car))
-                    _)))
+                    (~datum _))))
              #:attr end #'(car-cstream-next)))
 
   ;; Used only in deforest-rewrite to properly recognize the end of
