@@ -100,7 +100,6 @@
   ;; an actual result value.
   (define-syntax-class fusable-stream-consumer
     #:attributes (end)
-<<<<<<< HEAD
     #:datum-literals (#%host-expression #%blanket-template __)
     (pattern (#%blanket-template
               ((#%host-expression (~literal foldr))
@@ -114,7 +113,6 @@
                (#%host-expression init)
                __))
       #:attr end #'(foldl-cstream-next op init))
-=======
     #:datum-literals (#%host-expression #%partial-application #%fine-template)
     (pattern (~and (~or (#%partial-application
                          ((#%host-expression (~literal foldr))
