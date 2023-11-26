@@ -28,6 +28,26 @@
 
 (begin-for-syntax
 
+  ;; Partially reconstructs original flow expressions. The chirality
+  ;; is lost and the form is already normalized at this point though!
+  (define (prettify-flow-syntax stx)
+    (syntax-parse stx
+      #:datum-literals (#%partial-application #%host-expression)
+      (((~literal thread)
+        expr ...)
+       #`(~> #,@(prettify-flow-syntax #'(expr ...))))
+      ((#%partial-application
+        (expr ...))
+       (for/list ((ex (in-list (syntax->list #'(expr ...)))))
+         (prettify-flow-syntax ex)))
+      ((#%host-expression expr) #'expr)
+      (((~literal esc) expr) (prettify-flow-syntax #'expr))
+      ((expr ...)
+       (for/list ((ex (in-list (syntax->list #'(expr ...)))))
+         (prettify-flow-syntax ex)))
+      (expr #'expr)
+      ))
+
   ;; Used for producing the stream from particular
   ;; expressions. Implicit producer is list->cstream-next and it is
   ;; not created by using this class but rather explicitly used when
@@ -176,10 +196,10 @@
                       (#,@#'c.end
                        (inline-compose1 [t.next t.f] ...
                                         p.next)
-                       '#,ctx
+                       '#,(prettify-flow-syntax ctx)
                        #,(syntax-srcloc ctx)))
                      p.name
-                     '#,ctx
+                     '#,(prettify-flow-syntax ctx)
                      #f
                      #,(syntax-srcloc ctx))))]))
 
