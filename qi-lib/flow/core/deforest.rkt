@@ -56,7 +56,7 @@
              #:attr curry (case num-args
                             ((0) #'(λ (v) v))
                             ((1 2) #'(λ (v) (vindaloo v arg ...)))
-                            ((3) #'(λ (v) (v arg ...)))))
+                            ((3) #'(λ (v) (λ () (v arg ...))))))
 
     ;; The implicit stream producer from plain list.
     (pattern (~literal list->cstream)
