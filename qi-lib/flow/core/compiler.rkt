@@ -271,7 +271,16 @@
          ;; and need to handle the keyword arguments differently
          ;; from the positional arguments.
          #'(lambda args
-             ((kw-helper natex args) prarg ...)))]))
+             ((kw-helper natex args) prarg ...)))]
+    ;; if in the course of optimization we ever end up with a fully
+    ;; simplified host expression, the compiler would a priori reject it as
+    ;; not being a core Qi expression. So we add this extra rule here
+    ;; to simply pass this expression through.
+    ;; TODO: should `#%host-expression` be formally declared as being part
+    ;; of the core language by including it in the syntax-spec grammar
+    ;; in extended/expander.rkt?
+    [((~datum #%host-expression) hex)
+     this-syntax]))
 
 ;; The form-specific parsers, which are delegated to from
 ;; the qi0->racket macro:
