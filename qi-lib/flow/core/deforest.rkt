@@ -32,7 +32,7 @@
   ;; is lost and the form is already normalized at this point though!
   (define (prettify-flow-syntax stx)
     (syntax-parse stx
-      #:datum-literals (#%partial-application #%host-expression)
+      #:datum-literals (#%partial-application #%host-expression esc)
       (((~literal thread)
         expr ...)
        #`(~> #,@(prettify-flow-syntax #'(expr ...))))
@@ -41,12 +41,34 @@
        (for/list ((ex (in-list (syntax->list #'(expr ...)))))
          (prettify-flow-syntax ex)))
       ((#%host-expression expr) #'expr)
-      (((~literal esc) expr) (prettify-flow-syntax #'expr))
+      ((esc expr) (prettify-flow-syntax #'expr))
       ((expr ...)
        (for/list ((ex (in-list (syntax->list #'(expr ...)))))
          (prettify-flow-syntax ex)))
-      (expr #'expr)
-      ))
+      (expr #'expr)))
+
+  ;; Special "curry"ing for #%fine-templates. All #%host-expressions
+  ;; are passed as they are and all (~datum _) are replaced by wrapper
+  ;; lambda arguments.
+  (define (make-fine-curry argstx)
+    (define argstxlst (syntax->list argstx))
+    (define temporaries (generate-temporaries argstxlst))
+    (define-values (allargs tmpargs0)
+      (for/lists (a b)
+                 ((tmp (in-list temporaries))
+                  (arg (in-list argstxlst)))
+        (syntax-parse arg
+          #:datum-literals (#%host-expression)
+          ((#%host-expression ex)
+           (values #'ex
+                   #f))
+          ((~datum _) (values tmp tmp)))))
+    (define tmpargs (filter (λ (v) v) tmpargs0))
+    (with-syntax (((carg ...) tmpargs)
+                  ((aarg ...) allargs))
+      #'(λ (proc)
+          (λ (carg ...)
+            (proc aarg ...)))))
 
   ;; Used for producing the stream from particular
   ;; expressions. Implicit producer is list->cstream-next and it is
@@ -77,6 +99,14 @@
                             ((0) #'(λ (v) v))
                             ((1 2) #'(λ (v) (vindaloo v arg ...)))
                             ((3) #'(λ (v) (λ () (v arg ...))))))
+    (pattern (#%fine-template
+              ((#%host-expression (~literal range))
+               arg ...))
+             #:attr next #'range->cstream-next
+             #:attr prepare #'range->cstream-prepare
+             #:attr contract #'(->* (real?) (real? real?) any)
+             #:attr name #''range
+             #:attr curry (make-fine-curry #'(arg ...)))
 
     ;; The implicit stream producer from plain list.
     (pattern (~literal list->cstream)
