@@ -449,6 +449,10 @@
                     "p" "q")
                    "pabqab"
                    "threading without template")
+     (check-equal? ((☯ (~> (sort 3 1 2 #:key sqr)))
+                    <)
+                   (list 1 4 9)
+                   "pre-supplied keyword arguments with left chirality")
      (check-equal? ((☯ (thread add1
                                (* 2)
                                number->string
@@ -482,10 +486,10 @@
                     "p" "q")
                    "abpq"
                    "right-threading without template")
-     (check-equal? ((☯ (~>> △ (sort < #:key identity)))
+     (check-equal? ((☯ (~>> △ (sort < #:key sqr)))
                     (list 2 1 3))
-                   (list 1 2 3)
-                   "right-threading with keyword arg")
+                   (list 1 4 9)
+                   "pre-supplied keyword arguments with right chirality")
      ;; TODO: propagate threading side to nested clauses
      ;; (check-equal? (on ("p" "q")
      ;;                   (~>> (>< (string-append "a" "b"))

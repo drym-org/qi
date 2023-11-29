@@ -34,11 +34,11 @@
   ;; no syntax class producer is matched.
   (define-syntax-class fusable-stream-producer
     #:attributes (next prepare contract name curry)
-    #:datum-literals (#%host-expression #%partial-application esc)
+    #:datum-literals (#%host-expression #%blanket-template esc)
     ;; Explicit range producers. We have to conver all four variants
     ;; as they all come with different runtime contracts!
     (pattern (~and (~or (esc (#%host-expression (~literal range)))
-                        (#%partial-application
+                        (#%blanket-template
                          ((#%host-expression (~literal range))
                           (~seq (~between (#%host-expression arg) 1 3) ...))))
                    stx)
@@ -72,57 +72,47 @@
   ;; `map` cannot be in this class.
   (define-syntax-class fusable-stream-transformer0
     #:attributes (f next)
-    #:datum-literals (#%host-expression #%partial-application)
-    (pattern (~and (#%partial-application
-                    ((#%host-expression (~literal filter))
-                     (#%host-expression f)))
-                   stx)
-             #:do [(define chirality (syntax-property #'stx 'chirality))]
-             #:when (and chirality (eq? chirality 'right))
-             #:attr next #'filter-cstream-next))
+    #:datum-literals (#%host-expression #%blanket-template __)
+    (pattern (#%blanket-template
+              ((#%host-expression (~literal filter))
+               (#%host-expression f)
+               __))
+      #:attr next #'filter-cstream-next))
 
   ;; All implemented stream transformers - within the stream, only
   ;; single value is being passed and therefore procedures like `map`
   ;; can (and should) be matched.
   (define-syntax-class fusable-stream-transformer
     #:attributes (f next)
-    #:datum-literals (#%host-expression #%partial-application)
-    (pattern (~and (#%partial-application
-                    ((#%host-expression (~literal map))
-                     (#%host-expression f)))
-                   stx)
-             #:do [(define chirality (syntax-property #'stx 'chirality))]
-             #:when (and chirality (eq? chirality 'right))
-             #:attr next #'map-cstream-next)
-    (pattern (~and (#%partial-application
-                    ((#%host-expression (~literal filter))
-                     (#%host-expression f)))
-                   stx)
-             #:do [(define chirality (syntax-property #'stx 'chirality))]
-             #:when (and chirality (eq? chirality 'right))
-             #:attr next #'filter-cstream-next))
+    #:datum-literals (#%host-expression #%blanket-template __)
+    (pattern (#%blanket-template
+              ((#%host-expression (~literal map))
+               (#%host-expression f)
+               __))
+      #:attr next #'map-cstream-next)
+    (pattern (#%blanket-template
+              ((#%host-expression (~literal filter))
+               (#%host-expression f)
+               __))
+      #:attr next #'filter-cstream-next))
 
   ;; Terminates the fused sequence (consumes the stream) and produces
   ;; an actual result value.
   (define-syntax-class fusable-stream-consumer
     #:attributes (end)
-    #:datum-literals (#%host-expression #%partial-application)
-    (pattern (~and (#%partial-application
-                    ((#%host-expression (~literal foldr))
-                     (#%host-expression op)
-                     (#%host-expression init)))
-                   stx)
-             #:do [(define chirality (syntax-property #'stx 'chirality))]
-             #:when (and chirality (eq? chirality 'right))
-             #:attr end #'(foldr-cstream-next op init))
-    (pattern (~and (#%partial-application
-                    ((#%host-expression (~literal foldl))
-                     (#%host-expression op)
-                     (#%host-expression init)))
-                   stx)
-             #:do [(define chirality (syntax-property #'stx 'chirality))]
-             #:when (and chirality (eq? chirality 'right))
-             #:attr end #'(foldl-cstream-next op init))
+    #:datum-literals (#%host-expression #%blanket-template __)
+    (pattern (#%blanket-template
+              ((#%host-expression (~literal foldr))
+               (#%host-expression op)
+               (#%host-expression init)
+               __))
+      #:attr end #'(foldr-cstream-next op init))
+    (pattern (#%blanket-template
+              ((#%host-expression (~literal foldl))
+               (#%host-expression op)
+               (#%host-expression init)
+               __))
+      #:attr end #'(foldl-cstream-next op init))
     (pattern (~literal cstream->list)
              #:attr end #'(cstream-next->list))
     (pattern (esc (#%host-expression (~literal car)))

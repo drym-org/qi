@@ -168,23 +168,37 @@
     ;; by wrapping them with #%-prefixed forms, similar to Racket's
     ;; approach to a similiar case - "interposition points." These
     ;; new forms can then be treated as core forms in the compiler.
+    ;;
+    ;; Be careful with these tagging rules, though -- if they are too
+    ;; lax in their match criteria they may produce infinite code
+    ;; unless their output is matched prior to reaching the tagging rule.
+    ;; So core forms expected to be produced by these tagging rules
+    ;; should generally occur before the tagging rule
+    (#%blanket-template (arg:arg-stx ...))
     (~> f:blanket-template-form
         #'(#%blanket-template f))
 
-    (#%blanket-template (arg:arg-stx ...))
-
+    (#%fine-template (arg:arg-stx ...))
     (~> f:fine-template-form
         #'(#%fine-template f))
-    (#%fine-template (arg:arg-stx ...))
 
-    ;; The core rule must come before the tagging rule here since
-    ;; the former as a production of the latter would still match
-    ;; the latter (i.e. it is still a parenthesized expression),
-    ;; which would lead to infinite code generation.
-    (#%partial-application (arg:arg-stx ...))
-
+    ;; When there is a partial application where a template hasn't
+    ;; explicitly been indicated, we rewrite it to an equivalent use
+    ;; of a blanket template.
+    ;; We use a blanket rather than fine template since in such cases,
+    ;; we cannot always infer the appropriate arity for a template
+    ;; (e.g. it may change under composition within the form), while a
+    ;; blanket template will accept any number of arguments
     (~> f:partial-application-form
-        #'(#%partial-application f))
+        #:do [(define chirality (syntax-property this-syntax 'chirality))]
+        (if (and chirality (eq? chirality 'right))
+            (datum->syntax this-syntax
+              (append (syntax->list this-syntax)
+                      (list '__)))
+            (datum->syntax this-syntax
+              (let ([stx-list (syntax->list this-syntax)])
+                (cons (car stx-list)
+                      (cons '__ (cdr stx-list)))))))
     ;; literally indicated function identifier
     ;;
     ;; functions defined in the Qi binding space take precedence over

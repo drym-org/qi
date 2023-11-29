@@ -28,54 +28,69 @@
 
    (test-suite
     "deforestation"
-    (let ([stx (map make-right-chiral
-                    (syntax->list #'((#%partial-application
-                                      ((#%host-expression filter)
-                                       (#%host-expression odd?)))
-                                     (#%partial-application
-                                      ((#%host-expression map)
-                                       (#%host-expression sqr))))))])
+    (let ([stx (syntax->list #'((#%blanket-template
+                                 ((#%host-expression filter)
+                                  (#%host-expression odd?)
+                                  __))
+                                (#%blanket-template
+                                 ((#%host-expression map)
+                                  (#%host-expression sqr)
+                                  __))))])
       (check-true (deforested? (syntax->datum
                                 (deforest-rewrite
                                   #`(thread #,@stx))))
                   "deforest filter"))
-    (let ([stx (make-right-chiral
-                #'(#%partial-application
-                   ((#%host-expression map)
-                    (#%host-expression sqr))))])
+    (let ([stx #'(#%blanket-template
+                  ((#%host-expression map)
+                   (#%host-expression sqr)
+                   __))])
       ;; note this tests the rule in isolation; with normalization this would never be necessary
       (check-false (deforested? (syntax->datum
                                  (deforest-rewrite
                                    #`(thread #,stx))))
                    "does not deforest map in the head position"))
     ;; (~>> values (filter odd?) (map sqr) values)
-    (let ([stx (map make-right-chiral
-                    (syntax->list
-                     #'(values
-                        (#%partial-application
-                         ((#%host-expression filter)
-                          (#%host-expression odd?)))
-                        (#%partial-application
-                         ((#%host-expression map)
-                          (#%host-expression sqr)))
-                        values)))])
+    (let ([stx (syntax->list
+                #'(values
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __))
+                   (#%blanket-template
+                    ((#%host-expression map)
+                     (#%host-expression sqr)
+                     __))
+                   values))])
       (check-true (deforested? (syntax->datum
                                 (deforest-rewrite
                                   #`(thread #,@stx))))
                   "deforestation in arbitrary positions"))
-    (let ([stx (map make-right-chiral
-                    (syntax->list
-                     #'((#%partial-application
-                         ((#%host-expression filter)
-                          (#%host-expression string-upcase)))
-                        (#%partial-application
-                         ((#%host-expression foldl)
-                          (#%host-expression string-append)
-                          (#%host-expression "I"))))))])
+    (let ([stx (syntax->list
+                #'((#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression string-upcase)
+                     __))
+                   (#%blanket-template
+                    ((#%host-expression foldl)
+                     (#%host-expression string-append)
+                     (#%host-expression "I")
+                     __))))])
       (check-true (deforested? (syntax->datum
                                 (deforest-rewrite
                                   #`(thread #,@stx))))
-                  "deforestation in arbitrary positions")))
+                  "deforestation in arbitrary positions"))
+    (let ([stx (syntax->list #'((#%fine-template
+                                 ((#%host-expression filter)
+                                  (#%host-expression odd?)
+                                  _))
+                                (#%fine-template
+                                 ((#%host-expression map)
+                                  (#%host-expression sqr)
+                                  _))))])
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  #`(thread #,@stx))))
+                  "deforest fine-grained template forms")))
    (test-suite
     "normalization"
     (test-normalize #'(thread
