@@ -10,6 +10,9 @@
 .. image:: https://img.shields.io/badge/wiki-%E2%98%AF-yellowgreen
     :target: https://github.com/drym-org/qi/wiki
 
+.. image:: https://dcbadge.vercel.app/api/server/racket-571040468092321801?style=plastic
+    :target: https://discord.gg/racket-571040468092321801
+
 qi
 ===
 An embeddable flow-oriented language.
