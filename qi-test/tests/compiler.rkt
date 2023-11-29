@@ -75,7 +75,31 @@
       (check-true (deforested? (syntax->datum
                                 (deforest-rewrite
                                   #`(thread #,@stx))))
-                  "deforestation in arbitrary positions")))
+                  "deforestation in arbitrary positions"))
+    (let ([stx (syntax->list #'((#%fine-template
+                                 ((#%host-expression filter)
+                                  (#%host-expression odd?)
+                                  _))
+                                (#%fine-template
+                                 ((#%host-expression map)
+                                  (#%host-expression sqr)
+                                  _))))])
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  #`(thread #,@stx))))
+                  "deforest fine-grained template forms"))
+    (let ([stx (syntax->list #'((#%blanket-template
+                                 ((#%host-expression filter)
+                                  (#%host-expression odd?)
+                                  __))
+                                (#%blanket-template
+                                 ((#%host-expression map)
+                                  (#%host-expression sqr)
+                                  __))))])
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  #`(thread #,@stx))))
+                  "deforest blanket template forms")))
    (test-suite
     "normalization"
     (test-normalize #'(thread
