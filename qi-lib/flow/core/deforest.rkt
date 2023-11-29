@@ -88,10 +88,10 @@
              (raise-syntax-error "too many arguments"))
             ((= numargs maxargs)
              #'(λ (v)
-                 (v pre-arg ... post-arg ...)))
+                 (λ ()
+                   (v pre-arg ... post-arg ...))))
             (else
-             #'(λ (v)
-                 (curryr (curry v pre-arg ...) post-arg ...))))))
+             #'(λ (v) (curry (curryr v post-arg ...) pre-arg ...))))))
 
   ;; Used for producing the stream from particular
   ;; expressions. Implicit producer is list->cstream-next and it is
@@ -156,15 +156,23 @@
   (define-syntax-class fusable-stream-transformer
     #:attributes (f next)
     #:datum-literals (#%host-expression #%blanket-template __)
-    (pattern (#%blanket-template
-              ((#%host-expression (~literal map))
-               (#%host-expression f)
-               __))
+    (pattern (~or (#%blanket-template
+                   ((#%host-expression (~literal map))
+                    (#%host-expression f)
+                    __))
+                  (#%fine-template
+                   ((#%host-expression (~literal map))
+                    (#%host-expression f)
+                    _)))
       #:attr next #'map-cstream-next)
-    (pattern (#%blanket-template
-              ((#%host-expression (~literal filter))
-               (#%host-expression f)
-               __))
+    (pattern (~or (#%blanket-template
+                   ((#%host-expression (~literal filter))
+                    (#%host-expression f)
+                    __))
+                  (#%fine-template
+                   ((#%host-expression (~literal filter))
+                    (#%host-expression f))
+                   _))
       #:attr next #'filter-cstream-next))
 
   ;; Terminates the fused sequence (consumes the stream) and produces
