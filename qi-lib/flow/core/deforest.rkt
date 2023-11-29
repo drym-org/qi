@@ -53,22 +53,45 @@
   (define (make-fine-curry argstx)
     (define argstxlst (syntax->list argstx))
     (define temporaries (generate-temporaries argstxlst))
-    (define-values (allargs tmpargs0)
-      (for/lists (a b)
-                 ((tmp (in-list temporaries))
-                  (arg (in-list argstxlst)))
+    (define-values (allargs tmpargs)
+      (for/fold ((all '())
+                 (tmps '())
+                 #:result (values (reverse all)
+                                  (reverse tmps)))
+                ((tmp (in-list temporaries))
+                 (arg (in-list argstxlst)))
         (syntax-parse arg
           #:datum-literals (#%host-expression)
           ((#%host-expression ex)
-           (values #'ex
-                   #f))
-          ((~datum _) (values tmp tmp)))))
-    (define tmpargs (filter (λ (v) v) tmpargs0))
+           (values (cons #'ex all)
+                   tmps))
+          ((~datum _)
+           (values (cons tmp all)
+                   (cons tmp tmps))))))
     (with-syntax (((carg ...) tmpargs)
                   ((aarg ...) allargs))
       #'(λ (proc)
           (λ (carg ...)
             (proc aarg ...)))))
+
+  ;; Special curry for #%blanket-template. Raises syntax error if
+  ;; there are too many arguments. If the number of arguments is
+  ;; exactly the maximum, wraps into lambda without any arguments. If
+  ;; less than maximum, curries it from both left and right.
+  (define (make-blanket-curry prestx poststx maxargs)
+    (define prelst (syntax->list prestx))
+    (define postlst (syntax->list poststx))
+    (define numargs (+ (length prelst) (length postlst)))
+    (with-syntax (((pre-arg ...) prelst)
+                  ((post-arg ...) postlst))
+      (cond ((> numargs maxargs)
+             (raise-syntax-error "too many arguments"))
+            ((= numargs maxargs)
+             #'(λ (v)
+                 (v pre-arg ... post-arg ...)))
+            (else
+             #'(λ (v)
+                 (curryr (curry v pre-arg ...) post-arg ...))))))
 
   ;; Used for producing the stream from particular
   ;; expressions. Implicit producer is list->cstream-next and it is
@@ -76,7 +99,7 @@
   ;; no syntax class producer is matched.
   (define-syntax-class fusable-stream-producer
     #:attributes (next prepare contract name curry)
-    #:datum-literals (#%host-expression #%blanket-template #%fine-template esc)
+    #:datum-literals (#%host-expression #%blanket-template #%fine-template esc __)
     ;; Explicit range producers. We have to conver all four variants
     ;; as they all come with different runtime contracts!
     (pattern (esc (#%host-expression (~literal range)))
@@ -93,6 +116,18 @@
              #:attr contract #'(->* (real?) (real? real?) any)
              #:attr name #''range
              #:attr curry (make-fine-curry #'(arg ...)))
+    (pattern (#%blanket-template
+              ((#%host-expression (~literal range))
+               (#%host-expression pre-arg) ...
+               __
+               (#%host-expression post-arg) ...))
+             #:attr next #'range->cstream-next
+             #:attr prepare #'range->cstream-prepare
+             #:attr name #''range
+             #:attr curry (make-blanket-curry #'(pre-arg ...)
+                                              #'(post-arg ...)
+                                              3)
+             #:attr contract #'(->* (real?) (real? real?) any))
 
     ;; The implicit stream producer from plain list.
     (pattern (~literal list->cstream)
@@ -136,48 +171,30 @@
   ;; an actual result value.
   (define-syntax-class fusable-stream-consumer
     #:attributes (end)
-    #:datum-literals (#%host-expression #%blanket-template __)
+    #:datum-literals (#%host-expression #%blanket-template __ #%fine-template esc)
     (pattern (#%blanket-template
               ((#%host-expression (~literal foldr))
                (#%host-expression op)
                (#%host-expression init)
                __))
-      #:attr end #'(foldr-cstream-next op init))
+             #:attr end #'(foldr-cstream-next op init))
     (pattern (#%blanket-template
               ((#%host-expression (~literal foldl))
                (#%host-expression op)
                (#%host-expression init)
                __))
-      #:attr end #'(foldl-cstream-next op init))
-    (pattern (~and (~or (#%partial-application
-                         ((#%host-expression (~literal foldr))
-                          (#%host-expression op)
-                          (#%host-expression init)))
-                        (~and (#%fine-template
-                               ((#%host-expression (~literal foldr))
-                                (#%host-expression op)
-                                (#%host-expression init)
-                                (~datum _)))
-                              with-fine-template))
-                   stx)
-             #:do [(define chirality (syntax-property #'stx 'chirality))]
-             #:when (or (attribute with-fine-template)
-                        (and chirality (eq? chirality 'right)))
+             #:attr end #'(foldl-cstream-next op init))
+    (pattern (#%fine-template
+              ((#%host-expression (~literal foldr))
+               (#%host-expression op)
+               (#%host-expression init)
+               (~datum _)))
              #:attr end #'(foldr-cstream-next op init))
-    (pattern (~and (~or (#%partial-application
-                         ((#%host-expression (~literal foldl))
-                          (#%host-expression op)
-                          (#%host-expression init)))
-                        (~and (#%fine-template
-                               ((#%host-expression (~literal foldl))
-                                (#%host-expression op)
-                                (#%host-expression init)
-                                (~datum _)))
-                              with-fine-template))
-                   stx)
-             #:do [(define chirality (syntax-property #'stx 'chirality))]
-             #:when (or (attribute with-fine-template)
-                        (and chirality (eq? chirality 'right)))
+    (pattern (#%fine-template
+              ((#%host-expression (~literal foldl))
+               (#%host-expression op)
+               (#%host-expression init)
+               (~datum _)))
              #:attr end #'(foldl-cstream-next op init))
     (pattern (~literal cstream->list)
              #:attr end #'(cstream-next->list))
