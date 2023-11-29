@@ -255,23 +255,6 @@
     [((~datum #%fine-template) (prarg-pre ... (~datum _) prarg-post ...))
      #'(fancy:#%app prarg-pre ... _ prarg-post ...)]
 
-    ;; Pre-supplied arguments without a template
-    [((~datum #%partial-application) (natex prarg ...+))
-     ;; we use currying instead of templates when a template hasn't
-     ;; explicitly been indicated since in such cases, we cannot
-     ;; always infer the appropriate arity for a template (e.g. it
-     ;; may change under composition within the form), while a
-     ;; curried function will accept any number of arguments
-     #:do [(define chirality (syntax-property this-syntax 'chirality))]
-     (if (and chirality (eq? chirality 'right))
-         #'(lambda args
-             (apply natex prarg ... args))
-         ;; TODO: keyword arguments don't work for the left-chiral case
-         ;; since we can't just blanket place the pre-supplied args
-         ;; and need to handle the keyword arguments differently
-         ;; from the positional arguments.
-         #'(lambda args
-             ((kw-helper natex args) prarg ...)))]
     ;; if in the course of optimization we ever end up with a fully
     ;; simplified host expression, the compiler would a priori reject it as
     ;; not being a core Qi expression. So we add this extra rule here
@@ -557,7 +540,9 @@ the DSL.
                         prarg-post ...)
                 prarg-pre ...)]
       [((~datum #%blanket-template) (natex prarg-pre ...+ (~datum __)))
-       #'(curry natex prarg-pre ...)]
+       #'(lambda args
+           (apply natex prarg-pre ... args))]
       [((~datum #%blanket-template)
         (natex (~datum __) prarg-post ...+))
-       #'(curryr natex prarg-post ...)])))
+       #'(lambda args
+           ((kw-helper natex args) prarg-post ...))])))
