@@ -76,29 +76,15 @@
   ;; no syntax class producer is matched.
   (define-syntax-class fusable-stream-producer
     #:attributes (next prepare contract name curry)
-    #:datum-literals (#%host-expression #%blanket-template esc)
+    #:datum-literals (#%host-expression #%blanket-template #%fine-template esc)
     ;; Explicit range producers. We have to conver all four variants
     ;; as they all come with different runtime contracts!
-    (pattern (~and (~or (esc (#%host-expression (~literal range)))
-                        (#%blanket-template
-                         ((#%host-expression (~literal range))
-                          (~seq (~between (#%host-expression arg) 1 3) ...))))
-                   stx)
-             #:do [(define chirality (syntax-property #'stx 'chirality))
-                   (define num-args (if (attribute arg)
-                                        (length (syntax->list #'(arg ...)))
-                                        0))]
-             #:with vindaloo (if (and chirality (eq? chirality 'right))
-                                 #'curry
-                                 #'curryr)
+    (pattern (esc (#%host-expression (~literal range)))
              #:attr next #'range->cstream-next
              #:attr prepare #'range->cstream-prepare
              #:attr contract #'(->* (real?) (real? real?) any)
              #:attr name #''range
-             #:attr curry (case num-args
-                            ((0) #'(λ (v) v))
-                            ((1 2) #'(λ (v) (vindaloo v arg ...)))
-                            ((3) #'(λ (v) (λ () (v arg ...))))))
+             #:attr curry #'(λ (v) v))
     (pattern (#%fine-template
               ((#%host-expression (~literal range))
                arg ...))
