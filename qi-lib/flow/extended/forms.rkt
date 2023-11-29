@@ -10,7 +10,6 @@
                                 [effect ε])))
 
 (require (for-syntax racket/base
-                     (only-in racket/list make-list)
                      "syntax.rkt"
                      "../aux-syntax.rkt")
          syntax/parse/define
