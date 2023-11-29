@@ -534,6 +534,11 @@ the DSL.
   (define (blanket-template-form-parser stx)
     (syntax-parse stx
       ;; "prarg" = "pre-supplied argument"
+      ;; Note: use of currying here doesn't play well with bindings
+      ;; because curry / curryr immediately evaluate their arguments
+      ;; and resolve any references to bindings at compile time,
+      ;; whereas a lambda delays evaluation until runtime when the
+      ;; reference is actually resolvable.
       [((~datum #%blanket-template)
         (natex prarg-pre ...+ (~datum __) prarg-post ...+))
        #'(curry (curryr natex

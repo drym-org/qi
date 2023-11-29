@@ -354,6 +354,22 @@
     (check-equal? ((☯ (~> (as v) (+ v))) 3)
                   3
                   "binds a single value")
+    (check-equal? ((☯ (~> (-< (as v)
+                              _) (+ 3 _ v))) 3)
+                  9
+                  "reference in a fine template")
+    (check-equal? ((☯ (~> (-< (as v)
+                              _) (+ 3 v))) 3)
+                  9
+                  "reference in a left-chiral partial application")
+    (check-equal? ((☯ (~>> (-< (as v)
+                               _) (+ 3 v))) 3)
+                  9
+                  "reference in a right-chiral partial application")
+    (check-equal? ((☯ (~> (-< (as v)
+                              _) (+ 3 __ v))) 3)
+                  9
+                  "reference in a blanket template")
     (check-false ((☯ (~> (as v) live?)) 3)
                  "binding does not propagate the value")
     (check-equal? ((☯ (~> (as v w) (+ v w))) 3 4)
