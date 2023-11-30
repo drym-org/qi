@@ -50,7 +50,7 @@
     (define numargs (length argstxlst))
     (cond ((< numargs minargs)
            (raise-syntax-error (syntax->datum name)
-                               (format "too little arguments - given ~a - accepts at least ~a"
+                               (format "too few arguments - given ~a - accepts at least ~a"
                                        numargs minargs)
                                (prettify-flow-syntax ctx)
                                (prettify-flow-syntax form-stx)))
