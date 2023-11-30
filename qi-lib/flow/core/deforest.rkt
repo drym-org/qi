@@ -50,12 +50,14 @@
     (define numargs (length argstxlst))
     (cond ((< numargs minargs)
            (raise-syntax-error (syntax->datum name)
-                               "too little arguments"
+                               (format "too little arguments - given ~a - accepts at least ~a"
+                                       numargs minargs)
                                (prettify-flow-syntax ctx)
                                (prettify-flow-syntax form-stx)))
           ((> numargs maxargs)
            (raise-syntax-error (syntax->datum name)
-                               "too many arguments"
+                               (format "too many arguments - given ~a - accepts at most ~a"
+                                       numargs maxargs)
                                (prettify-flow-syntax ctx)
                                (prettify-flow-syntax form-stx))))
     (define temporaries (generate-temporaries argstxlst))
@@ -92,7 +94,8 @@
                   ((post-arg ...) postlst))
       (cond ((> numargs maxargs)
              (raise-syntax-error (syntax->datum name)
-                                 "too many arguments"
+                                 (format "too many arguments - given ~a - accepts at most ~a"
+                                         numargs maxargs)
                                  (prettify-flow-syntax ctx)
                                  (prettify-flow-syntax form-stx)))
             ((= numargs maxargs)
