@@ -12,7 +12,7 @@
          racket/pretty)
 
 (define LOWER-THRESHOLD 0.75)
-(define HIGHER-THRESHOLD 1.5)
+(define HIGHER-THRESHOLD 1.33)
 
 (define (parse-json-file filename)
   (call-with-input-file filename
