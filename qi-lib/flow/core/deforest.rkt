@@ -162,7 +162,7 @@
              #:attr prepare #'list->cstream-prepare
              #:attr contract #'(-> list? any)
              #:attr name #''list->cstream
-             #:attr curry (λ (ctx) #'(λ (v) v))))
+             #:attr curry (λ (ctx name) #'(λ (v) v))))
 
   ;; Matches any stream transformer that can be in the head position
   ;; of the fused sequence even when there is no explicit
