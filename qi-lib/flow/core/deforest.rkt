@@ -192,6 +192,7 @@
                     (#%host-expression f)
                     _)))
       #:attr next #'map-cstream-next)
+
     (pattern (~or (#%blanket-template
                    ((#%host-expression (~literal filter))
                     (#%host-expression f)
@@ -206,38 +207,42 @@
   ;; an actual result value.
   (define-syntax-class fusable-stream-consumer
     #:attributes (end)
-    #:datum-literals (#%host-expression #%blanket-template __ #%fine-template esc)
-    (pattern (#%blanket-template
-              ((#%host-expression (~literal foldr))
-               (#%host-expression op)
-               (#%host-expression init)
-               __))
+    #:datum-literals (#%host-expression #%blanket-template _ __ #%fine-template esc)
+    (pattern (~or (#%blanket-template
+                   ((#%host-expression (~literal foldr))
+                    (#%host-expression op)
+                    (#%host-expression init)
+                    __))
+                  (#%fine-template
+                   ((#%host-expression (~literal foldr))
+                    (#%host-expression op)
+                    (#%host-expression init)
+                    _)))
              #:attr end #'(foldr-cstream-next op init))
-    (pattern (#%blanket-template
-              ((#%host-expression (~literal foldl))
-               (#%host-expression op)
-               (#%host-expression init)
-               __))
+
+    (pattern (~or (#%blanket-template
+                   ((#%host-expression (~literal foldl))
+                    (#%host-expression op)
+                    (#%host-expression init)
+                    __))
+                  (#%fine-template
+                   ((#%host-expression (~literal foldl))
+                    (#%host-expression op)
+                    (#%host-expression init)
+                    _)))
              #:attr end #'(foldl-cstream-next op init))
-    (pattern (#%fine-template
-              ((#%host-expression (~literal foldr))
-               (#%host-expression op)
-               (#%host-expression init)
-               (~datum _)))
-             #:attr end #'(foldr-cstream-next op init))
-    (pattern (#%fine-template
-              ((#%host-expression (~literal foldl))
-               (#%host-expression op)
-               (#%host-expression init)
-               (~datum _)))
-             #:attr end #'(foldl-cstream-next op init))
-    (pattern (~literal cstream->list)
-             #:attr end #'(cstream-next->list))
+
     (pattern (~or (esc (#%host-expression (~literal car)))
                   (#%fine-template
                    ((#%host-expression (~literal car))
-                    (~datum _))))
-             #:attr end #'(car-cstream-next)))
+                    _))
+                  (#%blanket-template
+                   ((#%host-expression (~literal car))
+                    __)))
+             #:attr end #'(car-cstream-next))
+
+    (pattern (~literal cstream->list)
+             #:attr end #'(cstream-next->list)))
 
   ;; Used only in deforest-rewrite to properly recognize the end of
   ;; fusable sequence.
