@@ -24,6 +24,6 @@
    util:tests
    compiler:tests))
 
-(module+ test
+(module+ main
   (void
    (run-tests tests)))
