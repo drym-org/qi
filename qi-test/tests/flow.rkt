@@ -1580,7 +1580,104 @@
                     (list "a" "b" "c"))
                    "CBAI")
      (check-equal? ((☯ (~>> (range 10) (map sqr) car)))
-                   0)))))
+                   0))
+    ;; Semantic tests of the range producer that cover all combinations:
+      (test-equal? "~>>range [1-3] (10)"
+               (~>> (10) range (filter odd?) (map sqr))
+               '(1 9 25 49 81))
+  (test-equal? "~>range [1-3] (10)"
+               (~> (10) range (~>> (filter odd?) (map sqr)))
+               '(1 9 25 49 81))
+  (test-equal? "~>> range [1-3] (5 10)"
+               (~>> (5 10) range (filter odd?) (map sqr))
+               '(25 49 81))
+  (test-equal? "~> range [1-3] (5 10)"
+               (~> (5 10) range (~>> (filter odd?) (map sqr)))
+               '(25 49 81))
+  (test-equal? "~>> range [1-3] (5 10 3)"
+               (~>> (5 10 3) range (filter odd?) (map sqr))
+               '(25))
+  (test-equal? "~> range [1-3] (5 10 3)"
+               (~> (5 10 3) range (~>> (filter odd?) (map sqr)))
+               '(25))
+  
+
+  (test-equal? "~>> (range 10) [0-2] ()"
+               (~>> () (range 10) (filter odd?) (map sqr))
+               '(1 9 25 49 81))
+  (test-equal? "~> (range 10) [0-2] ()"
+               (~> () (range 10) (~>> (filter odd?) (map sqr)))
+               '(1 9 25 49 81))
+  (test-equal? "~>> (range 5) [0-2] (10)"
+               (~>> (10) (range 5) (filter odd?) (map sqr))
+               '(25 49 81))
+  (test-equal? "~> (range 10) [0-2] (5)"
+               (~> (5) (range 10) (~>> (filter odd?) (map sqr)))
+               '(25 49 81))
+  (test-equal? "~>> (range 3) [0-2] (5 10)"
+               (~>> (3) (range 5 10) (filter odd?) (map sqr))
+               '(25))
+  (test-equal? "~> (range 5) [0-2] (10 3)"
+               (~> (5) (range 10 3) (~>> (filter odd?) (map sqr)))
+               '(25))
+
+
+  (test-equal? "~>> (range 5 10) [0-1] ()"
+               (~>> () (range 5 10) (filter odd?) (map sqr))
+               '(25 49 81))
+  (test-equal? "~> (range 5 10) [0-1] ()"
+               (~> () (range 5 10) (~>> (filter odd?) (map sqr)))
+               '(25 49 81))
+  (test-equal? "~>> (range 5 10) [0-1] (3)"
+               (~>> (3) (range 5 10) (filter odd?) (map sqr))
+               '(25))
+  (test-equal? "~> (range 10 3) [0-1] (5)"
+               (~> (5) (range 10 3) (~>> (filter odd?) (map sqr)))
+               '(25))
+
+  (test-equal? "~>> (range 5 10 3) [0] ()"
+               (~>> () (range 5 10 3) (filter odd?) (map sqr))
+               '(25))
+
+
+  (test-equal? "~>> (range _) [1] (10)"
+               (~>> (10) (range _) (filter odd?) (map sqr))
+               '(1 9 25 49 81))
+  (test-equal? "~>> (range _ _) [2] (5 10)"
+               (~>> (5 10) (range _ _) (filter odd?) (map sqr))
+               '(25 49 81))
+  (test-equal? "~>> (range _ _ _) [3] (5 10 3)"
+               (~>> (5 10 3) (range _ _ _) (filter odd?) (map sqr))
+               '(25))
+
+  (test-equal? "~>> (range 5 _) [1] (10)"
+               (~>> (10) (range 5 _) (filter odd?) (map sqr))
+               '(25 49 81))
+  (test-equal? "~>> (range _ 10) [1] (5)"
+               (~>> (5) (range _ 10) (filter odd?) (map sqr))
+               '(25 49 81))
+
+
+  (test-equal? "~>> (range 5 _ _) [2] (10 3)"
+               (~>> (10 3) (range 5 _ _) (filter odd?) (map sqr))
+               '(25))
+  (test-equal? "~>> (range _ 10 _) [2] (5 3)"
+               (~>> (5 3) (range _ 10 _) (filter odd?) (map sqr))
+               '(25))
+  (test-equal? "~>> (range _ _ 3) [2] (5 10)"
+               (~>> (5 10) (range _ _ 3) (filter odd?) (map sqr))
+               '(25))
+
+  (test-equal? "~>> (range 5 10 _) [1] (3)"
+               (~>> (3) (range 5 10 _) (filter odd?) (map sqr))
+               '(25))
+  (test-equal? "~>> (range 5 _ 3) [1] (10)"
+               (~>> (10) (range 5 _ 3) (filter odd?) (map sqr))
+               '(25))
+  (test-equal? "~>> (range _ 10 3) [1] (5)"
+               (~>> (5) (range _ 10 3) (filter odd?) (map sqr))
+               '(25))
+  )))
 
 (module+ main
   (void (run-tests tests)))
