@@ -111,37 +111,34 @@
     #:attributes (next prepare contract name curry)
     #:datum-literals (#%host-expression #%blanket-template #%fine-template esc __)
     ;; Explicit range producers.
-    (pattern (esc (#%host-expression (~literal range)))
-             #:attr next #'range->cstream-next
-             #:attr prepare #'range->cstream-prepare
-             #:attr contract #'(->* (real?) (real? real?) any)
-             #:attr name #''range
-             #:attr curry (λ (ctx) #'(λ (v) v)))
-    (pattern (~and (#%fine-template
-                    ((#%host-expression (~literal range))
-                     arg ...))
+    (pattern (~and (~or (esc (#%host-expression (~literal range)))
+                        (~and (#%fine-template
+                               ((#%host-expression (~literal range))
+                                arg ...))
+                              fine?)
+                        (~and (#%blanket-template
+                               ((#%host-expression (~literal range))
+                                (#%host-expression pre-arg) ...
+                                __
+                                (#%host-expression post-arg) ...))
+                              blanket?))
                    form-stx)
              #:attr next #'range->cstream-next
              #:attr prepare #'range->cstream-prepare
              #:attr contract #'(->* (real?) (real? real?) any)
-             #:attr name #''range
-             #:attr curry (make-fine-curry #'(arg ...) 1 3 #'form-stx 'range))
-    (pattern (~and (#%blanket-template
-                    ((#%host-expression (~literal range))
-                     (#%host-expression pre-arg) ...
-                     __
-                     (#%host-expression post-arg) ...))
-                   form-stx)
-             #:attr next #'range->cstream-next
-             #:attr prepare #'range->cstream-prepare
-             #:attr name #''range
-             #:attr curry (make-blanket-curry #'(pre-arg ...)
-                                              #'(post-arg ...)
-                                              3
-                                              #'form-stx
-                                              'range
-                                              )
-             #:attr contract #'(->* (real?) (real? real?) any))
+             #:attr name #'range
+             #:attr curry (cond
+                            ((attribute blanket?)
+                             (make-blanket-curry #'(pre-arg ...)
+                                                 #'(post-arg ...)
+                                                 3
+                                                 #'form-stx
+                                                 'range
+                                                 ))
+                            ((attribute fine?)
+                             (make-fine-curry #'(arg ...) 1 3 #'form-stx 'range))
+                            (else
+                             (λ (ctx) #'(λ (v) v)))))
 
     ;; The implicit stream producer from plain list.
     (pattern (~literal list->cstream)
