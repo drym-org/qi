@@ -39,7 +39,9 @@
 
   (define-flow calculate-ratio
     (~> (-< (hash-ref after _)
-            (hash-ref before _))
+            (~> (hash-ref before _)
+                ;; avoid division by zero
+                (if (= 0) 1 _)))
         /
         (if (< low _ high)
             1
