@@ -1,7 +1,8 @@
 #lang racket/base
 
 (provide (for-syntax compile-flow
-                     normalize-pass))
+                     normalize-pass
+                     fix))
 
 (require (for-syntax racket/base
                      syntax/parse
@@ -69,8 +70,8 @@
                      stx))
 
   (define (optimize-flow stx)
-    ;; (deforest-pass (normalize-pass stx))
-    (deforest-pass (normalize-pass stx))))
+    (deforest-pass
+      (normalize-pass stx))))
 
 ;; Transformation rules for the `as` binding form:
 ;;
