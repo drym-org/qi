@@ -173,11 +173,15 @@
   ;; `map` cannot be in this class.
   (define-syntax-class fusable-stream-transformer0
     #:attributes (f next)
-    #:datum-literals (#%host-expression #%blanket-template __)
-    (pattern (#%blanket-template
-              ((#%host-expression (~literal filter))
-               (#%host-expression f)
-               __))
+    #:datum-literals (#%host-expression #%blanket-template __ _ #%fine-template)
+    (pattern (~or (#%blanket-template
+                   ((#%host-expression (~literal filter))
+                    (#%host-expression f)
+                    __))
+                  (#%fine-template
+                   ((#%host-expression (~literal filter))
+                    (#%host-expression f)
+                    _)))
       #:attr next #'filter-cstream-next))
 
   ;; All implemented stream transformers - within the stream, only
@@ -185,7 +189,7 @@
   ;; can (and should) be matched.
   (define-syntax-class fusable-stream-transformer
     #:attributes (f next)
-    #:datum-literals (#%host-expression #%blanket-template __ #%fine-template)
+    #:datum-literals (#%host-expression #%blanket-template __ _ #%fine-template)
     (pattern (~or (#%blanket-template
                    ((#%host-expression (~literal map))
                     (#%host-expression f)
@@ -202,8 +206,8 @@
                     __))
                   (#%fine-template
                    ((#%host-expression (~literal filter))
-                    (#%host-expression f))
-                   _))
+                    (#%host-expression f)
+                    _)))
       #:attr next #'filter-cstream-next))
 
   ;; Terminates the fused sequence (consumes the stream) and produces
@@ -301,7 +305,7 @@
                         _1 ...)
        #:with fused (generate-fused-operation
                      (syntax->list #'(list->cstream t1 t ... c))
-                      stx)
+                     stx)
        #'(thread _0 ... fused _1 ...)]
       [((~datum thread) _0:non-fusable ...
                         p:fusable-stream-producer
