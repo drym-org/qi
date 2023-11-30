@@ -106,6 +106,27 @@
                           (append rest
                                   (list post-arg ...)))))))))
 
+  ;; Unifying producer curry makers. The ellipsis escaping allows for
+  ;; simple specification of pattern variable names as bound in the
+  ;; syntax pattern.
+  (define-syntax make-producer-curry
+    (syntax-rules ()
+      ((_ min-args max-args
+          blanket? pre-arg post-arg
+          fine? arg
+          form-stx)
+       (cond
+         ((attribute blanket?)
+          (make-blanket-curry #'(pre-arg (... ...))
+                              #'(post-arg (... ...))
+                              max-args
+                              #'form-stx
+                              ))
+         ((attribute fine?)
+          (make-fine-curry #'(arg (... ...)) min-args max-args #'form-stx))
+         (else
+          (λ (ctx name) #'(λ (v) v)))))))
+
   ;; Used for producing the stream from particular
   ;; expressions. Implicit producer is list->cstream-next and it is
   ;; not created by using this class but rather explicitly used when
@@ -130,17 +151,10 @@
              #:attr prepare #'range->cstream-prepare
              #:attr contract #'(->* (real?) (real? real?) any)
              #:attr name #'range
-             #:attr curry (cond
-                            ((attribute blanket?)
-                             (make-blanket-curry #'(pre-arg ...)
-                                                 #'(post-arg ...)
-                                                 3
-                                                 #'form-stx
-                                                 ))
-                            ((attribute fine?)
-                             (make-fine-curry #'(arg ...) 1 3 #'form-stx))
-                            (else
-                             (λ (ctx name) #'(λ (v) v)))))
+             #:attr curry (make-producer-curry 1 3
+                                               blanket? pre-arg post-arg
+                                               fine? arg
+                                               form-stx))
 
     ;; The implicit stream producer from plain list.
     (pattern (~literal list->cstream)
