@@ -165,6 +165,12 @@ Methodical use of @racket[gen] together with the @seclink["Using_a_Probe"]{probe
 
 @bold{Common example}: Trying to use a Racket macro (rather than a function), or a macro from another DSL, as a flow without first registering it via @racket[define-qi-foreign-syntaxes]. In general, Qi expects flows to be functions unless otherwise explicitly signaled.
 
+@subsubsection{@racket[~@] Not Allowed as an Expression}
+
+@bold{Meaning}: Somewhere in the course of evaluation of your code, the interpreter received @racket[~@] at runtime and was asked to evaluate it as an expression. But @racket[~@] is not a valid Racket expression outside of syntax templates in the expansion phase, where it is used to work with sequences.
+
+@bold{Common example}: Using @racket[~@] in a macro template without having @racket[(require (for-syntax racket/base))]. As a result, @racket[~@] is left unchanged through expansion instead of being treated as modulating how expansion is done. Then at runtime, the evaluator complains that it got @racket[~@].
+
 @subsubsection{Bad Syntax}
 
 @codeblock{
