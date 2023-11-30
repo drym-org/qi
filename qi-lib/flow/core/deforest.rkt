@@ -91,7 +91,11 @@
                  (λ ()
                    (v pre-arg ... post-arg ...))))
             (else
-             #'(λ (v) (curry (curryr v post-arg ...) pre-arg ...))))))
+             #'(λ (v)
+                 (λ rest
+                   (apply v pre-arg ...
+                          (append rest
+                                  (list post-arg ...)))))))))
 
   ;; Used for producing the stream from particular
   ;; expressions. Implicit producer is list->cstream-next and it is
@@ -155,7 +159,7 @@
   ;; can (and should) be matched.
   (define-syntax-class fusable-stream-transformer
     #:attributes (f next)
-    #:datum-literals (#%host-expression #%blanket-template __)
+    #:datum-literals (#%host-expression #%blanket-template __ #%fine-template)
     (pattern (~or (#%blanket-template
                    ((#%host-expression (~literal map))
                     (#%host-expression f)
