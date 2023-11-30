@@ -139,7 +139,7 @@
     (test-suite
      "producers"
      (let ([stx #'(thread
-                   (#%host-expression range)
+                   (esc (#%host-expression range))
                    (#%blanket-template
                     ((#%host-expression filter)
                      (#%host-expression odd?)
