@@ -31,17 +31,15 @@
   ;; is lost and the form is already normalized at this point though!
   (define (prettify-flow-syntax stx)
     (syntax-parse stx
-      #:datum-literals (#%partial-application #%host-expression esc #%blanket-template)
+      #:datum-literals (#%host-expression esc #%blanket-template #%fine-template)
       (((~literal thread)
         expr ...)
-       #`(~> #,@(prettify-flow-syntax #'(expr ...))))
-      ((#%blanket-template
+       #`(~> #,@(map prettify-flow-syntax (syntax->list #'(expr ...)))))
+      (((~or #%blanket-template #%fine-template)
         (expr ...))
        (map prettify-flow-syntax (syntax->list #'(expr ...))))
       ((#%host-expression expr) #'expr)
       ((esc expr) (prettify-flow-syntax #'expr))
-      ((expr ...)
-       (map prettify-flow-syntax (syntax->list #'(expr ...))))
       (expr #'expr)))
 
   ;; Special "curry"ing for #%fine-templates. All #%host-expressions
