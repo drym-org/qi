@@ -1571,8 +1571,7 @@
      (check-equal? ((☯ (~>> (map string-upcase) (foldl string-append "I")))
                     (list "a" "b" "c"))
                    "CBAI")
-     (check-equal? ((☯ (~>> (range 10) (map sqr) car))
-                    0)
+     (check-equal? ((☯ (~>> (range 10) (map sqr) car)))
                    0)))))
 
 (module+ main
