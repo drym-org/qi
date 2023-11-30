@@ -4,12 +4,11 @@
 
 (require (for-template qi/flow/core/deforest
                        qi/flow/core/compiler)
-         (only-in qi/flow/extended/syntax
-                  make-right-chiral)
          rackunit
          rackunit/text-ui
          (only-in math sqr)
-         racket/string)
+         racket/string
+         (only-in racket/function curryr))
 
 (define-syntax-rule (test-normalize a b msg)
   (check-equal? (syntax->datum
@@ -26,22 +25,32 @@
   (test-suite
    "compiler tests"
 
-   ;; Note that these test deforestation in isolation
-   ;; without necessarily taking normalization (a preceding
-   ;; step in compilation) into account
+   (test-suite
+    "fixed point"
+    (check-equal? ((fix abs) -1) 1)
+    (check-equal? ((fix abs) -1) 1)
+    (let ([integer-div2 (compose floor (curryr / 2))])
+      (check-equal? ((fix integer-div2) 10)
+                    0)))
    (test-suite
     "deforestation"
+    ;; Note that these test deforestation in isolation
+    ;; without necessarily taking normalization (a preceding
+    ;; step in compilation) into account
+
     (test-suite
      "general"
-     (let ([stx (syntax->list #'((#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-false (deforested? (syntax->datum
                                   (deforest-rewrite
-                                    #`(thread #,@stx))))
+                                    stx)))
                     "does not deforest single stream component in isolation"))
-     (let ([stx #'(#%blanket-template
+     (let ([stx #'(thread
+                   #%blanket-template
                    ((#%host-expression map)
                     (#%host-expression sqr)
                     __)
@@ -50,379 +59,409 @@
                     __))])
        (check-false (deforested? (syntax->datum
                                   (deforest-rewrite
-                                    #`(thread #,stx))))
+                                    stx)))
                     "does not deforest map in the head position"))
      ;; (~>> values (filter odd?) (map sqr) values)
-     (let ([stx (syntax->list
-                 #'(values
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __))
-                    (#%blanket-template
-                     ((#%host-expression map)
-                      (#%host-expression sqr)
-                      __))
-                    values))])
+     (let ([stx #'(thread
+                   values
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __))
+                   (#%blanket-template
+                    ((#%host-expression map)
+                     (#%host-expression sqr)
+                     __))
+                   values)])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "deforestation in arbitrary positions"))
-     (let ([stx (syntax->list
-                 #'(values
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression string-upcase)
-                      __))
-                    (#%blanket-template
-                     ((#%host-expression foldl)
-                      (#%host-expression string-append)
-                      (#%host-expression "I")
-                      __))
-                    values))])
+     (let ([stx #'(thread
+                   values
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression string-upcase)
+                     __))
+                   (#%blanket-template
+                    ((#%host-expression foldl)
+                     (#%host-expression string-append)
+                     (#%host-expression "I")
+                     __))
+                   values)])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "deforestation in arbitrary positions")))
+
     (test-suite
      "transformers"
-     (let ([stx (syntax->list #'((#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))
-                                 (#%blanket-template
-                                  ((#%host-expression map)
-                                   (#%host-expression sqr)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __))
+                   (#%blanket-template
+                    ((#%host-expression map)
+                     (#%host-expression sqr)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "filter"))
-     (let ([stx (syntax->list #'((#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))
-                                 (#%blanket-template
-                                  ((#%host-expression map)
-                                   (#%host-expression sqr)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __))
+                   (#%blanket-template
+                    ((#%host-expression map)
+                     (#%host-expression sqr)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "filter-map (two transformers)"))
-     (let ([stx (syntax->list #'((#%fine-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   _))
-                                 (#%fine-template
-                                  ((#%host-expression map)
-                                   (#%host-expression sqr)
-                                   _))))])
+     (let ([stx #'(thread
+                   (#%fine-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     _))
+                   (#%fine-template
+                    ((#%host-expression map)
+                     (#%host-expression sqr)
+                     _)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "fine-grained template forms")))
+
     (test-suite
      "producers"
-     (let ([stx (syntax->list #'((#%host-expression range)
-                                 (#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%host-expression range)
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "range"))
-     (let ([stx (syntax->list #'((#%fine-template
-                                  ((#%host-expression range)
-                                   _))
-                                 (#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%fine-template
+                    ((#%host-expression range)
+                     _))
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "(range _)"))
-     (let ([stx (syntax->list #'((#%fine-template
-                                  ((#%host-expression range)
-                                   _
-                                   _))
-                                 (#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%fine-template
+                    ((#%host-expression range)
+                     _
+                     _))
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "(range _ _)"))
-     (let ([stx (syntax->list #'((#%fine-template
-                                  ((#%host-expression range)
-                                   _
-                                   _))
-                                 (#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%fine-template
+                    ((#%host-expression range)
+                     _
+                     _))
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "(range 0 _)"))
-     (let ([stx (syntax->list #'((#%fine-template
-                                  ((#%host-expression range)
-                                   _
-                                   _))
-                                 (#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%fine-template
+                    ((#%host-expression range)
+                     _
+                     _))
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "(range _ 10)"))
-     (let ([stx (syntax->list #'((#%fine-template
-                                  ((#%host-expression range)
-                                   _
-                                   _))
-                                 (#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%fine-template
+                    ((#%host-expression range)
+                     _
+                     _))
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "(range _ _ _)"))
-     (let ([stx (syntax->list #'((#%fine-template
-                                  ((#%host-expression range)
-                                   _
-                                   _))
-                                 (#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%fine-template
+                    ((#%host-expression range)
+                     _
+                     _))
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "(range _ _ 1)"))
-     (let ([stx (syntax->list #'((#%fine-template
-                                  ((#%host-expression range)
-                                   _
-                                   _))
-                                 (#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%fine-template
+                    ((#%host-expression range)
+                     _
+                     _))
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "(range _ 10 _)"))
-     (let ([stx (syntax->list #'((#%fine-template
-                                  ((#%host-expression range)
-                                   _
-                                   _))
-                                 (#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%fine-template
+                    ((#%host-expression range)
+                     _
+                     _))
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "(range _ 10 1)"))
-     (let ([stx (syntax->list #'((#%fine-template
-                                  ((#%host-expression range)
-                                   _
-                                   _))
-                                 (#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%fine-template
+                    ((#%host-expression range)
+                     _
+                     _))
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "(range 0 _ _)"))
-     (let ([stx (syntax->list #'((#%fine-template
-                                  ((#%host-expression range)
-                                   _
-                                   _))
-                                 (#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%fine-template
+                    ((#%host-expression range)
+                     _
+                     _))
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "(range 0 _ 1)"))
-     (let ([stx (syntax->list #'((#%fine-template
-                                  ((#%host-expression range)
-                                   _
-                                   _))
-                                 (#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%fine-template
+                    ((#%host-expression range)
+                     _
+                     _))
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "(range 0 10 _)"))
-     (let ([stx (syntax->list #'((#%fine-template
-                                  ((#%host-expression range)
-                                   _
-                                   _))
-                                 (#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%fine-template
+                    ((#%host-expression range)
+                     _
+                     _))
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "(range __)"))
-     (let ([stx (syntax->list #'((#%fine-template
-                                  ((#%host-expression range)
-                                   _
-                                   _))
-                                 (#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%fine-template
+                    ((#%host-expression range)
+                     _
+                     _))
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "(range 0 __)"))
-     (let ([stx (syntax->list #'((#%fine-template
-                                  ((#%host-expression range)
-                                   _
-                                   _))
-                                 (#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%fine-template
+                    ((#%host-expression range)
+                     _
+                     _))
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "(range __ 1)"))
-     (let ([stx (syntax->list #'((#%fine-template
-                                  ((#%host-expression range)
-                                   _
-                                   _))
-                                 (#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%fine-template
+                    ((#%host-expression range)
+                     _
+                     _))
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "(range 0 10 __)"))
-     (let ([stx (syntax->list #'((#%fine-template
-                                  ((#%host-expression range)
-                                   _
-                                   _))
-                                 (#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%fine-template
+                    ((#%host-expression range)
+                     _
+                     _))
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "(range __ 10 1)"))
-     (let ([stx (syntax->list #'((#%fine-template
-                                  ((#%host-expression range)
-                                   _
-                                   _))
-                                 (#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%fine-template
+                    ((#%host-expression range)
+                     _
+                     _))
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "(range 0 __ 1)"))
-     (let ([stx (syntax->list #'((#%fine-template
-                                  ((#%host-expression range)
-                                   _
-                                   _))
-                                 (#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%fine-template
+                    ((#%host-expression range)
+                     _
+                     _))
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "(range 0 10 1 __)"))
-     (let ([stx (syntax->list #'((#%fine-template
-                                  ((#%host-expression range)
-                                   _
-                                   _))
-                                 (#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%fine-template
+                    ((#%host-expression range)
+                     _
+                     _))
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "(range 0 10 __ 1)"))
-     (let ([stx (syntax->list #'((#%fine-template
-                                  ((#%host-expression range)
-                                   _
-                                   _))
-                                 (#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%fine-template
+                    ((#%host-expression range)
+                     _
+                     _))
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "(range 0 __ 10 1)"))
-     (let ([stx (syntax->list #'((#%fine-template
-                                  ((#%host-expression range)
-                                   _
-                                   _))
-                                 (#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))))])
+     (let ([stx #'(thread
+                   (#%fine-template
+                    ((#%host-expression range)
+                     _
+                     _))
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "(range __ 0 10 1)")))
+
     (test-suite
      "consumers"
-     (let ([stx (syntax->list #'((#%blanket-template
-                                  ((#%host-expression filter)
-                                   (#%host-expression odd?)
-                                   __))
-                                 (esc (#%host-expression car))))])
+     (let ([stx #'(thread
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __))
+                   (esc (#%host-expression car)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "car"))
-     (let ([stx (syntax->list
-                 #'((#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression string-upcase)
-                      __))
-                    (#%blanket-template
-                     ((#%host-expression foldl)
-                      (#%host-expression string-append)
-                      (#%host-expression "I")
-                      __))))])
+     (let ([stx #'(thread
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression string-upcase)
+                     __))
+                   (#%blanket-template
+                    ((#%host-expression foldl)
+                     (#%host-expression string-append)
+                     (#%host-expression "I")
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "foldl"))
-     (let ([stx (syntax->list
-                 #'((#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression string-upcase)
-                      __))
-                    (#%blanket-template
-                     ((#%host-expression foldr)
-                      (#%host-expression string-append)
-                      (#%host-expression "I")
-                      __))))])
+     (let ([stx #'(thread
+                   (#%blanket-template
+                    ((#%host-expression filter)
+                     (#%host-expression string-upcase)
+                     __))
+                   (#%blanket-template
+                    ((#%host-expression foldr)
+                     (#%host-expression string-append)
+                     (#%host-expression "I")
+                     __)))])
        (check-true (deforested? (syntax->datum
                                  (deforest-rewrite
-                                   #`(thread #,@stx))))
+                                   stx)))
                    "foldr"))))
+
    (test-suite
     "normalization"
     (test-normalize #'(thread
@@ -438,11 +477,9 @@
     (test-normalize #'(thread sqr)
                     #'sqr
                     "trivial threading is collapsed"))
+
    (test-suite
     "compilation sequences"
-    null)
-   (test-suite
-    "fixed point"
     null)))
 
 (module+ main
