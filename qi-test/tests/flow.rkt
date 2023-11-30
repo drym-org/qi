@@ -705,9 +705,13 @@
                    "abc")
      (check-equal? ((☯ (string-append __ "c"))
                     "a" "b")
-                   "abc"))
+                   "abc")
+     (check-equal? ((☯ (sort < __ #:key sqr))
+                    3 1 2)
+                   (list 1 4 9)
+                   "keyword arguments in a blanket template"))
     (test-suite
-     "template with single argument"
+     "fine template with single argument"
      (check-false ((☯ (apply > _))
                    (list 1 2 3)))
      (check-true ((☯ (apply > _))
@@ -726,13 +730,21 @@
      (check-equal? ((☯ (foldl string-append "" _))
                     (list "a" "b" "c"))
                    "cba"
-                   "foldl in predicate"))
+                   "foldl in predicate")
+     (check-equal? ((☯ (sort < 3 _ 2 #:key sqr))
+                    1)
+                   (list 1 4 9)
+                   "keyword arguments in a fine template"))
     (test-suite
-     "template with multiple arguments"
+     "fine template with multiple arguments"
      (check-true ((☯ (< 1 _ 5 _ 10)) 3 7)
                  "template with multiple arguments")
      (check-false ((☯ (< 1 _ 5 _ 10)) 3 5)
-                  "template with multiple arguments"))
+                  "template with multiple arguments")
+     (check-equal? ((☯ (sort < _ _ 2 #:key sqr))
+                    3 1)
+                   (list 1 4 9)
+                   "keyword arguments in a fine template"))
     (test-suite
      "templating behavior is contained to intentional template syntax"
      (check-exn exn:fail:syntax?
@@ -1567,8 +1579,7 @@
      (check-equal? ((☯ (~>> (map string-upcase) (foldl string-append "I")))
                     (list "a" "b" "c"))
                    "CBAI")
-     (check-equal? ((☯ (~>> (range 10) (map sqr) car))
-                    0)
+     (check-equal? ((☯ (~>> (range 10) (map sqr) car)))
                    0)))))
 
 (module+ main

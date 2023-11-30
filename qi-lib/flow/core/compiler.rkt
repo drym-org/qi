@@ -1,7 +1,8 @@
 #lang racket/base
 
 (provide (for-syntax compile-flow
-                     normalize-pass))
+                     normalize-pass
+                     fix))
 
 (require (for-syntax racket/base
                      syntax/parse
@@ -69,8 +70,8 @@
                      stx))
 
   (define (optimize-flow stx)
-    ;; (deforest-pass (normalize-pass stx))
-    (deforest-pass (normalize-pass stx))))
+    (deforest-pass
+      (normalize-pass stx))))
 
 ;; Transformation rules for the `as` binding form:
 ;;
@@ -536,18 +537,26 @@ the DSL.
       ;; "prarg" = "pre-supplied argument"
       ;; Note: use of currying here doesn't play well with bindings
       ;; because curry / curryr immediately evaluate their arguments
-      ;; and resolve any references to bindings at compile time,
-      ;; whereas a lambda delays evaluation until runtime when the
-      ;; reference is actually resolvable.
+      ;; and resolve any references to bindings at compile time.
+      ;; That's why we use a lambda which delays evaluation until runtime
+      ;; when the reference is actually resolvable. See "anaphoric references"
+      ;; in the compiler meeting notes,
+      ;; "The Artist Formerly Known as Bindingspec"
       [((~datum #%blanket-template)
         (natex prarg-pre ...+ (~datum __) prarg-post ...+))
-       #'(curry (curryr natex
-                        prarg-post ...)
-                prarg-pre ...)]
+       ;; "(curry (curryr ...) ...)"
+       #'(lambda largs
+           (apply
+            (lambda rargs
+              ((kw-helper natex rargs) prarg-post ...))
+            prarg-pre ...
+            largs))]
       [((~datum #%blanket-template) (natex prarg-pre ...+ (~datum __)))
+       ;; "curry"
        #'(lambda args
            (apply natex prarg-pre ... args))]
       [((~datum #%blanket-template)
         (natex (~datum __) prarg-post ...+))
+       ;; "curryr"
        #'(lambda args
            ((kw-helper natex args) prarg-post ...))])))

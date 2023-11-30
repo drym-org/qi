@@ -6,8 +6,7 @@
          blanket-template-form
          fine-template-form
          partial-application-form
-         any-stx
-         make-right-chiral)
+         any-stx)
 
 (require syntax/parse
          "../aux-syntax.rkt"
