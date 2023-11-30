@@ -7,7 +7,6 @@
                      racket/syntax-srcloc)
          racket/performance-hint
          racket/match
-         racket/function
          racket/list
          racket/contract/base)
 
@@ -32,19 +31,17 @@
   ;; is lost and the form is already normalized at this point though!
   (define (prettify-flow-syntax stx)
     (syntax-parse stx
-      #:datum-literals (#%partial-application #%host-expression esc)
+      #:datum-literals (#%partial-application #%host-expression esc #%blanket-template)
       (((~literal thread)
         expr ...)
        #`(~> #,@(prettify-flow-syntax #'(expr ...))))
-      ((#%partial-application
+      ((#%blanket-template
         (expr ...))
-       (for/list ((ex (in-list (syntax->list #'(expr ...)))))
-         (prettify-flow-syntax ex)))
+       (map prettify-flow-syntax (syntax->list #'(expr ...))))
       ((#%host-expression expr) #'expr)
       ((esc expr) (prettify-flow-syntax #'expr))
       ((expr ...)
-       (for/list ((ex (in-list (syntax->list #'(expr ...)))))
-         (prettify-flow-syntax ex)))
+       (map prettify-flow-syntax (syntax->list #'(expr ...))))
       (expr #'expr)))
 
   ;; Special "curry"ing for #%fine-templates. All #%host-expressions
@@ -78,14 +75,15 @@
   ;; there are too many arguments. If the number of arguments is
   ;; exactly the maximum, wraps into lambda without any arguments. If
   ;; less than maximum, curries it from both left and right.
-  (define (make-blanket-curry prestx poststx maxargs)
+  (define (make-blanket-curry prestx poststx maxargs form-stx)
     (define prelst (syntax->list prestx))
     (define postlst (syntax->list poststx))
     (define numargs (+ (length prelst) (length postlst)))
     (with-syntax (((pre-arg ...) prelst)
                   ((post-arg ...) postlst))
       (cond ((> numargs maxargs)
-             (raise-syntax-error "too many arguments"))
+             (raise-syntax-error 'range "too many arguments"
+                                 (prettify-flow-syntax form-stx)))
             ((= numargs maxargs)
              #'(λ (v)
                  (λ ()
@@ -104,8 +102,7 @@
   (define-syntax-class fusable-stream-producer
     #:attributes (next prepare contract name curry)
     #:datum-literals (#%host-expression #%blanket-template #%fine-template esc __)
-    ;; Explicit range producers. We have to conver all four variants
-    ;; as they all come with different runtime contracts!
+    ;; Explicit range producers.
     (pattern (esc (#%host-expression (~literal range)))
              #:attr next #'range->cstream-next
              #:attr prepare #'range->cstream-prepare
@@ -120,17 +117,20 @@
              #:attr contract #'(->* (real?) (real? real?) any)
              #:attr name #''range
              #:attr curry (make-fine-curry #'(arg ...)))
-    (pattern (#%blanket-template
-              ((#%host-expression (~literal range))
-               (#%host-expression pre-arg) ...
-               __
-               (#%host-expression post-arg) ...))
+    (pattern (~and (#%blanket-template
+                    ((#%host-expression (~literal range))
+                     (#%host-expression pre-arg) ...
+                     __
+                     (#%host-expression post-arg) ...))
+                   form-stx)
              #:attr next #'range->cstream-next
              #:attr prepare #'range->cstream-prepare
              #:attr name #''range
              #:attr curry (make-blanket-curry #'(pre-arg ...)
                                               #'(post-arg ...)
-                                              3)
+                                              3
+                                              #'form-stx
+                                              )
              #:attr contract #'(->* (real?) (real? real?) any))
 
     ;; The implicit stream producer from plain list.
