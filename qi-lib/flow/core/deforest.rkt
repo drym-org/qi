@@ -47,8 +47,17 @@
   ;; Special "curry"ing for #%fine-templates. All #%host-expressions
   ;; are passed as they are and all (~datum _) are replaced by wrapper
   ;; lambda arguments.
-  (define (make-fine-curry argstx)
+  (define ((make-fine-curry argstx minargs maxargs form-stx name) ctx)
     (define argstxlst (syntax->list argstx))
+    (define numargs (length argstxlst))
+    (cond ((< numargs minargs)
+           (raise-syntax-error name "too little arguments"
+                               (prettify-flow-syntax ctx)
+                               (prettify-flow-syntax form-stx)))
+          ((> numargs maxargs)
+           (raise-syntax-error name "too many arguments"
+                               (prettify-flow-syntax ctx)
+                               (prettify-flow-syntax form-stx))))
     (define temporaries (generate-temporaries argstxlst))
     (define-values (allargs tmpargs)
       (for/fold ((all '())
@@ -75,14 +84,15 @@
   ;; there are too many arguments. If the number of arguments is
   ;; exactly the maximum, wraps into lambda without any arguments. If
   ;; less than maximum, curries it from both left and right.
-  (define (make-blanket-curry prestx poststx maxargs form-stx)
+  (define ((make-blanket-curry prestx poststx maxargs form-stx name) ctx)
     (define prelst (syntax->list prestx))
     (define postlst (syntax->list poststx))
     (define numargs (+ (length prelst) (length postlst)))
     (with-syntax (((pre-arg ...) prelst)
                   ((post-arg ...) postlst))
       (cond ((> numargs maxargs)
-             (raise-syntax-error 'range "too many arguments"
+             (raise-syntax-error name "too many arguments"
+                                 (prettify-flow-syntax ctx)
                                  (prettify-flow-syntax form-stx)))
             ((= numargs maxargs)
              #'(λ (v)
@@ -108,15 +118,16 @@
              #:attr prepare #'range->cstream-prepare
              #:attr contract #'(->* (real?) (real? real?) any)
              #:attr name #''range
-             #:attr curry #'(λ (v) v))
-    (pattern (#%fine-template
-              ((#%host-expression (~literal range))
-               arg ...))
+             #:attr curry (λ (ctx) #'(λ (v) v)))
+    (pattern (~and (#%fine-template
+                    ((#%host-expression (~literal range))
+                     arg ...))
+                   form-stx)
              #:attr next #'range->cstream-next
              #:attr prepare #'range->cstream-prepare
              #:attr contract #'(->* (real?) (real? real?) any)
              #:attr name #''range
-             #:attr curry (make-fine-curry #'(arg ...)))
+             #:attr curry (make-fine-curry #'(arg ...) 1 3 #'form-stx 'range))
     (pattern (~and (#%blanket-template
                     ((#%host-expression (~literal range))
                      (#%host-expression pre-arg) ...
@@ -130,6 +141,7 @@
                                               #'(post-arg ...)
                                               3
                                               #'form-stx
+                                              'range
                                               )
              #:attr contract #'(->* (real?) (real? real?) any))
 
@@ -139,7 +151,7 @@
              #:attr prepare #'list->cstream-prepare
              #:attr contract #'(-> list? any)
              #:attr name #''list->cstream
-             #:attr curry #'(lambda (v) v)))
+             #:attr curry (λ (ctx) #'(λ (v) v))))
 
   ;; Matches any stream transformer that can be in the head position
   ;; of the fused sequence even when there is no explicit
@@ -235,7 +247,7 @@
        ;; fused sequence. And runtime checks for consumers are in
        ;; their respective implementation procedure.
        #`(esc
-          (p.curry
+          (#,((attribute p.curry) ctx)
            (contract p.contract
                      (p.prepare
                       (#,@#'c.end
