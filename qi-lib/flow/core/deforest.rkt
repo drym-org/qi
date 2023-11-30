@@ -333,8 +333,10 @@
       (cond [(null? state) (done)]
             [else (yield (car state) (cdr state))])))
 
-  (define-inline ((list->cstream-prepare next) lst)
-    (next lst))
+  (define-inline (list->cstream-prepare next)
+    (case-lambda
+      [(lst) (next lst)]
+      [rest (void)]))
 
   (define-inline (range->cstream-next done skip yield)
     (λ (state)
@@ -347,7 +349,8 @@
     (case-lambda
       [(h) (next (list 0 h 1))]
       [(l h) (next (list l h 1))]
-      [(l h s) (next (list l h s))]))
+      [(l h s) (next (list l h s))]
+      [rest (void)]))
 
   ;; Transformers
 
