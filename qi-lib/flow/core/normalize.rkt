@@ -9,7 +9,6 @@
 
   ;; 0. "Qi-normal form"
   (define (normalize-rewrite stx)
-    ;; TODO: eliminate outdated rules here
     (syntax-parse stx
       ;; "deforestation" for values
       ;; (~> (pass f) (>< g)) → (>< (if f g ⏚))
