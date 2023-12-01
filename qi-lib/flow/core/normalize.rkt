@@ -17,7 +17,7 @@
        #'(thread _0 ... (amp (if f g ground)) _1 ...)]
       ;; merge amps in sequence
       [((~datum thread) _0 ... ((~datum amp) f) ((~datum amp) g) _1 ...)
-       #`(thread _0 ... #,(normalize-rewrite #'(amp (thread f g))) _1 ...)]
+       #'(thread _0 ... (amp (thread f g)) _1 ...)]
       ;; merge pass filters in sequence
       [((~datum thread) _0 ... ((~datum pass) f) ((~datum pass) g) _1 ...)
        #'(thread _0 ... (pass (and f g)) _1 ...)]
@@ -45,9 +45,12 @@
       ;; trivial tee junction
       [((~datum tee) f)
        #'f]
-      ;; merge adjacent gens
+      ;; merge adjacent gens in a tee junction
       [((~datum tee) _0 ... ((~datum gen) a ...) ((~datum gen) b ...) _1 ...)
        #'(tee _0 ... (gen a ... b ...) _1 ...)]
+      ;; dead gen elimination
+      [((~datum thread) _0 ... ((~datum gen) a ...) ((~datum gen) b ...) _1 ...)
+       #'(thread _0 ... (gen b ...) _1 ...)]
       ;; prism identities
       ;; Note: (~> ... △ ▽ ...) can't be rewritten to `values` since that's
       ;; only valid if the input is in fact a list, and is an error otherwise,
