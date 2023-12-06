@@ -10,15 +10,15 @@
                      "syntax.rkt"
                      "../aux-syntax.rkt"
                      "util.rkt"
-                     "debug.rkt")
+                     "debug.rkt"
+                     "normalize.rkt"
+                     "deforest.rkt")
          "impl.rkt"
          (only-in racket/list make-list)
          racket/function
          racket/undefined
          (prefix-in fancy: fancy-app)
-         racket/list
-         "deforest.rkt"
-         "normalize.rkt")
+         racket/list)
 
 (begin-for-syntax
 
