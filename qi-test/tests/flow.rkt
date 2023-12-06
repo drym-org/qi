@@ -436,6 +436,10 @@
     "routing forms"
     (test-suite
      "~>"
+     (test-equal? "basic threading"
+                  ((☯ (~> sqr add1))
+                   3)
+                  10)
      (check-equal? ((☯ (~> add1
                            (* 2)
                            number->string
