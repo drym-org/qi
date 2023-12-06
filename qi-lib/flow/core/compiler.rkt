@@ -30,9 +30,6 @@
 
   ;; TODO: move this to a common utils module for use in all
   ;; modules implementing optimization passes
-  ;; Also, resolve
-  ;;   "syntax-local-expand-observer: not currently expanding"
-  ;; issue encountered in running compiler unit tests
   (define-syntax-rule (define-qi-expansion-step (name stx0)
                         body ...)
     (define (name stx0)
@@ -59,19 +56,25 @@
           ((fix f) new-val))))
 
   (define (deforest-pass stx)
+    (find-and-map/qi (fix deforest-rewrite)
+                     stx))
+
+  (define-qi-expansion-step (~deforest-pass stx)
     ;; Note: deforestation happens only for threading,
     ;; and the normalize pass strips the threading form
     ;; if it contains only one expression, so this would not be hit.
-    (find-and-map/qi (fix deforest-rewrite)
-                     stx))
+    (deforest-pass stx))
 
   (define (normalize-pass stx)
     (find-and-map/qi (fix normalize-rewrite)
                      stx))
 
+  (define-qi-expansion-step (~normalize-pass stx)
+    (normalize-pass stx))
+
   (define (optimize-flow stx)
-    (deforest-pass
-      (normalize-pass stx))))
+    (~deforest-pass
+     (~normalize-pass stx))))
 
 ;; Transformation rules for the `as` binding form:
 ;;
