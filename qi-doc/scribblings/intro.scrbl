@@ -72,67 +72,6 @@ Qi is a hosted language on the @hyperlink["https://racket-lang.org/"]{Racket pla
 
  Since some of the forms use and favor unicode characters (while also providing plain-English aliases), see @secref["Flowing_with_the_Flow"] for tips on entering these characters. Otherwise, if you're all set, head on over to the @seclink["Tutorial"]{tutorial}.
 
-@section{Flowing with the Flow}
-
-If your code flows but you don't, then we're only halfway there. This section will cover some UX considerations related to programming in Qi, so that expressing flows in code is just a thought away.
-
-The main thing is, you want to ensure that these forms have convenient keybindings:
-
-@tabular[#:sep @hspace[1]
-         (list (list @racket[☯])
-               (list @racket[~>])
-               (list @racket[-<])
-               (list @racket[△])
-               (list @racket[▽])
-               (list @racket[⏚]))]
-
-Now, it isn't just about being @emph{able} to enter them, but being able to enter them @emph{without effort}. This makes a difference, because having convenient keybindings for Qi is less about entering unicode conveniently than it is about @emph{expressing ideas} economically, just as having evocative symbols in Qi is less about brevity and more about appealing to the intuition. After all, as the old writer's adage goes, "show, don't tell."
-
-Some specific suggestions are included below for commonly used editors and operating systems.
-
-@subsection{Unicode Support}
-
-Some of the following sections cover entering unicode characters in various editors, but if the font you're using doesn't have full unicode support (e.g. on Linux), these characters may render only as nondescript boxes. In this case, consult the documentation for your operating system to discover fonts with unicode support (for instance, if your OS happens to be Arch Linux, the @hyperlink["https://wiki.archlinux.org/title/Fonts#Font_packages"]{font documentation for that system}). One widely available collection of such fonts is @hyperlink["https://fonts.google.com/noto"]{Noto}.
-
-@subsection{DrRacket}
-
-Stephen De Gabrielle created a @seclink["top" #:indirect? #t #:doc '(lib "quickscript/scribblings/quickscript.scrbl")]{quickscript} for convenient entry of Qi forms: @seclink["top" #:indirect? #t #:doc '(lib "qi-quickscripts/scribblings/qi-quickscripts.scrbl")]{Qi Quickscripts}. This option is based on using keyboard shortcuts to enter exactly the form you need.
-
-Laurent Orseau's @seclink["top" #:indirect? #t #:doc '(lib "quickscript-extra/scribblings/quickscript-extra.scrbl")]{Quickscript Extra} library includes the @hyperlink["https://github.com/Metaxal/quickscript-extra/blob/master/scripts/complete-word.rkt"]{complete-word} script that allows you to define shorthands that expand into pre-written templates (e.g. @racket[(☯ \|)], with @racket[\|] indicating the cursor position), and includes some Qi templates with defaults that you could @seclink["Shadow_scripts" #:indirect? #t #:doc '(lib "quickscript/scribblings/quickscript.scrbl")]{customize further}. This option is based on short textual aliases with a common keyboard shortcut.
-
-There are also a few general unicode entry options, including a quickscript for @hyperlink["https://gist.github.com/Metaxal/c328dca7849018388f792094f8e0895c"]{unicode entry in DrRacket}, and @hyperlink["https://docs.racket-lang.org/the-unicoder/index.html"]{The Unicoder} by William Hatch for system-wide unicode entry. While these options are useful and recommended, they are not a substitute for the Qi-specific options above but a complement to them.
-
-Use any combination of the above that would help you express yourself economically and fluently.
-
-@subsection{Vim/Emacs}
-
-@subsubsection{Keybindings}
-
-For Vim and Emacs Evil users, here are suggested keybindings for use in insert mode:
-
-@tabular[#:sep @hspace[1]
-         (list (list @bold{Form} @bold{Keybinding})
-               (list @racket[☯] @code{C-;})
-               (list @racket[~>] @code{C->})
-               (list @racket[-<] @code{C-<})
-               (list @racket[△] @code{C-v})
-               (list @racket[▽] @code{C-V})
-               (list @racket[⏚] @code{C-=}))]
-
-For vanilla Emacs users, I don't have specific suggestions since usage patterns vary so widely. But you may want to define a custom @hyperlink["https://www.emacswiki.org/emacs/InputMethods"]{input method} for use with Qi (i.e. don't rely on the LaTeX input method, which is too general, and therefore isn't fast), or possibly use a @hyperlink["https://www.emacswiki.org/emacs/Hydra"]{Hydra}.
-
-@subsubsection{Indentation}
-
-In Racket Mode for Emacs, use the following config to indent Qi forms correctly:
-
-@codeblock{
-    (put 'switch 'racket-indent-function 1)
-    (put 'switch-lambda 'racket-indent-function 1)
-    (put 'on 'racket-indent-function 1)
-    (put 'π 'racket-indent-function 1)
-    (put 'try 'racket-indent-function 1)
-}
-
 @section{Relationship to the Threading Macro}
 
 The usual threading macro in @seclink["top" #:indirect? #t #:doc '(lib "scribblings/threading.scrbl")]{Threading Macros} is a purely syntactic transformation that does not make any assumptions about the expressions being threaded through, so that it works out of the box for threading values through both functions as well as macros. On the other hand, Qi is primarily oriented around @emph{functions}, and flows are expected to be @seclink["What_is_a_Flow_"]{function-valued}. Threading values through macros using Qi requires special handling.
