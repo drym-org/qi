@@ -1,8 +1,7 @@
 #lang racket/base
 
 (provide (for-syntax compile-flow
-                     normalize-pass
-                     fix))
+                     normalize-pass))
 
 (require (for-syntax racket/base
                      syntax/parse
@@ -10,68 +9,44 @@
                      (only-in racket/list make-list)
                      "syntax.rkt"
                      "../aux-syntax.rkt"
-                     macro-debugger/emit)
+                     "util.rkt"
+                     "debug.rkt"
+                     "normalize.rkt"
+                     "deforest.rkt")
          "impl.rkt"
          (only-in racket/list make-list)
          racket/function
          racket/undefined
          (prefix-in fancy: fancy-app)
-         racket/list
-         "deforest.rkt"
-         "normalize.rkt")
+         racket/list)
 
 (begin-for-syntax
-
-  ;; currently does not distinguish substeps of a parent expansion step
-  (define-syntax-rule (qi-expansion-step name stx0 stx1)
-    (let ()
-      (emit-local-step stx0 stx1 #:id #'name)
-      stx1))
-
-  ;; TODO: move this to a common utils module for use in all
-  ;; modules implementing optimization passes
-  ;; Also, resolve
-  ;;   "syntax-local-expand-observer: not currently expanding"
-  ;; issue encountered in running compiler unit tests
-  (define-syntax-rule (define-qi-expansion-step (name stx0)
-                        body ...)
-    (define (name stx0)
-      (let ([stx1 (let () body ...)])
-        (qi-expansion-step name stx0 stx1))))
 
   ;; note: this does not return compiled code but instead,
   ;; syntax whose expansion compiles the code
   (define (compile-flow stx)
     (process-bindings (optimize-flow stx)))
 
-  ;; Applies f repeatedly to the init-val terminating the loop if the
-  ;; result of f is #f or the new syntax object is eq? to the previous
-  ;; (possibly initial) one.
-  ;;
-  ;; Caveats:
-  ;;   * the syntax object is not inspected, only eq? is used
-  ;;   * comparison is performed only between consecutive steps (does not handle cyclic occurences)
-  (define ((fix f) init-val)
-    (let ([new-val (f init-val)])
-      (if (or (not new-val)
-              (eq? new-val init-val))
-          init-val
-          ((fix f) new-val))))
-
   (define (deforest-pass stx)
+    (find-and-map/qi (fix deforest-rewrite)
+                     stx))
+
+  (define-qi-expansion-step (~deforest-pass stx)
     ;; Note: deforestation happens only for threading,
     ;; and the normalize pass strips the threading form
     ;; if it contains only one expression, so this would not be hit.
-    (find-and-map/qi (fix deforest-rewrite)
-                     stx))
+    (deforest-pass stx))
 
   (define (normalize-pass stx)
     (find-and-map/qi (fix normalize-rewrite)
                      stx))
 
+  (define-qi-expansion-step (~normalize-pass stx)
+    (normalize-pass stx))
+
   (define (optimize-flow stx)
-    (deforest-pass
-      (normalize-pass stx))))
+    (~deforest-pass
+     (~normalize-pass stx))))
 
 ;; Transformation rules for the `as` binding form:
 ;;
@@ -102,26 +77,6 @@
 ;;          (☯ (~> flo ... (... (~> (esc (λ (x) (set! name x))) ⏚) ...)))))
 
 (begin-for-syntax
-
-  (define (find-and-map f stx)
-    ;; f : syntax? -> (or/c syntax? #f)
-    (match stx
-      [(? syntax?) (let ([stx^ (f stx)])
-                     (or stx^ (datum->syntax stx
-                                (find-and-map f (syntax-e stx))
-                                stx
-                                stx)))]
-      [(cons a d) (cons (find-and-map f a)
-                        (find-and-map f d))]
-      [_ stx]))
-
-  (define (find-and-map/qi f stx)
-    ;; #%host-expression is a Racket macro defined by syntax-spec
-    ;; that resumes expansion of its sub-expression with an
-    ;; expander environment containing the original surface bindings
-    (find-and-map (syntax-parser [((~datum #%host-expression) e:expr) this-syntax]
-                                 [_ (f this-syntax)])
-                  stx))
 
   ;; (as name) → (~> (esc (λ (x) (set! name x))) ⏚)
   ;; TODO: use a box instead of set!

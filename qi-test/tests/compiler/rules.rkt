@@ -2,15 +2,15 @@
 
 (provide tests)
 
-(require (for-template qi/flow/core/deforest
-                       qi/flow/core/compiler)
+(require (for-template qi/flow/core/compiler)
+         qi/flow/core/deforest
          rackunit
          rackunit/text-ui
          (only-in math sqr)
          racket/string
-         syntax/parse
-         syntax/parse/define
-         (only-in racket/function curryr))
+         (only-in racket/list
+                  range)
+         syntax/parse/define)
 
 (define-syntax-parse-rule (test-normalize msg a b ...+)
   (begin
@@ -27,15 +27,8 @@
 
 (define tests
   (test-suite
-   "compiler tests"
+   "Compiler rule tests"
 
-   (test-suite
-    "fixed point"
-    (check-equal? ((fix abs) -1) 1)
-    (check-equal? ((fix abs) -1) 1)
-    (let ([integer-div2 (compose floor (curryr / 2))])
-      (check-equal? ((fix integer-div2) 10)
-                    0)))
    (test-suite
     "deforestation"
     ;; Note that these test deforestation in isolation
