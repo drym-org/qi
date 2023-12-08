@@ -30,6 +30,12 @@
    onex:clause
    #:with parsed #'onex))
 
+(define-syntax-class pre-supplied-argument
+  (pattern
+   (~not
+    (~or (~datum _)
+         (~datum __)))))
+
 (define (make-right-chiral stx)
   (syntax-property stx 'chirality 'right))
 
@@ -54,7 +60,7 @@
 (define-syntax-class partial-application-form
   ;; "prarg" = "pre-supplied argument"
   (pattern
-   (natex prarg ...+)))
+   (natex prarg:pre-supplied-argument ...+)))
 
 (define-syntax-class any-stx
   (pattern _))

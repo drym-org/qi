@@ -9,6 +9,8 @@
   #:transparent)
 
 (define specs
+  ;; the first datum in the benchmark name needs to be the name
+  ;; of the function that will be exercised
   (list (bm "conditionals"
             check-value
             300000)
@@ -18,9 +20,27 @@
         (bm "root-mean-square"
             check-list
             500000)
+        (bm "range-map-car"
+            check-value-large
+            50000)
         (bm "filter-map"
             check-list
             500000)
+        (bm "filter-map (large list)"
+            check-large-list
+            50000)
+        (bm "filter-map-foldr"
+            check-large-list
+            50000)
+        (bm "filter-map-foldl"
+            check-large-list
+            50000)
+        (bm "long-functional-pipeline"
+            check-value-large
+            5000)
+        (bm "range-map-sum"
+            check-value-large
+            5000)
         (bm "filter-map-values"
             check-values
             500000)
@@ -37,7 +57,7 @@
             check-value
             10000)
         (bm "eratosthenes"
-            check-value-primes
+            check-value-medium-large
             100)
         ;; See https://en.wikipedia.org/wiki/Collatz_conjecture
         (bm "collatz"

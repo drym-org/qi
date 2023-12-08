@@ -354,6 +354,22 @@
     (check-equal? ((☯ (~> (as v) (+ v))) 3)
                   3
                   "binds a single value")
+    (check-equal? ((☯ (~> (-< (as v)
+                              _) (+ 3 _ v))) 3)
+                  9
+                  "reference in a fine template")
+    (check-equal? ((☯ (~> (-< (as v)
+                              _) (+ 3 v))) 3)
+                  9
+                  "reference in a left-chiral partial application")
+    (check-equal? ((☯ (~>> (-< (as v)
+                               _) (+ 3 v))) 3)
+                  9
+                  "reference in a right-chiral partial application")
+    (check-equal? ((☯ (~> (-< (as v)
+                              _) (+ 3 __ v))) 3)
+                  9
+                  "reference in a blanket template")
     (check-false ((☯ (~> (as v) live?)) 3)
                  "binding does not propagate the value")
     (check-equal? ((☯ (~> (as v w) (+ v w))) 3 4)
@@ -420,6 +436,10 @@
     "routing forms"
     (test-suite
      "~>"
+     (test-equal? "basic threading"
+                  ((☯ (~> sqr add1))
+                   3)
+                  10)
      (check-equal? ((☯ (~> add1
                            (* 2)
                            number->string
@@ -449,6 +469,10 @@
                     "p" "q")
                    "pabqab"
                    "threading without template")
+     (check-equal? ((☯ (~> (sort 3 1 2 #:key sqr)))
+                    <)
+                   (list 1 4 9)
+                   "pre-supplied keyword arguments with left chirality")
      (check-equal? ((☯ (thread add1
                                (* 2)
                                number->string
@@ -482,10 +506,10 @@
                     "p" "q")
                    "abpq"
                    "right-threading without template")
-     (check-equal? ((☯ (~>> △ (sort < #:key identity)))
+     (check-equal? ((☯ (~>> △ (sort < #:key sqr)))
                     (list 2 1 3))
-                   (list 1 2 3)
-                   "right-threading with keyword arg")
+                   (list 1 4 9)
+                   "pre-supplied keyword arguments with right chirality")
      ;; TODO: propagate threading side to nested clauses
      ;; (check-equal? (on ("p" "q")
      ;;                   (~>> (>< (string-append "a" "b"))
@@ -685,9 +709,21 @@
                    "abc")
      (check-equal? ((☯ (string-append __ "c"))
                     "a" "b")
-                   "abc"))
+                   "abc")
+     (check-equal? ((☯ (sort __ 1 2 #:key sqr))
+                    < 3)
+                   (list 1 4 9)
+                   "keyword arguments in a left chiral blanket template")
+     (check-equal? ((☯ (sort < 3 #:key sqr __))
+                    1 2)
+                   (list 1 4 9)
+                   "keyword arguments in a right chiral blanket template")
+     (check-equal? ((☯ (sort < __ #:key sqr))
+                    3 1 2)
+                   (list 1 4 9)
+                   "keyword arguments in a vindaloo blanket template"))
     (test-suite
-     "template with single argument"
+     "fine template with single argument"
      (check-false ((☯ (apply > _))
                    (list 1 2 3)))
      (check-true ((☯ (apply > _))
@@ -706,13 +742,21 @@
      (check-equal? ((☯ (foldl string-append "" _))
                     (list "a" "b" "c"))
                    "cba"
-                   "foldl in predicate"))
+                   "foldl in predicate")
+     (check-equal? ((☯ (sort < 3 _ 2 #:key sqr))
+                    1)
+                   (list 1 4 9)
+                   "keyword arguments in a fine template"))
     (test-suite
-     "template with multiple arguments"
+     "fine template with multiple arguments"
      (check-true ((☯ (< 1 _ 5 _ 10)) 3 7)
                  "template with multiple arguments")
      (check-false ((☯ (< 1 _ 5 _ 10)) 3 5)
-                  "template with multiple arguments"))
+                  "template with multiple arguments")
+     (check-equal? ((☯ (sort < _ _ 2 #:key sqr))
+                    3 1)
+                   (list 1 4 9)
+                   "keyword arguments in a fine template"))
     (test-suite
      "templating behavior is contained to intentional template syntax"
      (check-exn exn:fail:syntax?
@@ -1483,7 +1527,34 @@
     (check-equal? ((☯ (~> (pass positive?) +))
                    1 -3 5)
                   6
-                  "runtime arity changes in threading form"))))
+                  "runtime arity changes in threading form"))
+
+   (test-suite
+    "nonlocal semantics"
+    ;; these are collected from counterexamples to candidate equivalences
+    ;; that turned up during code review. They ensure that some tempting
+    ;; "equivalences" that are not really equivalences are formally checked
+    (test-suite
+     "counterexamples"
+     (let ()
+       (define-flow g (-< add1 sub1))
+       (define-flow f positive?)
+       (define (f* x y) (= (sub1 x) (add1 y)))
+       (define (amp-pass g f) (☯ (~> (>< g) (pass f) ▽)))
+       (define (amp-if g f) (☯ (~> (>< (~> g (if f _ ground))) ▽)))
+       (check-equal? (apply (amp-pass g f) (range -3 4))
+                     (list 1 2 3 1 4 2))
+       (check-exn exn:fail?
+                  (thunk (apply (amp-if g f) (range -3 4))))
+       (check-exn exn:fail?
+                  (thunk (apply (amp-pass g f*) (range -3 4))))
+       (check-equal? (apply (amp-if g f*) (range -3 4))
+                     (list -2 -4 -1 -3 0 -2 1 -1 2 0 3 1 4 2)))
+     (let ()
+       (check-equal? ((☯ (~> (>< string->number) (pass _))) "a" "2" "c")
+                     2)
+       (check-equal? ((☯ (~> (>< (if _ string->number ground)) ▽)) "a" "2" "c")
+                     (list #f 2 #f)))))))
 
 (module+ main
   (void (run-tests tests)))

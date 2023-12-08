@@ -1,27 +1,52 @@
 #lang racket/base
 
-(provide (for-syntax compile-flow))
+(provide (for-syntax compile-flow
+                     normalize-pass))
 
 (require (for-syntax racket/base
                      syntax/parse
                      racket/match
                      (only-in racket/list make-list)
                      "syntax.rkt"
-                     "../aux-syntax.rkt")
+                     "../aux-syntax.rkt"
+                     "util.rkt"
+                     "debug.rkt"
+                     "normalize.rkt"
+                     "deforest.rkt")
          "impl.rkt"
          (only-in racket/list make-list)
          racket/function
          racket/undefined
-         (prefix-in fancy: fancy-app))
+         (prefix-in fancy: fancy-app)
+         racket/list)
 
 (begin-for-syntax
+
   ;; note: this does not return compiled code but instead,
   ;; syntax whose expansion compiles the code
   (define (compile-flow stx)
     (process-bindings (optimize-flow stx)))
 
+  (define (deforest-pass stx)
+    (find-and-map/qi (fix deforest-rewrite)
+                     stx))
+
+  (define-qi-expansion-step (~deforest-pass stx)
+    ;; Note: deforestation happens only for threading,
+    ;; and the normalize pass strips the threading form
+    ;; if it contains only one expression, so this would not be hit.
+    (deforest-pass stx))
+
+  (define (normalize-pass stx)
+    (find-and-map/qi (fix normalize-rewrite)
+                     stx))
+
+  (define-qi-expansion-step (~normalize-pass stx)
+    (normalize-pass stx))
+
   (define (optimize-flow stx)
-    stx))
+    (~deforest-pass
+     (~normalize-pass stx))))
 
 ;; Transformation rules for the `as` binding form:
 ;;
@@ -53,26 +78,6 @@
 
 (begin-for-syntax
 
-  (define (find-and-map f stx)
-    ;; f : syntax? -> (or/c syntax? #f)
-    (match stx
-      [(? syntax?) (let ([stx^ (f stx)])
-                     (or stx^ (datum->syntax stx
-                                (find-and-map f (syntax-e stx))
-                                stx
-                                stx)))]
-      [(cons a d) (cons (find-and-map f a)
-                        (find-and-map f d))]
-      [_ stx]))
-
-  (define (find-and-map/qi f stx)
-    ;; #%host-expression is a Racket macro defined by syntax-spec
-    ;; that resumes expansion of its sub-expression with an
-    ;; expander environment containing the original surface bindings
-    (find-and-map (syntax-parser [((~datum #%host-expression) e:expr) this-syntax]
-                                 [_ (f this-syntax)])
-                  stx))
-
   ;; (as name) → (~> (esc (λ (x) (set! name x))) ⏚)
   ;; TODO: use a box instead of set!
   (define (rewrite-all-bindings stx)
@@ -98,7 +103,7 @@
     (with-syntax ([(v ...) ids])
       #`(let ([v undefined] ...) #,stx)))
 
-  (define (process-bindings stx)
+  (define-qi-expansion-step (process-bindings stx)
     ;; TODO: use syntax-parse and match ~> specifically.
     ;; Since macros are expanded "outside in," presumably
     ;; it will naturally wrap the outermost ~>
@@ -206,23 +211,15 @@
     [((~datum #%fine-template) (prarg-pre ... (~datum _) prarg-post ...))
      #'(fancy:#%app prarg-pre ... _ prarg-post ...)]
 
-    ;; Pre-supplied arguments without a template
-    [((~datum #%partial-application) (natex prarg ...+))
-     ;; we use currying instead of templates when a template hasn't
-     ;; explicitly been indicated since in such cases, we cannot
-     ;; always infer the appropriate arity for a template (e.g. it
-     ;; may change under composition within the form), while a
-     ;; curried function will accept any number of arguments
-     #:do [(define chirality (syntax-property this-syntax 'chirality))]
-     (if (and chirality (eq? chirality 'right))
-         #'(lambda args
-             (apply natex prarg ... args))
-         ;; TODO: keyword arguments don't work for the left-chiral case
-         ;; since we can't just blanket place the pre-supplied args
-         ;; and need to handle the keyword arguments differently
-         ;; from the positional arguments.
-         #'(lambda args
-             ((kw-helper natex args) prarg ...)))]))
+    ;; if in the course of optimization we ever end up with a fully
+    ;; simplified host expression, the compiler would a priori reject it as
+    ;; not being a core Qi expression. So we add this extra rule here
+    ;; to simply pass this expression through.
+    ;; TODO: should `#%host-expression` be formally declared as being part
+    ;; of the core language by including it in the syntax-spec grammar
+    ;; in extended/expander.rkt?
+    [((~datum #%host-expression) hex)
+     this-syntax]))
 
 ;; The form-specific parsers, which are delegated to from
 ;; the qi0->racket macro:
@@ -493,16 +490,28 @@ the DSL.
   (define (blanket-template-form-parser stx)
     (syntax-parse stx
       ;; "prarg" = "pre-supplied argument"
+      ;; Note: use of currying here doesn't play well with bindings
+      ;; because curry / curryr immediately evaluate their arguments
+      ;; and resolve any references to bindings at compile time.
+      ;; That's why we use a lambda which delays evaluation until runtime
+      ;; when the reference is actually resolvable. See "anaphoric references"
+      ;; in the compiler meeting notes,
+      ;; "The Artist Formerly Known as Bindingspec"
       [((~datum #%blanket-template)
         (natex prarg-pre ...+ (~datum __) prarg-post ...+))
-       #'(curry (curryr natex
-                        prarg-post ...)
-                prarg-pre ...)]
+       ;; "(curry (curryr ...) ...)"
+       #'(lambda largs
+           (apply
+            (lambda rargs
+              ((kw-helper natex rargs) prarg-post ...))
+            prarg-pre ...
+            largs))]
       [((~datum #%blanket-template) (natex prarg-pre ...+ (~datum __)))
-       #'(curry natex prarg-pre ...)]
+       ;; "curry"
+       #'(lambda args
+           (apply natex prarg-pre ... args))]
       [((~datum #%blanket-template)
         (natex (~datum __) prarg-post ...+))
-       #'(curryr natex prarg-post ...)]
-      ;; TODO: this should be a compiler optimization
-      [((~datum #%blanket-template) (natex (~datum __)))
-       #'natex])))
+       ;; "curryr"
+       #'(lambda args
+           ((kw-helper natex args) prarg-post ...))])))

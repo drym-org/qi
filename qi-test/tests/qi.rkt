@@ -8,7 +8,8 @@
          (prefix-in threading: "threading.rkt")
          (prefix-in definitions: "definitions.rkt")
          (prefix-in macro: "macro.rkt")
-         (prefix-in util: "util.rkt"))
+         (prefix-in util: "util.rkt")
+         (prefix-in compiler: "compiler.rkt"))
 
 (define tests
   (test-suite
@@ -20,8 +21,9 @@
    threading:tests
    definitions:tests
    macro:tests
-   util:tests))
+   util:tests
+   compiler:tests))
 
-(module+ test
+(module+ main
   (void
    (run-tests tests)))

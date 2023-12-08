@@ -12,7 +12,7 @@
          racket/pretty)
 
 (define LOWER-THRESHOLD 0.75)
-(define HIGHER-THRESHOLD 1.5)
+(define HIGHER-THRESHOLD 1.33)
 
 (define (parse-json-file filename)
   (call-with-input-file filename
@@ -39,7 +39,9 @@
 
   (define-flow calculate-ratio
     (~> (-< (hash-ref after _)
-            (hash-ref before _))
+            (~> (hash-ref before _)
+                ;; avoid division by zero
+                (if (= 0) 1 _)))
         /
         (if (< low _ high)
             1

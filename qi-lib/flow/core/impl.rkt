@@ -29,7 +29,8 @@
          racket/list
          racket/format
          syntax/parse/define
-         (for-syntax racket/base))
+         (for-syntax racket/base)
+         racket/performance-hint)
 
 (define-syntax-parse-rule (values->list body:expr ...+)
   (call-with-values (λ () body ...) list))
@@ -121,6 +122,8 @@
     [(cons v vs) (append (values->list (f v))
                          (~map f vs))]))
 
+;; Note: can probably get rid of implicit packing to args, and the
+;; final apply values
 (define (map-values f . args)
   (apply values (~map f args)))
 

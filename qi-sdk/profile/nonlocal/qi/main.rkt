@@ -7,8 +7,13 @@
          pingala
          eratosthenes
          collatz
+         range-map-car
          filter-map
+         filter-map-foldr
+         filter-map-foldl
+         long-functional-pipeline
          filter-map-values
+         range-map-sum
          double-list
          double-values)
 
@@ -54,8 +59,47 @@
                cons)]))
 
 
+;; (define-flow filter-map
+;;   (~> △ (>< (if odd? sqr ⏚)) ▽))
+
 (define-flow filter-map
-  (~> △ (>< (if odd? sqr ⏚)) ▽))
+  (~>> (filter odd?)
+       (map sqr)))
+
+(define-flow filter-map-foldr
+  (~>> (filter odd?)
+       (map sqr)
+       (foldr + 0)))
+
+(define-flow filter-map-foldl
+  (~>> (filter odd?)
+       (map sqr)
+       (foldl + 0)))
+
+(define-flow range-map-car
+  (~>> (range 0)
+       (map sqr)
+       car))
+
+(define-flow range-map-sum
+  ;; TODO: this should be written as (apply +)
+  ;; and that should be normalized to (foldr/l + 0)
+  ;; (depending on which of foldl/foldr is more performant)
+  (~>> (range 0) (map sqr) (foldr + 0)))
+
+(define-flow long-functional-pipeline
+  (~>> (range 0)
+       (filter odd?)
+       (map sqr)
+       values
+       (filter (λ (v) (< (remainder v 10) 5)))
+       (map (λ (v) (* 2 v)))
+       (foldl + 0)))
+
+;; (define filter-double
+;;   (map (☯ (when odd?
+;;             (-< _ _)))
+;;        (list 1 2 3 4 5)))
 
 (define-flow filter-map-values
   (>< (if odd? sqr ⏚)))
