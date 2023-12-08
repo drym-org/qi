@@ -5,7 +5,7 @@
 
 @title{Flowing with the Flow}
 
-If your code flows but you don't, then we're only halfway there. This section will cover some UX considerations related to programming in Qi, so that expressing flows in code is just a thought away.
+If your code flows but you don't, then we're only halfway there. This section will cover some UX considerations related to programming in Qi, so that expressing @tech{flows} in code is just a thought away.
 
 The main thing is, you want to ensure that these forms have convenient keybindings:
 

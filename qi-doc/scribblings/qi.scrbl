@@ -7,7 +7,7 @@
 
 @defmodule[qi]
 
-An embeddable, general-purpose language to allow convenient framing of programming logic in terms of functional @emph{flows}.
+An embeddable, general-purpose language to allow convenient framing of programming logic in terms of functional @tech{flows}. A @tech{flow} is a function from inputs to outputs, and Qi provides compact notation for describing complex @tech{flows}.
 
 Tired of writing long functional pipelines with nested syntax like this?
 @racketblock[(map _f (filter _g (vector->list _my-awesome-data)))]
