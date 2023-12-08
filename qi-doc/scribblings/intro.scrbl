@@ -27,7 +27,34 @@ One way to structure computations -- the one we typically employ when writing fu
 
 The former way is often necessary when writing functions at a low level, where the devil is in the details. But once these functional building blocks are available, the latter model is often more appropriate, allowing us to compose functions at a high level to derive complex and robust functional pipelines from simple components with a minimum of repetition and boilerplate, engendering @hyperlink["https://www.theschooloflife.com/thebookoflife/wu-wei-doing-nothing/"]{effortless clarity}.
 
+Here are some examples of computation with Qi using flows:
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+    (require qi)
+    (map (☯ (~> sqr add1)) (list 1 2 3))
+    (filter (☯ (< 5 _ 10)) (list 3 7 9 12))
+    (~> (3 4) (>< sqr) +)
+    (switch (2 3)
+      [> -]
+      [< +])
+    (define-flow root-mean-square
+      (~> △ (>< sqr) (-< + count) / sqrt))
+    (root-mean-square (range 10))
+  ]
+
 Qi is especially useful for expressing computations in a functional, immutable style, and embedding such computations anywhere in the source program, and when working with @seclink["values-model" #:doc '(lib "scribblings/reference/reference.scrbl")]{multiple values}.
+
+@examples[
+    #:eval eval-for-docs
+    (require qi racket/list)
+    (define-flow (list-insert xs i v)
+      (~> (group 2 split-at list)
+          (select 1 3 2) append))
+    (split-at '(a b d) 2)
+    (list-insert '(a b d) 2 'c)
+  ]
 
 @section{Installation}
 
@@ -44,21 +71,6 @@ Qi is a hosted language on the @hyperlink["https://racket-lang.org/"]{Racket pla
  Qi may be used in normal (e.g. Racket) code by employing an appropriate @seclink["Language_Interface"]{interface} form. These forms embed the Qi language into the host language, that is, they allow you to use Qi anywhere in your program, and provide shorthands for common cases.
 
  Since some of the forms use and favor unicode characters (while also providing plain-English aliases), see @secref["Flowing_with_the_Flow"] for tips on entering these characters. Otherwise, if you're all set, head on over to the @seclink["Tutorial"]{tutorial}.
-
-@examples[
-    #:eval eval-for-docs
-    #:label #f
-    (require qi)
-    (map (☯ (~> sqr add1)) (list 1 2 3))
-    (filter (☯ (< 5 _ 10)) (list 3 7 9 12))
-    (~> (3 4) (>< sqr) +)
-    (switch (2 3)
-      [> -]
-      [< +])
-    (define-flow root-mean-square
-      (~> △ (>< sqr) (-< + count) / sqrt))
-    (root-mean-square (range 10))
-  ]
 
 @section{Flowing with the Flow}
 
