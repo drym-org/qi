@@ -25,7 +25,9 @@
   ;; note: this does not return compiled code but instead,
   ;; syntax whose expansion compiles the code
   (define (compile-flow stx)
-    (process-bindings (optimize-flow stx)))
+    (process-bindings
+     #`(qi0->racket
+        #,(optimize-flow stx))))
 
   (define (deforest-pass stx)
     ;; Note: deforestation happens only for threading,
@@ -101,7 +103,7 @@
     ;; TODO: use syntax-parse and match ~> specifically.
     ;; Since macros are expanded "outside in," presumably
     ;; it will naturally wrap the outermost ~>
-    (wrap-with-scopes #`(qi0->racket #,(rewrite-all-bindings stx))
+    (wrap-with-scopes (rewrite-all-bindings stx)
                       (bound-identifiers stx))))
 
 (define-syntax (qi0->racket stx)
