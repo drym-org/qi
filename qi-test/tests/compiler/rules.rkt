@@ -47,13 +47,13 @@
                                     stx)))
                     "does not deforest single stream component in isolation"))
      (let ([stx #'(thread
-                   #%blanket-template
-                   ((#%host-expression map)
-                    (#%host-expression sqr)
-                    __)
-                   ((#%host-expression filter)
-                    (#%host-expression odd?)
-                    __))])
+                   (#%blanket-template
+                    ((#%host-expression map)
+                     (#%host-expression sqr)
+                     __)
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-false (deforested? (syntax->datum
                                   (deforest-rewrite
                                     stx)))
