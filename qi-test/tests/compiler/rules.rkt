@@ -12,13 +12,13 @@
                   range)
          syntax/parse/define)
 
-(define-syntax-parse-rule (test-normalize msg a b ...+)
+(define-syntax-parse-rule (test-normalize name a b ...+)
   (begin
-    (check-equal? (syntax->datum
-                   (normalize-pass a))
-                  (syntax->datum
-                   (normalize-pass b))
-                  msg)
+    (test-equal? name
+                 (syntax->datum
+                  (normalize-pass a))
+                 (syntax->datum
+                  (normalize-pass b)))
     ...))
 
 (define (deforested? exp)
