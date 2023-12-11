@@ -2,8 +2,8 @@
 
 (provide tests)
 
-(require (for-template qi/flow/core/compiler)
-         qi/flow/core/deforest
+(require (for-template qi/flow/core/compiler
+                       qi/flow/core/deforest)
          rackunit
          rackunit/text-ui
          (only-in math sqr)
