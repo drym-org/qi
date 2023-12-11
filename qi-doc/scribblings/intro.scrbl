@@ -27,7 +27,7 @@ One way to structure computations -- the one we typically employ when writing fu
 
 The former way is often necessary when writing functions at a low level, where the devil is in the details. But once these functional building blocks are available, the latter model is often more appropriate, allowing us to compose functions at a high level to derive complex and robust functional pipelines from simple components with a minimum of repetition and boilerplate, engendering @hyperlink["https://www.theschooloflife.com/thebookoflife/wu-wei-doing-nothing/"]{effortless clarity}.
 
-Here are some examples of computation with Qi using @tech{flows}:
+Here are some examples of computing with Qi using @tech{flows}:
 
 @examples[
     #:eval eval-for-docs
