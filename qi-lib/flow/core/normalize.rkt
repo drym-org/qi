@@ -2,7 +2,8 @@
 
 (provide normalize-rewrite)
 
-(require syntax/parse)
+(require syntax/parse
+         (for-template racket/base))
 
 ;; 0. "Qi-normal form"
 (define (normalize-rewrite stx)
@@ -54,7 +55,7 @@
     [((~datum thread) _0 ... (~datum collect) (~datum sep) _1 ...)
      #'(thread _0 ... _1 ...)]
     ;; collapse `values` and `_` inside a threading form
-    [((~datum thread) _0 ... (~literal values) _1 ...)
+    [((~datum thread) _0 ... ((~datum esc) ((~datum #%host-expression) (~literal values))) _1 ...)
      #'(thread _0 ... _1 ...)]
     [((~datum thread) _0 ... (~datum _) _1 ...)
      #'(thread _0 ... _1 ...)]
