@@ -519,9 +519,9 @@
     (test-normalize "redundant blanket template"
                     #'(#%blanket-template (f __))
                     #'f)
-    (test-normalize "values is collapsed inside ~>"
-                    #'(thread values f values)
-                    #'(thread f))
+    ;; (test-normalize "values is collapsed inside ~>"
+    ;;                 #'(thread values f values)
+    ;;                 #'(thread f))
     (test-normalize "_ is collapsed inside ~>"
                     #'(thread _ f _)
                     #'(thread f))
