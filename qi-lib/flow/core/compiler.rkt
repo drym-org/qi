@@ -11,8 +11,8 @@
                      "../aux-syntax.rkt"
                      "util.rkt"
                      "debug.rkt"
-                     "normalize.rkt"
-                     "deforest.rkt")
+                     "normalize.rkt")
+         "deforest.rkt"
          "impl.rkt"
          (only-in racket/list make-list)
          racket/function
