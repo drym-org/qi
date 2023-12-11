@@ -6,6 +6,12 @@
 (require racket/match
          syntax/parse)
 
+;; Walk the syntax tree in a "top down" manner, i.e. from the root down
+;; to the leaves, applying a transformation to each node. The
+;; transforming function is expected to either return the transformed
+;; syntax or false. The traversal terminates in the former case (i.e. it
+;; does not traverse the transformed expression to look for further
+;; matches), and continues in the latter case.
 (define (find-and-map f stx)
   ;; f : syntax? -> (or/c syntax? #f)
   (match stx
@@ -18,6 +24,8 @@
                       (find-and-map f d))]
     [_ stx]))
 
+;; A thin wrapper around find-and-map that does not traverse subexpressions
+;; that are tagged as host language (rather than Qi) expressions
 (define (find-and-map/qi f stx)
   ;; #%host-expression is a Racket macro defined by syntax-spec
   ;; that resumes expansion of its sub-expression with an

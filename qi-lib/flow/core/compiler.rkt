@@ -11,8 +11,8 @@
                      "../aux-syntax.rkt"
                      "util.rkt"
                      "debug.rkt"
-                     "normalize.rkt"
-                     "deforest.rkt")
+                     "normalize.rkt")
+         "deforest.rkt"
          "impl.rkt"
          (only-in racket/list make-list)
          racket/function
@@ -25,7 +25,9 @@
   ;; note: this does not return compiled code but instead,
   ;; syntax whose expansion compiles the code
   (define (compile-flow stx)
-    (process-bindings (optimize-flow stx)))
+    (process-bindings
+     #`(qi0->racket
+        #,(optimize-flow stx))))
 
   (define (deforest-pass stx)
     (find-and-map/qi (fix deforest-rewrite)
@@ -107,7 +109,7 @@
     ;; TODO: use syntax-parse and match ~> specifically.
     ;; Since macros are expanded "outside in," presumably
     ;; it will naturally wrap the outermost ~>
-    (wrap-with-scopes #`(qi0->racket #,(rewrite-all-bindings stx))
+    (wrap-with-scopes (rewrite-all-bindings stx)
                       (bound-identifiers stx))))
 
 (define-syntax (qi0->racket stx)

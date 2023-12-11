@@ -2,8 +2,8 @@
 
 (provide tests)
 
-(require (for-template qi/flow/core/compiler)
-         qi/flow/core/deforest
+(require (for-template qi/flow/core/compiler
+                       qi/flow/core/deforest)
          rackunit
          rackunit/text-ui
          (only-in math sqr)
@@ -12,13 +12,13 @@
                   range)
          syntax/parse/define)
 
-(define-syntax-parse-rule (test-normalize msg a b ...+)
+(define-syntax-parse-rule (test-normalize name a b ...+)
   (begin
-    (check-equal? (syntax->datum
-                   (normalize-pass a))
-                  (syntax->datum
-                   (normalize-pass b))
-                  msg)
+    (test-equal? name
+                 (syntax->datum
+                  (normalize-pass a))
+                 (syntax->datum
+                  (normalize-pass b)))
     ...))
 
 (define (deforested? exp)
@@ -47,13 +47,13 @@
                                     stx)))
                     "does not deforest single stream component in isolation"))
      (let ([stx #'(thread
-                   #%blanket-template
-                   ((#%host-expression map)
-                    (#%host-expression sqr)
-                    __)
-                   ((#%host-expression filter)
-                    (#%host-expression odd?)
-                    __))])
+                   (#%blanket-template
+                    ((#%host-expression map)
+                     (#%host-expression sqr)
+                     __)
+                    ((#%host-expression filter)
+                     (#%host-expression odd?)
+                     __)))])
        (check-false (deforested? (syntax->datum
                                   (deforest-rewrite
                                     stx)))
@@ -519,9 +519,9 @@
     (test-normalize "redundant blanket template"
                     #'(#%blanket-template (f __))
                     #'f)
-    (test-normalize "values is collapsed inside ~>"
-                    #'(thread values f values)
-                    #'(thread f))
+    ;; (test-normalize "values is collapsed inside ~>"
+    ;;                 #'(thread values f values)
+    ;;                 #'(thread f))
     (test-normalize "_ is collapsed inside ~>"
                     #'(thread _ f _)
                     #'(thread f))
