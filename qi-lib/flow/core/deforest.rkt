@@ -2,8 +2,7 @@
 
 (provide deforest-rewrite)
 
-(require (for-syntax racket/base)
-         syntax/parse
+(require syntax/parse
          racket/syntax-srcloc
          racket/performance-hint
          racket/match
@@ -12,8 +11,8 @@
 
 ;; These bindings are used for ~literal matching to introduce implicit
 ;; producer/consumer when none is explicitly given in the flow.
-(define-syntax cstream->list #'-cstream->list)
-(define-syntax list->cstream #'-list->cstream)
+(define cstream->list #'-cstream->list)
+(define list->cstream #'-list->cstream)
 
 ;; "Composes" higher-order functions inline by directly applying them
 ;; to the result of each subsequent application, with the last argument
