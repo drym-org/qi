@@ -24,8 +24,8 @@
 This tutorial is available in two formats:
 
 @itemlist[#:style 'ordered
-          @item{An interactive format for you to go through and run yourself. (@bold{Recommended!})}
-          @item{As standard Scribble documentation.}]
+          @item{An @seclink["Interactive_Tutorial"]{interactive format} for you to go through and run yourself. (@bold{Recommended!})}
+          @item{As @seclink["Online_Tutorial"]{standard Scribble documentation.}}]
 
 They contain similar material, but the interactive version includes additional steps and exercises. The interactive format is a more efficient and effective way to learn than reading documentation, and is recommended.
 
