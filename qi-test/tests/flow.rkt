@@ -1540,25 +1540,47 @@
     ;; "equivalences" that are not really equivalences are formally checked
     (test-suite
      "counterexamples"
-     (let ()
-       (define-flow g (-< add1 sub1))
-       (define-flow f positive?)
-       (define (f* x y) (= (sub1 x) (add1 y)))
-       (define (amp-pass g f) (☯ (~> (>< g) (pass f) ▽)))
-       (define (amp-if g f) (☯ (~> (>< (~> g (if f _ ground))) ▽)))
-       (check-equal? (apply (amp-pass g f) (range -3 4))
+     (test-suite
+      "(~> (>< g) (pass f)) ─/→ (>< (~> g (if f _ ⏚)))"
+      (let ()
+        (define-flow g (-< add1 sub1))
+        (define-flow f positive?)
+        (define (f* x y) (= (sub1 x) (add1 y)))
+        (define (amp-pass g f) (☯ (~> (>< g) (pass f) ▽)))
+        (define (amp-if g f) (☯ (~> (>< (~> g (if f _ ground))) ▽)))
+        (test-equal? "amp-pass"
+                     (apply (amp-pass g f) (range -3 4))
                      (list 1 2 3 1 4 2))
-       (check-exn exn:fail?
-                  (thunk (apply (amp-if g f) (range -3 4))))
-       (check-exn exn:fail?
+        (test-exn "amp-pass"
+                  exn:fail?
                   (thunk (apply (amp-pass g f*) (range -3 4))))
-       (check-equal? (apply (amp-if g f*) (range -3 4))
+        (test-exn "amp-if"
+                  exn:fail?
+                  (thunk (apply (amp-if g f) (range -3 4))))
+        (test-equal? "amp-if"
+                     (apply (amp-if g f*) (range -3 4))
                      (list -2 -4 -1 -3 0 -2 1 -1 2 0 3 1 4 2)))
-     (let ()
-       (check-equal? ((☯ (~> (>< string->number) (pass _))) "a" "2" "c")
+      (let ()
+        (test-equal? "amp-pass"
+                     ((☯ (~> (>< string->number) (pass _))) "a" "2" "c")
                      2)
-       (check-equal? ((☯ (~> (>< (if _ string->number ground)) ▽)) "a" "2" "c")
-                     (list #f 2 #f)))))))
+        (test-equal? "amp-if"
+                     ((☯ (~> (>< (if _ string->number ground)) ▽)) "a" "2" "c")
+                     (list #f 2 #f))))
+     (test-suite
+      "(~> (>< f) (>< g)) ─/→ (>< (~> f g))"
+      (test-equal? "amp-amp"
+                   ((☯ (~> (>< (-< add1 sub1))
+                           (>< (-< sub1 add1))
+                           ▽))
+                    3)
+                   (list 3 5 1 3))
+      (test-exn "merged amp"
+                exn:fail?
+                (thunk
+                 ((☯ (>< (~> (-< add1 sub1)
+                             (-< sub1 add1))))
+                  3))))))))
 
 (module+ main
   (void (run-tests tests)))
