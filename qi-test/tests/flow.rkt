@@ -242,6 +242,9 @@
                    "separate into a non-primitive flow with presupplied values"))
     (test-suite
      "gen"
+     (check-eq? (☯ (gen)) (☯ ⏚))
+     (check-eq? ((☯ (~> (gen) ▽)))
+                '())
      (check-equal? ((☯ (gen 5)))
                    5)
      (check-equal? ((☯ (gen 5)) 3)
@@ -428,6 +431,11 @@
                    "a"))
     (test-suite
      "-<"
+     (check-eq? (☯ (-<)) (☯ ⏚))
+     (check-eq? (☯ (-< add1 (-<)))
+                add1)
+     (check-eq? (☯ (-< (-<) add1))
+                add1)
      (check-equal? ((☯ (~> (-< sqr add1) ▽))
                     5)
                    (list 25 6))
@@ -460,6 +468,8 @@
                    "named tee junction form"))
     (test-suite
      "=="
+     (check-eq? ((☯ (~> (==) ▽)))
+                '())
      (check-equal? ((☯ (~> (== sqr add1) ▽))
                     5 7)
                    (list 25 8))
@@ -484,7 +494,11 @@
                     5 7)
                    (list 5 5 8)
                    "relay with arity-increasing clause")
-     (check-exn exn:fail?
+     (check-eq? ((☯ (~> (== add1))) 1) 2)
+     (check-exn exn:fail:contract:arity?
+                (thunk ((☯ (~> (== +)))
+                        1 2 3)))
+     (check-exn exn:fail:contract:arity?
                 (thunk ((☯ (~> (== ⏚ add1) ▽))
                         5 7 8))
                 "relay elements must be in one-to-one correspondence with input")
@@ -494,6 +508,14 @@
                    "named relay form"))
     (test-suite
      "==*"
+     (check-eq? ((☯ (~> (==*) ▽)))
+                '())
+     (check-eq? ((☯ (~> (==* +)))
+                 1 2 3 4 5)
+                15)
+     (check-eq? ((☯ (~> (==* (~> +))))
+                 1 2 3 4 5)
+                15)
      (check-equal? ((☯ (~> (==* add1 sub1 +) ▽))
                     1 1 1 1 1)
                    (list 2 0 3))
@@ -511,7 +533,9 @@
                    6)
      (check-equal? ((☯ (-< ground add1))
                     5)
-                   6)))
+                   6)
+     (check-eq? (☯ (-< ⏚ add1)) add1)
+     (check-eq? (☯ ⏚) (☯ (-<)))))
 
    (test-suite
     "Exceptions"
@@ -947,6 +971,9 @@
      (check-equal? (~> (2 3) (fanout 0) ▽)
                    null
                    "N=0 produces no values.")
+     (check-equal? (~> (2 3) (fanout 1) ▽)
+                   (list 2 3)
+                   "N=1 produces original values.")
      (check-equal? (~> () (fanout 3) ▽)
                    null
                    "No inputs produces no outputs.")
@@ -1059,6 +1086,7 @@
                 "grouping more inputs than are available shows a helpful error"))
     (test-suite
      "select"
+     (check-equal? (☯ (~> (select))) (☯ ⏚))
      (check-equal? ((☯ (~> (select) ▽))
                     1)
                    null)

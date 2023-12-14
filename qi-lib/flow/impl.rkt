@@ -10,7 +10,10 @@
          map-values
          filter-values
          partition-values
+         1->1
+         *->1
          relay
+         tee
          loom-compose
          parity-xor
          arg
@@ -40,22 +43,22 @@
 
 ;; we use a lambda to capture the arguments at runtime
 ;; since they aren't available at compile time
-(define (loom-compose f g [n #f])
-  (let ([n (or n (procedure-arity f))])
+(define (loom-compose f g [n (procedure-arity f)])
+  (define compiled-group-flow
     (λ args
-      (let ([num-args (length args)])
-        (if (< num-args n)
-            (if (= 0 num-args)
-                (values)
-                (error 'group (~a "Can't select "
-                                  n
-                                  " arguments from "
-                                  args)))
-            (let ([sargs (take args n)]
-                  [rargs (drop args n)])
-              (apply values
-                     (append (values->list (apply f sargs))
-                             (values->list (apply g rargs))))))))))
+      (define num-args (length args))
+      (if (< num-args n)
+          (if (= 0 num-args)
+              (values)
+              (error 'group (~a "Can't select "
+                                n
+                                " arguments from "
+                                args)))
+          (let-values ([(sargs rargs) (split-at args n)])
+            (apply values
+              (append (values->list (apply f sargs))
+                      (values->list (apply g rargs))))))))
+  compiled-group-flow)
 
 (define (parity-xor . args) (and (foldl xor #f args) #t))
 
@@ -165,7 +168,7 @@
                 [b (in-value (cdr c+b))]
                 [args (in-value (hash-ref by-cs c))])
       (call-with-values (λ () (apply b args)) list)))
-  (apply values (apply append results)))
+  (apply values (append* results)))
 
 (define (->boolean v) (and v #t))
 (define true.  (thunk* #t))
@@ -186,6 +189,9 @@
         (append (values->list (apply op vs))
                 (apply zip-with op (map rest seqs))))))
 
+(define 1->1 (thunk  (values)))
+(define *->1 (thunk* (values)))
+
 ;; from mischief/function - requiring it runs aground
 ;; of some "name is protected" error while building docs, not sure why;
 ;; so including the implementation directly here for now
@@ -194,9 +200,26 @@
    (lambda (ks vs f . xs)
      (keyword-apply f ks vs xs))))
 
-(define (relay . fs)
-  (λ args
-    (apply values (zip-with call fs args))))
+(define relay
+  (case-lambda
+    [() 1->1]
+    [(f) (procedure-reduce-arity-mask f 2)]
+    [fs
+     (define (compiled-relay-flow . args)
+       (apply values (zip-with call fs args)))
+     compiled-relay-flow]))
+
+(define (tee . fs)
+  (match (remq* (list *->1) fs)
+    ['() *->1]
+    [`(,f) f]
+    [fs
+     (define (compiled-tee-flow . args)
+       (apply values
+         (append*
+          (for/list ([f (in-list fs)])
+            (values->list (apply f args))))))
+     compiled-tee-flow]))
 
 (define (all? . args)
   (and (for/and ([v (in-list args)]) v) #t))
@@ -208,7 +231,7 @@
   (not (for/or ([v (in-list args)]) v)))
 
 (define (repeat-values n . vs)
-  (apply values (apply append (make-list n vs))))
+  (apply values (append* (make-list n vs))))
 
 (define (power n f)
   (apply compose (make-list n f)))
