@@ -1580,7 +1580,15 @@
                 (thunk
                  ((☯ (>< (~> (-< add1 sub1)
                              (-< sub1 add1))))
-                  3))))))))
+                  3))))
+     (test-suite
+      "(~> (== _ ...)) ─/→ _"
+      (test-exn "relay-_"
+                exn:fail?
+                (thunk
+                 ((☯ (== _ _ _))
+                  3)))
+      (test-equal? "relay-_" ((☯ _) 3) 3))))))
 
 (module+ main
   (void (run-tests tests)))
