@@ -650,7 +650,7 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
 @defform[#:link-target? #f
          (amp flo)]
 )]{
-  The flow analogue to @racket[map], this maps each input individually under @racket[flo]. As flows may generate any number of output values, unlike @racket[map], the number of outputs need not equal the number of inputs here.
+  The flow analogue to @racket[map], this maps the input sequence according to the procedure arity (prefer the least arity other than @racket[0]) of @racket[flo]. As flows may generate any number of output values, unlike @racket[map], the number of outputs need not equal the number of inputs here.
 
   If used in identifier form simply as @racket[><], it treats the first input as @racket[flo].
 
@@ -659,6 +659,15 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
     ((☯ (>< sqr)) 1 2 3)
     ((☯ ><) sqr 1 2 3)
     ((☯ (>< (-< _ _))) 1 2 3)
+    ((☯ (>< 1)))
+    ((☯ (>< (esc (λ () 1)))))
+    ((☯ (>< (esc (case-lambda [(_) (add1 _)] [_ #f])))))
+    ((☯ (>< (esc (case-lambda [(_) (add1 _)] [_ #f])))) 1 2 3)
+    (~> ('k1 "v1" 'k2 "v2") (>< cons) ▽ make-immutable-hash)
+    (~> (1 2 1)
+        (>< (-< _ _))
+        (-< 0 _ 0)
+        (>< (esc (procedure-reduce-arity + 2))))
   ]
 }
 

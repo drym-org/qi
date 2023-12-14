@@ -1201,7 +1201,38 @@
      (check-equal? ((☯ (~> (amp sqr) ▽))
                     3 5)
                    (list 9 25)
-                   "named amplification form"))
+                   "named amplification form")
+     (test-suite
+      "mapping sequence"
+      (check-equal? ((☯ (~> (>< 1) ▽))) '())
+      (check-equal? ((☯ (~> (>< (esc (λ () 1))) ▽))) '(1))
+      (check-equal? ((☯ (~> (>< (esc (case-lambda [(_) (add1 _)] [_ #f]))) ▽))) '())
+      (check-equal? ((☯ (~> (>< (esc (case-lambda [(_) (add1 _)] [_ #f]))) ▽)) 1 2 3) '(2 3 4))
+      (check-equal? ((☯ (~> (>< (esc (λ () 1))) ▽))) '(1))
+      (check-equal? ((☯ (~> (>< cons) ▽ make-immutable-hash))
+                     'k1 "v1"
+                     'k2 "v2")
+                    (hash
+                     'k1 "v1"
+                     'k2 "v2"))
+      (check-equal? ((☯
+                      (~> (>< (-< _ _))
+                          (-< 0 _ 0)
+                          (>< (esc (procedure-reduce-arity + 2)))
+                          ▽))
+                     1 2 1)
+                    '(1 3 3 1))
+      (check-equal? ((☯ (~> (>< member) ▽))
+                     1 '(1 2 3)
+                     2 '(a b c))
+                    '((1 2 3) #f))
+      (check-equal? ((☯ (~> (>< /) ▽)) 1 2 3)
+                    '(1 1/2 1/3))
+      (check-equal? ((☯ (~> >< ▽))
+                     cons
+                     1 2
+                     3 4)
+                    '((1 . 2) (3 . 4)))))
     (test-suite
      "pass"
      (check-equal? ((☯ (~> pass ▽))
