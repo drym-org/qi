@@ -466,9 +466,6 @@
                        (pass f)
                        (amp g))
                     #'(amp (if f g ground)))
-    (test-normalize "merge amps in sequence"
-                    #'(thread (amp f) (amp g))
-                    #'(amp (thread f g)))
     (test-normalize "merge pass filters in sequence"
                     #'(thread (pass f) (pass g))
                     #'(pass (and f g)))
@@ -496,11 +493,6 @@
                     #'(thread _ _)
                     #'(thread _)
                     #'_)
-    (test-normalize "relay composition of identity flows"
-                    #'(relay _ _ _)
-                    #'(relay _ _)
-                    #'(relay _)
-                    #'_)
     (test-normalize "amp under identity"
                     #'(amp _)
                     #'_)
@@ -524,10 +516,7 @@
     ;;                 #'(thread f))
     (test-normalize "_ is collapsed inside ~>"
                     #'(thread _ f _)
-                    #'(thread f))
-    (test-normalize "consecutive amps are combined"
-                    #'(thread (amp f) (amp g))
-                    #'(thread (amp (thread f g)))))
+                    #'(thread f)))
 
    (test-suite
     "compilation sequences"

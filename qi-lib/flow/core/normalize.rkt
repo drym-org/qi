@@ -27,9 +27,6 @@
     ;; (~> (pass f) (>< g)) → (>< (if f g ⏚))
     [(thread _0 ... (pass f) (amp g) _1 ...)
      #'(thread _0 ... (amp (if f g ground)) _1 ...)]
-    ;; merge amps in sequence
-    [(thread _0 ... (amp f) (amp g) _1 ...)
-     #'(thread _0 ... (amp (thread f g)) _1 ...)]
     ;; merge pass filters in sequence
     [(thread _0 ... (pass f) (pass g) _1 ...)
      #'(thread _0 ... (pass (and f g)) _1 ...)]
@@ -47,9 +44,6 @@
      #'(thread _0 ... _1 ...)]
     ;; composition of identity flows is the identity flow
     [(thread (~datum _) ...)
-     #'_]
-    ;; identity flows composed using a relay
-    [(relay (~datum _) ...)
      #'_]
     ;; amp and identity
     [(amp (~datum _))
@@ -69,10 +63,8 @@
     ;; and we can only know this at runtime.
     [(thread _0 ... collect sep _1 ...)
      #'(thread _0 ... _1 ...)]
-    ;; collapse `values` and `_` inside a threading form
+    ;; collapse `values` inside a threading form
     [(thread _0 ... (esc (#%host-expression (~literal values))) _1 ...)
-     #'(thread _0 ... _1 ...)]
-    [(thread _0 ... (~datum _) _1 ...)
      #'(thread _0 ... _1 ...)]
     [(#%blanket-template (hex __))
      #'hex]
