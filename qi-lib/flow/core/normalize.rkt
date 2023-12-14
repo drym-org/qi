@@ -27,9 +27,6 @@
     ;; (~> (pass f) (>< g)) → (>< (if f g ⏚))
     [(thread _0 ... (pass f) (amp g) _1 ...)
      #'(thread _0 ... (amp (if f g ground)) _1 ...)]
-    ;; merge amps in sequence
-    [(thread _0 ... (amp f) (amp g) _1 ...)
-     #'(thread _0 ... (amp (thread f g)) _1 ...)]
     ;; merge pass filters in sequence
     [(thread _0 ... (pass f) (pass g) _1 ...)
      #'(thread _0 ... (pass (and f g)) _1 ...)]
@@ -47,9 +44,6 @@
      #'(thread _0 ... _1 ...)]
     ;; composition of identity flows is the identity flow
     [(thread (~datum _) ...)
-     #'_]
-    ;; identity flows composed using a relay
-    [(relay (~datum _) ...)
      #'_]
     ;; amp and identity
     [(amp (~datum _))
