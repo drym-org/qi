@@ -69,10 +69,8 @@
     ;; and we can only know this at runtime.
     [(thread _0 ... collect sep _1 ...)
      #'(thread _0 ... _1 ...)]
-    ;; collapse `values` and `_` inside a threading form
+    ;; collapse `values` inside a threading form
     [(thread _0 ... (esc (#%host-expression (~literal values))) _1 ...)
-     #'(thread _0 ... _1 ...)]
-    [(thread _0 ... (~datum _) _1 ...)
      #'(thread _0 ... _1 ...)]
     [(#%blanket-template (hex __))
      #'hex]
