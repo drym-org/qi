@@ -36,13 +36,19 @@
     (find-and-map/qi (fix deforest-rewrite)
                      stx))
 
+  (define-qi-expansion-step (~deforest-pass stx)
+    (deforest-rewrite stx))
+
   (define (normalize-pass stx)
     (find-and-map/qi (fix normalize-rewrite)
                      stx))
 
+  (define-qi-expansion-step (~normalize-pass stx)
+    (normalize-pass stx))
+
   (define (optimize-flow stx)
-    (deforest-pass
-      (normalize-pass stx))))
+    (~deforest-pass
+      (~normalize-pass stx))))
 
 ;; Transformation rules for the `as` binding form:
 ;;
