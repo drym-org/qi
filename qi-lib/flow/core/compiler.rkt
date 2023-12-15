@@ -33,7 +33,7 @@
     ;; Note: deforestation happens only for threading,
     ;; and the normalize pass strips the threading form
     ;; if it contains only one expression, so this would not be hit.
-    (find-and-map/qi (fix deforest-rewrite)
+    (find-and-map/qi deforest-rewrite
                      stx))
 
   (define-qi-expansion-step (~deforest-pass stx)
