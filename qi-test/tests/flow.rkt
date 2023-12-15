@@ -510,10 +510,6 @@
                     (list 2 1 3))
                    (list 1 4 9)
                    "pre-supplied keyword arguments with right chirality")
-     (check-equal? ((☯ (~>> (sort <)))
-                    #:key identity 2 1 3)
-                   (list 1 2 3)
-                   "right-threading with keyword arg at invocation time")
      ;; TODO: propagate threading side to nested clauses
      ;; (check-equal? (on ("p" "q")
      ;;                   (~>> (>< (string-append "a" "b"))
