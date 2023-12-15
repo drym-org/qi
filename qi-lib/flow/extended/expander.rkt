@@ -105,9 +105,10 @@
                "(group <number> <selection flow> <remainder flow>)"))
     (if consequent:closed-floe
         alternative:closed-floe)
-    (if condition:closed-floe
+    (if condition:floe
         consequent:closed-floe
         alternative:closed-floe)
+    #:binding (nest-one condition [consequent alternative])
     (sieve condition:closed-floe
            sonex:closed-floe
            ronex:closed-floe)
