@@ -30,6 +30,8 @@ help:
 	@echo "  definitions"
 	@echo "  macro"
 	@echo "  util"
+	@echo "  expander"
+	@echo "  compiler"
 	@echo "  probe"
 	@echo "    Note: As probe is not in qi-lib, it isn't part of"
 	@echo "    the tests run in the 'test' target."
@@ -124,6 +126,9 @@ test-macro:
 test-util:
 	racket -y $(PACKAGE-NAME)-test/tests/util.rkt
 
+test-expander:
+	racket -y $(PACKAGE-NAME)-test/tests/expander.rkt
+
 test-compiler:
 	racket -y $(PACKAGE-NAME)-test/tests/compiler.rkt
 
@@ -196,4 +201,4 @@ performance-report:
 performance-regression-report:
 	@racket $(PACKAGE-NAME)-sdk/profile/report.rkt -r $(REF)
 
-.PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-compiler test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile-local profile-loading profile-selected-forms profile-competitive profile-nonlocal profile performance-report performance-regression-report
+.PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-expander test-compiler test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile-local profile-loading profile-selected-forms profile-competitive profile-nonlocal profile performance-report performance-regression-report

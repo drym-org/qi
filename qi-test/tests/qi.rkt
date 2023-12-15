@@ -9,6 +9,7 @@
          (prefix-in definitions: "definitions.rkt")
          (prefix-in macro: "macro.rkt")
          (prefix-in util: "util.rkt")
+         (prefix-in expander: "expander.rkt")
          (prefix-in compiler: "compiler.rkt"))
 
 (define tests
@@ -22,6 +23,7 @@
    definitions:tests
    macro:tests
    util:tests
+   expander:tests
    compiler:tests))
 
 (module+ test
