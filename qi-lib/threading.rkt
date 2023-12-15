@@ -16,7 +16,7 @@
          "on.rkt")
 
 (define-syntax-parser %~>
-  [(_ (arg0 arg ...+) (~or* (~datum sep) (~datum △)) clause:clause ...)
+  [(_ (arg0:expr arg:expr ...+) (~or* (~datum sep) (~datum △)) clause:clause ...)
    ;; catch a common usage error
    (report-syntax-error this-syntax
      "(~> (arg ...) flo ...)"
@@ -27,7 +27,7 @@
    #'(on ags (~> clause ...))])
 
 (define-syntax-parser %~>>
-  [(_ (arg0 arg ...+) (~or* (~datum sep) (~datum △)) clause:clause ...)
+  [(_ (arg0:expr arg:expr ...+) (~or* (~datum sep) (~datum △)) clause:clause ...)
    ;; catch a common usage error
    (report-syntax-error this-syntax
      "(~>> (arg ...) flo ...)"
