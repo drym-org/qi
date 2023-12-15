@@ -7,7 +7,7 @@
          fine-template-form
          partial-application-form
          any-stx
-         ;; only used for unit tests
+         ;; only provided for use in unit tests
          make-right-chiral)
 
 (require syntax/parse
