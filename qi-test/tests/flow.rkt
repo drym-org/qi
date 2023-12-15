@@ -419,6 +419,27 @@
                                    (as v))))
                         3)))
                "tee junction tines don't bind preceding peers")
+    (check-equal? ((☯ (switch [(~> sqr (ε (as v) #t))
+                               (gen v)]))
+                   3)
+                  9
+                  "switch conditions bind clauses")
+    (check-equal? ((☯ (switch
+                        [(~> sqr (ε (as v) #f))
+                         (gen v)]
+                        [(~> add1 (ε (as v) #t))
+                         (gen v)]))
+                   3)
+                  4
+                  "bindings in switch conditions shadow earlier conditions")
+    (check-exn exn:fail?
+               (thunk
+                (convert-compile-time-error
+                 ((☯ (~> (switch [(~> sqr (ε (as v) #t))
+                                  0])
+                         (gen v)))
+                  3)))
+               "switch does not bind downstream")
     (check-exn exn:fail?
                (thunk (convert-compile-time-error
                        ((☯ (~> (or (ε (as v)) 5) (+ v)))
