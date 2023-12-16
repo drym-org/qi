@@ -6,7 +6,9 @@
          blanket-template-form
          fine-template-form
          partial-application-form
-         any-stx)
+         any-stx
+         ;; only provided for use in unit tests
+         make-right-chiral)
 
 (require syntax/parse
          "../aux-syntax.rkt"

@@ -354,10 +354,19 @@
     (check-equal? ((☯ (~> (as v) (+ v))) 3)
                   3
                   "binds a single value")
+    (check-equal? ((☯ (~> (as v w) (+ v w))) 3 4)
+                  7
+                  "binds multiple values")
+    (check-false ((☯ (~> (as v) live?)) 3)
+                 "binding does not propagate the value")
     (check-equal? ((☯ (~> (-< (as v)
                               _) (+ 3 _ v))) 3)
                   9
                   "reference in a fine template")
+    (check-equal? ((☯ (~> (-< (as v)
+                              _) (+ 3 __ v))) 3)
+                  9
+                  "reference in a blanket template")
     (check-equal? ((☯ (~> (-< (as v)
                               _) (+ 3 v))) 3)
                   9
@@ -366,15 +375,6 @@
                                _) (+ 3 v))) 3)
                   9
                   "reference in a right-chiral partial application")
-    (check-equal? ((☯ (~> (-< (as v)
-                              _) (+ 3 __ v))) 3)
-                  9
-                  "reference in a blanket template")
-    (check-false ((☯ (~> (as v) live?)) 3)
-                 "binding does not propagate the value")
-    (check-equal? ((☯ (~> (as v w) (+ v w))) 3 4)
-                  7
-                  "binds multiple values")
     (check-equal? ((☯ (~> (-< (~> list (as vs))
                               +)
                           (~a "The sum of " vs " is " _)))
@@ -419,6 +419,27 @@
                                    (as v))))
                         3)))
                "tee junction tines don't bind preceding peers")
+    (check-equal? ((☯ (switch [(~> sqr (ε (as v) #t))
+                               (gen v)]))
+                   3)
+                  9
+                  "switch conditions bind clauses")
+    (check-equal? ((☯ (switch
+                        [(~> sqr (ε (as v) #f))
+                         (gen v)]
+                        [(~> add1 (ε (as v) #t))
+                         (gen v)]))
+                   3)
+                  4
+                  "bindings in switch conditions shadow earlier conditions")
+    (check-exn exn:fail?
+               (thunk
+                (convert-compile-time-error
+                 ((☯ (~> (switch [(~> sqr (ε (as v) #t))
+                                  0])
+                         (gen v)))
+                  3)))
+               "switch does not bind downstream")
     (check-exn exn:fail?
                (thunk (convert-compile-time-error
                        ((☯ (~> (or (ε (as v)) 5) (+ v)))
