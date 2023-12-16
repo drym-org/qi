@@ -13,6 +13,7 @@
          "flow/extended/expander.rkt"
          "flow/core/compiler.rkt"
          "flow/extended/forms.rkt"
+         (for-syntax "flow/extended/util.rkt")
          (only-in "private/util.rkt"
                   define-alias))
 
@@ -43,6 +44,8 @@ in the flow macro.
       [(expr0 expr ...+)
        (report-syntax-error
            (datum->syntax this-syntax
-             (cons 'flow (syntax->list this-syntax)))
+             (cons 'flow
+                   (map prettify-flow-syntax
+                        (syntax->list this-syntax))))
          "(flow flo)"
          "flow expects a single flow specification, but it received many.")])))
