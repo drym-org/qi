@@ -4,7 +4,8 @@
 
 (require (for-syntax racket/base
                      syntax/parse
-                     racket/syntax-srcloc)
+                     racket/syntax-srcloc
+                     "../extended/util.rkt")
          racket/performance-hint
          racket/match
          racket/list
@@ -26,21 +27,6 @@
     [(_ [op f] rest ...) (op f (inline-compose1 rest ...))]))
 
 (begin-for-syntax
-  ;; Partially reconstructs original flow expressions. The chirality
-  ;; is lost and the form is already normalized at this point though!
-  (define (prettify-flow-syntax stx)
-    (syntax-parse stx
-      #:datum-literals (#%host-expression esc #%blanket-template #%fine-template)
-      [((~literal thread)
-        expr ...)
-       #`(~> #,@(map prettify-flow-syntax (syntax->list #'(expr ...))))]
-      [((~or #%blanket-template #%fine-template)
-        (expr ...))
-       (map prettify-flow-syntax (syntax->list #'(expr ...)))]
-      [(#%host-expression expr) #'expr]
-      [(esc expr) (prettify-flow-syntax #'expr)]
-      [expr #'expr]))
-
   ;; Special "curry"ing for #%fine-templates. All #%host-expressions
   ;; are passed as they are and all (~datum _) are replaced by wrapper
   ;; lambda arguments.
