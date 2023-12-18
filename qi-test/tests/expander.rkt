@@ -102,7 +102,9 @@
                                    __)))))))
    (test-suite
     "utils"
-    (test-equal? "basic expansion"
+    ;; this is just temporary until we properly track source expressions through
+    ;; expansion, so it doesn't match all the nuances of the core language grammar
+    (test-equal? "de-expansion"
                  (syntax->datum
                   (datum->syntax #f
                     (map prettify-flow-syntax
