@@ -475,7 +475,7 @@
                       (#%host-expression sqr)
                       __))))])
        (check-true (deforested? (syntax->datum
-                                 (deforest-rewrite
+                                 (deforest-pass
                                    stx)))
                    "deforestation in nested positions"))))
 
