@@ -7,6 +7,7 @@
          (prefix-in switch: "switch.rkt")
          (prefix-in threading: "threading.rkt")
          (prefix-in definitions: "definitions.rkt")
+         (prefix-in space: "space.rkt")
          (prefix-in macro: "macro.rkt")
          (prefix-in util: "util.rkt")
          (prefix-in expander: "expander.rkt")
@@ -21,6 +22,7 @@
    switch:tests
    threading:tests
    definitions:tests
+   space:tests
    macro:tests
    util:tests
    expander:tests
