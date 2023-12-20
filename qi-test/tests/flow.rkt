@@ -792,11 +792,8 @@
     (test-suite
      "templating behavior is contained to intentional template syntax"
      (check-exn exn:fail:syntax?
-                (thunk (parameterize ([current-namespace (make-base-empty-namespace)])
-                         (namespace-require 'racket/base)
-                         (namespace-require 'qi)
-                         (eval '(☯ (feedback _ add1))
-                               (current-namespace))))
+                (thunk (convert-compile-time-error
+                        (☯ (feedback _ add1))))
                 "invalid syntax accepted on the basis of an assumed fancy-app template")))
 
    (test-suite
