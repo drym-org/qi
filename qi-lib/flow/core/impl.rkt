@@ -1,9 +1,6 @@
 #lang racket/base
 
 (provide give
-         any?
-         all?
-         none?
          map-values
          filter-values
          partition-values
@@ -197,15 +194,6 @@
 (define (relay . fs)
   (λ args
     (apply values (zip-with call fs args))))
-
-(define (all? . args)
-  (and (for/and ([v (in-list args)]) v) #t))
-
-(define (any? . args)
-  (and (for/or ([v (in-list args)]) v) #t))
-
-(define (none? . args)
-  (not (for/or ([v (in-list args)]) v)))
 
 (define (repeat-values n . vs)
   (apply values (apply append (make-list n vs))))
