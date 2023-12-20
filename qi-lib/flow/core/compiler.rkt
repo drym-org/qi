@@ -37,7 +37,7 @@
                      stx))
 
   (define-qi-expansion-step (~deforest-pass stx)
-    (deforest-rewrite stx))
+    (deforest-pass stx))
 
   (define (normalize-pass stx)
     (find-and-map/qi (fix normalize-rewrite)
