@@ -102,8 +102,10 @@ check-deps:
 	raco setup --no-docs $(DEPS-FLAGS) $(PACKAGE-NAME)
 
 # Suitable for both day-to-day dev and CI
+# Note: we don't test qi-doc since there aren't any tests there atm
+# and it also seems to make things extremely slow to include it.
 test:
-	raco test -exp $(PACKAGE-NAME)-{lib,test,doc,probe}
+	raco test -exp $(PACKAGE-NAME)-{lib,test,probe}
 
 test-flow:
 	racket -y $(PACKAGE-NAME)-test/tests/flow.rkt
