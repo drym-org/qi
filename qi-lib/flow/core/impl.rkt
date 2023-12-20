@@ -42,22 +42,21 @@
 
 ;; we use a lambda to capture the arguments at runtime
 ;; since they aren't available at compile time
-(define (loom-compose f g [n #f])
-  (let ([n (or n (procedure-arity f))])
-    (λ args
-      (let ([num-args (length args)])
-        (if (< num-args n)
-            (if (= 0 num-args)
-                (values)
-                (error 'group (~a "Can't select "
-                                  n
-                                  " arguments from "
-                                  args)))
-            (let ([sargs (take args n)]
-                  [rargs (drop args n)])
-              (apply values
-                     (append (values->list (apply f sargs))
-                             (values->list (apply g rargs))))))))))
+(define (loom-compose f g n)
+  (λ args
+    (let ([num-args (length args)])
+      (if (< num-args n)
+          (if (= 0 num-args)
+              (values)
+              (error 'group (~a "Can't select "
+                                n
+                                " arguments from "
+                                args)))
+          (let ([sargs (take args n)]
+                [rargs (drop args n)])
+            (apply values
+                   (append (values->list (apply f sargs))
+                           (values->list (apply g rargs)))))))))
 
 (define (parity-xor . args) (and (foldl xor #f args) #t))
 
