@@ -96,6 +96,7 @@
     (~>/form (block arg ...)
              (report-syntax-error this-syntax
                "(block <number> ...)"))
+    (fanout n:number)
     (fanout n:racket-expr)
     fanout
     (group n:racket-expr e1:closed-floe e2:closed-floe)
