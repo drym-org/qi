@@ -486,10 +486,6 @@ the DSL.
                (qi0->racket (~> (-< (~> (gen args) △) _)
                                 onex))))]))
 
-  (define (literal-parser stx)
-    (syntax-parse stx
-      [val:literal #'(qi0->racket (gen val))]))
-
   (define (blanket-template-form-parser stx)
     (syntax-parse stx
       ;; "prarg" = "pre-supplied argument"
