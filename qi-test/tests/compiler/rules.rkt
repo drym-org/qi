@@ -503,7 +503,6 @@
                     #'(thread f _)
                     #'(thread _ f)
                     #'f)
-
     (test-normalize "line composition of identity flows"
                     #'(thread _ _ _)
                     #'(thread _ _)
@@ -532,11 +531,18 @@
     ;;                 #'(thread f))
     (test-normalize "_ is collapsed inside ~>"
                     #'(thread _ f _)
-                    #'(thread f)))
+                    #'f)
+    (test-normalize "nested positions"
+                    #'(amp (amp (thread _ f _)))
+                    #'(amp (amp f)))
+    (test-normalize "multiple independent positions"
+                    #'(tee (thread _ f _) (thread (thread f g)))
+                    #'(tee f (thread f g))))
 
    (test-suite
     "compilation sequences"
     null)))
 
 (module+ main
-  (void (run-tests tests)))
+  (void
+   (run-tests tests)))
