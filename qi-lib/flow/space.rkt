@@ -1,6 +1,9 @@
 #lang racket/base
 
-(provide define-for-qi)
+(provide define-for-qi
+         define-qi-syntax
+         define-qi-alias
+         reference-qi)
 
 (require syntax/parse/define
          (for-syntax racket/base
@@ -24,3 +27,19 @@
    #'(define-for-qi name
        (lambda args
          expr ...))])
+
+(define-syntax-parser define-qi-syntax
+  [(_ name transformer)
+   #:with spaced-name ((make-interned-syntax-introducer 'qi) #'name)
+   #'(define-syntax spaced-name transformer)])
+
+;; reference bindings in qi space
+(define-syntax-parser reference-qi
+  [(_ name)
+   #:with spaced-name ((make-interned-syntax-introducer 'qi) #'name)
+   #'spaced-name])
+
+(define-syntax-parser define-qi-alias
+  [(_ alias:id name:id)
+   #:with spaced-name ((make-interned-syntax-introducer 'qi) #'name)
+   #'(define-qi-syntax alias (make-rename-transformer #'spaced-name))])
