@@ -13,6 +13,7 @@
          (only-in "flow/extended/expander.rkt"
                   qi-macro
                   esc)
+         qi/flow/space
          syntax/parse/define
          syntax/parse)
 
@@ -85,17 +86,6 @@
             #'(esc (lambda (v) (original-macro form ... v)))
             #'(esc (lambda (v) (original-macro v form ...))))]
        [name:id #'(esc (lambda (v) (original-macro v)))]))))
-
-(define-syntax define-qi-syntax
-  (syntax-parser
-    [(_ name transformer)
-     #`(define-syntax #,((make-interned-syntax-introducer 'qi) #'name)
-         transformer)]))
-
-;; TODO: get this to work
-;; (define-syntax define-qi-alias
-;;   (syntax-parser
-;;     [(_ alias:id name:id) #'(define-qi-syntax alias (make-rename-transformer #'name))]))
 
 (define-syntax define-qi-syntax-rule
   (syntax-parser

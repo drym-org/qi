@@ -9,6 +9,7 @@
          (only-in racket/function thunk)
          (for-syntax racket/base)
          syntax/parse/define
+         syntax/macro-testing
          "private/util.rkt")
 
 (define-qi-syntax-rule (square flo:expr)
@@ -80,17 +81,9 @@
     (check-equal? ((☯ (macreaux 1 _)) 2) 2)
     (check-equal? ((☯ (~>> (macreaux _ 1))) 2) 1)
     ;; note that this is a compile-time error now:
-    (check-exn exn:fail:syntax?
-               (thunk
-                (parameterize ([current-namespace (make-base-empty-namespace)])
-                  (namespace-require 'racket/base)
-                  (namespace-require 'syntax/parse/define)
-                  (namespace-require 'qi)
-                  (eval
-                   '(begin (define-syntax-parse-rule (macreaux x y) y)
-                           (define-qi-foreign-syntaxes macreaux)
-                           ((☯ (macreaux 1 __)) 2))
-                   (current-namespace))))
+    (check-exn exn:fail?
+               (thunk (convert-compile-time-error
+                       ((☯ (macreaux 1 __)) 2)))
                "__ template used in a foreign macro shows helpful error")
     (check-equal? ((☯ saints-macreaux) 5) 10 "can be used in identifier form")
     (check-equal? (~> (5) double-me) 10 "registered foreign syntax used in identifier form")
