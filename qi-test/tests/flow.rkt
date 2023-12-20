@@ -664,7 +664,11 @@
     (check-equal? ((☯ (try (/ 0)
                         [exn:fail:contract:arity? 'arity]
                         [exn:fail:contract:divide-by-zero? 'divide-by-zero])) 9)
-                  'divide-by-zero))
+                  'divide-by-zero)
+    (check-exn exn:fail?
+               (thunk (convert-compile-time-error
+                       (☯ (try 1 2))))
+               "invalid try syntax"))
 
    (test-suite
     "partial application"
@@ -1019,7 +1023,11 @@
                            ▽))
                     1 2 -3 4)
                    (list 7 -1)
-                   "pure control form of sieve"))
+                   "pure control form of sieve")
+     (check-exn exn:fail?
+                (thunk (convert-compile-time-error
+                        (☯ (sieve 1 2))))
+                "invalid sieve syntax"))
     (test-suite
      "partition"
      (check-equal? ((flow (~> (partition) collect)))
@@ -1220,7 +1228,11 @@
                 (thunk ((☯ (~> (group 3 _ ⏚)
                                ▽))
                         1 3))
-                "grouping more inputs than are available shows a helpful error"))
+                "grouping more inputs than are available shows a helpful error")
+     (check-exn exn:fail?
+                (thunk (convert-compile-time-error
+                        (☯ (group 1 2))))
+                "invalid group syntax"))
     (test-suite
      "select"
      (check-equal? ((☯ (~> (select) ▽))
@@ -1250,7 +1262,11 @@
      (check-exn exn:fail?
                 (thunk ((☯ (select 0))
                         1 3))
-                "attempting to select index 0 (select is 1-indexed)"))
+                "attempting to select index 0 (select is 1-indexed)")
+     (check-exn exn:fail?
+                (thunk (convert-compile-time-error
+                        (☯ (select (+ 1 1)))))
+                "select expects literal numbers"))
     (test-suite
      "block"
      (check-equal? ((☯ (~> (block) list))
@@ -1278,7 +1294,11 @@
      (check-exn exn:fail?
                 (thunk ((☯ (block 0))
                         1 3))
-                "attempting to block index 0 (block is 1-indexed)"))
+                "attempting to block index 0 (block is 1-indexed)")
+     (check-exn exn:fail?
+                (thunk (convert-compile-time-error
+                        (☯ (select (+ 1 1)))))
+                "block expects literal numbers"))
     (test-suite
      "bundle"
      (check-equal? ((☯ (~> (bundle () + sqr) ▽))
@@ -1365,7 +1385,11 @@
      (check-equal? ((☯ (~> (amp sqr) ▽))
                     3 5)
                    (list 9 25)
-                   "named amplification form"))
+                   "named amplification form")
+     (check-exn exn:fail?
+                (thunk (convert-compile-time-error
+                        (☯ (>< sqr add1))))
+                "amp expects exactly one argument"))
     (test-suite
      "pass"
      (check-equal? ((☯ (~> pass ▽))

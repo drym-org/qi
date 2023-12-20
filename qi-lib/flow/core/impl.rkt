@@ -26,8 +26,7 @@
          racket/list
          racket/format
          syntax/parse/define
-         (for-syntax racket/base)
-         racket/performance-hint)
+         (for-syntax racket/base))
 
 (define-syntax-parse-rule (values->list body:expr ...+)
   (call-with-values (λ () body ...) list))
