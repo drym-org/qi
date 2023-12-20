@@ -71,7 +71,8 @@
      (check-equal? ((flow #s(dog "Fido")) 2) #s(dog "Fido") "literal prefab")
      (check-equal? ((flow '(+ 1 2)) 5) '(+ 1 2) "literal quoted list")
      (check-equal? ((flow `(+ 1 ,(* 2 3))) 5) '(+ 1 6) "literal quasiquoted list")
-     (check-equal? (syntax->datum ((flow #'(+ 1 2)) 5)) '(+ 1 2) "Literal syntax quoted list"))
+     (check-equal? (syntax->datum ((flow #'abc) 5)) 'abc "Literal syntax")
+     (check-equal? (syntax->datum ((flow (quote-syntax (+ 1 2))) 5)) '(+ 1 2) "Literal syntax quoted list"))
     (test-suite
      "unary predicate"
      (check-false ((☯ negative?) 5))
@@ -974,6 +975,11 @@
                      2)
                     2)
       (check-equal? ((☯ (switch
+                          [(member (list 1 5 4 2 6)) (=> 1>)]
+                          [else 'hi]))
+                     10)
+                    'hi)
+      (check-equal? ((☯ (switch
                             [car (=> (== _ 5) apply)]
                           [else 'hi]))
                      (list add1 sub1))
@@ -1052,7 +1058,22 @@
                                          [_ list]) collect))
                     -1 2 1 1 -2 2)
                    (list 4 (list -1 1 1 -2))
-                   "partition bodies can be flows"))
+                   "partition bodies can be flows")
+     (check-equal? ((flow (~> (partition [#f list]
+                                         [(and positive? (> 1)) +]) collect))
+                    -1 2 1 1 -2 2)
+                   (list null 4)
+                   "no match in first clause")
+     (check-equal? ((flow (~> (partition [(and positive? (> 1)) +]
+                                         [#f list]) collect))
+                    -1 2 1 1 -2 2)
+                   (list 4 null)
+                   "no match in last clause")
+     (check-equal? ((flow (~> (partition [#f list]
+                                         [#f list]) collect))
+                    -1 2 1 1 -2 2)
+                   (list null null)
+                   "no match in any clause"))
     (test-suite
      "gate"
      (check-equal? ((☯ (gate positive?))
@@ -1297,7 +1318,7 @@
                 "attempting to block index 0 (block is 1-indexed)")
      (check-exn exn:fail?
                 (thunk (convert-compile-time-error
-                        (☯ (select (+ 1 1)))))
+                        (☯ (block (+ 1 1)))))
                 "block expects literal numbers"))
     (test-suite
      "bundle"
