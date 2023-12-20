@@ -1,7 +1,8 @@
 #lang racket/base
 
 (provide (for-syntax compile-flow
-                     normalize-pass))
+                     normalize-pass
+                     deforest-pass))
 
 (require (for-syntax racket/base
                      syntax/parse
