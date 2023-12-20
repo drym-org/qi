@@ -24,6 +24,12 @@
 (define (deforested? exp)
   (string-contains? (format "~a" exp) "cstream"))
 
+(define (filter-deforested? exp)
+  (string-contains? (format "~a" exp) "filter-cstream"))
+
+(define (car-deforested? exp)
+  (string-contains? (format "~a" exp) "car-cstream"))
+
 
 (define tests
   (test-suite
@@ -457,7 +463,6 @@
                                     stx)))
                     "foldr"))))
 
-    ;; TODO: why doesn't this test pass?
     (test-suite
      "deforest-pass"
      (let ([stx #'(amp
@@ -473,7 +478,29 @@
        (check-true (deforested? (syntax->datum
                                  (deforest-pass
                                    stx)))
-                   "deforestation in nested positions"))))
+                   "nested positions"))
+     (let* ([stx #'(tee
+                    (thread
+                     (#%blanket-template
+                      ((#%host-expression filter)
+                       (#%host-expression odd?)
+                       __))
+                     (#%blanket-template
+                      ((#%host-expression map)
+                       (#%host-expression sqr)
+                       __)))
+                    (thread
+                     (esc (#%host-expression range))
+                     (esc (#%host-expression car))))]
+            [result (syntax->datum
+                     (deforest-pass
+                       stx))])
+       (check-true (deforested? result)
+                   "multiple independent positions")
+       (check-true (filter-deforested? result)
+                   "multiple independent positions")
+       (check-true (car-deforested? result)
+                   "multiple independent positions"))))
 
    (test-suite
     "normalization"
