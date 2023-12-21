@@ -7,6 +7,7 @@
          rackunit/text-ui
          (only-in math sqr)
          (only-in racket/list range)
+         syntax/macro-testing
          racket/function)
 
 (define tests
@@ -15,42 +16,80 @@
 
    (test-suite
     "deforestation"
-    (check-equal? ((☯ (~>> (filter odd?) (map sqr)))
-                   (list 1 2 3 4 5))
-                  (list 1 9 25))
-    (check-exn exn:fail?
-               (thunk
-                ((☯ (~> (map sqr) (map sqr)))
-                 (list 1 2 3 4 5)))
-               "(map) doforestation should only be done for right threading")
-    (check-exn exn:fail?
-               (thunk
-                ((☯ (~> (filter odd?) (filter odd?)))
-                 (list 1 2 3 4 5)))
-               "(filter) doforestation should only be done for right threading")
-    (check-exn exn:fail?
-               (thunk
-                ((☯ (~>> (filter odd?) (~> (foldr + 0))))
-                 (list 1 2 3 4 5)))
-               "(foldr) doforestation should only be done for right threading")
-    (check-equal? ((☯ (~>> values (filter odd?) (map sqr) values))
-                   (list 1 2 3 4 5))
-                  (list 1 9 25)
-                  "optimizes subexpressions")
-    (check-equal? ((☯ (~>> (filter odd?) (map sqr) (foldr + 0)))
-                   (list 1 2 3 4 5))
-                  35)
-    (check-equal? ((☯ (~>> (filter odd?) (map sqr) (foldl + 0)))
-                   (list 1 2 3 4 5))
-                  35)
-    (check-equal? ((☯ (~>> (map string-upcase) (foldr string-append "I")))
-                   (list "a" "b" "c"))
-                  "ABCI")
-    (check-equal? ((☯ (~>> (map string-upcase) (foldl string-append "I")))
-                   (list "a" "b" "c"))
-                  "CBAI")
-    (check-equal? ((☯ (~>> (range 10) (map sqr) car)))
-                  0)
+
+    (test-suite
+     "general"
+     (check-equal? ((☯ (~>> (filter odd?) (map sqr)))
+                    (list 1 2 3 4 5))
+                   (list 1 9 25))
+     (check-exn exn:fail?
+                (thunk
+                 ((☯ (~> (map sqr) (map sqr)))
+                  (list 1 2 3 4 5)))
+                "(map) doforestation should only be done for right threading")
+     (check-exn exn:fail?
+                (thunk
+                 ((☯ (~> (filter odd?) (filter odd?)))
+                  (list 1 2 3 4 5)))
+                "(filter) doforestation should only be done for right threading")
+     (check-exn exn:fail?
+                (thunk
+                 ((☯ (~>> (filter odd?) (~> (foldr + 0))))
+                  (list 1 2 3 4 5)))
+                "(foldr) doforestation should only be done for right threading")
+     (check-equal? ((☯ (~>> values (filter odd?) (map sqr) values))
+                    (list 1 2 3 4 5))
+                   (list 1 9 25)
+                   "optimizes subexpressions")
+     (check-equal? ((☯ (~>> (filter odd?) (map sqr) (foldr + 0)))
+                    (list 1 2 3 4 5))
+                   35)
+     (check-equal? ((☯ (~>> (filter odd?) (map sqr) (foldl + 0)))
+                    (list 1 2 3 4 5))
+                   35)
+     (check-equal? ((☯ (~>> (map string-upcase) (foldr string-append "I")))
+                    (list "a" "b" "c"))
+                   "ABCI")
+     (check-equal? ((☯ (~>> (map string-upcase) (foldl string-append "I")))
+                    (list "a" "b" "c"))
+                   "CBAI")
+     (check-equal? ((☯ (~>> (range 10) (map sqr) car)))
+                   0))
+
+    (test-suite
+     "error reporting"
+     (test-exn "deforestation syntax phase - too many arguments for range producer (blanket)"
+               exn?
+               (lambda ()
+                 (convert-compile-time-error
+                  ((flow (~>> (range 1 2 3 4 5) (filter odd?) (map sqr)))))))
+
+     (test-exn "deforestation syntax phase - too many arguments for range producer (fine)"
+               exn?
+               (lambda ()
+                 (convert-compile-time-error
+                  ((flow (~>> (range 1 2 3 4 5 _) (filter odd?) (map sqr)))))))
+
+     (test-equal? "deforestation list->cstream-next usage"
+                  ((flow (~>> (filter odd?) (map sqr)))
+                   '(0 1 2 3 4 5 6 7 8 9))
+                  '(1 9 25 49 81))
+
+     (test-exn "deforestation range->cstream-next - too few arguments at runtime"
+               exn?
+               (lambda ()
+                 ((flow (~>> range (filter odd?) (map sqr))))))
+
+     (test-exn "deforestation range->cstream-next - too many arguments at runtime"
+               exn?
+               (lambda ()
+                 ((flow (~>> range (filter odd?) (map sqr))) 1 2 3 4)))
+
+     (test-exn "deforestation car-cstream-next - empty list"
+               exn?
+               (lambda ()
+                 ((flow (~>> (filter odd?) (map sqr) car)) '()))))
+
     (test-suite
      "range (stream producer)"
      ;; Semantic tests of the range producer that cover all combinations:
