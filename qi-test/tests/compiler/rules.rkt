@@ -50,7 +50,8 @@
                      ((#%host-expression filter)
                       (#%host-expression odd?)
                       __)))])
-        (check-false (deforest-rewrite stx)
+        (check-false (deforested?
+                       (deforest-rewrite stx))
                      "does not deforest single stream component in isolation"))
       (let ([stx #'(thread
                     (#%blanket-template
@@ -60,7 +61,8 @@
                      ((#%host-expression filter)
                       (#%host-expression odd?)
                       __)))])
-        (check-false (deforest-rewrite stx)
+        (check-false (deforested?
+                       (deforest-rewrite stx))
                      "does not deforest map in the head position"))
       ;; (~>> values (filter odd?) (map sqr) values)
       (let ([stx #'(thread
