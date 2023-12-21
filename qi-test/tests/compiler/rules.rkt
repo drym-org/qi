@@ -558,9 +558,21 @@
      (test-normalize "redundant blanket template"
                      #'(#%blanket-template (f __))
                      #'f)
+     ;; TODO: this test fails but the actual behavior
+     ;; it tests is correct (as seen in the macro stepper)
+     ;; This seems to be due to some phase-related issue
+     ;; and maybe `values` is not matching literally.
      ;; (test-normalize "values is collapsed inside ~>"
      ;;                 #'(thread values f values)
      ;;                 #'(thread f))
+     ;; TODO: this test reveals a case that should be
+     ;; rewritten but isn't. Currently, once there is a
+     ;; match at one level during tree traversal
+     ;; (in find-and-map), we do not traverse the expression
+     ;; further.
+     ;; (test-normalize "multiple levels of normalization"
+     ;;                 #'(thread (amp (thread f)))
+     ;;                 #'(amp f))
      (test-normalize "_ is collapsed inside ~>"
                      #'(thread _ f _)
                      #'f)
