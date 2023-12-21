@@ -3,7 +3,7 @@
          @for-label[qi
                     racket]]
 
-@title{Flowing with the Flow}
+@title[#:tag "Flowing_with_the_Flow"]{Input Methods}
 
 If your code flows but you don't, then we're only halfway there. This section will cover some UX considerations related to programming in Qi, so that expressing @tech{flows} in code is just a thought away.
 
