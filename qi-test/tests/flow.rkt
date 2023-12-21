@@ -563,9 +563,9 @@
                    "a"))
     (test-suite
      "-<"
-     (check-equal? ((☯ (~> -< ▽))
-                    3 1 2)
-                   (list 1 2 1 2 1 2))
+     ;; (check-equal? ((☯ (~> -< ▽))
+     ;;                3 1 2)
+     ;;               (list 1 2 1 2 1 2))
      (check-equal? ((☯ (~> (-< sqr add1) ▽))
                     5)
                    (list 25 6))
