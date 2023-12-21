@@ -506,67 +506,78 @@
 
    (test-suite
     "normalization"
-    (test-normalize "pass-amp deforestation"
-                    #'(thread
-                       (pass f)
-                       (amp g))
-                    #'(amp (if f g ground)))
-    (test-normalize "merge pass filters in sequence"
-                    #'(thread (pass f) (pass g))
-                    #'(pass (and f g)))
-    (test-normalize "collapse deterministic conditionals"
-                    #'(if #t f g)
-                    #'f)
-    (test-normalize "collapse deterministic conditionals"
-                    #'(if #f f g)
-                    #'g)
-    (test-normalize "trivial threading is collapsed"
-                    #'(thread f)
-                    #'f)
-    (test-normalize "associative laws for ~>"
-                    #'(thread f (thread g h) i)
-                    #'(thread f g (thread h i))
-                    #'(thread (thread f g) h i)
-                    #'(thread f g h i))
-    (test-normalize "left and right identity for ~>"
-                    #'(thread f _)
-                    #'(thread _ f)
-                    #'f)
-    (test-normalize "line composition of identity flows"
-                    #'(thread _ _ _)
-                    #'(thread _ _)
-                    #'(thread _)
-                    #'_)
-    (test-normalize "amp under identity"
-                    #'(amp _)
-                    #'_)
-    (test-normalize "trivial tee junction"
-                    #'(tee f)
-                    #'f)
-    (test-normalize "merge adjacent gens in a tee junction"
-                    #'(tee (gen a b) (gen c d))
-                    #'(tee (gen a b c d)))
-    (test-normalize "remove dead gen in a line"
-                    #'(thread (gen a b) (gen c d))
-                    #'(thread (gen c d)))
-    (test-normalize "prism identities"
-                    #'(thread collect sep)
-                    #'_)
-    (test-normalize "redundant blanket template"
-                    #'(#%blanket-template (f __))
-                    #'f)
-    ;; (test-normalize "values is collapsed inside ~>"
-    ;;                 #'(thread values f values)
-    ;;                 #'(thread f))
-    (test-normalize "_ is collapsed inside ~>"
-                    #'(thread _ f _)
-                    #'f)
-    (test-normalize "nested positions"
-                    #'(amp (amp (thread _ f _)))
-                    #'(amp (amp f)))
-    (test-normalize "multiple independent positions"
-                    #'(tee (thread _ f _) (thread (thread f g)))
-                    #'(tee f (thread f g))))
+
+    (test-suite
+     "equivalence of normalized expressions"
+     (test-normalize "pass-amp deforestation"
+                     #'(thread
+                        (pass f)
+                        (amp g))
+                     #'(amp (if f g ground)))
+     (test-normalize "merge pass filters in sequence"
+                     #'(thread (pass f) (pass g))
+                     #'(pass (and f g)))
+     (test-normalize "collapse deterministic conditionals"
+                     #'(if #t f g)
+                     #'f)
+     (test-normalize "collapse deterministic conditionals"
+                     #'(if #f f g)
+                     #'g)
+     (test-normalize "trivial threading is collapsed"
+                     #'(thread f)
+                     #'f)
+     (test-normalize "associative laws for ~>"
+                     #'(thread f (thread g h) i)
+                     #'(thread f g (thread h i))
+                     #'(thread (thread f g) h i)
+                     #'(thread f g h i))
+     (test-normalize "left and right identity for ~>"
+                     #'(thread f _)
+                     #'(thread _ f)
+                     #'f)
+     (test-normalize "line composition of identity flows"
+                     #'(thread _ _ _)
+                     #'(thread _ _)
+                     #'(thread _)
+                     #'_)
+     (test-normalize "amp under identity"
+                     #'(amp _)
+                     #'_)
+     (test-normalize "trivial tee junction"
+                     #'(tee f)
+                     #'f)
+     (test-normalize "merge adjacent gens in a tee junction"
+                     #'(tee (gen a b) (gen c d))
+                     #'(tee (gen a b c d)))
+     (test-normalize "remove dead gen in a line"
+                     #'(thread (gen a b) (gen c d))
+                     #'(thread (gen c d)))
+     (test-normalize "prism identities"
+                     #'(thread collect sep)
+                     #'_)
+     (test-normalize "redundant blanket template"
+                     #'(#%blanket-template (f __))
+                     #'f)
+     ;; (test-normalize "values is collapsed inside ~>"
+     ;;                 #'(thread values f values)
+     ;;                 #'(thread f))
+     (test-normalize "_ is collapsed inside ~>"
+                     #'(thread _ f _)
+                     #'f)
+     (test-normalize "nested positions"
+                     #'(amp (amp (thread _ f _)))
+                     #'(amp (amp f)))
+     (test-normalize "multiple independent positions"
+                     #'(tee (thread _ f _) (thread (thread f g)))
+                     #'(tee f (thread f g))))
+
+    (test-suite
+     "specific output"
+     (test-equal? "weird bug"
+                  (syntax->datum
+                   (normalize-pass #'(thread tee collect)))
+                  (syntax->datum
+                   #'(thread tee collect)))))
 
    (test-suite
     "compilation sequences"
