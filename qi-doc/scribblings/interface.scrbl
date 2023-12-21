@@ -190,7 +190,7 @@ See also @racket[on] and @racket[~>], which are shorthands to invoke the flow wi
 @defform[(~> (args ...) flow-expr ...)]
 @defform[(~>> (args ...) flow-expr ...)]
 )]{
-  These @emph{Racket} forms leverage the identically-named @emph{Qi} forms to thread inputs through a sequence of flows. @racket[~>] threads arguments in the first position by default, while @racket[~>>] uses the last position, but in either case the positions can instead be explicitly indicated by using @racket[_] or @racket[___].
+  These @emph{Racket} forms leverage the identically-named @emph{Qi} forms to thread inputs through a sequence of @tech{flows}. @racket[~>] threads arguments in the first position by default, while @racket[~>>] uses the last position, but in either case the positions can instead be explicitly indicated by using @racket[_] or @racket[___].
 
   @margin-note{In these docs, we'll sometimes refer to the host language as "Racket" for convenience, but it should be understood that Qi may be used with any host language.}
 
@@ -223,7 +223,7 @@ See also @racket[on] and @racket[~>], which are shorthands to invoke the flow wi
            [else consequent])]{
   A predicate-based dispatch form, usable as an alternative to @racket[cond], @racket[if], and @racket[match].
 
-Each of the @racket[predicate] and @racket[consequent] expressions is a flow, and they are each typically invoked with @racket[arg ...], so that the arguments need not be mentioned anywhere in the body of the form.
+Each of the @racket[predicate] and @racket[consequent] expressions is a @tech{flow}, and they are each typically invoked with @racket[arg ...], so that the arguments need not be mentioned anywhere in the body of the form.
 
  This @emph{Racket} form leverages the identically-named @emph{Qi} form. See @secref["Conditionals"] for its full syntax and behavior.
 
@@ -295,7 +295,7 @@ Each of the @racket[predicate] and @racket[consequent] expressions is a flow, an
 
 @subsection{Definitions}
 
-The following definition forms may be used in place of the usual general-purpose @racket[define] form when defining flows.
+The following definition forms may be used in place of the usual general-purpose @racket[define] form when defining @tech{flows}.
 
 @deftogether[(
   @defform[(define-flow name flow-expr)]
@@ -327,15 +327,15 @@ The following definition forms may be used in place of the usual general-purpose
   ]
 }
 
-The advantage of using these over the general-purpose @racket[define] form is that, as they express the definition at the appropriate level of abstraction and with the attendant constraints for the type of flow, they can be more clear and more robust, minimizing boilerplate while providing guardrails against programmer error.
+The advantage of using these over the general-purpose @racket[define] form is that, as they express the definition at the appropriate level of abstraction and with the attendant constraints for the type of @tech{flow}, they can be more clear and more robust, minimizing boilerplate while providing guardrails against programmer error.
 
 @section{Using the Host Language from Qi}
 
-Arbitrary native (e.g. Racket) expressions can be used in flows in one of two core ways. This section describes these two ways and also discusses other considerations regarding use of the host language alongside Qi.
+Arbitrary native (e.g. Racket) expressions can be used in @tech{flows} in one of two core ways. This section describes these two ways and also discusses other considerations regarding use of the host language alongside Qi.
 
 @subsection{Using Racket Values in Qi Flows}
 
-The first and most common way is to simply wrap the expression with a @racket[gen] form while within a flow context. This flow generates the @tech/reference{value} of the expression.
+The first and most common way is to simply wrap the expression with a @racket[gen] form while within a flow context. This @tech{flow} generates the @tech/reference{value} of the expression.
 
 @examples[
     #:eval eval-for-docs
@@ -345,7 +345,7 @@ The first and most common way is to simply wrap the expression with a @racket[ge
 
 @subsection{Using Racket to Define Flows}
 
-The second way is if you want to describe a flow using the host language instead of Qi. In this case, use the @racket[esc] form. The wrapped expression in this case @emph{must} evaluate to a function, since functions are the only values describable in the host language that can be treated as flows. Note that use of @racket[esc] is unnecessary for function identifiers since these are @seclink["Identifiers"]{usable as flows directly}, and these can even be @seclink["Templates_and_Partial_Application"]{partially applied using standard application syntax}, optionally with @racket[_] and @racket[___] to indicate argument placement. But you may still need @racket[esc] in the specific case where the identifier collides with a Qi form.
+The second way is if you want to describe a @tech{flow} using the host language instead of Qi. In this case, use the @racket[esc] form. The wrapped expression in this case @emph{must} evaluate to a function, since functions are the only values describable in the host language that can be treated as flows. Note that use of @racket[esc] is unnecessary for function identifiers since these are @seclink["Identifiers"]{usable as flows directly}, and these can even be @seclink["Templates_and_Partial_Application"]{partially applied using standard application syntax}, optionally with @racket[_] and @racket[___] to indicate argument placement. But you may still need @racket[esc] in the specific case where the identifier collides with a Qi form.
 
 @examples[
     #:eval eval-for-docs
@@ -363,7 +363,7 @@ Finally, note that the following case works:
     (~> (5) (get-flow 3))
   ]
 
-You might expect here that the expression @racket[(get-flow 3)] would be treated as a @seclink["Templates_and_Partial_Application"]{partial application template}, so that the value @racket[5] would be provided to it as @racket[(get-flow 5 3)], resulting in an error. The reason this isn't what happens is that the partial application behavior in Qi when no argument positions have been indicated is implemented using currying rather than as a template application, and Racket's @racket[curry] and @racket[curryr] functions happen to evaluate to a result immediately if the maximum expected arguments have been provided. Thus, in this case, the @racket[(get-flow 3)] expression is first evaluated to produce a resulting flow which then receives the value @racket[5].
+You might expect here that the expression @racket[(get-flow 3)] would be treated as a @seclink["Templates_and_Partial_Application"]{partial application template}, so that the value @racket[5] would be provided to it as @racket[(get-flow 5 3)], resulting in an error. The reason this isn't what happens is that the partial application behavior in Qi when no argument positions have been indicated is implemented using currying rather than as a template application, and Racket's @racket[curry] and @racket[curryr] functions happen to evaluate to a result immediately if the maximum expected arguments have been provided. Thus, in this case, the @racket[(get-flow 3)] expression is first evaluated to produce a resulting @tech{flow} which then receives the value @racket[5].
 
 So, function applications where all of the arguments are provided syntactically, and which produce functions as their result, may be used as if they were simple function identifiers, and @racket[esc] may be left out.
 

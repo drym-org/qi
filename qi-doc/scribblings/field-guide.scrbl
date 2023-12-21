@@ -65,15 +65,15 @@ Side effects are a natural fit for debugging functional code in general, as the 
 
 @defmodule[qi/probe]
 
-Qi includes a "circuit tester" style debugger, which you can use to check the values at arbitrary points in the @tech{flow}. It can be used even if the @tech{flow} is raising an error – the tester can help you find the error. It offers similar functionality to @seclink["top" #:indirect? #t #:doc '(lib "debug/scribblings/debug.scrbl")]{debug} but is specialized for functional debugging and Qi flows.
+Qi includes a "circuit tester" style debugger, which you can use to check the values at arbitrary points in the @tech{flow}. It can be used even if the flow is raising an error – the tester can help you find the error. It offers similar functionality to @seclink["top" #:indirect? #t #:doc '(lib "debug/scribblings/debug.scrbl")]{debug} but is specialized for functional debugging and Qi flows.
 
-To use it, first wrap the entire expression @emph{invoking} the @tech{flow} with a @racket[probe] form. Then, you can place a literal @racket[readout] anywhere within the @tech{flow} definition to cause the entire expression to evaluate to the values flowing at that point. This works even if your @tech{flow} is defined elsewhere (even in another file) and only @emph{used} at the invocation site by name.
+To use it, first wrap the entire expression @emph{invoking} the flow with a @racket[probe] form. Then, you can place a literal @racket[readout] anywhere within the flow definition to cause the entire expression to evaluate to the values flowing at that point. This works even if your flow is defined elsewhere (even in another file) and only @emph{used} at the invocation site by name.
 
 @deftogether[(
   @defform[(probe flo)]
   @defidform[readout]
 )]{
-  @racket[probe] simply marks a flow invocation for debugging, and does not change its functionality. Then, when evaluation encounters the first occurrence of @racket[readout] within @racket[flo], the values at that point are immediately returned as the value of the entire @racket[flo]. This is done via a @tech/reference{continuation}, so that you may precede it with whatever flows you like that might help you understand what's happening at that point, and you don't have to worry about it affecting downstream flows during the process of debugging since those flows would simply never be hit. Additionally, readouts may be placed @emph{anywhere} within the flow, and not necessarily on the main stream -- it will always return the values observed at the specific point where you place the readout.
+  @racket[probe] simply marks a @tech{flow} invocation for debugging, and does not change its functionality. Then, when evaluation encounters the first occurrence of @racket[readout] within @racket[flo], the values at that point are immediately returned as the value of the entire @racket[flo]. This is done via a @tech/reference{continuation}, so that you may precede it with whatever flows you like that might help you understand what's happening at that point, and you don't have to worry about it affecting downstream flows during the process of debugging since those flows would simply never be hit. Additionally, readouts may be placed @emph{anywhere} within the flow, and not necessarily on the main stream -- it will always return the values observed at the specific point where you place the readout.
 
   Note that @racket[probe] is a Racket (rather than Qi) form, and it must wrap a flow @emph{invocation} rather than a flow @emph{definition}. The @racket[readout], on the other hand, is a Qi expression and must be placed somewhere within the flow @emph{definition}.
 
@@ -99,7 +99,7 @@ To use it, first wrap the entire expression @emph{invoking} the @tech{flow} with
 
 @bold{NOTE}: This way to place readouts in the flow definition is intended for use in @bold{legacy versions of Racket only}, that is, versions 8.2 or earlier. @racket[qi:probe] and @racket[define-probed-flow] are @bold{no longer needed} in Qi (as of Racket 8.3). These forms should be considered @bold{deprecated} on versions 8.3 or later. On these recent versions of Racket, there is no difference in usage between inline and nonlocal flow definitions, and the @racket[readout] may simply be placed wherever you want it. The legacy documentation follows.
 
-  When the flow you'd like to debug is a named flow that is not defined inline at the invocation site, you'll need to take some extra steps to ensure that you can place a @racket[readout] at the @emph{definition} site even though the @racket[probe] itself is placed at the @emph{invocation} site.
+  When the @tech{flow} you'd like to debug is a named flow that is not defined inline at the invocation site, you'll need to take some extra steps to ensure that you can place a @racket[readout] at the @emph{definition} site even though the @racket[probe] itself is placed at the @emph{invocation} site.
 
   To do this, either wrap the entire body of the definition, or a subflow in the definition, with @racket[qi:probe], or alternatively, use @racket[define-probed-flow] instead of @racket[define-flow], which transparently does this for you. Now, you can place a (distinct) @racket[probe] at the invocation site, as usual, and it will receive the readout that you indicate at the definition site.
 
@@ -119,13 +119,13 @@ To use it, first wrap the entire expression @emph{invoking} the @tech{flow} with
 
 The @seclink["Using_a_Probe"]{probe debugger} allows you to check values at specific points in the @tech{flow}, that is, essentially, the @emph{output} of the upstream components at that point. It is sometimes also useful to fix the @emph{input} to downstream components. In unit testing, fixing inputs to functions to test their behavior in a known environment is referred to as writing "fixtures." It's the same idea.
 
-The basic way to do it is to insert a @racket[gen] form at the point of interest in the @tech{flow}, as @racket[gen] ignores its inputs and just produces whatever values you specify.
+The basic way to do it is to insert a @racket[gen] form at the point of interest in the flow, as @racket[gen] ignores its inputs and just produces whatever values you specify.
 
 @racketblock[
   (~> (2) sqr (gen 9) add1 (* 2))
 ]
 
-Methodical use of @racket[gen] together with the @seclink["Using_a_Probe"]{probe debugger} allows you to isolate bugs to specific sections of the @tech{flow}, and then triangulate further using the same approach until you find the exact problem.
+Methodical use of @racket[gen] together with the @seclink["Using_a_Probe"]{probe debugger} allows you to isolate bugs to specific sections of the flow, and then triangulate further using the same approach until you find the exact problem.
 
 @racketblock[
   (probe (~> (3) (-< _ "5") (gen 3 5) + sqr readout (* 2) add1))
@@ -142,7 +142,7 @@ Methodical use of @racket[gen] together with the @seclink["Using_a_Probe"]{probe
 ;   received: 2
 }
 
-@bold{Meaning}: A flow is either returning more or fewer values than the @tech/reference{continuation} of the flow is expecting. See @secref["values-model" #:doc '(lib "scribblings/reference/reference.scrbl")] for general information about this.
+@bold{Meaning}: A @tech{flow} is either returning more or fewer values than the @tech/reference{continuation} of the flow is expecting. See @secref["values-model" #:doc '(lib "scribblings/reference/reference.scrbl")] for general information about this.
 
 @bold{Common example}: Attempting to assign the result of a multi-valued flow to a single variable. Use @racket[define-values] instead of @racket[define] here, or consider decomposing the flow into multiple flows that each return a single value.
 
@@ -165,7 +165,7 @@ Methodical use of @racket[gen] together with the @seclink["Using_a_Probe"]{probe
 
 @bold{Common example}: Trying to use a template inside a nested application. For instance, @racket[(~> (1) (* 3 (+ _ 2)))] is invalid because, within the @racket[(* ...)] template, the language is @emph{Racket} rather than Qi, and you can't use a Qi template (i.e. @racket[(+ _ 2)]) there. You might try @seclink["Nested_Applications_are_Sequential_Flows"]{sequencing the flow}, something like @racket[(~> (1) (+ _ 2) (* 3))].
 
-@bold{Common example}: Trying to use a Racket macro (rather than a function), or a macro from another DSL, as a flow without first registering it via @racket[define-qi-foreign-syntaxes]. In general, Qi expects flows to be functions unless otherwise explicitly signaled.
+@bold{Common example}: Trying to use a Racket macro (rather than a function), or a macro from another DSL, as a @tech{flow} without first registering it via @racket[define-qi-foreign-syntaxes]. In general, Qi expects flows to be functions unless otherwise explicitly signaled.
 
 @subsubsection{@racket[~@] Not Allowed as an Expression}
 
@@ -184,7 +184,7 @@ Methodical use of @racket[gen] together with the @seclink["Using_a_Probe"]{probe
 
 @bold{Common example}: A Racket expression has not been properly escaped within a Qi context. For instance, @racket[(flow (lambda (x) x))] is invalid because the wrapped expression is Racket rather than Qi. To fix this, use @racket[esc], as in @racket[(flow (esc (lambda (x) x)))].
 
-@bold{Common example}: Trying to use a Racket macro (rather than a function), or a macro from another DSL, as a flow without first registering it via @racket[define-qi-foreign-syntaxes]. In general, Qi expects flows to be functions unless otherwise explicitly signaled.
+@bold{Common example}: Trying to use a Racket macro (rather than a function), or a macro from another DSL, as a @tech{flow} without first registering it via @racket[define-qi-foreign-syntaxes]. In general, Qi expects flows to be functions unless otherwise explicitly signaled.
 
 @subsubsection{Use Does Not Match Pattern}
 
@@ -195,7 +195,7 @@ Methodical use of @racket[gen] together with the @seclink["Using_a_Probe"]{probe
 
 @bold{Meaning}: A macro was used in a way that doesn't match any declared syntax patterns.
 
-@bold{Common example}: Trying to use a Racket macro (rather than a function), or a macro from another DSL, as a flow without first registering it via @racket[define-qi-foreign-syntaxes]. In general, Qi expects flows to be functions unless otherwise explicitly signaled.
+@bold{Common example}: Trying to use a Racket macro (rather than a function), or a macro from another DSL, as a @tech{flow} without first registering it via @racket[define-qi-foreign-syntaxes]. In general, Qi expects flows to be functions unless otherwise explicitly signaled.
 
 @subsubsection{Expected Identifier Not Starting With Character}
 
@@ -330,7 +330,7 @@ One way to dodge this is by using an explicit template:
     (~> (3) ((get-f 1) _))
   ]
 
-This works in most cases, but it has different semantics than the version using @racket[esc], as that version evaluates the escaped expression first to yield the @tech{flow} that will be applied to inputs, while this one only evaluates the (up to that point, incomplete) expression when it is actually invoked with arguments. In the most common cases there will be no difference to the result, but if the @tech{flow} is invoked multiple times (for instance, if it were first defined as @racket[(define-flow my-flow (☯ ((get-f 1) _)))]), then the expression too would be evaluated multiple times, producing different functions each time. This may be computationally more expensive than using @racket[esc], and also, if either @racket[get-f] or the function it produces is stateful in any way (for instance, if it is a @hyperlink["https://www.gnu.org/software/guile/manual/html_node/Closure.html"]{closure} or if there is any randomness involved), then this version would also produce different results than the @racket[esc] version.
+This works in most cases, but it has different semantics than the version using @racket[esc], as that version evaluates the escaped expression first to yield the @tech{flow} that will be applied to inputs, while this one only evaluates the (up to that point, incomplete) expression when it is actually invoked with arguments. In the most common cases there will be no difference to the result, but if the flow is invoked multiple times (for instance, if it were first defined as @racket[(define-flow my-flow (☯ ((get-f 1) _)))]), then the expression too would be evaluated multiple times, producing different functions each time. This may be computationally more expensive than using @racket[esc], and also, if either @racket[get-f] or the function it produces is stateful in any way (for instance, if it is a @hyperlink["https://www.gnu.org/software/guile/manual/html_node/Closure.html"]{closure} or if there is any randomness involved), then this version would also produce different results than the @racket[esc] version.
 
 Another way to do it is to simply promote the expression out of the nest:
 
@@ -344,34 +344,34 @@ So in sum, it's perhaps best to rely on @racket[esc] in such cases to be as expl
 
 @subsubsection{Mutable Values Defy the Laws of Flows}
 
-Qi is designed to model flows of @emph{immutable} values. Using a mutable value in a @tech{flow} is fine as long as you don't mutate it, or if you mutate it only in a side effect. Otherwise, such values can produce unexpected behavior. For instance, consider the following @tech{flow} involving a mutable vector:
+Qi is designed to model flows of @emph{immutable} values. Using a mutable value in a @tech{flow} is fine as long as you don't mutate it, or if you mutate it only in a side effect. Otherwise, such values can produce unexpected behavior. For instance, consider the following flow involving a mutable vector:
 
 @racketblock[
     (define vv (vector 1 2 3))
     (~> (vv) (-< _ _) (== (vector-set! 0 5) (vector-set! 2 10)) vector-append)
   ]
 
-You might expect this @tech{flow} to produce a vector @racket[(vector 5 2 3 1 2 10)], but in fact, it raises an error.
+You might expect this flow to produce a vector @racket[(vector 5 2 3 1 2 10)], but in fact, it raises an error.
 
 This is because @racket[vector-set!] mutates the vector and produces not the result of the operation but @racket[(void)], since the mutation that is the intent of the function has been performed and there is no need to produce a fresh value. Indeed, mutating interfaces typically produce @racket[(void)], which is not a useful value that could be used in a @tech{flow}. As a result, the output of the relay is two values, but not the ones we expect, but rather, values that are both @racket[(void)]. These are received by @racket[vector-append], which then complains that it expects vectors but was given @racket[(void)].
 
 Worse still, even though this computation raises an error, we find that the original vector that we started with, @racket[vv], has been mutated to @racket[(vector 5 2 10)], since the same vector is operated on in both channels of the relay prior to the error being encountered.
 
-So in general, use mutable values with caution. Such values can be useful as side effects, for instance to capture some idea of statefulness, perhaps keeping track of the number of times a @tech{flow} was invoked. But they should generally not be used as inputs to a @tech{flow}, especially if they are to be mutated.
+So in general, use mutable values with caution. Such values can be useful as side effects, for instance to capture some idea of statefulness, perhaps keeping track of the number of times a @tech{flow} was invoked. But they should generally not be used as inputs to a flow, especially if they are to be mutated.
 
 @section{Effectively Using Feedback Loops}
 
 @racket[feedback] is Qi's most powerful looping form, useful for arbitrary recursion. As it encourages quite a different way of thinking than Racket's usual looping forms do, here are some tips on "grokking" it.
 
-In essence, the feedback loop is very simple –- all it does is pass the same inputs through a @tech{flow} over and over again until a condition is met, at which point these inputs just flow out of the loop. Nothing complicated at all! The subtlety comes in, though, when we treat some inputs as "control" inputs that determine attributes @emph{of} the @tech{flow} or as "scratch" inputs that encode computations done @emph{on} the flow, while treating the remaining inputs as the data that are actually acted upon. By doing this, we can do pretty much anything we'd like to, i.e. it can be used for general recursion.
+In essence, the feedback loop is very simple –- all it does is pass the same inputs through a @tech{flow} over and over again until a condition is met, at which point these inputs just flow out of the loop. Nothing complicated at all! The subtlety comes in, though, when we treat some inputs as "control" inputs that determine attributes @emph{of} the flow or as "scratch" inputs that encode computations done @emph{on} the flow, while treating the remaining inputs as the data that are actually acted upon. By doing this, we can do pretty much anything we'd like to, i.e. it can be used for general recursion.
 
 @subsection{Control Values and Data Values}
 
-Prior to entering the feedback loop, augment the data values by starting the "control" or "scratch" flows that the loop will need (although control and scratch inputs are not @emph{quite} the same (see above), we can use the terms interchangeably for our purposes here). In some common cases, this may include a "counter" @tech{flow} which keeps track of number of iterations, a result @tech{flow} which accumulates an output, or something of this nature. In addition to these control flows, the loop will, of course, also receive all of the input data in the form of multiple values following the control values. The control inputs must always come first, so that we know where to find them (since we have no idea how many data values there will be at any stage of the loop), so that we can consistently refer to them using e.g. @racket[1>] and @racket[2>].
+Prior to entering the feedback loop, augment the data values by starting "channels" (that is, simply input values passed at a specific index to the feedback @tech{flow}) for control or scratch values that the loop will need (although control and scratch inputs are not @emph{quite} the same (see above), we can use the terms interchangeably for our purposes here). In some common cases, this may include a counter channel which keeps track of number of iterations, a result channel which accumulates an output, or something of this nature. In addition to these control channels, the loop will, of course, also receive all of the input data in the form of multiple values following the control values. The control inputs must always come first, so that we know where to find them (since we have no idea how many data values there will be at any stage of the loop), so that we can consistently refer to them using e.g. @racket[1>] and @racket[2>].
 
 @subsection{Input Tracing}
 
-For each input, think about just one cycle of the loop: what must happen to it in this cycle before it is fed forward to the next cycle of the loop? Trace each input in this way and ensure that the corresponding output of the present cycle represents the correct input value for the next cycle. For instance, if there is a simple counter in the first @emph{input} position, ensure that the first @emph{output} of the present cycle is the counter incremented by one. We also need to ensure that the same number of @emph{control} values @tech{flow} to the next cycle as are used in the present cycle. There are no constraints on the number of data values, and often, this will change from one cycle to the next.
+For each input, think about just one cycle of the loop: what must happen to it in this cycle before it is fed forward to the next cycle of the loop? Trace each input in this way and ensure that the corresponding output of the present cycle represents the correct input value for the next cycle. For instance, if there is a simple counter in the first @emph{input} position, ensure that the first @emph{output} of the present cycle is the counter incremented by one. We also need to ensure that the same number of @emph{control} values flow to the next cycle as are used in the present cycle. There are no constraints on the number of data values, and often, this will change from one cycle to the next.
 
 @subsection{Keeping It Tidy}
 

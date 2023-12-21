@@ -24,7 +24,7 @@
 
 @title[#:tag "Qi_Forms"]{The Qi Language}
 
-The core syntax of the Qi language. These forms may be used in any flow. Flows may be specified in Racket via the @seclink["Language_Interface"]{language interface}.
+The core syntax of the Qi language. These forms may be used in any @tech{flow}. Flows may be specified in Racket via the @seclink["Language_Interface"]{language interface}.
 
 @table-of-contents[]
 
@@ -42,7 +42,7 @@ The core syntax of the Qi language. These forms may be used in any flow. Flows m
 }
 
 @defform[(gen expr ...)]{
-  A flow that generates the @emph{values} of the provided Racket expressions @racket[expr], ignoring any input values provided to it at runtime. This is the most common way to translate an ordinary value into a flow.
+  A @tech{flow} that generates the @emph{values} of the provided Racket expressions @racket[expr], ignoring any input values provided to it at runtime. This is the most common way to translate an ordinary value into a flow.
 
   Note that @seclink["Literals"]{literals} are transparently wrapped with @racket[gen] during @tech/reference{expansion} and don't need to be explicitly wrapped.
 
@@ -69,7 +69,7 @@ The core syntax of the Qi language. These forms may be used in any flow. Flows m
 )]{
   Separate the input list into its component values. This is the inverse of @racket[▽].
 
-  When used in parametrized form with a presupplied @racket[flo], this flow accepts any number of inputs, where the first is expected to be the list to be unraveled. In this form, the flow separates the list into its component values and passes each through @racket[flo] along with the remaining input values.
+  When used in parametrized form with a presupplied @racket[flo], this @tech{flow} accepts any number of inputs, where the first is expected to be the list to be unraveled. In this form, the flow separates the list into its component values and passes each through @racket[flo] along with the remaining input values.
 
   @racket[△] and @racket[▽] often allow you to use functions directly where you might otherwise need to use an indirection like @racket[apply] or @racket[list].
 
@@ -111,7 +111,7 @@ The core syntax of the Qi language. These forms may be used in any flow. Flows m
 }
 
 @defform[(clos flo)]{
-  A flow that generates a flow as a value. Any inputs to the @racket[clos] flow are available to @racket[flo] when it is applied to inputs, i.e. it is analogous to a @hyperlink["https://www.gnu.org/software/guile/manual/html_node/Closure.html"]{closure} in Racket.
+  A @tech{flow} that generates a flow as a value. Any inputs to the @racket[clos] flow are available to @racket[flo] when it is applied to inputs, i.e. it is analogous to a @hyperlink["https://www.gnu.org/software/guile/manual/html_node/Closure.html"]{closure} in Racket.
 
   We typically describe flows using Qi, while @racket[esc] allows us to describe a flow using the host language. In either case, the flow simply @emph{operates} on runtime inputs. In some cases, though, we need to generate a flow as a @emph{value} to be used later, for instance, when the flow is parametrized by inputs not available until runtime. @racket[clos] allows us to define and produce such a flow using Qi.
 
@@ -269,7 +269,7 @@ Note that the symbol form uses Unicode @code{0x2225} corresponding to LaTeX's @c
   @defidform[XOR]
   @defidform[XNOR]
 )]{
-  Flows corresponding to the identically-named Boolean gates.
+  @tech{Flows} corresponding to the identically-named Boolean gates.
 }
 
 @deftogether[(
@@ -319,7 +319,7 @@ Note that the symbol form uses Unicode @code{0x2225} corresponding to LaTeX's @c
 @defform[#:link-target? #f
          (~>> flo ...)]
 )]{
-  Compose flows in sequence, from left to right. In the metaphor of an analog electrical circuit, you could think of this as a wire.
+  Compose @tech{flows} in sequence, from left to right. In the metaphor of an analog electrical circuit, you could think of this as a wire.
 
   @racket[~>] "threads" the arguments in the leading position, while @racket[~>>] threads them in the trailing position. Argument positions may also be explicitly indicated via a @seclink["Templates_and_Partial_Application"]{template}, either individually or en masse.
 
@@ -347,7 +347,7 @@ Note that the symbol form uses Unicode @code{0x2225} corresponding to LaTeX's @c
 @defform[(== flo ...)]
 @defform[(relay flo ...)]
 )]{
-  Compose flows in parallel, so that inputs are passed through the corresponding @racket[flo]'s individually. The number of @racket[flo]s must be the same as the number of runtime inputs.
+  Compose @tech{flows} in parallel, so that inputs are passed through the corresponding @racket[flo]'s individually. The number of @racket[flo]s must be the same as the number of runtime inputs.
 
   In the common case of @code{1 × 1} @racket[flo]s (i.e. where the flows each accept one input and produce one output), the number of outputs will be the same as the number of inputs, but as @seclink["What_is_a_Flow_"]{flows can be nonlinear}, this is not necessarily the case in general.
 
@@ -504,7 +504,7 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
   @defform[(when condition-flo consequent-flo)]
   @defform[(unless condition-flo alternative-flo)]
 )]{
-  The flow analogue of @racket[if], this is the basic conditional, passing the inputs through either @racket[consequent-flo] or @racket[alternative-flo], depending on whether they satisfy @racket[condition-flo].
+  The @tech{flow} analogue of @racket[if], this is the basic conditional, passing the inputs through either @racket[consequent-flo] or @racket[alternative-flo], depending on whether they satisfy @racket[condition-flo].
 
   @racket[when] is shorthand for @racket[(if condition-flo consequent-flo ⏚)] and @racket[unless] is shorthand for @racket[(if condition-flo ⏚ alternative-flo)].
 
@@ -523,7 +523,7 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
                  [switch-expr [flow-expr flow-expr]
                               [flow-expr (=> flow-expr)]
                               [else flow-expr]])]{
-  The flow analogue of @racket[cond], this is a dispatcher where the condition and consequent expressions are all flows which operate on the switch inputs.
+  The @tech{flow} analogue of @racket[cond], this is a dispatcher where the condition and consequent expressions are all flows which operate on the switch inputs.
 
   Typically, each of the component flows -- conditions and consequents both -- receives all of the original inputs to the @racket[switch]. This can be changed by using a @racket[divert] clause, which takes two flow arguments, the first of whose outputs go to all of the condition flows, and the second of whose outputs go to all of the consequent flows. This can be useful in cases where multiple values flow, but only some of them are predicated upon, and others (or all of them) inform the actions to be taken. Using @racket[(divert _ _)] is equivalent to not using it. @racket[%] is a symbolic alias for @racket[divert] -- parse it visually not as the percentage sign, but as a convenient way to depict a "floodgate" diverting values down different channels.
 
@@ -650,7 +650,7 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
 @defform[#:link-target? #f
          (amp flo)]
 )]{
-  The flow analogue to @racket[map], this maps each input individually under @racket[flo]. As flows may generate any number of output values, unlike @racket[map], the number of outputs need not equal the number of inputs here.
+  The @tech{flow} analogue to @racket[map], this maps each input individually under @racket[flo]. As flows may generate any number of output values, unlike @racket[map], the number of outputs need not equal the number of inputs here.
 
   If used in identifier form simply as @racket[><], it treats the first input as @racket[flo].
 
@@ -667,7 +667,7 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
 @defform[#:link-target? #f
          (pass condition-flo)]
 )]{
-  The flow analogue to @racket[filter], this filters the input values individually under @racket[condition-flo], yielding only those values that satisfy it.
+  The @tech{flow} analogue to @racket[filter], this filters the input values individually under @racket[condition-flo], yielding only those values that satisfy it.
 
   If used in identifier form simply as @racket[pass], it treats the first input as @racket[condition-flo] and the remaining inputs as the values to be filtered.
 
@@ -686,7 +686,7 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
 @defform[#:link-target? #f
          (>> flo)]
 )]{
-  The flow analogues to @racket[foldr] and @racket[foldl] (respectively -- the side on which the symbols "fold" corresponds to the type of fold), these fold over input @emph{values} rather than an input list.
+  The @tech{flow} analogues to @racket[foldr] and @racket[foldl] (respectively -- the side on which the symbols "fold" corresponds to the type of fold), these fold over input @emph{values} rather than an input list.
 
   @racket[flo] processes one input value at a time. It receives the current input value in the first position, followed by the accumulated values, and may generate any number of output values. These output values are fed back as accumulated values for the next iteration if input values remain to be processed; otherwise, they are produced as the output of the flow.
 
@@ -762,7 +762,7 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
             (label-rt "out" (pt (* 2 1/2 box-width) 0))))
 ]
 
-  @racket[init-flo] is expected to be a @emph{flow} that will generate the initial values for the fold, and will be invoked with no inputs for this purpose at runtime. It is done this way to support having multiple initial values or no initial values, rather than specifically one. Specifying @racket[init-flo] is optional; if it isn't provided, @racket[flo] itself is invoked with no arguments to obtain the init value, to borrow a convention from the Clojure language.
+  @racket[init-flo] is expected to be a @emph{@tech{flow}} that will generate the initial values for the fold, and will be invoked with no inputs for this purpose at runtime. It is done this way to support having multiple initial values or no initial values, rather than specifically one. Specifying @racket[init-flo] is optional; if it isn't provided, @racket[flo] itself is invoked with no arguments to obtain the init value, to borrow a convention from the Clojure language.
 
 @examples[
     #:eval eval-for-docs
@@ -788,7 +788,7 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
 
   Use @racket[(ε side-effect-flo)] to just perform a side effect without modifying the input, equivalent to @racket[(-< (~> side-effect-flo ⏚) _)].
 
-  Remember that, as the side-effect flow is based on a tee junction, it must handle as many inputs as the main flow. For instance, if you were to use @racket[displayln] as the side-effect, it wouldn't work if more than one value were flowing, and you'd get an inscrutable error resembling:
+  Remember that, as the side-effect @tech{flow} is based on a tee junction, it must handle as many inputs as the main flow. For instance, if you were to use @racket[displayln] as the side-effect, it wouldn't work if more than one value were flowing, and you'd get an inscrutable error resembling:
 
 @codeblock{
 ; displayln: contract violation
@@ -811,7 +811,7 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
 }
 
 @defidform[apply]{
-  Analogous to @racket[apply], this treats the first input as a flow and passes the remaining inputs through it, producing the output that the input flow would produce if the argument flows were passed through it directly.
+  Analogous to @racket[apply], this treats the first input as a @tech{flow} and passes the remaining inputs through it, producing the output that the input flow would produce if the argument flows were passed through it directly.
 
 @examples[
     #:eval eval-for-docs
@@ -821,7 +821,7 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
 
 @section{Identifiers}
 
-Identifiers in a flow context are interpreted as @tech/reference{variables} whose @tech/reference{values} are expected to be @seclink["lambda" #:doc '(lib "scribblings/guide/guide.scrbl")]{functions}. In other words, any named function may be used directly as a flow.
+Identifiers in a flow context are interpreted as @tech/reference{variables} whose @tech/reference{values} are expected to be @seclink["lambda" #:doc '(lib "scribblings/guide/guide.scrbl")]{functions}. In other words, any named function may be used directly as a @tech{flow}.
 
 @examples[
     #:eval eval-for-docs
@@ -831,7 +831,7 @@ Identifiers in a flow context are interpreted as @tech/reference{variables} whos
 
 @section{Literals}
 
-Literals and quoted values (including syntax-quoted values) in a flow context are interpreted as flows generating them. That is, for instance, @racket[5] in a flow context is equivalent to @racket[(gen 5)].
+Literals and quoted values (including syntax-quoted values) in a flow context are interpreted as @tech{flows} generating them. That is, for instance, @racket[5] in a flow context is equivalent to @racket[(gen 5)].
 
 @examples[
     #:eval eval-for-docs
@@ -860,7 +860,7 @@ Usually, the @racket[_] symbol indicates the trivial or identity flow, simply pa
 @section{Utilities}
 
 @defidform[count]{
-  The arity of the flow. Analogous to @racket[length] for lists, this counts the values in the flow.
+  Analogous to @racket[length] for lists, but for values, this counts the values in the flow.
 
 @examples[
     #:eval eval-for-docs
@@ -885,7 +885,7 @@ Usually, the @racket[_] symbol indicates the trivial or identity flow, simply pa
 @defform[(rectify v ...)]{
   Check if the flow is @racket[live?], and if it isn't, then ensure that the values @racket[v ...] are produced. Equivalent to @racket[(if live? _ (gen v ...))].
 
-  A flow may sometimes produce @emph{no values}. In such cases, depending on how the output of the flow is used, it may be desirable to ensure that it returns some default value or values instead. @racket[rectify] produces the original output of the flow unchanged if there is any output, and otherwise outputs @racket[v ...].
+  A @tech{flow} may sometimes produce @emph{no values}. In such cases, depending on how the output of the flow is used, it may be desirable to ensure that it returns some default value or values instead. @racket[rectify] produces the original output of the flow unchanged if there is any output, and otherwise outputs @racket[v ...].
 
 @examples[
     #:eval eval-for-docs
@@ -901,7 +901,7 @@ Usually, the @racket[_] symbol indicates the trivial or identity flow, simply pa
 This way to extend the language is intended for use in @bold{legacy versions of Racket only}, that is, versions 8.2 or earlier. Qi now (as of Racket 8.3) offers "first class" macro extensibility where there is no need for the special prefix, "qi:". See @secref["Qi_Macros"] for more. Prefix-based macros (i.e. the kind discussed in the present section) should be considered @bold{deprecated} on versions 8.3 or later.
 
 @defform[(qi:* expr ...)]{
-  A form with a name starting with "qi:" is treated in a special way -- it is simply left alone during the macro expansion phase as far as Qi is concerned, as it is expected to be a macro written by a third party that will expand into a @emph{Racket} expression that is usable as a flow (i.e. similar to the @racket[esc] form). That is, such a form must expand either to a flow specified using Qi and wrapped with @racket[☯], or to a @seclink["lambda" #:doc '(lib "scribblings/guide/guide.scrbl")]{lambda} containing arbitrary Racket code.
+  A form with a name starting with "qi:" is treated in a special way -- it is simply left alone during the macro expansion phase as far as Qi is concerned, as it is expected to be a macro written by a third party that will expand into a @emph{Racket} expression that is usable as a @tech{flow} (i.e. similar to the @racket[esc] form). That is, such a form must expand either to a flow specified using Qi and wrapped with @racket[☯], or to a @seclink["lambda" #:doc '(lib "scribblings/guide/guide.scrbl")]{lambda} containing arbitrary Racket code.
 
  This allows you to extend the Qi language locally without requiring changes to be made in the library itself.
 

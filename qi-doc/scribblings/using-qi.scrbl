@@ -64,7 +64,7 @@ In Qi, it would be something like:
                 count) / sqrt))
 }
 
-This first uses the "prism" @racket[△] to separate the input list into its component values. Then it uses a tee junction, @racket[-<], to fork these values down two @tech{flows}, one to compute the sum of squares and the other to count how many values there are. In computing the sum of squares, @racket[><] "maps" the input values under the @racket[sqr] @tech{flow} to yield the squares of the input values which are then summed. This is then divided by the count to yield the mean of the squares, whose square root is then produced as the result.
+This first uses the "prism" @racket[△] to separate the input list into its component values. Then it uses a tee junction, @racket[-<], to fork these values down two @tech{flows}, one to compute the sum of squares and the other to count how many values there are. In computing the sum of squares, @racket[><] "maps" the input values under the @racket[sqr] flow to yield the squares of the input values which are then summed. This is then divided by the count to yield the mean of the squares, whose square root is then produced as the result.
 
 Here, there are reasons to favor either representation. The Racket version doesn't have too much redundancy so it is a fine way to express the computation. The Qi version eliminates the redundant references to the input (as it usually does), but aside from that it is primarily distinguished as being a way to express the computation as a series of transformations evaluated sequentially, while the Racket version expresses it as a compound expression to be evaluated hierarchically. They're just @emph{different} and neither is necessarily better.
 
@@ -219,7 +219,7 @@ Racket exhibits a @seclink["values-model" #:doc '(lib "scribblings/reference/ref
                   list)
 }
 
-The symmetry between arguments and return values is even more apparent and natural in Qi, where functions are seen as @tech[#:doc '(lib "qi/scribblings/qi.scrbl")]{flows}, and arguments and return values as inputs and outputs, respectively. Thus, a function returning multiple values is just another @tech{flow} and doesn't require special handling, making Qi a good choice in such cases:
+The symmetry between arguments and return values is even more apparent and natural in Qi, where functions are seen as @tech[#:doc '(lib "qi/scribblings/qi.scrbl")]{flows}, and arguments and return values as inputs and outputs, respectively. Thus, a function returning multiple values is just another flow and doesn't require special handling, making Qi a good choice in such cases:
 
 @codeblock{
 (~> () (time-apply + (list 1 2 3)) list)
@@ -262,11 +262,11 @@ Such expressions are conditional transformations of the inputs, but this idea is
       [< (~> X -)])
 }
 
-@racket[switch] is a versatile conditional form that can also express more complex flows, as we will see in the next example.
+@racket[switch] is a versatile conditional form that can also express more complex @tech{flows}, as we will see in the next example.
 
 @section{The Structure and Interpretation of Flows}
 
-Sometimes, it is natural to express the entire computation as a @tech{flow}, while at other times it may be better to express just a part of it as a @tech{flow}. In either case, the most natural representation may not be apparent at the outset, by virtue of the fact that we don't always understand the computation at the outset. In such cases, it may make sense to take an incremental approach.
+Sometimes, it is natural to express the entire computation as a @tech{flow}, while at other times it may be better to express just a part of it as a flow. In either case, the most natural representation may not be apparent at the outset, by virtue of the fact that we don't always understand the computation at the outset. In such cases, it may make sense to take an incremental approach.
 
 The classic Computer Science textbook, "The Structure and Interpretation of Computer Programs," contains the famous "metacircular evaluator" -- a Scheme interpreter written in Scheme. The code given for the @racket[eval] function is:
 
@@ -312,7 +312,7 @@ This version eliminates two dozen redundant references to the input expression t
 
 Yet, an astute observer may point out that although this eliminates almost all mention of @racket[exp], that it still contains @emph{ten} references to the environment, @racket[env]. In our first attempt at a flow-oriented implementation, we chose to see the @racket[eval] function as a @tech{flow} of the input @emph{expression} through various checks and transformations. We were led to this choice by the observation that all of the conditions in the original Racket implementation were predicated exclusively on @racket[exp]. But now we see that almost all of the consequent expressions use the @emph{environment}, in addition. That is, it would appear that the environment @racket[env] @emph{flows} through the consequent expressions.
 
-For such cases, by means of a @racket[divert] (or its alias, @racket[%]) clause "at the floodgates," the @racket[switch] form allows us to control which values @tech{flow} to the predicates and which ones @tech{flow} to the consequents. In the present case, we'd like the predicates to only receive the input @emph{expression}, and the consequents to receive both the expression as well as the environment. By modeling the @tech{flow} this way, we arrive at the following pure-Qi implementation.
+For such cases, by means of a @racket[divert] (or its alias, @racket[%]) clause "at the floodgates," the @racket[switch] form allows us to control which values flow to the predicates and which ones flow to the consequents. In the present case, we'd like the predicates to only receive the input @emph{expression}, and the consequents to receive both the expression as well as the environment. By modeling the @tech{flow} this way, we arrive at the following pure-Qi implementation.
 
 @codeblock{
     (define-switch eval
@@ -332,9 +332,9 @@ For such cases, by means of a @racket[divert] (or its alias, @racket[%]) clause 
       [else (error "Unknown expression type -- EVAL" 1>)])
 }
 
-This version eliminates the more than @emph{thirty} mentions of the inputs to the function that were present in the Racket version, while introducing four @tech{flow} references (i.e. @racket[1>]). Some of the clauses are unsettlingly elementary, reading like pseudocode rather than a real implementation, while other clauses become complex flows reflecting the path the inputs take through the expression. This version is stripped down to the essence of what the @racket[eval] function @emph{does}, encoding a lot of our understanding syntactically that otherwise is gleaned only by manual perusal -- for instance, the fact that @emph{all} of the predicates are only concerned with the input expression is apparent on the very first line of the switch body. The complexity in this implementation reflects the complexity of the computation being modeled, nothing more.
+This version eliminates the more than @emph{thirty} mentions of the inputs to the function that were present in the Racket version, while introducing four flow references (i.e. @racket[1>]). Some of the clauses are unsettlingly elementary, reading like pseudocode rather than a real implementation, while other clauses become complex flows reflecting the path the inputs take through the expression. This version is stripped down to the essence of what the @racket[eval] function @emph{does}, encoding a lot of our understanding syntactically that otherwise is gleaned only by manual perusal -- for instance, the fact that @emph{all} of the predicates are only concerned with the input expression is apparent on the very first line of the switch body. The complexity in this implementation reflects the complexity of the computation being modeled, nothing more.
 
-While the purist may favor this last implementation, it is perhaps a matter of some subjectivity. We were led to Qi in this instance by the evidence of redundancy in the implementation, which we took to be a clue that this could be modeled as a @tech{flow}. It wasn't obvious at the outset that this was the case. Some may see this as evidence that a @tech{flow} isn't the "natural" way to think about this computation. Others may disagree with this position, citing that it's difficult for the intuition to always penetrate the fog of complexity, and employing evidence to reinforce our intuitions is precisely how we can see farther, and that, as the evidence in this case suggested it was a @tech{flow}, that it is, in fact, best thought of as a @tech{flow}. Wherever you may find your sympathies to lie on this spectrum, objectively, we find that the pure-Qi solution is the most economical both conceptually as well as lexically (i.e. the shortest in terms of number of characters), while the hybrid solution is just a little more verbose. The original Racket implementation is in third place on both counts.
+While the purist may favor this last implementation, it is perhaps a matter of some subjectivity. We were led to Qi in this instance by the evidence of redundancy in the implementation, which we took to be a clue that this could be modeled as a @tech{flow}. It wasn't obvious at the outset that this was the case. Some may see this as evidence that a flow isn't the "natural" way to think about this computation. Others may disagree with this position, citing that it's difficult for the intuition to always penetrate the fog of complexity, and employing evidence to reinforce our intuitions is precisely how we can see farther, and that, as the evidence in this case suggested it was a flow, that it is, in fact, best thought of as a flow. Wherever you may find your sympathies to lie on this spectrum, objectively, we find that the pure-Qi solution is the most economical both conceptually as well as lexically (i.e. the shortest in terms of number of characters), while the hybrid solution is just a little more verbose. The original Racket implementation is in third place on both counts.
 
 @section{Using the Right Tool for the Job}
 
@@ -342,4 +342,4 @@ We've seen a number of examples covering transformations, predicates, and condit
 
 The examples hopefully illustrate an age-old doctrine -- use the right tool for the job. A language is the best tool of all, so use the right language to express the task at hand. Sometimes, that language is Qi and sometimes it's Racket and sometimes it's a combination of the two, or something else. Don't try too hard to coerce the computation into one way of looking at things. It's less important to be consistent and more important to be fluent and clear. And by the same token, it's less important for you to fit your brain to the language and more important for the language to be apt to describe the computation, and consequently for it to encourage a way of thinking about the problem that fits your brain.
 
-Employing a potpourri of general purpose and specialized languages, perhaps, is the best way to @tech{flow}!
+Employing a potpourri of general purpose and specialized languages, perhaps, is the best way to flow!
