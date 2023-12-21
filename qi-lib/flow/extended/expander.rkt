@@ -13,6 +13,7 @@
                                 [collect ▽])))
 
 (require syntax-spec-v1
+         "../space.rkt"
          (for-syntax "../aux-syntax.rkt"
                      "syntax.rkt"
                      racket/base
@@ -209,7 +210,7 @@
     ;; we'd like to treat as part of the language rather than as
     ;; functions which could be shadowed.
     (~> f:id
-        #:with spaced-f ((make-interned-syntax-introducer 'qi) #'f)
+        #:with spaced-f (introduce-qi-syntax #'f)
         #'(esc spaced-f)))
 
   (nonterminal arg-stx
