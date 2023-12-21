@@ -311,10 +311,9 @@
                      (syntax->list #'(list->cstream f1 f ... cstream->list))
                      stx)
        #'(thread _0 ... fused _1 ...)]
-      ;; find-and-map/qi expects a transformation that returns false
-      ;; if there is no match, in which case it will continue traversing
-      ;; subexpressions until there is a match.
-      [_ #f])))
+      ;; return the input syntax unchanged if no rules
+      ;; are applicable
+      [_ stx])))
 
 (begin-encourage-inline
 

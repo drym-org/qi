@@ -88,7 +88,7 @@
                        [((~datum as) x ...)
                         #:with (x-val ...) (generate-temporaries (attribute x))
                         #'(thread (esc (λ (x-val ...) (set! x x-val) ...)) ground)]
-                       [_ #f])
+                       [_ this-syntax])
                      stx))
 
   (define (bound-identifiers stx)
@@ -97,7 +97,7 @@
                          [((~datum as) x ...)
                           (set! ids
                                 (append (attribute x) ids))]
-                         [_ #f])
+                         [_ this-syntax])
                        stx)
       ids))
 
