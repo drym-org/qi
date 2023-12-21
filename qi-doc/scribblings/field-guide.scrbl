@@ -161,6 +161,8 @@ Methodical use of @racket[gen] together with the @seclink["Using_a_Probe"]{probe
 
 @bold{Meaning}: @racket[_] is a valid @emph{Qi} expression but an invalid @emph{Racket} expression. Somewhere in the course of evaluation of your code, the interpreter received @racket[_] and was asked to evaluate it as a @emph{Racket} expression. It doesn't like this.
 
+@bold{Common example}: Trying to evaluate a Qi expression without having required the Qi library, so that the expression is evaluated as a Racket expression. @racket[(require qi)] should do it.
+
 @bold{Common example}: Trying to use a template inside a nested application. For instance, @racket[(~> (1) (* 3 (+ _ 2)))] is invalid because, within the @racket[(* ...)] template, the language is @emph{Racket} rather than Qi, and you can't use a Qi template (i.e. @racket[(+ _ 2)]) there. You might try @seclink["Nested_Applications_are_Sequential_Flows"]{sequencing the flow}, something like @racket[(~> (1) (+ _ 2) (* 3))].
 
 @bold{Common example}: Trying to use a Racket macro (rather than a function), or a macro from another DSL, as a flow without first registering it via @racket[define-qi-foreign-syntaxes]. In general, Qi expects flows to be functions unless otherwise explicitly signaled.
