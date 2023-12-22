@@ -3,7 +3,6 @@
 (provide define-for-qi
          define-qi-syntax
          define-qi-alias
-         reference-qi
          (for-syntax
           introduce-qi-syntax))
 
@@ -39,13 +38,18 @@
    #:with spaced-name (introduce-qi-syntax #'name)
    #'(define-syntax spaced-name transformer)])
 
-;; reference bindings in qi space
-(define-syntax-parser reference-qi
-  [(_ name)
-   #:with spaced-name (introduce-qi-syntax #'name)
-   #'spaced-name])
-
 (define-syntax-parser define-qi-alias
   [(_ alias:id name:id)
    #:with spaced-name (introduce-qi-syntax #'name)
    #'(define-qi-syntax alias (make-rename-transformer #'spaced-name))])
+
+;; reference bindings in qi space
+;; this is in a submodule since it's only used in testing
+;; and we don't provide it publicly
+(module+ refer
+  (provide reference-qi)
+
+  (define-syntax-parser reference-qi
+    [(_ name)
+     #:with spaced-name (introduce-qi-syntax #'name)
+     #'spaced-name]))
