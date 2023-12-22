@@ -25,7 +25,8 @@
                            ;; no transformation was applied, so
                            ;; keep traversing
                            (datum->syntax stx
-                             (find-and-map f (syntax-e stx))
+                             (find-and-map f (or (syntax->list stx)
+                                                 (syntax-e stx)))
                              stx
                              stx)
                            ;; transformation was applied, so we stop
