@@ -4,6 +4,7 @@
 
 (require qi
          qi/flow/space
+         (submod qi/flow/space refer)
          rackunit
          rackunit/text-ui
          (only-in math sqr)
