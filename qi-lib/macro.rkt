@@ -13,6 +13,7 @@
          (only-in "flow/extended/expander.rkt"
                   qi-macro
                   esc)
+         qi/flow/space
          syntax/parse/define
          syntax/parse)
 
@@ -86,21 +87,10 @@
             #'(esc (lambda (v) (original-macro v form ...))))]
        [name:id #'(esc (lambda (v) (original-macro v)))]))))
 
-(define-syntax define-qi-syntax
-  (syntax-parser
-    [(_ name transformer)
-     #`(define-syntax #,((make-interned-syntax-introducer 'qi) #'name)
-         transformer)]))
-
-;; TODO: get this to work
-;; (define-syntax define-qi-alias
-;;   (syntax-parser
-;;     [(_ alias:id name:id) #'(define-qi-syntax alias (make-rename-transformer #'name))]))
-
 (define-syntax define-qi-syntax-rule
   (syntax-parser
     [(_ (name . pat) template)
-     #`(define-syntax #,((make-interned-syntax-introducer 'qi) #'name)
+     #`(define-syntax #,(introduce-qi-syntax #'name)
          (qi-macro
           (syntax-parser
             [(_ . pat) #'template])))]))
@@ -108,7 +98,7 @@
 (define-syntax define-qi-syntax-parser
   (syntax-parser
     [(_ name clause ...)
-     #`(define-syntax #,((make-interned-syntax-introducer 'qi) #'name)
+     #`(define-syntax #,(introduce-qi-syntax #'name)
          (qi-macro
           (syntax-parser
             clause ...)))]))
@@ -116,7 +106,7 @@
 (define-syntax define-qi-foreign-syntaxes
   (syntax-parser
     [(_ form-name ...)
-     #:with (spaced-form-name ...) (map (make-interned-syntax-introducer 'qi)
+     #:with (spaced-form-name ...) (map introduce-qi-syntax
                                         (attribute form-name))
      #'(begin
          (define-syntax spaced-form-name (make-qi-foreign-syntax-transformer #'form-name))

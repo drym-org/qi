@@ -1,9 +1,6 @@
 #lang racket/base
 
 (provide give
-         any?
-         all?
-         none?
          map-values
          filter-values
          partition-values
@@ -29,8 +26,7 @@
          racket/list
          racket/format
          syntax/parse/define
-         (for-syntax racket/base)
-         racket/performance-hint)
+         (for-syntax racket/base))
 
 (define-syntax-parse-rule (values->list body:expr ...+)
   (call-with-values (λ () body ...) list))
@@ -42,22 +38,21 @@
 
 ;; we use a lambda to capture the arguments at runtime
 ;; since they aren't available at compile time
-(define (loom-compose f g [n #f])
-  (let ([n (or n (procedure-arity f))])
-    (λ args
-      (let ([num-args (length args)])
-        (if (< num-args n)
-            (if (= 0 num-args)
-                (values)
-                (error 'group (~a "Can't select "
-                                  n
-                                  " arguments from "
-                                  args)))
-            (let ([sargs (take args n)]
-                  [rargs (drop args n)])
-              (apply values
-                     (append (values->list (apply f sargs))
-                             (values->list (apply g rargs))))))))))
+(define (loom-compose f g n)
+  (λ args
+    (let ([num-args (length args)])
+      (if (< num-args n)
+          (if (= 0 num-args)
+              (values)
+              (error 'group (~a "Can't select "
+                                n
+                                " arguments from "
+                                args)))
+          (let ([sargs (take args n)]
+                [rargs (drop args n)])
+            (apply values
+                   (append (values->list (apply f sargs))
+                           (values->list (apply g rargs)))))))))
 
 (define (parity-xor . args) (and (foldl xor #f args) #t))
 
@@ -198,15 +193,6 @@
 (define (relay . fs)
   (λ args
     (apply values (zip-with call fs args))))
-
-(define (all? . args)
-  (and (for/and ([v (in-list args)]) v) #t))
-
-(define (any? . args)
-  (and (for/or ([v (in-list args)]) v) #t))
-
-(define (none? . args)
-  (not (for/or ([v (in-list args)]) v)))
 
 (define (repeat-values n . vs)
   (apply values (apply append (make-list n vs))))

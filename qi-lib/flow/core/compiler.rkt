@@ -1,7 +1,8 @@
 #lang racket/base
 
 (provide (for-syntax compile-flow
-                     normalize-pass))
+                     normalize-pass
+                     deforest-pass))
 
 (require (for-syntax racket/base
                      syntax/parse
@@ -37,7 +38,7 @@
                      stx))
 
   (define-qi-expansion-step (~deforest-pass stx)
-    (deforest-rewrite stx))
+    (deforest-pass stx))
 
   (define (normalize-pass stx)
     (find-and-map/qi (fix normalize-rewrite)
@@ -87,7 +88,7 @@
                        [((~datum as) x ...)
                         #:with (x-val ...) (generate-temporaries (attribute x))
                         #'(thread (esc (λ (x-val ...) (set! x x-val) ...)) ground)]
-                       [_ #f])
+                       [_ this-syntax])
                      stx))
 
   (define (bound-identifiers stx)
@@ -96,7 +97,7 @@
                          [((~datum as) x ...)
                           (set! ids
                                 (append (attribute x) ids))]
-                         [_ #f])
+                         [_ this-syntax])
                        stx)
       ids))
 
@@ -484,10 +485,6 @@ the DSL.
            #'(λ args
                (qi0->racket (~> (-< (~> (gen args) △) _)
                                 onex))))]))
-
-  (define (literal-parser stx)
-    (syntax-parse stx
-      [val:literal #'(qi0->racket (gen val))]))
 
   (define (blanket-template-form-parser stx)
     (syntax-parse stx

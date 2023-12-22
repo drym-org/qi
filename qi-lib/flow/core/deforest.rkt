@@ -311,7 +311,9 @@
                      (syntax->list #'(list->cstream f1 f ... cstream->list))
                      stx)
        #'(thread _0 ... fused _1 ...)]
-      [_ this-syntax])))
+      ;; return the input syntax unchanged if no rules
+      ;; are applicable
+      [_ stx])))
 
 (begin-encourage-inline
 

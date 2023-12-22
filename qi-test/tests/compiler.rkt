@@ -6,7 +6,8 @@
          rackunit/text-ui
          (prefix-in semantics: "compiler/semantics.rkt")
          (prefix-in rules: "compiler/rules.rkt")
-         (prefix-in util: "compiler/util.rkt"))
+         (prefix-in util: "compiler/util.rkt")
+         (prefix-in impl: "compiler/impl.rkt"))
 
 (define tests
   (test-suite
@@ -14,7 +15,8 @@
 
    semantics:tests
    rules:tests
-   util:tests))
+   util:tests
+   impl:tests))
 
 (module+ main
   (void

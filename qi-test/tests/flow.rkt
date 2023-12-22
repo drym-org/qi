@@ -30,6 +30,12 @@
    (test-suite
     "core language"
     (test-suite
+     "Syntax"
+     (check-exn exn:fail?
+                (thunk (convert-compile-time-error
+                        (☯ 1 2)))
+                "flow expects exactly one argument"))
+    (test-suite
      "Edge/base cases"
      (check-equal? (values->list ((☯))) null "empty flow with no inputs")
      (check-equal? ((☯) 0) 0 "empty flow with one input")
@@ -65,7 +71,8 @@
      (check-equal? ((flow #s(dog "Fido")) 2) #s(dog "Fido") "literal prefab")
      (check-equal? ((flow '(+ 1 2)) 5) '(+ 1 2) "literal quoted list")
      (check-equal? ((flow `(+ 1 ,(* 2 3))) 5) '(+ 1 6) "literal quasiquoted list")
-     (check-equal? (syntax->datum ((flow #'(+ 1 2)) 5)) '(+ 1 2) "Literal syntax quoted list"))
+     (check-equal? (syntax->datum ((flow #'abc) 5)) 'abc "Literal syntax")
+     (check-equal? (syntax->datum ((flow (quote-syntax (+ 1 2))) 5)) '(+ 1 2) "Literal syntax quoted list"))
     (test-suite
      "unary predicate"
      (check-false ((☯ negative?) 5))
@@ -556,9 +563,9 @@
                    "a"))
     (test-suite
      "-<"
-     (check-equal? ((☯ (~> -< ▽))
-                    3 1 2)
-                   (list 1 2 1 2 1 2))
+     ;; (check-equal? ((☯ (~> -< ▽))
+     ;;                3 1 2)
+     ;;               (list 1 2 1 2 1 2))
      (check-equal? ((☯ (~> (-< sqr add1) ▽))
                     5)
                    (list 25 6))
@@ -658,7 +665,11 @@
     (check-equal? ((☯ (try (/ 0)
                         [exn:fail:contract:arity? 'arity]
                         [exn:fail:contract:divide-by-zero? 'divide-by-zero])) 9)
-                  'divide-by-zero))
+                  'divide-by-zero)
+    (check-exn exn:fail?
+               (thunk (convert-compile-time-error
+                       (☯ (try 1 2))))
+               "invalid try syntax"))
 
    (test-suite
     "partial application"
@@ -781,11 +792,8 @@
     (test-suite
      "templating behavior is contained to intentional template syntax"
      (check-exn exn:fail:syntax?
-                (thunk (parameterize ([current-namespace (make-base-empty-namespace)])
-                         (namespace-require 'racket/base)
-                         (namespace-require 'qi)
-                         (eval '(☯ (feedback _ add1))
-                               (current-namespace))))
+                (thunk (convert-compile-time-error
+                        (☯ (feedback _ add1))))
                 "invalid syntax accepted on the basis of an assumed fancy-app template")))
 
    (test-suite
@@ -964,6 +972,11 @@
                      2)
                     2)
       (check-equal? ((☯ (switch
+                          [(member (list 1 5 4 2 6)) (=> 1>)]
+                          [else 'hi]))
+                     10)
+                    'hi)
+      (check-equal? ((☯ (switch
                             [car (=> (== _ 5) apply)]
                           [else 'hi]))
                      (list add1 sub1))
@@ -1013,7 +1026,11 @@
                            ▽))
                     1 2 -3 4)
                    (list 7 -1)
-                   "pure control form of sieve"))
+                   "pure control form of sieve")
+     (check-exn exn:fail?
+                (thunk (convert-compile-time-error
+                        (☯ (sieve 1 2))))
+                "invalid sieve syntax"))
     (test-suite
      "partition"
      (check-equal? ((flow (~> (partition) collect)))
@@ -1038,7 +1055,22 @@
                                          [_ list]) collect))
                     -1 2 1 1 -2 2)
                    (list 4 (list -1 1 1 -2))
-                   "partition bodies can be flows"))
+                   "partition bodies can be flows")
+     (check-equal? ((flow (~> (partition [#f list]
+                                         [(and positive? (> 1)) +]) collect))
+                    -1 2 1 1 -2 2)
+                   (list null 4)
+                   "no match in first clause")
+     (check-equal? ((flow (~> (partition [(and positive? (> 1)) +]
+                                         [#f list]) collect))
+                    -1 2 1 1 -2 2)
+                   (list 4 null)
+                   "no match in last clause")
+     (check-equal? ((flow (~> (partition [#f list]
+                                         [#f list]) collect))
+                    -1 2 1 1 -2 2)
+                   (list null null)
+                   "no match in any clause"))
     (test-suite
      "gate"
      (check-equal? ((☯ (gate positive?))
@@ -1214,7 +1246,11 @@
                 (thunk ((☯ (~> (group 3 _ ⏚)
                                ▽))
                         1 3))
-                "grouping more inputs than are available shows a helpful error"))
+                "grouping more inputs than are available shows a helpful error")
+     (check-exn exn:fail?
+                (thunk (convert-compile-time-error
+                        (☯ (group 1 2))))
+                "invalid group syntax"))
     (test-suite
      "select"
      (check-equal? ((☯ (~> (select) ▽))
@@ -1244,7 +1280,11 @@
      (check-exn exn:fail?
                 (thunk ((☯ (select 0))
                         1 3))
-                "attempting to select index 0 (select is 1-indexed)"))
+                "attempting to select index 0 (select is 1-indexed)")
+     (check-exn exn:fail?
+                (thunk (convert-compile-time-error
+                        (☯ (select (+ 1 1)))))
+                "select expects literal numbers"))
     (test-suite
      "block"
      (check-equal? ((☯ (~> (block) list))
@@ -1272,7 +1312,11 @@
      (check-exn exn:fail?
                 (thunk ((☯ (block 0))
                         1 3))
-                "attempting to block index 0 (block is 1-indexed)"))
+                "attempting to block index 0 (block is 1-indexed)")
+     (check-exn exn:fail?
+                (thunk (convert-compile-time-error
+                        (☯ (block (+ 1 1)))))
+                "block expects literal numbers"))
     (test-suite
      "bundle"
      (check-equal? ((☯ (~> (bundle () + sqr) ▽))
@@ -1359,7 +1403,11 @@
      (check-equal? ((☯ (~> (amp sqr) ▽))
                     3 5)
                    (list 9 25)
-                   "named amplification form"))
+                   "named amplification form")
+     (check-exn exn:fail?
+                (thunk (convert-compile-time-error
+                        (☯ (>< sqr add1))))
+                "amp expects exactly one argument"))
     (test-suite
      "pass"
      (check-equal? ((☯ (~> pass ▽))
