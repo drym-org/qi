@@ -7,32 +7,20 @@
          rackunit/text-ui
          syntax/parse
          syntax/parse/experimental/template
+         (only-in "../private/util.rkt" tag-syntax)
          (only-in racket/function
                   curry
                   curryr
                   thunk*))
+
+;; NOTE: we need to tag test syntax with `tag-syntax`
+;; in most cases. See the comment on that function definition.
 
 (define-syntax-rule (test-syntax-equal? name f a b)
   (test-equal? name
                (syntax->datum
                 (find-and-map/qi f (tag-syntax a)))
                (syntax->datum b)))
-
-(define (syntax-list? v)
-  (and (syntax? v) (syntax->list v)))
-
-(define (tree-map f tree)
-  (cond [(list? tree) (map (curry tree-map f)
-                           tree)]
-        [(syntax-list? tree) (f (datum->syntax tree
-                                  (tree-map f (syntax->list tree))))]
-        [else (f tree)]))
-
-(define (attach-form-property stx)
-  (syntax-property stx 'nonterminal 'floe))
-
-(define (tag-syntax stx)
-  (tree-map attach-form-property stx))
 
 (define tests
   (test-suite
