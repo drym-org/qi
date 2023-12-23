@@ -1074,7 +1074,7 @@
      (check-not-exn (thunk
                      (convert-compile-time-error
                       (☯ (partition [-< ▽]))))
-                    "no improper optimization"))
+                    "no improper optimization of subforms resembling use of core syntax"))
     (test-suite
      "gate"
      (check-equal? ((☯ (gate positive?))
