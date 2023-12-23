@@ -24,9 +24,8 @@
 (define (tree-map f tree)
   (cond [(list? tree) (map (curry tree-map f)
                            tree)]
-        [(syntax-list? tree) (datum->syntax tree
-                               (map (curry tree-map f)
-                                    (syntax->list tree)))]
+        [(syntax-list? tree) (f (datum->syntax tree
+                                  (tree-map f (syntax->list tree))))]
         [else (f tree)]))
 
 (define (attach-form-property stx)
@@ -83,7 +82,7 @@
                         #'(a c d)
                         #'(a c d))
     ;; TODO: review this, it does not transform multi-level matches.
-    ;; Are there cases where we would need this?
+    ;; See a TODO in tests/compiler/rules.rkt for a case where we would need it
     (test-syntax-equal? "matches at multiple levels"
                         (syntax-parser [((~datum a) b ...) #'(b ...)]
                                        [_ this-syntax])
