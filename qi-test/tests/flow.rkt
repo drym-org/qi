@@ -1070,7 +1070,11 @@
                                          [#f list]) collect))
                     -1 2 1 1 -2 2)
                    (list null null)
-                   "no match in any clause"))
+                   "no match in any clause")
+     (check-not-exn (thunk
+                     (convert-compile-time-error
+                      (☯ (partition [-< ▽]))))
+                    "no improper optimization"))
     (test-suite
      "gate"
      (check-equal? ((☯ (gate positive?))
