@@ -6,6 +6,7 @@
          rackunit
          rackunit/text-ui
          syntax/parse
+         syntax/parse/experimental/template
          (only-in racket/function
                   curryr
                   thunk*))
@@ -14,6 +15,10 @@
   (test-equal? name
                (syntax->datum a)
                (syntax->datum b)))
+
+(define-template-metafunction qi-form
+  (syntax-parser
+    [(_ e) (syntax-property #'e 'nonterminal 'floe)]))
 
 (define tests
   (test-suite
@@ -35,7 +40,7 @@
                         (find-and-map/qi
                          (syntax-parser [(~datum b) #'q]
                                         [_ this-syntax])
-                         #'(a b c))
+                         #'(qi-form (a (qi-form b) c)))
                         #'(a q c))
     (test-syntax-equal? "does not explore node on false return value"
                         (find-and-map/qi
