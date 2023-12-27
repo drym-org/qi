@@ -12,7 +12,9 @@
   (cond [(list? tree) (map (curry tree-map f)
                            tree)]
         [(syntax-list? tree) (f (datum->syntax tree
-                                  (tree-map f (syntax->list tree))))]
+                                  (tree-map f (syntax->list tree))
+                                  tree
+                                  tree))]
         [else (f tree)]))
 
 (define (attach-form-property stx)
