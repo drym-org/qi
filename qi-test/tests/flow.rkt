@@ -563,9 +563,9 @@
                    "a"))
     (test-suite
      "-<"
-     ;; (check-equal? ((☯ (~> -< ▽))
-     ;;                3 1 2)
-     ;;               (list 1 2 1 2 1 2))
+     (check-equal? ((☯ (~> -< ▽))
+                    3 1 2)
+                   (list 1 2 1 2 1 2))
      (check-equal? ((☯ (~> (-< sqr add1) ▽))
                     5)
                    (list 25 6))
@@ -1070,7 +1070,11 @@
                                          [#f list]) collect))
                     -1 2 1 1 -2 2)
                    (list null null)
-                   "no match in any clause"))
+                   "no match in any clause")
+     (check-not-exn (thunk
+                     (convert-compile-time-error
+                      (☯ (partition [-< ▽]))))
+                    "no improper optimization of subforms resembling use of core syntax"))
     (test-suite
      "gate"
      (check-equal? ((☯ (gate positive?))

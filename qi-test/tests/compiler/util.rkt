@@ -6,14 +6,27 @@
          rackunit
          rackunit/text-ui
          syntax/parse
+         syntax/parse/define
+         syntax/parse/experimental/template
+         (for-syntax racket/base)
+         (only-in "../private/util.rkt" tag-syntax)
          (only-in racket/function
+                  curry
                   curryr
                   thunk*))
 
-(define-syntax-rule (test-syntax-equal? name a b)
-  (test-equal? name
-               (syntax->datum a)
-               (syntax->datum b)))
+;; NOTE: we need to tag test syntax with `tag-syntax`
+;; in most cases. See the comment on that function definition.
+
+;; traverse syntax a and map it under the indicated parser patterns
+;; using find-and-map/qi, and verify it results in syntax b
+(define-syntax-parser test-syntax-map-equal?
+  [(_ name (pat ...) a b)
+   #:with f #'(syntax-parser pat ...)
+   #'(test-equal? name
+                  (syntax->datum
+                   (find-and-map/qi f (tag-syntax a)))
+                  (syntax->datum b))])
 
 (define tests
   (test-suite
@@ -31,69 +44,59 @@
                   "false return value terminates fixed-point finding"))
    (test-suite
     "find-and-map/qi"
-    (test-syntax-equal? "top level"
-                        (find-and-map/qi
-                         (syntax-parser [(~datum b) #'q]
-                                        [_ this-syntax])
-                         #'(a b c))
-                        #'(a q c))
-    (test-syntax-equal? "does not explore node on false return value"
-                        (find-and-map/qi
-                         (syntax-parser [((~datum stop) e ...) #f]
-                                        [(~datum b) #'q]
-                                        [_ this-syntax])
-                         #'(a b (stop c b)))
-                        #'(a q (stop c b)))
-    (test-syntax-equal? "nested"
-                        (find-and-map/qi
-                         (syntax-parser [(~datum b) #'q]
-                                        [_ this-syntax])
-                         #'(a (b c) d))
-                        #'(a (q c) d))
-    (test-syntax-equal? "multiple matches"
-                        (find-and-map/qi
-                         (syntax-parser [(~datum b) #'q]
-                                        [_ this-syntax])
-                         #'(a b c b d))
-                        #'(a q c q d))
-    (test-syntax-equal? "multiple nested matches"
-                        (find-and-map/qi
-                         (syntax-parser [(~datum b) #'q]
-                                        [_ this-syntax])
-                         #'(a (b c) (b d)))
-                        #'(a (q c) (q d)))
-    (test-syntax-equal? "no match"
-                        (find-and-map/qi
-                         (syntax-parser [(~datum b) #'q]
-                                        [_ this-syntax])
-                         #'(a c d))
-                        #'(a c d))
+    (test-syntax-map-equal? "top level"
+                            ([(~datum b) #'q]
+                             [_ this-syntax])
+                            #'(a b c)
+                            #'(a q c))
+    (test-syntax-map-equal? "does not explore node on false return value"
+                            ([((~datum stop) e ...) #f]
+                             [(~datum b) #'q]
+                             [_ this-syntax])
+                            #'(a b (stop c b))
+                            #'(a q (stop c b)))
+    (test-syntax-map-equal? "nested"
+                            ([(~datum b) #'q]
+                             [_ this-syntax])
+                            #'(a (b c) d)
+                            #'(a (q c) d))
+    (test-syntax-map-equal? "multiple matches"
+                            ([(~datum b) #'q]
+                             [_ this-syntax])
+                            #'(a b c b d)
+                            #'(a q c q d))
+    (test-syntax-map-equal? "multiple nested matches"
+                            ([(~datum b) #'q]
+                             [_ this-syntax])
+                            #'(a (b c) (b d))
+                            #'(a (q c) (q d)))
+    (test-syntax-map-equal? "no match"
+                            ([(~datum b) #'q]
+                             [_ this-syntax])
+                            #'(a c d)
+                            #'(a c d))
     ;; TODO: review this, it does not transform multi-level matches.
-    ;; Are there cases where we would need this?
-    (test-syntax-equal? "matches at multiple levels"
-                        (find-and-map/qi
-                         (syntax-parser [((~datum a) b ...) #'(b ...)]
-                                        [_ this-syntax])
-                         #'(a c (a d e)))
-                        #'(c (a d e)))
-    (test-syntax-equal? "does not match spliced"
-                        (find-and-map/qi
-                         (syntax-parser [((~datum a) b ...) #'(b ...)]
-                                        [_ this-syntax])
-                         #'(c a b d e))
-                        #'(c a b d e))
-    (test-syntax-equal? "does not enter host expressions"
-                        (find-and-map/qi
-                         (syntax-parser [(~datum b) #'q]
-                                        [_ this-syntax])
-                         #'(a (#%host-expression (b c)) d))
-                        #'(a (#%host-expression (b c)) d))
-    (test-syntax-equal? "toplevel host expression"
-                        (find-and-map/qi
-                         (syntax-parser [(~datum b) #'q]
-                                        [_ this-syntax])
-                         #'(#%host-expression (b c)))
-                        #'(#%host-expression (b c))))))
+    ;; See a TODO in tests/compiler/rules.rkt for a case where we would need it
+    (test-syntax-map-equal? "matches at multiple levels"
+                            ([((~datum a) b ...) #'(b ...)]
+                             [_ this-syntax])
+                            #'(a c (a d e))
+                            #'(c (a d e)))
+    (test-syntax-map-equal? "does not match spliced"
+                            ([((~datum a) b ...) #'(b ...)]
+                             [_ this-syntax])
+                            #'(c a b d e)
+                            #'(c a b d e))
+    (test-syntax-map-equal? "does not enter host expressions"
+                            ([(~datum b) #'q]
+                             [_ this-syntax])
+                            #'(a (#%host-expression (b c)) d)
+                            #'(a (#%host-expression (b c)) d))
+    (test-syntax-map-equal? "toplevel host expression"
+                            ([(~datum b) #'q]
+                             [_ this-syntax])
+                            #'(#%host-expression (b c))
+                            #'(#%host-expression (b c))))))
 
 (module+ main
   (void

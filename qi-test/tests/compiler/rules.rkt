@@ -8,17 +8,21 @@
          rackunit/text-ui
          (only-in math sqr)
          racket/string
+         (only-in "../private/util.rkt" tag-syntax)
          (only-in racket/list
                   range)
          syntax/parse/define)
+
+;; NOTE: we need to tag test syntax with `tag-syntax`
+;; in most cases. See the comment on that function definition.
 
 (define-syntax-parse-rule (test-normalize name a b ...+)
   (begin
     (test-equal? name
                  (syntax->datum
-                  (normalize-pass a))
+                  (normalize-pass (tag-syntax a)))
                  (syntax->datum
-                  (normalize-pass b)))
+                  (normalize-pass (tag-syntax b))))
     ...))
 
 (define (deforested? exp)
@@ -467,21 +471,8 @@
 
     (test-suite
      "deforest-pass"
-     (let ([stx #'(amp
-                   (thread
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __))
-                    (#%blanket-template
-                     ((#%host-expression map)
-                      (#%host-expression sqr)
-                      __))))])
-       (check-true (deforested? (syntax->datum
-                                 (deforest-pass
-                                   stx)))
-                   "nested positions"))
-     (let* ([stx #'(tee
+     (let ([stx (tag-syntax
+                 #'(amp
                     (thread
                      (#%blanket-template
                       ((#%host-expression filter)
@@ -490,10 +481,25 @@
                      (#%blanket-template
                       ((#%host-expression map)
                        (#%host-expression sqr)
-                       __)))
-                    (thread
-                     (esc (#%host-expression range))
-                     (esc (#%host-expression car))))]
+                       __)))))])
+       (check-true (deforested? (syntax->datum
+                                 (deforest-pass
+                                   stx)))
+                   "nested positions"))
+     (let* ([stx (tag-syntax
+                  #'(tee
+                     (thread
+                      (#%blanket-template
+                       ((#%host-expression filter)
+                        (#%host-expression odd?)
+                        __))
+                      (#%blanket-template
+                       ((#%host-expression map)
+                        (#%host-expression sqr)
+                        __)))
+                     (thread
+                      (esc (#%host-expression range))
+                      (esc (#%host-expression car)))))]
             [result (syntax->datum
                      (deforest-pass
                        stx))])

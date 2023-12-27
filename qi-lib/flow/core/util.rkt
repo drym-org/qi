@@ -6,6 +6,10 @@
 (require racket/match
          syntax/parse)
 
+(define (form-position? v)
+  (and (syntax? v)
+       (syntax-property v 'nonterminal)))
+
 ;; Walk the syntax tree in a "top down" manner, i.e. from the root down
 ;; to the leaves, applying a transformation to each node.
 ;; The transforming function is expected to either return transformed
@@ -42,8 +46,15 @@
   ;; #%host-expression is a Racket macro defined by syntax-spec
   ;; that resumes expansion of its sub-expression with an
   ;; expander environment containing the original surface bindings
+  ;; TODO: technically should be ~literal host expression to not
+  ;; collide with a user-defined #%host-expression binding, but that
+  ;; would never be hit in practice since that would be rewritten
+  ;; through expansion to a use of the core language. In general,
+  ;; we should be using ~literal matching throughout the compiler.
   (find-and-map (syntax-parser [((~datum #%host-expression) e:expr) #f]
-                               [_ (f this-syntax)])
+                               [_ (if (form-position? this-syntax)
+                                      (f this-syntax)
+                                      this-syntax)])
                 stx))
 
 ;; Applies f repeatedly to the init-val terminating the loop if the
