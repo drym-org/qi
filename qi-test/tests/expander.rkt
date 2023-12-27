@@ -9,6 +9,8 @@
          racket/base
          ;; necessary to recognize and expand core forms correctly
          qi/flow/extended/expander
+         ;; necessary to correctly expand the right-threading form
+         qi/flow/extended/forms
          syntax/parse/define
          qi/flow/extended/util
          rackunit
@@ -54,7 +56,7 @@
                     (relay (esc (#%host-expression b)) (esc (#%host-expression c)))
                     (tee (esc (#%host-expression d)) (esc (#%host-expression e)))))
 
-    (test-expand "undecorated functions are escaped"
+    (test-expand "undecorated identifiers are escaped"
                  #'f
                  #'(esc (#%host-expression f)))
 
@@ -79,11 +81,16 @@
                      __
                      (#%host-expression b))))
 
+    (test-expand "partial application expands to a blanket template"
+                 #'(f a b)
+                 #'(#%blanket-template
+                    ((#%host-expression f)
+                     __
+                     (#%host-expression a)
+                     (#%host-expression b))))
+
     (test-expand "expand chiral forms to a use of a blanket template"
-                 (datum->syntax #f
-                   (map make-right-chiral
-                        (syntax->list
-                         #'(thread (f 1)))))
+                 #'(~>> (f 1))
                  #'(thread (#%blanket-template
                             ((#%host-expression f)
                              (#%host-expression 1)
