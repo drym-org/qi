@@ -4,17 +4,13 @@
 
 (require (for-syntax racket/base
                      qi/flow/extended/syntax)
+         (submod qi/flow/extended/expander invoke)
          syntax/macro-testing
-         syntax-spec-v1
          racket/base
          qi/flow/extended/expander
          qi/flow/extended/util
          rackunit
          rackunit/text-ui)
-
-(begin-for-syntax
-  (define (expand-flow stx)
-    ((nonterminal-expander closed-floe) stx)))
 
 ;; TODO: these tests compare syntax as datums, but that's not sufficient
 ;; since the identifiers used may be bound differently which would affect

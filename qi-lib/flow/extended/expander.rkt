@@ -219,3 +219,11 @@
     k:keyword
 
     e:racket-expr))
+
+
+(module+ invoke
+  (provide (for-syntax expand-flow))
+
+  (begin-for-syntax
+    (define (expand-flow stx)
+      ((nonterminal-expander closed-floe) stx))))
