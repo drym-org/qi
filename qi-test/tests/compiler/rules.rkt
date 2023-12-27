@@ -4,6 +4,13 @@
 
 (require (for-template qi/flow/core/compiler
                        qi/flow/core/deforest)
+         ;; necessary to recognize and expand core forms correctly
+         qi/flow/extended/expander
+         ;; necessary to correctly expand the right-threading form
+         qi/flow/extended/forms
+         (for-syntax racket/base)
+         (submod qi/flow/extended/expander invoke)
+         syntax/macro-testing
          rackunit
          rackunit/text-ui
          (only-in math sqr)
@@ -25,6 +32,18 @@
                  (syntax->datum
                   (normalize-pass (tag-form-syntax b))))
     ...))
+
+;; A macro that accepts surface syntax, expands it,
+;; and then applies the indicated optimization passes
+(define-syntax-parser test-compile~>
+  [(_ stx)
+   #'(phase1-eval
+      (expand-flow
+       stx)
+      #:quote syntax)]
+  [(_ stx pass ... passN)
+   #'(passN
+      (test-compile~> stx pass ...))])
 
 (define (deforested? exp)
   (string-contains? (format "~a" exp) "cstream"))
@@ -597,6 +616,14 @@
                    (normalize-pass #'(thread tee collect)))
                   (syntax->datum
                    #'(thread tee collect)))))
+
+   (test-suite
+    "multiple passes"
+    (test-true "normalize → deforest"
+               (deforested?
+                 (test-compile~> #'(~>> (filter odd?) values (map sqr))
+                                 normalize-pass
+                                 deforest-pass))))
 
    (test-suite
     "compilation sequences"
