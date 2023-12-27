@@ -178,6 +178,18 @@ for the forms are run.
                    check-values
                    300000)))
 
+(module as "base.rkt"
+  (provide run)
+
+  (define (~as v)
+    ((☯ (~> (as w)))
+     v))
+
+  (define (run)
+    (run-benchmark ~as
+                   check-value
+                   500000)))
+
 (module ground "base.rkt"
   (provide run)
 
@@ -913,6 +925,7 @@ for the forms are run.
    (prefix-in relay: (submod ".." relay))
    (prefix-in relay*: (submod ".." relay*))
    (prefix-in amp: (submod ".." amp))
+   (prefix-in as: (submod ".." as))
    (prefix-in ground: (submod ".." ground))
    (prefix-in thread: (submod ".." thread))
    (prefix-in thread-right: (submod ".." thread-right))
@@ -983,6 +996,7 @@ for the forms are run.
      "relay" relay:run
      "relay*" relay*:run
      "amp" amp:run
+     "as" as:run
      "ground" ground:run
      "thread" thread:run
      "thread-right" thread-right:run
