@@ -7,10 +7,19 @@
          (submod qi/flow/extended/expander invoke)
          syntax/macro-testing
          racket/base
+         ;; necessary to recognize and expand core forms correctly
          qi/flow/extended/expander
+         syntax/parse/define
          qi/flow/extended/util
          rackunit
          rackunit/text-ui)
+
+(define-syntax-parse-rule (test-expand name source target)
+  (test-true name
+             (phase1-eval
+              (equal? (syntax->datum
+                       (expand-flow source))
+                      (syntax->datum target)))))
 
 ;; TODO: these tests compare syntax as datums, but that's not sufficient
 ;; since the identifiers used may be bound differently which would affect
@@ -25,77 +34,60 @@
 
    (test-suite
     "rules"
-    (test-true "basic expansion"
-               (phase1-eval
-                (equal? (syntax->datum
-                         (expand-flow #'(~> sqr add1)))
-                        '(thread (esc (#%host-expression sqr))
-                                 (esc (#%host-expression add1))))))
+    (test-expand "basic expansion"
+                 #'(~> sqr add1)
+                 #'(thread (esc (#%host-expression sqr))
+                           (esc (#%host-expression add1))))
 
-    (test-true "single core form (if)"
-               (phase1-eval
-                (equal? (syntax->datum
-                         (expand-flow #'(if p c a)))
-                        '(if (esc (#%host-expression p))
-                             (esc (#%host-expression c))
-                             (esc (#%host-expression a))))))
+    (test-expand "single core form (if)"
+                 #'(if p c a)
+                 #'(if (esc (#%host-expression p))
+                       (esc (#%host-expression c))
+                       (esc (#%host-expression a))))
 
-    (test-true "mix of core forms"
-               (phase1-eval
-                (equal? (syntax->datum
-                         (expand-flow #'(thread (amp a)
-                                                (relay b c)
-                                                (tee d e))))
-                        '(thread
-                          (amp (esc (#%host-expression a)))
-                          (relay (esc (#%host-expression b)) (esc (#%host-expression c)))
-                          (tee (esc (#%host-expression d)) (esc (#%host-expression e)))))))
+    (test-expand "mix of core forms"
+                 #'(thread (amp a)
+                           (relay b c)
+                           (tee d e))
+                 #'(thread
+                    (amp (esc (#%host-expression a)))
+                    (relay (esc (#%host-expression b)) (esc (#%host-expression c)))
+                    (tee (esc (#%host-expression d)) (esc (#%host-expression e)))))
 
-    (test-true "undecorated functions are escaped"
-               (phase1-eval
-                (equal? (syntax->datum
-                         (expand-flow #'f))
-                        '(esc (#%host-expression f)))))
+    (test-expand "undecorated functions are escaped"
+                 #'f
+                 #'(esc (#%host-expression f)))
 
-    (test-true "literal is expanded to an explicit use of the gen core form"
-               (phase1-eval
-                (equal? (syntax->datum
-                         (expand-flow #'5))
-                        '(gen (#%host-expression 5)))))
+    (test-expand "literal is expanded to an explicit use of the gen core form"
+                 #'5
+                 #'(gen (#%host-expression 5)))
 
-    (test-true "fine template syntax expands to an explicit use of the #%fine-template core form"
-               (phase1-eval
-                (equal? (syntax->datum
-                         (expand-flow #'(f _ a _ b)))
-                        '(#%fine-template
-                          ((#%host-expression f)
-                           _
-                           (#%host-expression a)
-                           _
-                           (#%host-expression b))))))
+    (test-expand "fine template syntax expands to an explicit use of the #%fine-template core form"
+                 #'(f _ a _ b)
+                 #'(#%fine-template
+                    ((#%host-expression f)
+                     _
+                     (#%host-expression a)
+                     _
+                     (#%host-expression b))))
 
-    (test-true "blanket template syntax expands to an explicit use of the #%blanket-template core form"
-               (phase1-eval
-                (equal? (syntax->datum
-                         (expand-flow #'(f a __ b)))
-                        '(#%blanket-template
-                          ((#%host-expression f)
-                           (#%host-expression a)
-                           __
-                           (#%host-expression b))))))
+    (test-expand "blanket template syntax expands to an explicit use of the #%blanket-template core form"
+                 #'(f a __ b)
+                 #'(#%blanket-template
+                    ((#%host-expression f)
+                     (#%host-expression a)
+                     __
+                     (#%host-expression b))))
 
-    (test-true "expand chiral forms to a use of a blanket template"
-               (phase1-eval
-                (equal? (syntax->datum
-                         (expand-flow
-                          (datum->syntax #f
-                            (map make-right-chiral
-                                 (syntax->list
-                                  #'(thread (f 1)))))))
-                        '(thread (#%blanket-template
-                                  ((#%host-expression f)
-                                   (#%host-expression 1)
-                                   __)))))))
+    (test-expand "expand chiral forms to a use of a blanket template"
+                 (datum->syntax #f
+                   (map make-right-chiral
+                        (syntax->list
+                         #'(thread (f 1)))))
+                 #'(thread (#%blanket-template
+                            ((#%host-expression f)
+                             (#%host-expression 1)
+                             __)))))
    (test-suite
     "utils"
     ;; this is just temporary until we properly track source expressions through
