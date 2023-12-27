@@ -10,7 +10,7 @@
                      (only-in racket/list make-list)
                      "syntax.rkt"
                      "../aux-syntax.rkt"
-                     "util.rkt"
+                     "pass.rkt"
                      "debug.rkt"
                      "normalize.rkt")
          "deforest.rkt"

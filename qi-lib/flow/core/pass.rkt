@@ -6,6 +6,8 @@
 (require racket/match
          syntax/parse)
 
+;; Utilities that are used in each compiler pass
+
 (define (form-position? v)
   (and (syntax? v)
        (syntax-property v 'nonterminal)))

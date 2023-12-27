@@ -2,12 +2,11 @@
 
 (provide tests)
 
-(require qi/flow/core/util
+(require qi/flow/core/pass
          rackunit
          rackunit/text-ui
          syntax/parse
          syntax/parse/define
-         syntax/parse/experimental/template
          (for-syntax racket/base)
          (only-in qi/flow/core/private/form-property tag-form-syntax)
          (only-in racket/function
@@ -30,7 +29,7 @@
 
 (define tests
   (test-suite
-   "Compiler utilities tests"
+   "Compiler pass utilities tests"
 
    (test-suite
     "fixed point"
