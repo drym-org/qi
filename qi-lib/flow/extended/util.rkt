@@ -90,15 +90,15 @@
      #`(sieve #,@(map prettify-flow-syntax (syntax->list #'(expr ...))))]
     [(partition
       [e1 e2] ...)
-     #:with e1-prettified (map prettify-flow-syntax (attribute e1))
-     #:with e2-prettified (map prettify-flow-syntax (attribute e2))
-     #`(partition e1-prettified e2-prettified)]
+     #:with (e1-prettified ...) (map prettify-flow-syntax (attribute e1))
+     #:with (e2-prettified ...) (map prettify-flow-syntax (attribute e2))
+     #'(partition [e1-prettified e2-prettified] ...)]
     [(try expr
       [e1 e2] ...)
      #:with expr-prettified (prettify-flow-syntax #'expr)
-     #:with e1-prettified (map prettify-flow-syntax (attribute e1))
-     #:with e2-prettified (map prettify-flow-syntax (attribute e2))
-     #`(try expr-prettified e1-prettified e2-prettified)]
+     #:with (e1-prettified ...) (map prettify-flow-syntax (attribute e1))
+     #:with (e2-prettified ...) (map prettify-flow-syntax (attribute e2))
+     #'(try expr-prettified [e1-prettified e2-prettified] ...)]
     [(>>
       expr ...)
      #`(>> #,@(map prettify-flow-syntax (syntax->list #'(expr ...))))]
