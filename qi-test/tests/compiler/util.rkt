@@ -9,13 +9,13 @@
          syntax/parse/define
          syntax/parse/experimental/template
          (for-syntax racket/base)
-         (only-in "../private/util.rkt" tag-syntax)
+         (only-in qi/flow/core/private/form-property tag-form-syntax)
          (only-in racket/function
                   curry
                   curryr
                   thunk*))
 
-;; NOTE: we need to tag test syntax with `tag-syntax`
+;; NOTE: we need to tag test syntax with `tag-form-syntax`
 ;; in most cases. See the comment on that function definition.
 
 ;; traverse syntax a and map it under the indicated parser patterns
@@ -25,7 +25,7 @@
    #:with f #'(syntax-parser pat ...)
    #'(test-equal? name
                   (syntax->datum
-                   (find-and-map/qi f (tag-syntax a)))
+                   (find-and-map/qi f (tag-form-syntax a)))
                   (syntax->datum b))])
 
 (define tests
