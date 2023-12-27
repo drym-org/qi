@@ -8,21 +8,22 @@
          rackunit/text-ui
          (only-in math sqr)
          racket/string
-         (only-in "../private/util.rkt" tag-syntax)
+         (only-in qi/flow/core/private/form-property
+                  tag-form-syntax)
          (only-in racket/list
                   range)
          syntax/parse/define)
 
-;; NOTE: we need to tag test syntax with `tag-syntax`
+;; NOTE: we need to tag test syntax with `tag-form-syntax`
 ;; in most cases. See the comment on that function definition.
 
 (define-syntax-parse-rule (test-normalize name a b ...+)
   (begin
     (test-equal? name
                  (syntax->datum
-                  (normalize-pass (tag-syntax a)))
+                  (normalize-pass (tag-form-syntax a)))
                  (syntax->datum
-                  (normalize-pass (tag-syntax b))))
+                  (normalize-pass (tag-form-syntax b))))
     ...))
 
 (define (deforested? exp)
@@ -471,7 +472,7 @@
 
     (test-suite
      "deforest-pass"
-     (let ([stx (tag-syntax
+     (let ([stx (tag-form-syntax
                  #'(amp
                     (thread
                      (#%blanket-template
@@ -486,7 +487,7 @@
                                  (deforest-pass
                                    stx)))
                    "nested positions"))
-     (let* ([stx (tag-syntax
+     (let* ([stx (tag-form-syntax
                   #'(tee
                      (thread
                       (#%blanket-template
