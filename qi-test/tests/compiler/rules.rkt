@@ -54,10 +54,12 @@
     (test-equal? name
                  (syntax->datum
                   (normalize-pass
-                   (phase0-expand-flow a)))
+                   (tag-form-syntax
+                    (phase0-expand-flow a))))
                  (syntax->datum
                   (normalize-pass
-                   (phase0-expand-flow b))))
+                   (tag-form-syntax
+                    (phase0-expand-flow b)))))
     ...))
 
 (define-syntax-parse-rule (test-deforested name stx)
