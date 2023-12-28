@@ -22,8 +22,7 @@
    #'(phase0-expand-flow stx)]
   [(_ stx pass ... passN)
    #'(passN
-      (tag-form-syntax
-       (test-compile~> stx pass ...)))])
+      (test-compile~> stx pass ...))])
 
 
 (define tests
