@@ -4,13 +4,10 @@
          fix)
 
 (require racket/match
-         syntax/parse)
+         syntax/parse
+         "private/form-property.rkt")
 
 ;; Utilities that are used in each compiler pass
-
-(define (form-position? v)
-  (and (syntax? v)
-       (syntax-property v 'nonterminal)))
 
 ;; Walk the syntax tree in a "top down" manner, i.e. from the root down
 ;; to the leaves, applying a transformation to each node.
