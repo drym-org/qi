@@ -1,10 +1,15 @@
 #lang racket/base
 
-(provide tag-form-syntax
+(provide form-position?
+         tag-form-syntax
          get-form-property)
 
 (require (only-in racket/function
                   curry))
+
+(define (form-position? v)
+  (and (syntax? v)
+       (syntax-property v 'nonterminal)))
 
 (define (syntax-list? v)
   (and (syntax? v) (syntax->list v)))
