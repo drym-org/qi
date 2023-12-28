@@ -53,9 +53,11 @@
   (begin
     (test-equal? name
                  (syntax->datum
-                  (normalize-pass (tag-form-syntax a)))
+                  (normalize-pass
+                   (phase0-expand-flow a)))
                  (syntax->datum
-                  (normalize-pass (tag-form-syntax b))))
+                  (normalize-pass
+                   (phase0-expand-flow b))))
     ...))
 
 (define-syntax-parse-rule (test-deforested name stx)
@@ -222,12 +224,12 @@
     (test-suite
      "equivalence of normalized expressions"
      (test-normalize "pass-amp deforestation"
-                     #'(thread
+                     #'(~>
                         (pass f)
-                        (amp g))
-                     #'(amp (if f g ground)))
+                        (>< g))
+                     #'(>< (if f g ground)))
      (test-normalize "merge pass filters in sequence"
-                     #'(thread (pass f) (pass g))
+                     #'(~> (pass f) (pass g))
                      #'(pass (and f g)))
      (test-normalize "collapse deterministic conditionals"
                      #'(if #t f g)
@@ -236,64 +238,64 @@
                      #'(if #f f g)
                      #'g)
      (test-normalize "trivial threading is collapsed"
-                     #'(thread f)
+                     #'(~> f)
                      #'f)
      (test-normalize "associative laws for ~>"
-                     #'(thread f (thread g h) i)
-                     #'(thread f g (thread h i))
-                     #'(thread (thread f g) h i)
-                     #'(thread f g h i))
+                     #'(~> f (~> g h) i)
+                     #'(~> f g (~> h i))
+                     #'(~> (~> f g) h i)
+                     #'(~> f g h i))
      (test-normalize "left and right identity for ~>"
-                     #'(thread f _)
-                     #'(thread _ f)
+                     #'(~> f _)
+                     #'(~> _ f)
                      #'f)
      (test-normalize "line composition of identity flows"
-                     #'(thread _ _ _)
-                     #'(thread _ _)
-                     #'(thread _)
+                     #'(~> _ _ _)
+                     #'(~> _ _)
+                     #'(~> _)
                      #'_)
      (test-normalize "amp under identity"
-                     #'(amp _)
+                     #'(>< _)
                      #'_)
      (test-normalize "trivial tee junction"
-                     #'(tee f)
+                     #'(-< f)
                      #'f)
      (test-normalize "merge adjacent gens in a tee junction"
-                     #'(tee (gen a b) (gen c d))
-                     #'(tee (gen a b c d)))
+                     #'(-< (gen a b) (gen c d))
+                     #'(-< (gen a b c d)))
      (test-normalize "remove dead gen in a line"
-                     #'(thread (gen a b) (gen c d))
-                     #'(thread (gen c d)))
+                     #'(~> (gen a b) (gen c d))
+                     #'(~> (gen c d)))
      (test-normalize "prism identities"
-                     #'(thread collect sep)
+                     #'(~> ▽ △)
                      #'_)
      (test-normalize "redundant blanket template"
-                     #'(#%blanket-template (f __))
+                     #'(f __)
                      #'f)
      ;; TODO: this test fails but the actual behavior
      ;; it tests is correct (as seen in the macro stepper)
      ;; This seems to be due to some phase-related issue
      ;; and maybe `values` is not matching literally.
      ;; (test-normalize "values is collapsed inside ~>"
-     ;;                 #'(thread values f values)
-     ;;                 #'(thread f))
+     ;;                 #'(~> values f values)
+     ;;                 #'(~> f))
      ;; TODO: this test reveals a case that should be
      ;; rewritten but isn't. Currently, once there is a
      ;; match at one level during tree traversal
      ;; (in find-and-map), we do not traverse the expression
      ;; further.
      ;; (test-normalize "multiple levels of normalization"
-     ;;                 #'(thread (amp (thread f)))
-     ;;                 #'(amp f))
+     ;;                 #'(~> (>< (~> f)))
+     ;;                 #'(>< f))
      (test-normalize "_ is collapsed inside ~>"
-                     #'(thread _ f _)
+                     #'(~> _ f _)
                      #'f)
      (test-normalize "nested positions"
-                     #'(amp (amp (thread _ f _)))
-                     #'(amp (amp f)))
+                     #'(>< (>< (~> _ f _)))
+                     #'(>< (>< f)))
      (test-normalize "multiple independent positions"
-                     #'(tee (thread _ f _) (thread (thread f g)))
-                     #'(tee f (thread f g))))
+                     #'(-< (~> _ f _) (~> (~> f g)))
+                     #'(-< f (~> f g))))
 
     (test-suite
      "specific output"
