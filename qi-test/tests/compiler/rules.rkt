@@ -38,11 +38,12 @@
 ;; NOTE: This saves us the trouble of hand writing core language syntax,
 ;; but it also assumes that the expander is functioning correctly.  If
 ;; there happens to be a bug in the expander, the results of a test using
-;; this macro would be invalid and may cause confusion.  So if you use
-;; this macro in a test in this module, it's worth verifying that there
-;; is a corresponding test in tests/expander.rkt that validates the
-;; expansion for a surface expression similar to the one you are using in
-;; your test.
+;; this macro would be invalid and may cause confusion. So it's important
+;; to ensure that the tests in tests/expander.rkt are comprehensive.
+;; Whenever we use this macro in a test, it's worth verifying that there
+;; are corresponding tests in tests/expander.rkt that validate the
+;; expansion for surface expressions similar to the ones we are using in
+;; our test.
 (define-syntax-parser test-compile~>
   [(_ stx)
    #'(phase1-eval
