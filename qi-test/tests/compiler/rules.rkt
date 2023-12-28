@@ -15,14 +15,39 @@
          rackunit/text-ui
          (only-in math sqr)
          racket/string
-         (only-in qi/flow/core/private/form-property
-                  tag-form-syntax)
+         qi/flow/core/private/form-property
          (only-in racket/list
                   range)
          syntax/parse/define)
 
 ;; NOTE: we need to tag test syntax with `tag-form-syntax`
 ;; in most cases. See the comment on that function definition.
+
+;; NOTE: These macros (below) save us the trouble of hand writing core
+;; language syntax, but they also assume that the expander is functioning
+;; correctly.  If there happens to be a bug in the expander, the results
+;; of a test using these macros would be invalid and may cause
+;; confusion. So it's important to ensure that the tests in
+;; tests/expander.rkt are comprehensive.  Whenever we use these macros in
+;; a test, it's worth verifying that there are corresponding tests in
+;; tests/expander.rkt that validate the expansion for surface expressions
+;; similar to the ones we are using in our test.
+
+;; A macro that accepts surface syntax and expands it
+(define-syntax-parse-rule (phase0-expand-flow stx)
+  (phase1-eval
+   (expand-flow
+    stx)
+   #:quote syntax))
+
+;; A macro that accepts surface syntax, expands it, and then applies the
+;; indicated optimization passes.
+(define-syntax-parser test-compile~>
+  [(_ stx)
+   #'(phase0-expand-flow stx)]
+  [(_ stx pass ... passN)
+   #'(passN
+      (test-compile~> stx pass ...))])
 
 (define-syntax-parse-rule (test-normalize name a b ...+)
   (begin
@@ -32,27 +57,6 @@
                  (syntax->datum
                   (normalize-pass (tag-form-syntax b))))
     ...))
-
-;; A macro that accepts surface syntax, expands it, and then applies the
-;; indicated optimization passes.
-;; NOTE: This saves us the trouble of hand writing core language syntax,
-;; but it also assumes that the expander is functioning correctly.  If
-;; there happens to be a bug in the expander, the results of a test using
-;; this macro would be invalid and may cause confusion. So it's important
-;; to ensure that the tests in tests/expander.rkt are comprehensive.
-;; Whenever we use this macro in a test, it's worth verifying that there
-;; are corresponding tests in tests/expander.rkt that validate the
-;; expansion for surface expressions similar to the ones we are using in
-;; our test.
-(define-syntax-parser test-compile~>
-  [(_ stx)
-   #'(phase1-eval
-      (expand-flow
-       stx)
-      #:quote syntax)]
-  [(_ stx pass ... passN)
-   #'(passN
-      (test-compile~> stx pass ...))])
 
 ;; Note: an alternative way to make these assertions could be to add logging
 ;; to compiler passes to trace what happens to a source expression, capturing
@@ -85,457 +89,202 @@
      "deforest-rewrite"
      (test-suite
       "general"
-      (let ([stx #'(thread
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-false (deforested?
-                       (deforest-rewrite stx))
-                     "does not deforest single stream component in isolation"))
-      (let ([stx #'(thread
-                    (#%blanket-template
-                     ((#%host-expression map)
-                      (#%host-expression sqr)
-                      __)
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-false (deforested?
-                       (deforest-rewrite stx))
-                     "does not deforest map in the head position"))
-      ;; (~>> values (filter odd?) (map sqr) values)
-      (let ([stx #'(thread
-                    values
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __))
-                    (#%blanket-template
-                     ((#%host-expression map)
-                      (#%host-expression sqr)
-                      __))
-                    values)])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "deforestation in arbitrary positions"))
-      (let ([stx #'(thread
-                    values
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression string-upcase)
-                      __))
-                    (#%blanket-template
-                     ((#%host-expression foldl)
-                      (#%host-expression string-append)
-                      (#%host-expression "I")
-                      __))
-                    values)])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "deforestation in arbitrary positions")))
+      (check-false (deforested?
+                     (deforest-rewrite
+                       (phase0-expand-flow
+                        #'(~>> (filter odd?)))))
+                   "does not deforest single stream component in isolation")
+      (check-false (deforested?
+                     (deforest-rewrite
+                       (phase0-expand-flow
+                        #'(~>> (map sqr) (filter odd?)))))
+                   "does not deforest map in the head position")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> values
+                                          (filter odd?)
+                                          (map sqr)
+                                          values)))))
+                  "deforestation in arbitrary positions")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>>
+                                      values
+                                      (filter string-upcase)
+                                      (foldl string-append "I")
+                                      values)))))
+                  "deforestation in arbitrary positions"))
 
      (test-suite
       "transformers"
-      (let ([stx #'(thread
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __))
-                    (#%blanket-template
-                     ((#%host-expression map)
-                      (#%host-expression sqr)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "filter"))
-      (let ([stx #'(thread
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __))
-                    (#%blanket-template
-                     ((#%host-expression map)
-                      (#%host-expression sqr)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "filter-map (two transformers)"))
-      (let ([stx #'(thread
-                    (#%fine-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      _))
-                    (#%fine-template
-                     ((#%host-expression map)
-                      (#%host-expression sqr)
-                      _)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "fine-grained template forms")))
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (filter odd?) (map sqr))))))
+                  "filter-map (two transformers)")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (filter odd? _) (map sqr _))))))
+                  "fine-grained template forms"))
 
      (test-suite
       "producers"
-      (let ([stx #'(thread
-                    (esc (#%host-expression range))
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "range"))
-      (let ([stx #'(thread
-                    (#%fine-template
-                     ((#%host-expression range)
-                      _))
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "(range _)"))
-      (let ([stx #'(thread
-                    (#%fine-template
-                     ((#%host-expression range)
-                      _
-                      _))
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "(range _ _)"))
-      (let ([stx #'(thread
-                    (#%fine-template
-                     ((#%host-expression range)
-                      _
-                      _))
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "(range 0 _)"))
-      (let ([stx #'(thread
-                    (#%fine-template
-                     ((#%host-expression range)
-                      _
-                      _))
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "(range _ 10)"))
-      (let ([stx #'(thread
-                    (#%fine-template
-                     ((#%host-expression range)
-                      _
-                      _))
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "(range _ _ _)"))
-      (let ([stx #'(thread
-                    (#%fine-template
-                     ((#%host-expression range)
-                      _
-                      _))
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "(range _ _ 1)"))
-      (let ([stx #'(thread
-                    (#%fine-template
-                     ((#%host-expression range)
-                      _
-                      _))
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "(range _ 10 _)"))
-      (let ([stx #'(thread
-                    (#%fine-template
-                     ((#%host-expression range)
-                      _
-                      _))
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "(range _ 10 1)"))
-      (let ([stx #'(thread
-                    (#%fine-template
-                     ((#%host-expression range)
-                      _
-                      _))
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "(range 0 _ _)"))
-      (let ([stx #'(thread
-                    (#%fine-template
-                     ((#%host-expression range)
-                      _
-                      _))
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "(range 0 _ 1)"))
-      (let ([stx #'(thread
-                    (#%fine-template
-                     ((#%host-expression range)
-                      _
-                      _))
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "(range 0 10 _)"))
-      (let ([stx #'(thread
-                    (#%fine-template
-                     ((#%host-expression range)
-                      _
-                      _))
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "(range __)"))
-      (let ([stx #'(thread
-                    (#%fine-template
-                     ((#%host-expression range)
-                      _
-                      _))
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "(range 0 __)"))
-      (let ([stx #'(thread
-                    (#%fine-template
-                     ((#%host-expression range)
-                      _
-                      _))
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "(range __ 1)"))
-      (let ([stx #'(thread
-                    (#%fine-template
-                     ((#%host-expression range)
-                      _
-                      _))
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "(range 0 10 __)"))
-      (let ([stx #'(thread
-                    (#%fine-template
-                     ((#%host-expression range)
-                      _
-                      _))
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "(range __ 10 1)"))
-      (let ([stx #'(thread
-                    (#%fine-template
-                     ((#%host-expression range)
-                      _
-                      _))
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "(range 0 __ 1)"))
-      (let ([stx #'(thread
-                    (#%fine-template
-                     ((#%host-expression range)
-                      _
-                      _))
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "(range 0 10 1 __)"))
-      (let ([stx #'(thread
-                    (#%fine-template
-                     ((#%host-expression range)
-                      _
-                      _))
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "(range 0 10 __ 1)"))
-      (let ([stx #'(thread
-                    (#%fine-template
-                     ((#%host-expression range)
-                      _
-                      _))
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "(range 0 __ 10 1)"))
-      (let ([stx #'(thread
-                    (#%fine-template
-                     ((#%host-expression range)
-                      _
-                      _))
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "(range __ 0 10 1)")))
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> range (filter odd?))))))
+                  "range")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (range _) (filter odd?))))))
+                  "(range _)")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (range _ _) (filter odd?))))))
+                  "(range _ _)")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (range 0 _) (filter odd?))))))
+                  "(range 0 _)")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (range _ 10) (filter odd?))))))
+                  "(range _ 10)")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (range _ _ _) (filter odd?))))))
+                  "(range _ _ _)")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (range _ _ 1) (filter odd?))))))
+                  "(range _ _ 1)")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (range _ 10 _) (filter odd?))))))
+                  "(range _ 10 _)")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (range _ 10 1) (filter odd?))))))
+                  "(range _ 10 1)")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (range 0 _ _) (filter odd?))))))
+                  "(range 0 _ _)")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (range 0 _ 1) (filter odd?))))))
+                  "(range 0 _ 1)")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (range 0 10 _) (filter odd? __))))))
+                  "(range 0 10 _)")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (range __) (filter odd?))))))
+                  "(range __)")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (range 0 __) (filter odd?))))))
+                  "(range 0 __)")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (range __ 1) (filter odd?))))))
+                  "(range __ 1)")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (range 0 10 __) (filter odd?))))))
+                  "(range 0 10 __)")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (range __ 10 1) (filter odd? __))))))
+                  "(range __ 10 1)")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (range 0 __ 1) (filter odd?))))))
+                  "(range 0 __ 1)")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (range 0 10 1 __) (filter odd?))))))
+                  "(range 0 10 1 __)")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (range 0 10 __ 1) (filter odd?))))))
+                  "(range 0 10 __ 1)")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (range 0 __ 10 1) (filter odd?))))))
+                  "(range 0 __ 10 1)")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (range __ 0 10 1) (filter odd?))))))
+                  "(range __ 0 10 1)"))
 
      (test-suite
       "consumers"
-      (let ([stx #'(thread
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression odd?)
-                      __))
-                    (esc (#%host-expression car)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "car"))
-      (let ([stx #'(thread
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression string-upcase)
-                      __))
-                    (#%blanket-template
-                     ((#%host-expression foldl)
-                      (#%host-expression string-append)
-                      (#%host-expression "I")
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "foldl"))
-      (let ([stx #'(thread
-                    (#%blanket-template
-                     ((#%host-expression filter)
-                      (#%host-expression string-upcase)
-                      __))
-                    (#%blanket-template
-                     ((#%host-expression foldr)
-                      (#%host-expression string-append)
-                      (#%host-expression "I")
-                      __)))])
-        (check-true (deforested? (syntax->datum
-                                  (deforest-rewrite
-                                    stx)))
-                    "foldr"))))
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (filter odd?) car)))))
+                  "car")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (filter string-upcase) (foldl string-append "I"))))))
+                  "foldl")
+      (check-true (deforested? (syntax->datum
+                                (deforest-rewrite
+                                  (phase0-expand-flow
+                                   #'(~>> (filter string-upcase) (foldr string-append "I"))))))
+                  "foldr")))
 
     (test-suite
      "deforest-pass"
-     (let ([stx (tag-form-syntax
-                 #'(amp
-                    (thread
-                     (#%blanket-template
-                      ((#%host-expression filter)
-                       (#%host-expression odd?)
-                       __))
-                     (#%blanket-template
-                      ((#%host-expression map)
-                       (#%host-expression sqr)
-                       __)))))])
-       (check-true (deforested? (syntax->datum
-                                 (deforest-pass
-                                   stx)))
-                   "nested positions"))
-     (let* ([stx (tag-form-syntax
-                  #'(tee
-                     (thread
-                      (#%blanket-template
-                       ((#%host-expression filter)
-                        (#%host-expression odd?)
-                        __))
-                      (#%blanket-template
-                       ((#%host-expression map)
-                        (#%host-expression sqr)
-                        __)))
-                     (thread
-                      (esc (#%host-expression range))
-                      (esc (#%host-expression car)))))]
+     ;; NOTE: These tests invoke deforest-pass on the syntax returned
+     ;; from the expander, which we expect has the `nonterminal` property
+     ;; attached. That is in fact what we find when we run these in
+     ;; the REPL or if we run the tests at the command line using `racket`.
+     ;; But if we run this via `racket -y` (the default in Makefile targets),
+     ;; these tests fail because they do not find the syntax property.
+     ;; For now, we manually attach the property using `tag-form-syntax`
+     ;; to get the tests to pass, but I believe it is reflecting a real
+     ;; problem and the failure is legitimate. It is probably related to
+     ;; why normalize → deforest does not work (e.g. as seen in the
+     ;; long-functional-pipeline benchmark), even if we are able to get
+     ;; it to work in tests by manually attaching the property.
+     (check-true (deforested? (syntax->datum
+                               (deforest-pass
+                                 (tag-form-syntax ; should not be necessary
+                                  (phase0-expand-flow
+                                   #'(>< (~>> (filter odd?) (map sqr))))))))
+                 "nested positions")
+     (let* ([stx (tag-form-syntax ; should not be necessary
+                  (phase0-expand-flow
+                   #'(-< (~>> (filter odd?) (map sqr))
+                         (~>> range car))))]
             [result (syntax->datum
                      (deforest-pass
                        stx))])

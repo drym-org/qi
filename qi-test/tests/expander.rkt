@@ -41,11 +41,20 @@
                  #'(thread (esc (#%host-expression sqr))
                            (esc (#%host-expression add1))))
 
-    (test-expand "single core form (if)"
+    (test-expand "if"
                  #'(if p c a)
                  #'(if (esc (#%host-expression p))
                        (esc (#%host-expression c))
                        (esc (#%host-expression a))))
+
+    (test-expand "amp"
+                 #'(>< f)
+                 #'(amp (esc (#%host-expression f))))
+
+    (test-expand "tee"
+                 #'(-< f g)
+                 #'(tee (esc (#%host-expression f))
+                        (esc (#%host-expression g))))
 
     (test-expand "mix of core forms"
                  #'(thread (amp a)
