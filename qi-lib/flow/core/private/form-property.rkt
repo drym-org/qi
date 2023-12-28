@@ -1,6 +1,7 @@
 #lang racket/base
 
-(provide tag-form-syntax)
+(provide tag-form-syntax
+         get-form-property)
 
 (require (only-in racket/function
                   curry))
@@ -19,6 +20,9 @@
 
 (define (attach-form-property stx)
   (syntax-property stx 'nonterminal 'floe))
+
+(define (get-form-property stx)
+  (syntax-property stx 'nonterminal))
 
 ;; In traversing Qi syntax to apply optimization rules in the compiler,
 ;; we only want to apply such rules to syntax that is a legitimate use of
