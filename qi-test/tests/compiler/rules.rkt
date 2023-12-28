@@ -58,6 +58,20 @@
                   (normalize-pass (tag-form-syntax b))))
     ...))
 
+(define-syntax-parse-rule (test-deforested name stx)
+  (test-true name
+             (deforested?
+               (deforest-rewrite
+                 (phase0-expand-flow
+                  stx)))))
+
+(define-syntax-parse-rule (test-not-deforested name stx)
+  (test-false name
+              (deforested?
+                (deforest-rewrite
+                  (phase0-expand-flow
+                   stx)))))
+
 ;; Note: an alternative way to make these assertions could be to add logging
 ;; to compiler passes to trace what happens to a source expression, capturing
 ;; those logs in these tests and verifying that the logs indicate the expected
@@ -89,177 +103,84 @@
      "deforest-rewrite"
      (test-suite
       "general"
-      (check-false (deforested?
-                     (deforest-rewrite
-                       (phase0-expand-flow
-                        #'(~>> (filter odd?)))))
-                   "does not deforest single stream component in isolation")
-      (check-false (deforested?
-                     (deforest-rewrite
-                       (phase0-expand-flow
-                        #'(~>> (map sqr) (filter odd?)))))
-                   "does not deforest map in the head position")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> values
-                                          (filter odd?)
-                                          (map sqr)
-                                          values)))))
-                  "deforestation in arbitrary positions")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>>
-                                      values
-                                      (filter string-upcase)
-                                      (foldl string-append "I")
-                                      values)))))
-                  "deforestation in arbitrary positions"))
+      (test-not-deforested "does not deforest single stream component in isolation"
+                           #'(~>> (filter odd?)))
+      (test-not-deforested "does not deforest map in the head position"
+                           #'(~>> (map sqr) (filter odd?)))
+      (test-deforested "deforestation in arbitrary positions"
+                       #'(~>> values
+                              (filter odd?)
+                              (map sqr)
+                              values))
+      (test-deforested "deforestation in arbitrary positions"
+                       #'(~>>
+                          values
+                          (filter string-upcase)
+                          (foldl string-append "I")
+                          values)))
 
      (test-suite
       "transformers"
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (filter odd?) (map sqr))))))
-                  "filter-map (two transformers)")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (filter odd? _) (map sqr _))))))
-                  "fine-grained template forms"))
+      (test-deforested "filter-map (two transformers)"
+                       #'(~>> (filter odd?) (map sqr)))
+      (test-deforested "fine-grained template forms"
+                       #'(~>> (filter odd? _) (map sqr _))))
 
      (test-suite
       "producers"
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> range (filter odd?))))))
-                  "range")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (range _) (filter odd?))))))
-                  "(range _)")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (range _ _) (filter odd?))))))
-                  "(range _ _)")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (range 0 _) (filter odd?))))))
-                  "(range 0 _)")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (range _ 10) (filter odd?))))))
-                  "(range _ 10)")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (range _ _ _) (filter odd?))))))
-                  "(range _ _ _)")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (range _ _ 1) (filter odd?))))))
-                  "(range _ _ 1)")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (range _ 10 _) (filter odd?))))))
-                  "(range _ 10 _)")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (range _ 10 1) (filter odd?))))))
-                  "(range _ 10 1)")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (range 0 _ _) (filter odd?))))))
-                  "(range 0 _ _)")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (range 0 _ 1) (filter odd?))))))
-                  "(range 0 _ 1)")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (range 0 10 _) (filter odd? __))))))
-                  "(range 0 10 _)")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (range __) (filter odd?))))))
-                  "(range __)")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (range 0 __) (filter odd?))))))
-                  "(range 0 __)")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (range __ 1) (filter odd?))))))
-                  "(range __ 1)")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (range 0 10 __) (filter odd?))))))
-                  "(range 0 10 __)")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (range __ 10 1) (filter odd? __))))))
-                  "(range __ 10 1)")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (range 0 __ 1) (filter odd?))))))
-                  "(range 0 __ 1)")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (range 0 10 1 __) (filter odd?))))))
-                  "(range 0 10 1 __)")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (range 0 10 __ 1) (filter odd?))))))
-                  "(range 0 10 __ 1)")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (range 0 __ 10 1) (filter odd?))))))
-                  "(range 0 __ 10 1)")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (range __ 0 10 1) (filter odd?))))))
-                  "(range __ 0 10 1)"))
+      (test-deforested "range"
+                        #'(~>> range (filter odd?)))
+      (test-deforested "(range _)"
+                        #'(~>> (range _) (filter odd?)))
+      (test-deforested "(range _ _)"
+                       #'(~>> (range _ _) (filter odd?)))
+      (test-deforested "(range 0 _)"
+                       #'(~>> (range 0 _) (filter odd?)))
+      (test-deforested "(range _ 10)"
+                       #'(~>> (range _ 10) (filter odd?)))
+      (test-deforested "(range _ _ _)"
+                       #'(~>> (range _ _ _) (filter odd?)))
+      (test-deforested "(range _ _ 1)"
+                       #'(~>> (range _ _ 1) (filter odd?)))
+      (test-deforested "(range _ 10 _)"
+                       #'(~>> (range _ 10 _) (filter odd?)))
+      (test-deforested "(range _ 10 1)"
+                       #'(~>> (range _ 10 1) (filter odd?)))
+      (test-deforested "(range 0 _ _)"
+                       #'(~>> (range 0 _ _) (filter odd?)))
+      (test-deforested "(range 0 _ 1)"
+                       #'(~>> (range 0 _ 1) (filter odd?)))
+      (test-deforested "(range 0 10 _)"
+                       #'(~>> (range 0 10 _) (filter odd? __)))
+      (test-deforested "(range __)"
+                       #'(~>> (range __) (filter odd?)))
+      (test-deforested "(range 0 __)"
+                       #'(~>> (range 0 __) (filter odd?)))
+      (test-deforested "(range __ 1)"
+                       #'(~>> (range __ 1) (filter odd?)))
+      (test-deforested "(range 0 10 __)"
+                       #'(~>> (range 0 10 __) (filter odd?)))
+      (test-deforested "(range __ 10 1)"
+                       #'(~>> (range __ 10 1) (filter odd? __)))
+      (test-deforested "(range 0 __ 1)"
+                       #'(~>> (range 0 __ 1) (filter odd?)))
+      (test-deforested "(range 0 10 1 __)"
+                       #'(~>> (range 0 10 1 __) (filter odd?)))
+      (test-deforested "(range 0 10 __ 1)"
+                       #'(~>> (range 0 10 __ 1) (filter odd?)))
+      (test-deforested "(range 0 __ 10 1)"
+                       #'(~>> (range 0 __ 10 1) (filter odd?)))
+      (test-deforested "(range __ 0 10 1)"
+                       #'(~>> (range __ 0 10 1) (filter odd?))))
 
      (test-suite
       "consumers"
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (filter odd?) car)))))
-                  "car")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (filter string-upcase) (foldl string-append "I"))))))
-                  "foldl")
-      (check-true (deforested? (syntax->datum
-                                (deforest-rewrite
-                                  (phase0-expand-flow
-                                   #'(~>> (filter string-upcase) (foldr string-append "I"))))))
-                  "foldr")))
+      (test-deforested "car"
+                       #'(~>> (filter odd?) car))
+      (test-deforested "foldl"
+                       #'(~>> (filter string-upcase) (foldl string-append "I")))
+      (test-deforested "foldr"
+                       #'(~>> (filter string-upcase) (foldr string-append "I")))))
 
     (test-suite
      "deforest-pass"
