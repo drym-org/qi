@@ -31,8 +31,14 @@
     [(thread _0 ... (pass f) (pass g) _1 ...)
      #'(thread _0 ... (pass (and f g)) _1 ...)]
     ;; collapse deterministic conditionals
-    [(if (~datum #t) f g) #'f]
-    [(if (~datum #f) f g) #'g]
+    [(if (gen (#%host-expression (~datum #t)))
+         f
+         g)
+     #'f]
+    [(if (gen (#%host-expression (~datum #f)))
+         f
+         g)
+     #'g]
     ;; trivial threading form
     [(thread f)
      #'f]
@@ -67,6 +73,6 @@
     [(thread _0 ... (esc (#%host-expression (~literal values))) _1 ...)
      #'(thread _0 ... _1 ...)]
     [(#%blanket-template (hex __))
-     #'hex]
+     #'(esc hex)]
     ;; return syntax unchanged if there are no applicable normalizations
     [_ stx]))
