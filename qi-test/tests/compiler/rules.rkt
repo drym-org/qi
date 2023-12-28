@@ -274,13 +274,9 @@
      (test-normalize "redundant blanket template"
                      #'(f __)
                      #'f)
-     ;; TODO: this test fails but the actual behavior
-     ;; it tests is correct (as seen in the macro stepper)
-     ;; This seems to be due to some phase-related issue
-     ;; and maybe `values` is not matching literally.
-     ;; (test-normalize "values is collapsed inside ~>"
-     ;;                 #'(~> values f values)
-     ;;                 #'(~> f))
+     (test-normalize "values is collapsed inside ~>"
+                     #'(~> values f values)
+                     #'(~> f))
      ;; TODO: this test reveals a case that should be
      ;; rewritten but isn't. Currently, once there is a
      ;; match at one level during tree traversal
