@@ -10,17 +10,13 @@
          rackunit
          rackunit/text-ui
          syntax/macro-testing
+         "private/deforest-util.rkt"
          (submod qi/flow/extended/expander invoke))
 
 (begin-for-syntax
-  (require racket/base
-           syntax/parse/define
-           racket/string
+  (require syntax/parse/define
            (for-template qi/flow/core/compiler)
            (for-syntax racket/base))
-
-  (define (deforested? exp)
-    (string-contains? (format "~a" exp) "cstream"))
 
   ;; A macro that accepts surface syntax, expands it, and then applies the
   ;; indicated optimization passes.
@@ -40,8 +36,8 @@
    (test-suite
     "multiple passes"
     (test-true "normalize → deforest"
-               (phase1-eval
-                (deforested?
+               (deforested?
+                 (phase1-eval
                   (test-compile~> #'(~>> (filter odd?) values (map sqr))
                                   normalize-pass
                                   deforest-pass)))))))

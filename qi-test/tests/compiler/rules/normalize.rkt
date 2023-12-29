@@ -2,14 +2,17 @@
 
 (provide tests)
 
-(require (for-template qi/flow/core/compiler)
-         ;; necessary to recognize and expand core forms correctly
-         qi/flow/extended/expander
-         (for-syntax racket/base)
+(require (for-syntax racket/base)
          rackunit
          rackunit/text-ui
-         qi/flow/core/private/form-property
-         "../private/expand-util.rkt"
+         syntax/macro-testing
+         ;; necessary to recognize and expand core forms correctly
+         qi/flow/extended/expander
+         ;; necessary to correctly expand the right-threading form
+         qi/flow/extended/forms
+         (submod qi/flow/extended/expander invoke)
+         qi/flow/core/compiler
+         (for-template qi/flow/core/compiler)
          syntax/parse/define)
 
 ;; NOTE: we need to tag test syntax with `tag-form-syntax`
@@ -17,15 +20,14 @@
 
 (define-syntax-parse-rule (test-normalize name a b ...+)
   (begin
-    (test-equal? name
-                 (syntax->datum
-                  (normalize-pass
-                   (tag-form-syntax ; should not be necessary
-                    (phase0-expand-flow a))))
-                 (syntax->datum
-                  (normalize-pass
-                   (tag-form-syntax ; should not be necessary
-                    (phase0-expand-flow b)))))
+    (test-true name
+               (phase1-eval
+                (equal? (syntax->datum
+                         (normalize-pass
+                          (expand-flow a)))
+                        (syntax->datum
+                         (normalize-pass
+                          (expand-flow b))))))
     ...))
 
 

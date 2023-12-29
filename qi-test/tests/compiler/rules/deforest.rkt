@@ -1,20 +1,19 @@
 #lang racket/base
 
-(provide tests
-         deforested?)
+(provide tests)
 
-(require (for-template qi/flow/core/compiler
-                       qi/flow/core/deforest)
+(require (for-syntax racket/base)
+         "private/deforest-util.rkt"
          ;; necessary to recognize and expand core forms correctly
          qi/flow/extended/expander
          ;; necessary to correctly expand the right-threading form
          qi/flow/extended/forms
-         (for-syntax racket/base)
+         qi/flow/core/compiler
+         qi/flow/core/deforest
+         syntax/macro-testing
+         (submod qi/flow/extended/expander invoke)
          rackunit
          rackunit/text-ui
-         racket/string
-         qi/flow/core/private/form-property
-         "../private/expand-util.rkt"
          syntax/parse/define)
 
 ;; NOTE: we need to tag test syntax with `tag-form-syntax`
@@ -23,32 +22,16 @@
 (define-syntax-parse-rule (test-deforested name stx)
   (test-true name
              (deforested?
-               (deforest-rewrite
-                 (phase0-expand-flow
-                  stx)))))
+               (phase1-eval
+                (deforest-rewrite
+                  (expand-flow stx))))))
 
 (define-syntax-parse-rule (test-not-deforested name stx)
   (test-false name
               (deforested?
-                (deforest-rewrite
-                  (phase0-expand-flow
-                   stx)))))
-
-;; Note: an alternative way to make these assertions could be to add logging
-;; to compiler passes to trace what happens to a source expression, capturing
-;; those logs in these tests and verifying that the logs indicate the expected
-;; passes were performed. Such logs would also allow us to validate that
-;; passes were performed in the expected order, at some point in the future
-;; when we might have nonlinear ordering of passes. See the Qi meeting notes:
-;; "Validly Verifying that We're Compiling Correctly"
-(define (deforested? exp)
-  (string-contains? (format "~a" exp) "cstream"))
-
-(define (filter-deforested? exp)
-  (string-contains? (format "~a" exp) "filter-cstream"))
-
-(define (car-deforested? exp)
-  (string-contains? (format "~a" exp) "car-cstream"))
+                (phase1-eval
+                 (deforest-rewrite
+                   (expand-flow stx))))))
 
 
 (define tests
@@ -148,37 +131,22 @@
 
    (test-suite
     "deforest-pass"
-    ;; NOTE: These tests invoke deforest-pass on the syntax returned
-    ;; from the expander, which we expect has the `nonterminal` property
-    ;; attached. That is in fact what we find when we run these in
-    ;; the REPL or if we run the tests at the command line using `racket`.
-    ;; But if we run this via `racket -y` (the default in Makefile targets),
-    ;; these tests fail because they do not find the syntax property.
-    ;; For now, we manually attach the property using `tag-form-syntax`
-    ;; to get the tests to pass, but I believe it is reflecting a real
-    ;; problem and the failure is legitimate. It is probably related to
-    ;; why normalize → deforest does not work (e.g. as seen in the
-    ;; long-functional-pipeline benchmark), even if we are able to get
-    ;; it to work in tests by manually attaching the property.
-    (check-true (deforested? (syntax->datum
-                              (deforest-pass
-                                (tag-form-syntax ; should not be necessary
-                                 (phase0-expand-flow
-                                  #'(>< (~>> (filter odd?) (map sqr))))))))
-                "nested positions")
-    (let* ([stx (tag-form-syntax ; should not be necessary
-                 (phase0-expand-flow
-                  #'(-< (~>> (filter odd?) (map sqr))
-                        (~>> range car))))]
-           [result (syntax->datum
-                    (deforest-pass
-                      stx))])
-      (check-true (deforested? result)
-                  "multiple independent positions")
-      (check-true (filter-deforested? result)
-                  "multiple independent positions")
-      (check-true (car-deforested? result)
-                  "multiple independent positions")))))
+    (test-true "nested positions"
+               (deforested? (phase1-eval
+                             (deforest-pass
+                               (expand-flow
+                                #'(>< (~>> (filter odd?) (map sqr))))))))
+    (let ([stx (phase1-eval
+                (deforest-pass
+                  (expand-flow
+                   #'(-< (~>> (filter odd?) (map sqr))
+                         (~>> range car)))))])
+      (test-true "multiple independent positions"
+                 (deforested? stx))
+      (test-true "multiple independent positions"
+                 (filter-deforested? stx))
+      (test-true "multiple independent positions"
+                 (car-deforested? stx))))))
 
 (module+ main
   (void
