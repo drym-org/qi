@@ -12,7 +12,8 @@
                      "../aux-syntax.rkt"
                      "pass.rkt"
                      "debug.rkt"
-                     "normalize.rkt")
+                     "normalize.rkt"
+                     "private/form-property.rkt")
          "deforest.rkt"
          "impl.rkt"
          (only-in racket/list make-list)
@@ -41,15 +42,16 @@
     (deforest-pass stx))
 
   (define (normalize-pass stx)
-    (find-and-map/qi (fix normalize-rewrite)
-                     stx))
+    (tag-form-syntax
+     (find-and-map/qi (fix normalize-rewrite)
+                      stx)))
 
   (define-qi-expansion-step (~normalize-pass stx)
     (normalize-pass stx))
 
   (define (optimize-flow stx)
     (~deforest-pass
-      (~normalize-pass stx))))
+     (~normalize-pass stx))))
 
 ;; Transformation rules for the `as` binding form:
 ;;
