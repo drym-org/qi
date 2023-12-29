@@ -36,11 +36,7 @@
                (deforested?
                  (test-compile~> #'(~>> (filter odd?) values (map sqr))
                                  normalize-pass
-                                 deforest-pass))))
-
-   (test-suite
-    "compilation sequences"
-    null)))
+                                 deforest-pass))))))
 
 (module+ main
   (void
