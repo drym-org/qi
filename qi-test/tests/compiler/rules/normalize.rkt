@@ -15,8 +15,11 @@
          (for-template qi/flow/core/compiler)
          syntax/parse/define)
 
-;; NOTE: we need to tag test syntax with `tag-form-syntax`
-;; in most cases. See the comment on that function definition.
+;; NOTE: we may need to tag test syntax with `tag-form-syntax`
+;; in some cases. See the comment on that function definition.
+;; It's not necessary if we are directly using the expander
+;; output, as that already includes the property, but we might
+;; need to reattach it if we tranform that syntax in some way.
 
 (define-syntax-parse-rule (test-normalize name a b ...+)
   (begin
