@@ -17,6 +17,9 @@ jobs:
         racket-version: ['8.9', 'stable']
         experimental: [false]
         include:
+          - racket-version: '8.5'
+            racket-variant: 'CS'
+            experimental: false
           - racket-version: 'current'
             racket-variant: 'CS'
             experimental: true
