@@ -17,7 +17,7 @@
          syntax/parse/define)
 
 ;; NOTE: we need to tag test syntax with `tag-form-syntax`
-;; in most cases. See the comment on that function definition.
+;; in some cases. See the comment on that function definition.
 
 (define-syntax-parse-rule (test-deforested name stx)
   (test-true name

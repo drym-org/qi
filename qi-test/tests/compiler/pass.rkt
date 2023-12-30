@@ -15,7 +15,7 @@
                   thunk*))
 
 ;; NOTE: we need to tag test syntax with `tag-form-syntax`
-;; in most cases. See the comment on that function definition.
+;; in some cases. See the comment on that function definition.
 
 ;; traverse syntax a and map it under the indicated parser patterns
 ;; using find-and-map/qi, and verify it results in syntax b
