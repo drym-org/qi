@@ -1,6 +1,7 @@
 #lang racket/base
 
 (provide form-position?
+         attach-form-property
          tag-form-syntax
          get-form-property)
 

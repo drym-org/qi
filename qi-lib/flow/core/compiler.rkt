@@ -42,7 +42,7 @@
     (deforest-pass stx))
 
   (define (normalize-pass stx)
-    (tag-form-syntax
+    (attach-form-property
      (find-and-map/qi (fix normalize-rewrite)
                       stx)))
 
