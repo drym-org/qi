@@ -40,11 +40,11 @@ help:
 	@echo "coverage-check - Run test coverage checker"
 	@echo "coverage-report - View test coverage report"
 	@echo "docs - view docs in a browser"
-	@echo "profile - Run comprehensive performance benchmarks"
-	@echo "profile-competitive - Run competitive benchmarks"
-	@echo "profile-local - Run benchmarks for individual Qi forms"
-	@echo "profile-nonlocal - Run nonlocal benchmarks exercising many components at once"
-	@echo "profile-selected-forms - Run benchmarks for Qi forms by name (command only)"
+	@echo "benchmark - Run comprehensive performance benchmarks"
+	@echo "benchmark-competitive - Run competitive benchmarks"
+	@echo "benchmark-local - Run benchmarks for individual Qi forms"
+	@echo "benchmark-nonlocal - Run nonlocal benchmarks exercising many components at once"
+	@echo "benchmark-selected-forms - Run benchmarks for Qi forms by name (command only)"
 	@echo "performance-report - Run benchmarks for Qi forms and produce results for use in CI and for measuring regression"
 	@echo "  For use in regression: make performance-report > /path/to/before.json"
 	@echo "performance-regression-report - Run benchmarks for Qi forms against a reference report."
@@ -180,22 +180,22 @@ cover: coverage-check coverage-report
 cover-coveralls:
 	raco cover -b -f coveralls -p $(PACKAGE-NAME)-{lib,test}
 
-profile-local:
+benchmark-local:
 	racket $(PACKAGE-NAME)-sdk/profile/local/report.rkt
 
-profile-loading:
+benchmark-loading:
 	racket $(PACKAGE-NAME)-sdk/profile/loading/report.rkt
 
-profile-selected-forms:
+benchmark-selected-forms:
 	@echo "Use 'racket $(PACKAGE-NAME)-sdk/profile/local/report.rkt' directly, with -s form-name for each form."
 
-profile-competitive:
+benchmark-competitive:
 	cd $(PACKAGE-NAME)-sdk/profile/nonlocal; racket report-competitive.rkt
 
-profile-nonlocal:
+benchmark-nonlocal:
 	cd $(PACKAGE-NAME)-sdk/profile/nonlocal; racket report-intrinsic.rkt -l qi
 
-profile: profile-local profile-nonlocal profile-loading
+benchmark: benchmark-local benchmark-nonlocal benchmark-loading
 
 performance-report:
 	@racket $(PACKAGE-NAME)-sdk/profile/report.rkt -f json
@@ -203,4 +203,4 @@ performance-report:
 performance-regression-report:
 	@racket $(PACKAGE-NAME)-sdk/profile/report.rkt -r $(REF)
 
-.PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-expander test-compiler test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile-local profile-loading profile-selected-forms profile-competitive profile-nonlocal profile performance-report performance-regression-report
+.PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-expander test-compiler test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls benchmark-local benchmark-loading benchmark-selected-forms benchmark-competitive benchmark-nonlocal benchmark performance-report performance-regression-report
