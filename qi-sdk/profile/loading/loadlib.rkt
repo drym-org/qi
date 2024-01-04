@@ -1,12 +1,12 @@
 #!/usr/bin/env racket
 #lang racket/base
 
-(provide profile-load)
+(provide require-latency)
 
 (require pkg/require-latency
          racket/format)
 
-(define (profile-load module-name)
+(define (require-latency module-name)
   (let ([name (~a "(require " module-name ")")]
         [ms (cdr (time-module-ms module-name))])
     (displayln (~a name ": " ms " ms")

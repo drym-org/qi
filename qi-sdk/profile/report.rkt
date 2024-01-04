@@ -53,7 +53,7 @@
                             (n:benchmark "qi" (selected))
                             null)]
          [require-data (if (member? (report-type) (list "all" "loading"))
-                           (list (profile-load "qi"))
+                           (list (require-latency "qi"))
                            null)]
          [output (~ local-data nonlocal-data require-data)])
     (if (regression-file)
