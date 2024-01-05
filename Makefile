@@ -188,26 +188,26 @@ profile:
 	@echo "  raco profile --help"
 
 benchmark-local:
-	racket $(PACKAGE-NAME)-sdk/profile/local/report.rkt
+	racket $(PACKAGE-NAME)-sdk/benchmarks/local/report.rkt
 
 benchmark-loading:
-	racket $(PACKAGE-NAME)-sdk/profile/loading/report.rkt
+	racket $(PACKAGE-NAME)-sdk/benchmarks/loading/report.rkt
 
 benchmark-selected-forms:
-	@echo "Use 'racket $(PACKAGE-NAME)-sdk/profile/local/report.rkt' directly, with -s form-name for each form."
+	@echo "Use 'racket $(PACKAGE-NAME)-sdk/benchmarks/local/report.rkt' directly, with -s form-name for each form."
 
 benchmark-competitive:
-	cd $(PACKAGE-NAME)-sdk/profile/nonlocal; racket report-competitive.rkt
+	cd $(PACKAGE-NAME)-sdk/benchmarks/nonlocal; racket report-competitive.rkt
 
 benchmark-nonlocal:
-	cd $(PACKAGE-NAME)-sdk/profile/nonlocal; racket report-intrinsic.rkt -l qi
+	cd $(PACKAGE-NAME)-sdk/benchmarks/nonlocal; racket report-intrinsic.rkt -l qi
 
 benchmark: benchmark-local benchmark-nonlocal benchmark-loading
 
 performance-report:
-	@racket $(PACKAGE-NAME)-sdk/profile/report.rkt -f json
+	@racket $(PACKAGE-NAME)-sdk/benchmarks/report.rkt -f json
 
 performance-regression-report:
-	@racket $(PACKAGE-NAME)-sdk/profile/report.rkt -r $(REF)
+	@racket $(PACKAGE-NAME)-sdk/benchmarks/report.rkt -r $(REF)
 
 .PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-expander test-compiler test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls benchmark-local benchmark-loading benchmark-selected-forms benchmark-competitive benchmark-nonlocal benchmark performance-report performance-regression-report
