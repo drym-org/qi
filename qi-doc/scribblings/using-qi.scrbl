@@ -188,6 +188,10 @@ This separates the input list into its component values, produces a @racket[1] c
 
 This succinctness is possible because Qi reaps the twin benefits of (1) working directly with values (and not just collections of values), and (2) Racket's support for variadic functions that accept any number of inputs (in this case, @racket[+]).
 
+@section{Don't Stop Me Now}
+
+When you're interested in functionally transforming lists using operations like @racket[map], @racket[filter], @racket[foldl] and @racket[foldr], Qi is a good choice because its optimizing compiler eliminates intermediate representations that would ordinarily be constructed in computing the result of such a sequence, resulting in significant performance gains in some cases.
+
 @section{Curbing Curries and Losing Lambdas}
 
 Since flows are just functions, you can use them anywhere that you would normally use a function. In particular, they are often a clearer alternative to using @hyperlink["https://en.wikipedia.org/wiki/Currying"]{currying} or @seclink["lambda"  #:doc '(lib "scribblings/guide/guide.scrbl")]{lambdas}. For instance, to double every number in a list, we could do:
