@@ -196,6 +196,17 @@ Methodical use of @racket[gen] together with the @seclink["Using_a_Probe"]{probe
 
 @bold{Common example}: Syntax patterns are defined in the @seclink["stxparse" #:doc '(lib "syntax/scribblings/syntax.scrbl")]{syntax/parse} library. If you are using them in Qi macros, you will need to @racket[(require syntax/parse)] at the appropriate phase level.
 
+@subsubsection{Identifier's Binding is Ambiguous}
+
+@codeblock{
+; count: identifier's binding is ambiguous
+;   in: count
+}
+
+@bold{Meaning}: The @seclink["The_Expander"]{expander} attempted to resolve a @tech/reference{reference} and found more than one possible @tech/reference{binding}.
+
+@bold{Common example}: Having a Racket function in scope that has the same name as a Qi form, and attempting to use this @seclink["Identifiers"]{unqualified identifier} as a flow. To avoid the issue, rename the Racket function to something else, or use an explicit @racket[esc] to indicate the Racket binding.
+
 @subsubsection{Not Defined as Syntax Class}
 
 @codeblock{
