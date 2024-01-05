@@ -19,6 +19,7 @@
               '(require qi
                         qi/probe
                         (only-in racket/list range first rest)
+                        racket/format
                         racket/string
                         (only-in racket/function curry)
                         (for-syntax syntax/parse

@@ -43,9 +43,17 @@
 
  The way to group values, if we need grouping, is to collect them into a data structure (e.g. a list) using a collection prism, @racket[▽]. In the case of a tee junction, the way to differentiate between values coming from each channel of the junction is for the channels to individually @racket[collect] their values at the end. That way, the values that are the output of the composite flow are lists generated individually by the various channels of the flow.
 
-@section{Everything is a Function}
+@section[#:tag "Everything_is_a_Function"]{Counting Flows}
 
 Everything in Qi is a @seclink["lambda" #:doc '(lib "scribblings/guide/guide.scrbl")]{function}. Programs are functions, they are made up of functions. Even @seclink["Literals"]{literals} are interpreted as functions generating them.
+
+Consider this example:
+
+@codeblock{
+  (~> sqr (-< add1 5) *)
+}
+
+There are six @tech{flows} here, in all: the entire one, each component of the thread, and each component of the tee junction.
 
 @section{Flowy Logic}
 
