@@ -5,6 +5,7 @@
 (require (for-syntax racket/base
                      syntax/parse
                      racket/syntax-srcloc
+                     syntax/srcloc
                      "../extended/util.rkt")
          racket/performance-hint
          racket/match
@@ -264,11 +265,13 @@
                        (inline-compose1 [t.next t.f] ...
                                         p.next)
                        '#,(prettify-flow-syntax ctx)
-                       '#,(syntax-srcloc ctx)))
+                       '#,(build-source-location-vector
+                           (syntax-srcloc ctx))))
                      p.name
                      '#,(prettify-flow-syntax ctx)
                      #f
-                     '#,(syntax-srcloc ctx))))]))
+                     '#,(build-source-location-vector
+                         (syntax-srcloc ctx)))))]))
 
   ;; Performs one step of deforestation rewrite. Should be used as
   ;; many times as needed - until it returns the source syntax
