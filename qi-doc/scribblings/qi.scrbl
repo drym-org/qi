@@ -36,5 +36,6 @@ This site hosts @emph{user} documentation. If you are interested in contributing
 @include-section["macros.scrbl"]
 @include-section["field-guide.scrbl"]
 @include-section["principles.scrbl"]
+@include-section["under-the-hood.scrbl"]
 @include-section["using-qi.scrbl"]
 @include-section["input-methods.scrbl"]
