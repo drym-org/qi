@@ -32,7 +32,7 @@ The core entry-point to Qi from the host language is the form @racket[☯]. In a
                            collect
                            (esc expr)
                            (clos flow-expr)
-						   (as identifier)
+                           (as identifier ...)
                            (one-of? expr ...)
                            (all flow-expr)
                            (any flow-expr)
