@@ -816,6 +816,20 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
   ]
 }
 
+@section{Binding}
+
+@defform[(as v ...)]{
+  A @tech{flow} that binds an identifier @racket[v] to the input value. If there are many input values, than there should be as many identifiers as there are inputs.
+
+@examples[
+    #:eval eval-for-docs
+	((☯ (~> (-< (~> list (as vs))
+                +)
+            (~a "The sum of " vs " is " _)))
+	 1 2)
+  ]
+}
+
 @section{Identifiers}
 
 Identifiers in a flow context are interpreted as @tech/reference{variables} whose @tech/reference{values} are expected to be @seclink["lambda" #:doc '(lib "scribblings/guide/guide.scrbl")]{functions}. In other words, any named function may be used directly as a @tech{flow}.
