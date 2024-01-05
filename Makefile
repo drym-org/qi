@@ -40,6 +40,7 @@ help:
 	@echo "coverage-check - Run test coverage checker"
 	@echo "coverage-report - View test coverage report"
 	@echo "docs - view docs in a browser"
+	@echo "profile - Get a performance profile of any Racket command"
 	@echo "benchmark - Run comprehensive performance benchmarks"
 	@echo "benchmark-competitive - Run competitive benchmarks"
 	@echo "benchmark-local - Run benchmarks for individual Qi forms"
@@ -179,6 +180,12 @@ cover: coverage-check coverage-report
 
 cover-coveralls:
 	raco cover -b -f coveralls -p $(PACKAGE-NAME)-{lib,test}
+
+profile:
+	@echo "To get a performance profile:"
+	@echo "  raco profile --self <any Racket command, including arguments>"
+	@echo "For more options:"
+	@echo "  raco profile --help"
 
 benchmark-local:
 	racket $(PACKAGE-NAME)-sdk/profile/local/report.rkt
