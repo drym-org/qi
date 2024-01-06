@@ -798,7 +798,7 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
 
   As @racket[displayln] expects a single input, you'd need to use @racket[(>< displayln)] for this side-effect in general.
 
-  If you are interesting in using @racket[effect] to debug a flow, see the section on @secref["Debugging" #:doc '(lib "qi/scribblings/qi.scrbl")] in the field guide for more strategies.
+  If you are interested in using @racket[effect] to debug a flow, see the section on @secref["Debugging" #:doc '(lib "qi/scribblings/qi.scrbl")] in the field guide for more strategies.
 
 @examples[
     #:eval eval-for-docs
