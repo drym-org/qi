@@ -48,8 +48,7 @@
   ;; TODO: technically should be ~literal host expression to not
   ;; collide with a user-defined #%host-expression binding, but that
   ;; would never be hit in practice since that would be rewritten
-  ;; through expansion to a use of the core language. In general,
-  ;; we should be using ~literal matching throughout the compiler.
+  ;; through expansion to a use of the core language.
   (find-and-map (syntax-parser [((~datum #%host-expression) e:expr) #f]
                                [_ (if (form-position? this-syntax)
                                       (f this-syntax)
