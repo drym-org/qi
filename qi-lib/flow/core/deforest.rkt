@@ -1,5 +1,14 @@
 #lang racket/base
 
+;; This module implements the stream fusion optimization to "deforest"
+;; sequences of functional transformations (e.g. map, filter, fold, etc.)
+;; so that they avoid constructing intermediate representations on the
+;; way to producing the final result.
+;;
+;; See the wiki
+;;   https://github.com/drym-org/qi/wiki/The-Compiler#stream-fusion
+;; for an overview and some details of this implementation.
+
 (provide (for-syntax deforest-rewrite))
 
 (require (for-syntax racket/base
