@@ -2,27 +2,11 @@
 @require[scribble/manual
          scribble-abbrevs/manual
          scribble/example
-         racket/sandbox
+		 "eval.rkt"
          @for-label[qi
                     racket]]
 
-@(define eval-for-docs
-  ;; The "trusted" sandbox configuration is needed possibly
-  ;; because of the interaction of binding spaces with
-  ;; sandbox evaluator. For more context, see the Qi wiki
-  ;; "Qi Compiler Sync Sept 2 2022."
-  (call-with-trusted-sandbox-configuration
-   (lambda ()
-     (parameterize ([sandbox-output 'string]
-                    [sandbox-error-output 'string]
-                    [sandbox-memory-limit #f])
-       (make-evaluator 'racket/base
-                       '(require qi
-                                 (only-in racket/list range first rest)
-                                 racket/string)
-                       '(define (sqr x)
-                          (* x x)))))))
-
+@(define eval-for-docs (make-eval-for-docs))
 @(define diagram-eval (make-base-eval))
 @(diagram-eval '(require metapict))
 @;{For an explanation of the special handling of `__` in code blocks and in examples, see racket/scribble#369}
