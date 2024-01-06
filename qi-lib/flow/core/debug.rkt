@@ -17,4 +17,4 @@
                       body ...)
   (define (name stx0)
     (let ([stx1 (let () body ...)])
-      (qi-expansion-step #'name stx0 stx1))))
+      (qi-expansion-step (quote-syntax name) stx0 stx1))))
