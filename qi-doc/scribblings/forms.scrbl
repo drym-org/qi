@@ -823,7 +823,7 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
 
 @examples[
     #:eval eval-for-docs
-	((☯ (~> (-< (~> list (as vs))
+    ((☯ (~> (-< (~> list (as vs))
                 +)
             (~a "The sum of " vs " is " _)))
 	 1 2)
@@ -868,6 +868,8 @@ As @racket[switch] compiles to @racket[if], technically, earlier conditions bind
 @section{Identifiers}
 
 Identifiers in a flow context are interpreted as @tech/reference{variables} whose @tech/reference{values} are expected to be @seclink["lambda" #:doc '(lib "scribblings/guide/guide.scrbl")]{functions}. In other words, any named function may be used directly as a @tech{flow}.
+
+More precisely, for instance, @racket[add1] in a flow context is equivalent to @racket[(esc add1)].
 
 @examples[
     #:eval eval-for-docs
