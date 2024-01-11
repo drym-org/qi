@@ -133,8 +133,7 @@ The core entry-point to Qi from the host language is the form @racket[☯]. In a
                            (expr expr ...)
                            literal
                            identifier]
-                [literal (code:line)
-                         boolean
+                [literal boolean
                          char
                          string
                          bytes
