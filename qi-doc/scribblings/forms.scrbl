@@ -834,6 +834,37 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
  ]
 }
 
+@subsection{Variable Scope}
+
+In general, bindings are scoped to the @emph{outermost} threading form (as the first example above shows), and may be referenced downstream. We will use @racket[(gen v)] as an example of a flow referencing a binding, to illustrate variable scope.
+
+@codeblock{(~> 5 (as v) (gen v))}
+
+... produces @racket[5].
+
+A @racket[tee] junction binds downstream flows in a containing threading form, with later tines shadowing earlier tines.
+
+@codeblock{(~> (-< (~> 5 (as v)) (~> 6 (as v))) (gen v))}
+
+... produces @racket[6].
+
+A @racket[relay] binds downstream flows in a containing threading form, with later tines shadowing earlier tines.
+
+@codeblock{(~> (gen 5 6) (== (as v) (as v)) (gen v))}
+
+... produces @racket[6].
+
+In an @racket[if] conditional form, variables bound in the condition bind the consequent and alternative flows, and do not bind downstream flows.
+
+@codeblock{(if (~> ... (as v) ...) (gen v) (gen v))}
+
+Analogously, in a @racket[switch], variables bound in each condition bind the corresponding consequent flow.
+
+@codeblock{(switch [(~> ... (as v) ...) (gen v)]
+                   [(~> ... (as v) ...) (gen v)])}
+
+As @racket[switch] compiles to @racket[if], technically, earlier conditions bind all later switch clauses (and are shadowed by them), but this is considered an incidental implementation detail. Like @racket[if], @racket[switch] bindings are unavailable downstream.
+
 @section{Identifiers}
 
 Identifiers in a flow context are interpreted as @tech/reference{variables} whose @tech/reference{values} are expected to be @seclink["lambda" #:doc '(lib "scribblings/guide/guide.scrbl")]{functions}. In other words, any named function may be used directly as a @tech{flow}.
