@@ -183,7 +183,9 @@ cover-coveralls:
 
 profile:
 	@echo "To get a performance profile:"
-	@echo "  raco profile --self <any Racket command, including arguments>"
+	@echo "  raco profile --total <any Racket command, including arguments>"
+	@echo "Example:"
+	@echo "  raco profile --total qi-sdk/benchmarks/nonlocal/report-competitive.rkt -s filter-map"
 	@echo "For more options:"
 	@echo "  raco profile --help"
 
