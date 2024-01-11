@@ -827,7 +827,11 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
                 +)
             (~a "The sum of " vs " is " _)))
 	 1 2)
-  ]
+    ((☯ (~> (-< + count)
+            (as total number)
+            (/ total number)))
+     1 2 3 4 5)
+ ]
 }
 
 @section{Identifiers}
