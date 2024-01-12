@@ -29,6 +29,10 @@ Decompose your @tech{flow} into its smallest components, and name each so that t
 
 A journeyman of one's craft -- a woodworker, electrician, or a plumber, say -- always goes to work with a trusty toolbox that contains the tools of the trade, some perhaps even of their own design. An electrician, for instance, may have a voltage tester, a multimeter, and a continuity tester in her toolbox. Although these are "debugging" tools, they aren't just for identifying bugs -- by providing rapid feedback, they enable her to explore and find creative solutions quickly and reliably. It's the same with Qi. Learn to use the @seclink["Debugging"]{debugging tools}, and use them often.
 
+@subsection{Be Intentional About Effects}
+
+Qi encourages a style that avoids "accidental" effects. A flow should either be pure (that is, it should be free of "side effects" such as printing to the screen or writing to a file), or its entire purpose should be to fulfill a side effect. It is considered inadvisable to have a function with sane inputs and outputs (resembling a pure function) that also performs a side effect. It would be better to decouple the effect from the rest of your function (@seclink["Use_Small_Building_Blocks"]{splitting it into smaller functions}, as necessary) and perform the effect explicitly via the @racket[effect] form, or otherwise escape from Qi using something like @racket[esc] (note that @seclink["Identifiers"]{function identifiers} used in a flow context are implicitly @racket[esc]aped) in order to perform the effect. This will ensure that there are no surprises with regard to @seclink["Order_of_Effects"]{order of effects}.
+
 @section{Debugging}
 
 There are three prominent debugging strategies which may be used independently or in tandem -- @seclink["Using_Side_Effects"]{side effects}, @seclink["Using_a_Probe"]{probing}, and @seclink["Using_Fixtures"]{fixtures}.
@@ -203,7 +207,7 @@ Methodical use of @racket[gen] together with the @seclink["Using_a_Probe"]{probe
 ;   in: count
 }
 
-@bold{Meaning}: The @seclink["The_Expander"]{expander} attempted to resolve a @tech/reference{reference} and found more than one possible @tech/reference{binding}.
+@bold{Meaning}: The @tech/guide{expander} attempted to resolve a @tech/reference{reference} and found more than one possible @tech/reference{binding}.
 
 @bold{Common example}: Having a Racket function in scope that has the same name as a Qi form, and attempting to use this @seclink["Identifiers"]{unqualified identifier} as a flow. To avoid the issue, rename the Racket function to something else, or use an explicit @racket[esc] to indicate the Racket binding.
 
@@ -349,6 +353,18 @@ This is because @racket[vector-set!] mutates the vector and produces not the res
 Worse still, even though this computation raises an error, we find that the original vector that we started with, @racket[vv], has been mutated to @racket[(vector 5 2 10)], since the same vector is operated on in both channels of the relay prior to the error being encountered.
 
 So in general, use mutable values with caution. Such values can be useful as side effects, for instance to capture some idea of statefulness, perhaps keeping track of the number of times a @tech{flow} was invoked. But they should generally not be used as inputs to a flow, especially if they are to be mutated.
+
+@subsection{Order of Effects}
+
+ Qi flows may exhibit a different order of effects (in the functional programming sense) than equivalent Racket functions.
+
+Consider the Racket expression: @racket[(map sqr (filter odd? (list 1 2 3 4 5)))]. As this invokes @racket[odd?] on all of the elements of the input list, followed by @racket[sqr] on all of the elements of the intermediate list, if we imagine that @racket[odd?] and @racket[sqr] print their inputs as a side effect before producing their results, then executing this program would print the numbers in the sequence @racket[1,2,3,4,5,1,3,5].
+
+The equivalent Qi flow is @racket[(~> ((list 1 2 3 4 5)) (filter odd?) (map sqr))]. As this sequence is @seclink["Don_t_Stop_Me_Now"]{"deforested" by Qi's compiler} to avoid multiple passes over the data and the memory overhead of intermediate representations, it invokes the functions in sequence @emph{on each element} rather than @emph{on all of the elements of each list in turn}. The printed sequence with Qi would be @racket[1,1,2,3,3,4,5,5].
+
+Yet, either implementation produces the same output: @racket[(list 1 9 25)].
+
+So, to reiterate, while the output of Qi flows will be the same as the output of equivalent Racket expressions, they may nevertheless exhibit a different order of effects.
 
 @section{Effectively Using Feedback Loops}
 
