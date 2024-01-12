@@ -1,0 +1,43 @@
+name: competitive-benchmarks
+
+on:
+  push:
+    branches:
+      - main  # TODO: change to gather-new-benchmark-data
+    paths:
+      - 'qi-sdk/profile/**'
+      - 'qi-lib/**'
+      - '.github/workflows/competitive-benchmarks.yml'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  deploy-docs:
+    runs-on: ubuntu-latest
+    name: Build and deploy backup docs
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Install Racket
+        uses: Bogdanp/setup-racket@v1.9.1
+        with:
+          architecture: 'x64'
+          distribution: 'full'
+          variant: 'CS'
+          version: 'stable'
+      - name: Install Package and its Dependencies
+        run: make install
+      - name: Install SDK
+        run: make install-sdk  # TODO: should first add dependency on new benchmarks suite in info.rkt
+      - name: Run benchmark
+        shell: 'bash --noprofile --norc -eo pipefail {0}'
+        run: make new-benchmarks  # TODO: add this new target
+      - name: Push to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4.4.1
+        with:
+          folder: competitive-benchmarks/qi
+          target-folder: competitive-benchmarks
+          branch: gh-pages
+          clean: true
