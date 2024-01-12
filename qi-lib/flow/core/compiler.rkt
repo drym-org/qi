@@ -216,7 +216,7 @@
     [((~datum #%fine-template) (prarg-pre ... (~datum _) prarg-post ...))
      #'(fancy:#%app prarg-pre ... _ prarg-post ...)]
 
-    ;; if in the course of optimization we ever end up with a fully
+    ;; If in the course of optimization we ever end up with a fully
     ;; simplified host expression, the compiler would a priori reject it as
     ;; not being a core Qi expression. So we add this extra rule here
     ;; to simply pass this expression through.

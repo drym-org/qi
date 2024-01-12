@@ -3,7 +3,7 @@
          scribble-abbrevs/manual
          scribble/example
 		 "eval.rkt"
-         @for-label[qi
+         @for-label[(only-space-in qi qi)
                     racket]]
 
 @(define eval-for-docs (make-eval-for-docs))
@@ -798,7 +798,7 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
 
   As @racket[displayln] expects a single input, you'd need to use @racket[(>< displayln)] for this side-effect in general.
 
-  If you are interesting in using @racket[effect] to debug a flow, see the section on @secref["Debugging" #:doc '(lib "qi/scribblings/qi.scrbl")] in the field guide for more strategies.
+  If you are interested in using @racket[effect] to debug a flow, see the section on @secref["Debugging" #:doc '(lib "qi/scribblings/qi.scrbl")] in the field guide for more strategies.
 
 @examples[
     #:eval eval-for-docs
@@ -816,9 +816,60 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
   ]
 }
 
+@section{Binding}
+
+@defform[(as v ...)]{
+  A @tech{flow} that binds an identifier @racket[v] to the input value. If there are many input values, than there should be as many identifiers as there are inputs.
+
+@examples[
+    #:eval eval-for-docs
+    ((☯ (~> (-< (~> list (as vs))
+                +)
+            (~a "The sum of " vs " is " _)))
+	 1 2)
+    ((☯ (~> (-< + count)
+            (as total number)
+            (/ total number)))
+     1 2 3 4 5)
+ ]
+}
+
+@subsection{Variable Scope}
+
+In general, bindings are scoped to the @emph{outermost} threading form (as the first example above shows), and may be referenced downstream. We will use @racket[(gen v)] as an example of a flow referencing a binding, to illustrate variable scope.
+
+@codeblock{(~> 5 (as v) (gen v))}
+
+... produces @racket[5].
+
+A @racket[tee] junction binds downstream flows in a containing threading form, with later tines shadowing earlier tines.
+
+@codeblock{(~> (-< (~> 5 (as v)) (~> 6 (as v))) (gen v))}
+
+... produces @racket[6].
+
+A @racket[relay] binds downstream flows in a containing threading form, with later tines shadowing earlier tines.
+
+@codeblock{(~> (gen 5 6) (== (as v) (as v)) (gen v))}
+
+... produces @racket[6].
+
+In an @racket[if] conditional form, variables bound in the condition bind the consequent and alternative flows, and do not bind downstream flows.
+
+@codeblock{(if (~> ... (as v) ...) (gen v) (gen v))}
+
+Analogously, in a @racket[switch], variables bound in each condition bind the corresponding consequent flow.
+
+@codeblock{(switch [(~> ... (as v) ...) (gen v)]
+                   [(~> ... (as v) ...) (gen v)])}
+
+As @racket[switch] compiles to @racket[if], technically, earlier conditions bind all later switch clauses (and are shadowed by them), but this is considered an incidental implementation detail. Like @racket[if], @racket[switch] bindings are unavailable downstream.
+
 @section{Identifiers}
 
 Identifiers in a flow context are interpreted as @tech/reference{variables} whose @tech/reference{values} are expected to be @seclink["lambda" #:doc '(lib "scribblings/guide/guide.scrbl")]{functions}. In other words, any named function may be used directly as a @tech{flow}.
+
+More precisely, for instance, @racket[add1] in a flow context is equivalent to @racket[(esc add1)].
 
 @examples[
     #:eval eval-for-docs

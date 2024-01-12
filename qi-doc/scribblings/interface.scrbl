@@ -32,6 +32,7 @@ The core entry-point to Qi from the host language is the form @racket[☯]. In a
                            collect
                            (esc expr)
                            (clos flow-expr)
+                           (as identifier ...)
                            (one-of? expr ...)
                            (all flow-expr)
                            (any flow-expr)
@@ -63,17 +64,21 @@ The core entry-point to Qi from the host language is the form @racket[☯]. In a
                            (thread-right flow-expr ...)
                            X
                            crossover
+                           ==
                            (== flow-expr ...)
+                           relay
                            (relay flow-expr ...)
                            (==* flow-expr ...)
                            (relay* flow-expr ...)
+                           -<
                            (-< flow-expr ...)
+                           tee
                            (tee flow-expr ...)
                            fanout
-                           (fanout number)
+                           (fanout nat)
                            feedback
-                           (feedback number flow-expr)
-                           (feedback number (then flow-expr) flow-expr)
+                           (feedback nat flow-expr)
+                           (feedback nat (then flow-expr) flow-expr)
                            (feedback (while flow-expr) flow-expr)
                            (feedback (while flow-expr) (then flow-expr) flow-expr)
                            count
@@ -89,7 +94,7 @@ The core entry-point to Qi from the host language is the form @racket[☯]. In a
                            (select index ...)
                            (block index ...)
                            (bundle (index ...) flow-expr flow-expr)
-                           (group number flow-expr flow-expr)
+                           (group nat flow-expr flow-expr)
                            sieve
                            (sieve flow-expr flow-expr flow-expr)
                            (partition [flow-expr flow-expr] ...)
@@ -122,23 +127,33 @@ The core entry-point to Qi from the host language is the form @racket[☯]. In a
                            (ε flow-expr flow-expr)
                            (effect flow-expr flow-expr)
                            apply
-                           literal
-                           (quote value)
-                           (quasiquote value)
-                           (quote-syntax value)
-                           (syntax value)
                            (qi:* expr ...)
                            (expr expr ... __ expr ...)
                            (expr expr ... _ expr ...)
                            (expr expr ...)
-                           expr]
+                           literal
+                           identifier]
+                [literal boolean
+                         char
+                         string
+                         bytes
+                         number
+                         regexp
+                         byte-regexp
+                         vector-literal
+                         box-literal
+                         prefab-literal
+                         (quote value)
+                         (quasiquote value)
+                         (quote-syntax value)
+                         (syntax value)]
                 [expr a-racket-expression]
                 [index exact-positive-integer?]
-                [number exact-nonnegative-integer?]
+                [nat exact-nonnegative-integer?]
                 [switch-expr [flow-expr flow-expr]
                              [flow-expr (=> flow-expr)]
                              [else flow-expr]]
-                [literal a-racket-literal]
+                [identifier a-racket-identifier]
                 [value a-racket-value])]
   @defform[(flow flow-expr)]
   )]{

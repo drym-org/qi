@@ -6,6 +6,5 @@
 (define build-deps '("rackunit-lib"
                      "adjutor"
                      "math-lib"
-                     "qi-lib"
-                     "syntax-spec-v1"))
+                     "qi-lib"))
 (define clean '("compiled" "tests/compiled" "tests/private/compiled"))
