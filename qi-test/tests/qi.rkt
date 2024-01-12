@@ -7,9 +7,11 @@
          (prefix-in switch: "switch.rkt")
          (prefix-in threading: "threading.rkt")
          (prefix-in definitions: "definitions.rkt")
+         (prefix-in space: "space.rkt")
          (prefix-in macro: "macro.rkt")
          (prefix-in util: "util.rkt")
-         "private/util.rkt")
+         (prefix-in expander: "expander.rkt")
+         (prefix-in compiler: "compiler.rkt"))
 
 (define tests
   (test-suite
@@ -20,8 +22,11 @@
    switch:tests
    threading:tests
    definitions:tests
+   space:tests
    macro:tests
-   util:tests))
+   util:tests
+   expander:tests
+   compiler:tests))
 
 (module+ test
   (void

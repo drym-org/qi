@@ -2,20 +2,11 @@
 @require[scribble/manual
          scribble-abbrevs/manual
          scribble/example
-         racket/sandbox
+         "eval.rkt"
          @for-label[qi
                     racket]]
 
-@(define eval-for-docs
-  (parameterize ([sandbox-output 'string]
-                 [sandbox-error-output 'string]
-                 [sandbox-memory-limit #f])
-    (make-evaluator 'racket/base
-                    '(require qi
-                              (only-in racket/list range)
-                              racket/string)
-                    '(define (sqr x)
-                       (* x x)))))
+@(define eval-for-docs (make-eval-for-docs))
 
 @title{Introduction and Usage}
 
@@ -81,6 +72,8 @@ In the most common case where you are threading functions, Qi's threading form @
 For macros, we cannot use them naively as @tech{flows} because macros expect all of their "arguments" to be provided syntactically at compile time -- meaning that the number of arguments must be known at compile time. This is not in general possible with Qi since @tech{flows} may consume and produce an arbitrary number of values, and this number is only determined at runtime. Depending on what you are trying to do, however, there are many ways in which you still can @seclink["Converting_a_Macro_to_a_Flow"]{treat macros as flows in Qi} -- from simple escapes into Racket to more structured approaches including @seclink["Qi_Dialect_Interop"]{writing a Qi dialect}.
 
 The threading library also provides numerous shorthands for common cases, many of which don't have equivalents in Qi -- if you'd like to have these, please @hyperlink["https://github.com/drym-org/qi/issues/"]{create an issue} on the source repo to register your interest.
+
+Finally, by virtue of having an optimizing compiler, Qi also offers performance benefits in some cases, including for use of sequences of standard functional operations on lists like @racket[map] and @racket[filter], which in Qi avoid constructing intermediate representations along the way to generating the final result.
 
 @close-eval[eval-for-docs]
 @(set! eval-for-docs #f)

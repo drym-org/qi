@@ -1,12 +1,6 @@
 #lang racket/base
 
 (provide give
-         ->boolean
-         true.
-         false.
-         any?
-         all?
-         none?
          map-values
          filter-values
          partition-values
@@ -17,18 +11,17 @@
          except-args
          call
          repeat-values
-         power
          foldl-values
          foldr-values
          values->list
          feedback-times
-         feedback-while)
+         feedback-while
+         kw-helper)
 
 (require racket/match
          (only-in racket/function
-                  thunk
-                  thunk*
-                  negate)
+                  negate
+                  thunk)
          racket/bool
          racket/list
          racket/format
@@ -38,24 +31,28 @@
 (define-syntax-parse-rule (values->list body:expr ...+)
   (call-with-values (λ () body ...) list))
 
+(define (kw-helper f args)
+  (make-keyword-procedure
+   (λ (kws kws-vs . pos)
+     (keyword-apply f kws kws-vs (append args pos)))))
+
 ;; we use a lambda to capture the arguments at runtime
 ;; since they aren't available at compile time
-(define (loom-compose f g [n #f])
-  (let ([n (or n (procedure-arity f))])
-    (λ args
-      (let ([num-args (length args)])
-        (if (< num-args n)
-            (if (= 0 num-args)
-                (values)
-                (error 'group (~a "Can't select "
-                                  n
-                                  " arguments from "
-                                  args)))
-            (let ([sargs (take args n)]
-                  [rargs (drop args n)])
-              (apply values
-                     (append (values->list (apply f sargs))
-                             (values->list (apply g rargs))))))))))
+(define (loom-compose f g n)
+  (λ args
+    (let ([num-args (length args)])
+      (if (< num-args n)
+          (if (= 0 num-args)
+              (values)
+              (error 'group (~a "Can't select "
+                                n
+                                " arguments from "
+                                args)))
+          (let ([sargs (take args n)]
+                [rargs (drop args n)])
+            (apply values
+                   (append (values->list (apply f sargs))
+                           (values->list (apply g rargs)))))))))
 
 (define (parity-xor . args) (and (foldl xor #f args) #t))
 
@@ -120,6 +117,8 @@
     [(cons v vs) (append (values->list (f v))
                          (~map f vs))]))
 
+;; Note: can probably get rid of implicit packing to args, and the
+;; final apply values
 (define (map-values f . args)
   (apply values (~map f args)))
 
@@ -167,11 +166,8 @@
       (call-with-values (λ () (apply b args)) list)))
   (apply values (apply append results)))
 
-(define (->boolean v) (and v #t))
-(define true.  (thunk* #t))
-(define false. (thunk* #f))
+(define exists ormap)
 
-(define exists  ormap)
 (define for-all andmap)
 
 (define (zip-with op . seqs)
@@ -198,20 +194,8 @@
   (λ args
     (apply values (zip-with call fs args))))
 
-(define (all? . args)
-  (and (for/and ([v (in-list args)]) v) #t))
-
-(define (any? . args)
-  (and (for/or ([v (in-list args)]) v) #t))
-
-(define (none? . args)
-  (not (for/or ([v (in-list args)]) v)))
-
 (define (repeat-values n . vs)
   (apply values (apply append (make-list n vs))))
-
-(define (power n f)
-  (apply compose (make-list n f)))
 
 (define (fold-values f init vs)
   (let loop ([vs vs]
@@ -227,7 +211,11 @@
   (fold-values f init (reverse vs)))
 
 (define (feedback-times f n then-f)
-  (compose then-f (power n f)))
+  (λ args
+    (if (= n 0)
+        (apply then-f args)
+        (call-with-values (thunk (apply f args))
+                          (feedback-times f (sub1 n) then-f)))))
 
 (define (feedback-while f condition then-f)
   (λ args

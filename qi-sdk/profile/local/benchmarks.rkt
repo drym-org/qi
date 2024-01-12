@@ -1,3 +1,4 @@
+#!/usr/bin/env racket
 #lang racket/base
 
 #|
@@ -10,92 +11,97 @@ utility macros `run-benchmark` or `run-summary-benchmark`, and
 provides it one of the helper functions `check-value` (to invoke the
 form with a single value each time during benchmarking) or
 `check-values` (to invoke the form with multiple values each time
-during benchmarking).
+during benchmarking). Note that at the moment, as a hack for
+convenience, `run-benchmark` expects a function with the name of the
+form being benchmarked _prefixed with tilde_. This is to avoid name
+collisions between this function and the Qi form with the same
+name. Basically, just follow one of the numerous examples in this
+module to see what this is referring to.
 
 2. Require the submodule in the `main` submodule with an appropriate
 prefix (see other examples)
 
 3. Add the required `run` function to the `env` hash in the main
-submodule. This will ensure that it gets picked up when the benchmarks
+submodule.  This will ensure that it gets picked up when the benchmarks
 for the forms are run.
 |#
 
-(module one-of? "forms-base.rkt"
+(module one-of? "base.rkt"
   (provide run)
 
-  (define (one-of? v)
+  (define (~one-of? v)
     ((☯ (one-of? 3 5 7))
      v))
 
   (define (run)
-    (run-benchmark one-of?
+    (run-benchmark ~one-of?
                    check-value
                    100000)))
 
-(module and "forms-base.rkt"
+(module and "base.rkt"
   (provide run)
 
-  (define (and v)
+  (define (~and v)
     ((☯ (and positive? integer?))
      v))
 
   (define (run)
-    (run-benchmark and
+    (run-benchmark ~and
                    check-value
                    200000)))
 
-(module or "forms-base.rkt"
+(module or "base.rkt"
   (provide run)
 
-  (define (or v)
+  (define (~or v)
     ((☯ (or positive? integer?))
      v))
 
   (define (run)
-    (run-benchmark or
+    (run-benchmark ~or
                    check-value
                    200000)))
 
-(module not "forms-base.rkt"
+(module not "base.rkt"
   (provide run)
 
-  (define (not v)
+  (define (~not v)
     ((☯ (not integer?))
      v))
 
   (define (run)
-    (run-benchmark not
+    (run-benchmark ~not
                    check-value
                    200000)))
 
-(module and% "forms-base.rkt"
+(module and% "base.rkt"
   (provide run)
 
-  (define (and% a b)
+  (define (~and% a b)
     ((☯ (and% positive? integer?))
      a b))
 
   (define (run)
-    (run-benchmark and%
+    (run-benchmark ~and%
                    check-two-values
                    200000)))
 
-(module or% "forms-base.rkt"
+(module or% "base.rkt"
   (provide run)
 
-  (define (or% a b)
+  (define (~or% a b)
     ((☯ (or% positive? integer?))
      a b))
 
   (define (run)
-    (run-benchmark or%
+    (run-benchmark ~or%
                    check-two-values
                    200000)))
 
-(module group "forms-base.rkt"
+(module group "base.rkt"
   (provide run)
 
-  (define (group . vs)
+  (define (~group . vs)
     (apply
      (☯ (~> (group 2 + _)
             (group 3 + _)
@@ -104,27 +110,27 @@ for the forms are run.
      vs))
 
   (define (run)
-    (run-benchmark group
+    (run-benchmark ~group
                    check-values
                    200000)))
 
-(module count "forms-base.rkt"
+(module count "base.rkt"
   (provide run)
 
-  (define (count . vs)
+  (define (~count . vs)
     (apply
      (☯ count)
      vs))
 
   (define (run)
-    (run-benchmark count
+    (run-benchmark ~count
                    check-values
                    1000000)))
 
-(module relay "forms-base.rkt"
+(module relay "base.rkt"
   (provide run)
 
-  (define (relay . vs)
+  (define (~relay . vs)
     (apply
      (☯ (== add1
             sub1
@@ -139,14 +145,14 @@ for the forms are run.
      vs))
 
   (define (run)
-    (run-benchmark relay
+    (run-benchmark ~relay
                    check-values
                    50000)))
 
-(module relay* "forms-base.rkt"
+(module relay* "base.rkt"
   (provide run)
 
-  (define (relay* . vs)
+  (define (~relay* . vs)
     (apply
      (☯ (==* add1
              sub1
@@ -155,40 +161,40 @@ for the forms are run.
      vs))
 
   (define (run)
-    (run-benchmark relay*
+    (run-benchmark ~relay*
                    check-values
                    50000)))
 
-(module amp "forms-base.rkt"
+(module amp "base.rkt"
   (provide run)
 
-  (define (amp . vs)
+  (define (~amp . vs)
     (apply
      (☯ (>< sqr))
      vs))
 
   (define (run)
-    (run-benchmark amp
+    (run-benchmark ~amp
                    check-values
                    300000)))
 
-(module ground "forms-base.rkt"
+(module ground "base.rkt"
   (provide run)
 
-  (define (ground . vs)
+  (define (~ground . vs)
     (apply
      (☯ ⏚)
      vs))
 
   (define (run)
-    (run-benchmark ground
+    (run-benchmark ~ground
                    check-values
                    200000)))
 
-(module thread "forms-base.rkt"
+(module thread "base.rkt"
   (provide run)
 
-  (define (thread . vs)
+  (define (~thread . vs)
     (apply
      (☯ (~> (+ 5)
             add1
@@ -204,14 +210,14 @@ for the forms are run.
      vs))
 
   (define (run)
-    (run-benchmark thread
+    (run-benchmark ~thread
                    check-values
                    200000)))
 
-(module thread-right "forms-base.rkt"
+(module thread-right "base.rkt"
   (provide run)
 
-  (define (thread-right . vs)
+  (define (~thread-right . vs)
     (apply
      (☯ (~>> (+ 5)
              add1
@@ -227,255 +233,255 @@ for the forms are run.
      vs))
 
   (define (run)
-    (run-benchmark thread-right
+    (run-benchmark ~thread-right
                    check-values
                    200000)))
 
-(module crossover "forms-base.rkt"
+(module crossover "base.rkt"
   (provide run)
 
-  (define (crossover . vs)
+  (define (~crossover . vs)
     (apply
      (☯ X)
      vs))
 
   (define (run)
-    (run-benchmark crossover
+    (run-benchmark ~crossover
                    check-values
                    200000)))
 
-(module all "forms-base.rkt"
+(module all "base.rkt"
   (provide run)
 
-  (define (all . vs)
+  (define (~all . vs)
     (apply
      (☯ (all positive?))
      vs))
 
   (define (run)
-    (run-benchmark all
+    (run-benchmark ~all
                    check-values
                    200000)))
 
-(module any "forms-base.rkt"
+(module any "base.rkt"
   (provide run)
 
-  (define (any . vs)
+  (define (~any . vs)
     (apply
      (☯ (any positive?))
      vs))
 
   (define (run)
-    (run-benchmark any
+    (run-benchmark ~any
                    check-values
                    200000)))
 
-(module none "forms-base.rkt"
+(module none "base.rkt"
   (provide run)
 
-  (define (none . vs)
+  (define (~none . vs)
     (apply
      (☯ (none positive?))
      vs))
 
   (define (run)
-    (run-benchmark none
+    (run-benchmark ~none
                    check-values
                    200000)))
 
-(module all? "forms-base.rkt"
+(module all? "base.rkt"
   (provide run)
 
-  (define (all? . vs)
+  (define (~all? . vs)
     (apply
      (☯ all?)
      vs))
 
   (define (run)
-    (run-benchmark all?
+    (run-benchmark ~all?
                    check-values
                    200000)))
 
-(module any? "forms-base.rkt"
+(module any? "base.rkt"
   (provide run)
 
-  (define (any? . vs)
+  (define (~any? . vs)
     (apply
      (☯ any?)
      vs))
 
   (define (run)
-    (run-benchmark any?
+    (run-benchmark ~any?
                    check-values
                    200000)))
 
-(module none? "forms-base.rkt"
+(module none? "base.rkt"
   (provide run)
 
-  (define (none? . vs)
+  (define (~none? . vs)
     (apply
      (☯ none?)
      vs))
 
   (define (run)
-    (run-benchmark none?
+    (run-benchmark ~none?
                    check-values
                    200000)))
 
-(module collect "forms-base.rkt"
+(module collect "base.rkt"
   (provide run)
 
-  (define (collect . vs)
+  (define (~collect . vs)
     (apply
      (☯ ▽)
      vs))
 
   (define (run)
-    (run-benchmark collect
+    (run-benchmark ~collect
                    check-values
                    1000000)))
 
-(module sep "forms-base.rkt"
+(module sep "base.rkt"
   (provide run)
 
-  (define (sep v)
+  (define (~sep v)
     ((☯ △)
      v))
 
   (define (run)
-    (run-benchmark sep
+    (run-benchmark ~sep
                    check-list
                    1000000)))
 
-(module gen "forms-base.rkt"
+(module gen "base.rkt"
   (provide run)
 
-  (define (gen . vs)
+  (define (~gen . vs)
     (apply
      (☯ (gen 1 2 3))
      vs))
 
   (define (run)
-    (run-benchmark gen
+    (run-benchmark ~gen
                    check-values
                    1000000)))
 
-(module esc "forms-base.rkt"
+(module esc "base.rkt"
   (provide run)
 
-  (define (esc . vs)
+  (define (~esc . vs)
     (apply
      (☯ (esc (λ args args)))
      vs))
 
   (define (run)
-    (run-benchmark esc
+    (run-benchmark ~esc
                    check-values
                    1000000)))
 
-(module AND "forms-base.rkt"
+(module AND "base.rkt"
   (provide run)
 
-  (define (AND . vs)
+  (define (~AND . vs)
     (apply
      (☯ AND)
      vs))
 
   (define (run)
-    (run-benchmark AND
+    (run-benchmark ~AND
                    check-values
                    200000)))
 
-(module OR "forms-base.rkt"
+(module OR "base.rkt"
   (provide run)
 
-  (define (OR . vs)
+  (define (~OR . vs)
     (apply
      (☯ OR)
      vs))
 
   (define (run)
-    (run-benchmark OR
+    (run-benchmark ~OR
                    check-values
                    200000)))
 
-(module NOT "forms-base.rkt"
+(module NOT "base.rkt"
   (provide run)
 
-  (define (NOT v)
+  (define (~NOT v)
     ((☯ NOT)
      v))
 
   (define (run)
-    (run-benchmark NOT
+    (run-benchmark ~NOT
                    check-value
                    200000)))
 
-(module NAND "forms-base.rkt"
+(module NAND "base.rkt"
   (provide run)
 
-  (define (NAND . vs)
+  (define (~NAND . vs)
     (apply
      (☯ NAND)
      vs))
 
   (define (run)
-    (run-benchmark NAND
+    (run-benchmark ~NAND
                    check-values
                    200000)))
 
-(module NOR "forms-base.rkt"
+(module NOR "base.rkt"
   (provide run)
 
-  (define (NOR . vs)
+  (define (~NOR . vs)
     (apply
      (☯ NOR)
      vs))
 
   (define (run)
-    (run-benchmark NOR
+    (run-benchmark ~NOR
                    check-values
                    200000)))
 
-(module XOR "forms-base.rkt"
+(module XOR "base.rkt"
   (provide run)
 
-  (define (XOR . vs)
+  (define (~XOR . vs)
     (apply
      (☯ XOR)
      vs))
 
   (define (run)
-    (run-benchmark XOR
+    (run-benchmark ~XOR
                    check-values
                    200000)))
 
-(module XNOR "forms-base.rkt"
+(module XNOR "base.rkt"
   (provide run)
 
-  (define (XNOR . vs)
+  (define (~XNOR . vs)
     (apply
      (☯ XNOR)
      vs))
 
   (define (run)
-    (run-benchmark XNOR
+    (run-benchmark ~XNOR
                    check-values
                    200000)))
 
-(module tee "forms-base.rkt"
+(module tee "base.rkt"
   (provide run)
 
-  (define (tee v)
+  (define (~tee v)
     ((☯ (-< add1 sub1 sqr))
      v))
 
   (define (run)
-    (run-benchmark tee
+    (run-benchmark ~tee
                    check-value
                    200000)))
 
-(module try "forms-base.rkt"
+(module try "base.rkt"
   (provide run)
 
   (define (try-happy . vs)
@@ -498,7 +504,7 @@ for the forms are run.
                            (try-happy check-values 20000)
                            (try-error check-values 20000))))
 
-(module currying "forms-base.rkt"
+(module currying "base.rkt"
   (provide run)
 
   (define (currying . vs)
@@ -509,7 +515,7 @@ for the forms are run.
                    check-values
                    200000)))
 
-(module template "forms-base.rkt"
+(module template "base.rkt"
   (provide run)
 
   (define (template . vs)
@@ -520,7 +526,7 @@ for the forms are run.
                    check-values
                    200000)))
 
-(module catchall-template "forms-base.rkt"
+(module catchall-template "base.rkt"
   (provide run)
 
   (define (catchall-template . vs)
@@ -531,43 +537,43 @@ for the forms are run.
                    check-values
                    200000)))
 
-(module if "forms-base.rkt"
+(module if "base.rkt"
   (provide run)
 
-  (define (if . vs)
+  (define (~if . vs)
     (apply (☯ (if < 'hi 'bye))
            vs))
 
   (define (run)
-    (run-benchmark if
+    (run-benchmark ~if
                    check-values
                    500000)))
 
-(module when "forms-base.rkt"
+(module when "base.rkt"
   (provide run)
 
-  (define (when . vs)
+  (define (~when . vs)
     (apply (☯ (when < 'hi))
            vs))
 
   (define (run)
-    (run-benchmark when
+    (run-benchmark ~when
                    check-values
                    500000)))
 
-(module unless "forms-base.rkt"
+(module unless "base.rkt"
   (provide run)
 
-  (define (unless . vs)
+  (define (~unless . vs)
     (apply (☯ (unless < 'hi))
            vs))
 
   (define (run)
-    (run-benchmark unless
+    (run-benchmark ~unless
                    check-values
                    500000)))
 
-(module switch "forms-base.rkt"
+(module switch "base.rkt"
   (provide run)
 
   (define (switch-basic . vs)
@@ -595,41 +601,41 @@ for the forms are run.
                            (switch-else check-values 200000)
                            (switch-divert check-values 200000))))
 
-(module sieve "forms-base.rkt"
+(module sieve "base.rkt"
   (provide run)
 
-  (define (sieve . vs)
+  (define (~sieve . vs)
     (apply (☯ (sieve positive? 'hi 'bye))
            vs))
 
   (define (run)
-    (run-benchmark sieve
+    (run-benchmark ~sieve
                    check-values
                    100000)))
 
-(module partition "forms-base.rkt"
+(module partition "base.rkt"
   (provide run)
-  (define (partition . vs)
+  (define (~partition . vs)
     (apply (flow (partition [negative? *]
                             [zero? count]
                             [positive? +]))
            vs))
   (define (run)
-    (run-benchmark partition check-values 100000)))
+    (run-benchmark ~partition check-values 100000)))
 
-(module gate "forms-base.rkt"
+(module gate "base.rkt"
   (provide run)
 
-  (define (gate . vs)
+  (define (~gate . vs)
     (apply (☯ (gate <))
            vs))
 
   (define (run)
-    (run-benchmark gate
+    (run-benchmark ~gate
                    check-values
                    500000)))
 
-(module input-aliases "forms-base.rkt"
+(module input-aliases "base.rkt"
   (provide run)
 
   (define (input-alias-1 . vs)
@@ -657,7 +663,7 @@ for the forms are run.
                             check-values
                             100000))))
 
-(module fanout "forms-base.rkt"
+(module fanout "base.rkt"
   (provide run)
 
   (define (fanout-small-n . vs)
@@ -678,19 +684,19 @@ for the forms are run.
                             check-values
                             20000))))
 
-(module inverter "forms-base.rkt"
+(module inverter "base.rkt"
   (provide run)
 
-  (define (inverter . vs)
+  (define (~inverter . vs)
     (apply (☯ inverter)
            vs))
 
   (define (run)
-    (run-benchmark inverter
+    (run-benchmark ~inverter
                    check-values
                    200000)))
 
-(module feedback "forms-base.rkt"
+(module feedback "base.rkt"
   (provide run)
 
   (define (feedback-number . vs)
@@ -719,130 +725,130 @@ for the forms are run.
                             check-value
                             70000))))
 
-(module select "forms-base.rkt"
+(module select "base.rkt"
   (provide run)
 
-  (define (select . vs)
+  (define (~select . vs)
     (apply (☯ (select 3 5 8))
            vs))
 
   (define (run)
-    (run-benchmark select
+    (run-benchmark ~select
                    check-values
                    20000)))
 
-(module block "forms-base.rkt"
+(module block "base.rkt"
   (provide run)
 
-  (define (block . vs)
+  (define (~block . vs)
     (apply (☯ (block 3 5 8))
            vs))
 
   (define (run)
-    (run-benchmark block
+    (run-benchmark ~block
                    check-values
                    20000)))
 
-(module bundle "forms-base.rkt"
+(module bundle "base.rkt"
   (provide run)
 
-  (define (bundle . vs)
+  (define (~bundle . vs)
     (apply (☯ (bundle (3 5 8) + -))
            vs))
 
   (define (run)
-    (run-benchmark bundle
+    (run-benchmark ~bundle
                    check-values
                    20000)))
 
-(module effect "forms-base.rkt"
+(module effect "base.rkt"
   (provide run)
 
-  (define (effect . vs)
+  (define (~effect . vs)
     (apply (☯ (effect + +))
            vs))
 
   (define (run)
-    (run-benchmark effect
+    (run-benchmark ~effect
                    check-values
                    200000)))
 
-(module live? "forms-base.rkt"
+(module live? "base.rkt"
   (provide run)
 
-  (define (live? . vs)
+  (define (~live? . vs)
     (apply (☯ live?)
            vs))
 
   (define (run)
-    (run-benchmark live?
+    (run-benchmark ~live?
                    check-values
                    500000)))
 
-(module rectify "forms-base.rkt"
+(module rectify "base.rkt"
   (provide run)
 
-  (define (rectify . vs)
+  (define (~rectify . vs)
     (apply (☯ (rectify #f))
            vs))
 
   (define (run)
-    (run-benchmark rectify
+    (run-benchmark ~rectify
                    check-values
                    500000)))
 
-(module pass "forms-base.rkt"
+(module pass "base.rkt"
   (provide run)
 
-  (define (pass . vs)
+  (define (~pass . vs)
     (apply (☯ (pass odd?))
            vs))
 
   (define (run)
-    (run-benchmark pass
+    (run-benchmark ~pass
                    check-values
                    200000)))
 
-(module foldl "forms-base.rkt"
+(module foldl "base.rkt"
   (provide run)
 
-  (define (>> . vs)
+  (define (~foldl . vs)
     (apply (☯ (>> +))
            vs))
 
   (define (run)
-    (run-benchmark >>
+    (run-benchmark ~foldl
                    check-values
                    200000)))
 
-(module foldr "forms-base.rkt"
+(module foldr "base.rkt"
   (provide run)
 
-  (define (<< . vs)
+  (define (~foldr . vs)
     (apply (☯ (<< +))
            vs))
 
   (define (run)
-    (run-benchmark <<
+    (run-benchmark ~foldr
                    check-values
                    200000)))
 
-(module loop "forms-base.rkt"
+(module loop "base.rkt"
   (provide run)
 
-  (define (loop . vs)
+  (define (~loop . vs)
     (apply (☯ (loop live? sqr))
            vs))
 
   (define (run)
-    (run-benchmark loop
+    (run-benchmark ~loop
                    check-values
                    100000)))
 
-(module loop2 "forms-base.rkt"
+(module loop2 "base.rkt"
   (provide run)
 
-  (define (loop2 . vs)
+  (define (~loop2 . vs)
     ((☯ (~> (loop2 (~> 1> (not null?))
                    sqr
                    +)))
@@ -850,46 +856,51 @@ for the forms are run.
      0))
 
   (define (run)
-    (run-benchmark loop2
+    (run-benchmark ~loop2
                    check-values
                    100000)))
 
-(module apply "forms-base.rkt"
+(module apply "base.rkt"
   (provide run)
 
   (require (only-in racket/base
                     [apply b:apply]))
 
-  (define (apply . vs)
+  (define (~apply . vs)
     (b:apply (☯ apply)
              (cons + vs)))
 
   (define (run)
-    (run-benchmark apply
+    (run-benchmark ~apply
                    check-values
                    300000)))
 
-(module clos "forms-base.rkt"
+(module clos "base.rkt"
   (provide run)
 
   ;; TODO: this uses a lot of other things besides `clos` and is
   ;; likely not a reliable indicator
-  (define (clos . vs)
+  (define (~clos . vs)
     (apply (☯ (~> (-< (~> 5 (clos *)) _)
                   apply))
            vs))
 
   (define (run)
-    (run-benchmark clos
+    (run-benchmark ~clos
                    check-values
                    100000)))
 
-;; To run benchmarks for a form interactively, use e.g.:
-;; (require (submod "." fanout))
-;; (run)
+(module main racket/base
 
-(module* main cli
+  (provide benchmark)
 
+  (require racket/match
+           racket/format
+           relation
+           qi
+           (only-in "../util.rkt"
+                    only-if
+                    for/call))
   (require
    (prefix-in one-of?: (submod ".." one-of?))
    (prefix-in and: (submod ".." and))
@@ -952,14 +963,6 @@ for the forms are run.
    (prefix-in loop2: (submod ".." loop2))
    (prefix-in apply: (submod ".." apply))
    (prefix-in clos: (submod ".." clos)))
-
-  (require racket/match
-           racket/format
-           relation
-           qi
-           (only-in "util.rkt"
-                    only-if
-                    for/call))
 
   ;; It would be great if we could get the value of a variable
   ;; by using its (string) name, but (eval (string->symbol name))
@@ -1031,19 +1034,17 @@ for the forms are run.
      "apply" apply:run
      "clos" clos:run))
 
-  (flag (forms #:param [forms null] name)
-    ("-f" "--form" "Forms to benchmark")
-    (forms (cons name (forms))))
-
-  (constraint (multi forms))
-
-  (program (main)
-    (let ([fs (~>> ((forms))
-                   (only-if null?
-                     (gen (hash-keys env)))
-                   (sort <))])
-      (for ([f fs])
-        (match-let ([(list name ms) ((hash-ref env f))])
-          (displayln (~a name ": " ms " ms"))))))
-
-  (run main))
+  (define (benchmark forms)
+    (define fs (~>> (forms)
+                    (only-if null?
+                             (gen (hash-keys env)))
+                    (sort <)))
+    (define forms-data (for/list ([f (in-list fs)])
+                         (match-let ([(list name ms) ((hash-ref env f))])
+                           ;; Print results "live" to STDERR, with
+                           ;; only the actual output (if desired)
+                           ;; going to STDOUT at the end.
+                           (displayln (~a name ": " ms " ms")
+                                      (current-error-port))
+                           (hash 'name name 'unit "ms" 'value ms))))
+    forms-data))

@@ -4,24 +4,19 @@
          select-form
          block-form
          group-form
-         switch-form
          sieve-form
          partition-form
          try-form
-         fanout-form
          feedback-form
-         side-effect-form
          amp-form
-         input-alias
+         relay-form
+         tee-form
+         fanout-form
          if-form
          pass-form
          fold-left-form
          fold-right-form
          loop-form
-         blanket-template-form
-         and%-form
-         or%-form
-         right-threading-form
          clos-form)
 
 (require syntax/parse)
@@ -59,10 +54,6 @@ See comments in flow.rkt for more details.
   (pattern
    ((~datum group) arg ...)))
 
-(define-syntax-class switch-form
-  (pattern
-   ((~datum switch) arg ...)))
-
 (define-syntax-class sieve-form
   (pattern
    (~datum sieve))
@@ -76,18 +67,6 @@ See comments in flow.rkt for more details.
 (define-syntax-class try-form
   (pattern
    ((~datum try) arg ...)))
-
-(define-syntax-class input-alias
-  (pattern
-   (~or* (~datum 1>)
-         (~datum 2>)
-         (~datum 3>)
-         (~datum 4>)
-         (~datum 5>)
-         (~datum 6>)
-         (~datum 7>)
-         (~datum 8>)
-         (~datum 9>))))
 
 (define-syntax-class if-form
   (pattern
@@ -105,15 +84,23 @@ See comments in flow.rkt for more details.
   (pattern
    ((~datum feedback) arg ...)))
 
-(define-syntax-class side-effect-form
-  (pattern
-   ((~or* (~datum ε) (~datum effect)) arg ...)))
-
 (define-syntax-class amp-form
   (pattern
    (~or* (~datum ><) (~datum amp)))
   (pattern
    ((~or* (~datum ><) (~datum amp)) arg ...)))
+
+(define-syntax-class relay-form
+  (pattern
+   (~or* (~datum ==) (~datum relay)))
+  (pattern
+   ((~or* (~datum ==) (~datum relay)) arg ...)))
+
+(define-syntax-class tee-form
+  (pattern
+   (~or* (~datum -<) (~datum tee)))
+  (pattern
+   ((~or* (~datum -<) (~datum tee)) arg ...)))
 
 (define-syntax-class pass-form
   (pattern
@@ -135,24 +122,9 @@ See comments in flow.rkt for more details.
 
 (define-syntax-class loop-form
   (pattern
+   (~datum loop))
+  (pattern
    ((~datum loop) arg ...)))
-
-(define-syntax-class blanket-template-form
-  ;; "prarg" = "pre-supplied argument"
-  (pattern
-   (natex prarg-pre ... (~datum __) prarg-post ...)))
-
-(define-syntax-class and%-form
-  (pattern
-   ((~datum and%) arg ...)))
-
-(define-syntax-class or%-form
-  (pattern
-   ((~datum or%) arg ...)))
-
-(define-syntax-class right-threading-form
-  (pattern
-   ((~or* (~datum ~>>) (~datum thread-right)) arg ...)))
 
 (define-syntax-class clos-form
   (pattern

@@ -188,6 +188,28 @@ This separates the input list into its component values, produces a @racket[1] c
 
 This succinctness is possible because Qi reaps the twin benefits of (1) working directly with values (and not just collections of values), and (2) Racket's support for variadic functions that accept any number of inputs (in this case, @racket[+]).
 
+@section{Don't Stop Me Now}
+
+When you're interested in functionally transforming lists using operations like @racket[map], @racket[filter], @racket[foldl] and @racket[foldr], Qi is a good choice because its optimizing compiler eliminates intermediate representations that would ordinarily be constructed in computing the result of such a sequence, resulting in significant performance gains in some cases.
+
+For example, consider the Racket function:
+
+@codeblock{
+  (define (filter-map vs)
+    (map sqr (filter odd? vs)))
+}
+
+In evaluating this sequence, the input list is traversed to produce the result of @racket[filter], which is a list that is traversed one more time to produce another list that is the result of @racket[map].
+
+The equivalent Qi flow is:
+
+@codeblock{
+  (define-flow filter-map
+    (~> (filter odd?) (map sqr)))
+}
+
+Here, under the hood, each element of the input list is processed one at a time, with both of these functions being invoked on it in sequence, and then the output list is constructed by accumulating these individual results. This ensures that no intermediate lists are constructed along the way and that the input list is traversed just once -- a standard optimization technique called "stream fusion" or "deforestation." The Qi version produces the same result as the Racket code above, but it can be both faster as well as more memory-efficient, especially on large input lists. Note however that if the functions used in @racket[filter] and @racket[map] are not @emph{pure}, that is, if they perform side effects like printing to the screen or writing to a file, then the Qi flow would exhibit a different @seclink["Order_of_Effects"]{order of effects} than the Racket version.
+
 @section{Curbing Curries and Losing Lambdas}
 
 Since flows are just functions, you can use them anywhere that you would normally use a function. In particular, they are often a clearer alternative to using @hyperlink["https://en.wikipedia.org/wiki/Currying"]{currying} or @seclink["lambda"  #:doc '(lib "scribblings/guide/guide.scrbl")]{lambdas}. For instance, to double every number in a list, we could do:

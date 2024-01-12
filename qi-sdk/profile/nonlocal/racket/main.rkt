@@ -1,14 +1,19 @@
 #lang racket/base
 
-(provide cond-fn
-         compose-fn
+(provide conditionals
+         composition
          root-mean-square
-         fact
-         ping
-         eratos
+         factorial
+         pingala
+         eratosthenes
          collatz
-         filter-map-fn
+         range-map-car
+         filter-map
+         filter-map-foldr
+         filter-map-foldl
+         long-functional-pipeline
          filter-map-values
+         range-map-sum
          double-list
          double-values)
 
@@ -16,30 +21,30 @@
          racket/list
          racket/match)
 
-(define (cond-fn x)
+(define (conditionals x)
   (cond [(< x 5) (sqr x)]
         [(> x 5) (add1 x)]
         [else x]))
 
-(define (compose-fn v)
+(define (composition v)
   (sub1 (sqr (add1 v))))
 
 (define (root-mean-square vs)
   (sqrt (/ (apply + (map sqr vs))
            (length vs))))
 
-(define (fact n)
+(define (factorial n)
   (if (< n 2)
       1
-      (* (fact (sub1 n)) n)))
+      (* (factorial (sub1 n)) n)))
 
-(define (ping n)
+(define (pingala n)
   (if (< n 2)
       n
-      (+ (ping (sub1 n))
-         (ping (- n 2)))))
+      (+ (pingala (sub1 n))
+         (pingala (- n 2)))))
 
-(define (eratos n)
+(define (eratosthenes n)
   (let ([lst (range 2 (add1 n))])
     (let loop ([rem lst]
                [result null])
@@ -55,8 +60,30 @@
         [(odd? n) (cons n (collatz (+ (* 3 n) 1)))]
         [(even? n) (cons n (collatz (quotient n 2)))]))
 
-(define (filter-map-fn lst)
+(define (filter-map lst)
   (map sqr (filter odd? lst)))
+
+(define (filter-map-foldr lst)
+  (foldr + 0 (map sqr (filter odd? lst))))
+
+(define (filter-map-foldl lst)
+  (foldl + 0 (map sqr (filter odd? lst))))
+
+(define (range-map-car v)
+  (car (map sqr (range 0 v))))
+
+(define (range-map-sum n)
+  (apply + (map sqr (range 0 n))))
+
+(define (long-functional-pipeline v)
+  (foldl +
+         0
+         (map (λ (v) (* 2 v))
+              (filter (λ (v) (< (remainder v 10) 5))
+                      (values
+                       (map sqr
+                            (filter odd?
+                                    (range 0 v))))))))
 
 (define (filter-map-values . vs)
   (apply values

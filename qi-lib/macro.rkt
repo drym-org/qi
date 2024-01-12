@@ -4,21 +4,20 @@
          define-qi-syntax-rule
          define-qi-syntax-parser
          define-qi-foreign-syntaxes
-         (for-syntax qi-macro?
-                     qi-macro-transformer
-                     qi-macro))
+         (for-syntax qi-macro))
 
 (require (for-syntax racket/base
-                     syntax/parse
                      racket/format
                      racket/match
                      racket/list)
-         racket/format
+         (only-in "flow/extended/expander.rkt"
+                  qi-macro
+                  esc)
+         qi/flow/space
          syntax/parse/define
          syntax/parse)
 
 (begin-for-syntax
-  (struct qi-macro [transformer])
 
   (define (foreign-template-arg-indices tmpl)
     ;; return a list of indices corresponding to
@@ -88,16 +87,10 @@
             #'(esc (lambda (v) (original-macro v form ...))))]
        [name:id #'(esc (lambda (v) (original-macro v)))]))))
 
-(define-syntax define-qi-syntax
-  (syntax-parser
-    [(_ name transformer)
-     #`(define-syntax #,((make-interned-syntax-introducer 'qi) #'name)
-         transformer)]))
-
 (define-syntax define-qi-syntax-rule
   (syntax-parser
     [(_ (name . pat) template)
-     #`(define-syntax #,((make-interned-syntax-introducer 'qi) #'name)
+     #'(define-qi-syntax name
          (qi-macro
           (syntax-parser
             [(_ . pat) #'template])))]))
@@ -105,7 +98,7 @@
 (define-syntax define-qi-syntax-parser
   (syntax-parser
     [(_ name clause ...)
-     #`(define-syntax #,((make-interned-syntax-introducer 'qi) #'name)
+     #'(define-qi-syntax name
          (qi-macro
           (syntax-parser
             clause ...)))]))
@@ -113,8 +106,6 @@
 (define-syntax define-qi-foreign-syntaxes
   (syntax-parser
     [(_ form-name ...)
-     #:with (spaced-form-name ...) (map (make-interned-syntax-introducer 'qi)
-                                        (attribute form-name))
      #'(begin
-         (define-syntax spaced-form-name (make-qi-foreign-syntax-transformer #'form-name))
+         (define-qi-syntax form-name (make-qi-foreign-syntax-transformer #'form-name))
          ...)]))

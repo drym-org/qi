@@ -3,28 +3,35 @@
 (provide average
          measure
          check-value
+         check-value-medium-large
+         check-value-large
+         check-value-very-large
          check-list
+         check-large-list
          check-values
          check-two-values
          run-benchmark
          run-summary-benchmark
-         run-competitive-benchmark
+         run-nonlocal-benchmark
          (for-space qi only-if)
-         for/call)
+         for/call
+         write-csv
+         format-output)
 
 (require (only-in racket/list
                   range
                   second)
+         (only-in racket/function
+                  curryr)
          (only-in adjutor
                   values->list)
-         (only-in data/collection
-                  cycle
-                  take
-                  in)
-         racket/function
+         csv-writing
+         json
          racket/format
          syntax/parse/define
-         (for-syntax racket/base)
+         (for-syntax racket/base
+                     (only-in racket/string
+                              string-trim))
          qi)
 
 (define-flow average
@@ -53,6 +60,12 @@
       (set! i (remainder (add1 i) len))
       (fn (vector-ref inputs i)))))
 
+(define check-value-medium-large (curryr check-value #(100 200 300)))
+
+(define check-value-large (curryr check-value #(1000)))
+
+(define check-value-very-large (curryr check-value #(100000)))
+
 ;; This uses the same list input each time. Not sure if that
 ;; may end up being cached at some level and thus obfuscate
 ;; the results? On the other hand,
@@ -61,6 +74,12 @@
 (define (check-list fn how-many)
   ;; call a function with a single list argument
   (let ([vs (range 10)])
+    (for ([i how-many])
+      (fn vs))))
+
+(define (check-large-list fn how-many)
+  ;; call a function with a single list argument
+  (let ([vs (range 1000)])
     (for ([i how-many])
       (fn vs))))
 
@@ -84,10 +103,22 @@
 
 ;; Run a single benchmarking function a specified number of times
 ;; and report the time taken.
+;; TODO: this is very similar to run-nonlocal-benchmark and these
+;; should be unified.
 (define-syntax-parse-rule (run-benchmark f-name runner n-times)
   #:with name (datum->syntax #'f-name
-                (symbol->string
-                 (syntax->datum #'f-name)))
+                ;; this is because of the name collision between
+                ;; Racket functions and Qi forms, now that the latter
+                ;; are provided as identifiers in the qi binding space.
+                ;; Using a standard prefix (i.e. ~) in the naming and then
+                ;; detecting that, trimming it, here, is pretty hacky.
+                ;; One alternative could be to broaden the run-benchmark
+                ;; macro to support a name argument, but that seems like
+                ;; more work. It would be better to be able to introspect
+                ;; these somehow.
+                (string-trim (symbol->string
+                              (syntax->datum #'f-name))
+                             "~"))
   (let ([ms (measure runner f-name n-times)])
     (list name ms)))
 
@@ -107,20 +138,30 @@
 ;; Run different implementations of the same benchmark (e.g. a Racket vs a Qi
 ;; implementation) a specified number of times, and report the time taken
 ;; by each implementation.
-(define-syntax-parse-rule (run-competitive-benchmark name runner f-name n-times)
-  #:with f-builtin (datum->syntax #'name
-                     (string->symbol
-                      (string-append "b:"
-                                     (symbol->string
-                                      (syntax->datum #'f-name)))))
-  #:with f-qi (datum->syntax #'name
-                (string->symbol
-                 (string-append "q:"
-                                (symbol->string
-                                 (syntax->datum #'f-name)))))
-  (begin
-    (displayln (~a name ":"))
-    (for ([f (list f-builtin f-qi)]
-          [label (list "λ" "☯")])
-      (let ([ms (measure runner f n-times)])
-        (displayln (~a label ": " ms " ms"))))))
+(define (run-nonlocal-benchmark name runner f n-times)
+  (displayln (~a name ":") (current-error-port))
+  (let ([ms (measure runner f n-times)])
+    (displayln (~a ms " ms") (current-error-port))
+    (hash 'name name 'unit "ms" 'value ms)))
+
+(define (write-csv data)
+  (~> (data)
+      △
+      (>< (~> (-< (hash-ref 'name)
+                  (hash-ref 'unit)
+                  (hash-ref 'value))
+              ▽))
+      (-< '(name unit value)
+          _)
+      ▽
+      display-table))
+
+(define (format-output output fmt)
+  ;; Note: this is a case where declaring "constraints" on the CLI args
+  ;; would be useful, instead of using the ad hoc fallback `else` check here
+  ;; https://github.com/countvajhula/cli/issues/6
+  (cond
+    [(equal? fmt "json") (write-json output)]
+    [(equal? fmt "csv") (write-csv output)]
+    [(equal? fmt "") (values)]
+    [else (error (~a "Unrecognized format: " fmt "!"))]))

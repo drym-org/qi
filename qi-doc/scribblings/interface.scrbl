@@ -2,22 +2,12 @@
 @require[scribble/manual
          scribble-abbrevs/manual
          scribble/example
-         racket/sandbox
+         "eval.rkt"
          @for-label[qi
                     racket
                     syntax/parse/define]]
 
-@(define eval-for-docs
-  (parameterize ([sandbox-output 'string]
-                 [sandbox-error-output 'string]
-                 [sandbox-memory-limit #f])
-    (make-evaluator 'racket/base
-                    '(require qi
-                              (only-in racket/list range)
-                              racket/string)
-                    '(define ->string number->string)
-                    '(define (sqr x)
-                       (* x x)))))
+@(define eval-for-docs (make-eval-for-docs))
 
 @title{Language Interface}
 
@@ -42,6 +32,7 @@ The core entry-point to Qi from the host language is the form @racket[☯]. In a
                            collect
                            (esc expr)
                            (clos flow-expr)
+                           (as identifier ...)
                            (one-of? expr ...)
                            (all flow-expr)
                            (any flow-expr)
@@ -73,17 +64,21 @@ The core entry-point to Qi from the host language is the form @racket[☯]. In a
                            (thread-right flow-expr ...)
                            X
                            crossover
+                           ==
                            (== flow-expr ...)
+                           relay
                            (relay flow-expr ...)
                            (==* flow-expr ...)
                            (relay* flow-expr ...)
+                           -<
                            (-< flow-expr ...)
+                           tee
                            (tee flow-expr ...)
                            fanout
-                           (fanout number)
+                           (fanout nat)
                            feedback
-                           (feedback number flow-expr)
-                           (feedback number (then flow-expr) flow-expr)
+                           (feedback nat flow-expr)
+                           (feedback nat (then flow-expr) flow-expr)
                            (feedback (while flow-expr) flow-expr)
                            (feedback (while flow-expr) (then flow-expr) flow-expr)
                            count
@@ -99,7 +94,7 @@ The core entry-point to Qi from the host language is the form @racket[☯]. In a
                            (select index ...)
                            (block index ...)
                            (bundle (index ...) flow-expr flow-expr)
-                           (group number flow-expr flow-expr)
+                           (group nat flow-expr flow-expr)
                            sieve
                            (sieve flow-expr flow-expr flow-expr)
                            (partition [flow-expr flow-expr] ...)
@@ -132,23 +127,33 @@ The core entry-point to Qi from the host language is the form @racket[☯]. In a
                            (ε flow-expr flow-expr)
                            (effect flow-expr flow-expr)
                            apply
-                           literal
-                           (quote value)
-                           (quasiquote value)
-                           (quote-syntax value)
-                           (syntax value)
                            (qi:* expr ...)
                            (expr expr ... __ expr ...)
                            (expr expr ... _ expr ...)
                            (expr expr ...)
-                           expr]
+                           literal
+                           identifier]
+                [literal boolean
+                         char
+                         string
+                         bytes
+                         number
+                         regexp
+                         byte-regexp
+                         vector-literal
+                         box-literal
+                         prefab-literal
+                         (quote value)
+                         (quasiquote value)
+                         (quote-syntax value)
+                         (syntax value)]
                 [expr a-racket-expression]
                 [index exact-positive-integer?]
-                [number exact-nonnegative-integer?]
+                [nat exact-nonnegative-integer?]
                 [switch-expr [flow-expr flow-expr]
                              [flow-expr (=> flow-expr)]
                              [else flow-expr]]
-                [literal a-racket-literal]
+                [identifier a-racket-identifier]
                 [value a-racket-value])]
   @defform[(flow flow-expr)]
   )]{
@@ -353,19 +358,6 @@ The second way is if you want to describe a @tech{flow} using the host language 
       (esc (λ (a b) (+ a b))))
     (~> (3 5) add-two)
   ]
-
-Finally, note that the following case works:
-
-@examples[
-    #:eval eval-for-docs
-    (define (get-flow v)
-      (☯ (~> sqr (+ v))))
-    (~> (5) (get-flow 3))
-  ]
-
-You might expect here that the expression @racket[(get-flow 3)] would be treated as a @seclink["Templates_and_Partial_Application"]{partial application template}, so that the value @racket[5] would be provided to it as @racket[(get-flow 5 3)], resulting in an error. The reason this isn't what happens is that the partial application behavior in Qi when no argument positions have been indicated is implemented using currying rather than as a template application, and Racket's @racket[curry] and @racket[curryr] functions happen to evaluate to a result immediately if the maximum expected arguments have been provided. Thus, in this case, the @racket[(get-flow 3)] expression is first evaluated to produce a resulting @tech{flow} which then receives the value @racket[5].
-
-So, function applications where all of the arguments are provided syntactically, and which produce functions as their result, may be used as if they were simple function identifiers, and @racket[esc] may be left out.
 
 @subsection{Using Racket Macros as Flows}
 

@@ -2,24 +2,12 @@
 @require[scribble/manual
          scribble-abbrevs/manual
          scribble/example
-         racket/sandbox
+		 "eval.rkt"
          @for-label[qi
                     qi/probe
                     racket]]
 
-@(define eval-for-docs
-  (parameterize ([sandbox-output 'string]
-                 [sandbox-error-output 'string]
-                 [sandbox-memory-limit #f])
-    (make-evaluator 'racket/base
-                    '(require qi
-                              qi/probe
-                              (only-in racket/list range)
-                              racket/string
-                              (for-syntax syntax/parse
-                                          racket/base))
-                    '(define (sqr x)
-                       (* x x)))))
+@(define eval-for-docs (make-eval-for-docs))
 
 @title{Field Guide}
 
@@ -40,6 +28,10 @@ Decompose your @tech{flow} into its smallest components, and name each so that t
 @subsection{Carry Your Toolbox}
 
 A journeyman of one's craft -- a woodworker, electrician, or a plumber, say -- always goes to work with a trusty toolbox that contains the tools of the trade, some perhaps even of their own design. An electrician, for instance, may have a voltage tester, a multimeter, and a continuity tester in her toolbox. Although these are "debugging" tools, they aren't just for identifying bugs -- by providing rapid feedback, they enable her to explore and find creative solutions quickly and reliably. It's the same with Qi. Learn to use the @seclink["Debugging"]{debugging tools}, and use them often.
+
+@subsection{Be Intentional About Effects}
+
+Qi encourages a style that avoids "accidental" effects. A flow should either be pure (that is, it should be free of "side effects" such as printing to the screen or writing to a file), or its entire purpose should be to fulfill a side effect. It is considered inadvisable to have a function with sane inputs and outputs (resembling a pure function) that also performs a side effect. It would be better to decouple the effect from the rest of your function (@seclink["Use_Small_Building_Blocks"]{splitting it into smaller functions}, as necessary) and perform the effect explicitly via the @racket[effect] form, or otherwise escape from Qi using something like @racket[esc] (note that @seclink["Identifiers"]{function identifiers} used in a flow context are implicitly @racket[esc]aped) in order to perform the effect. This will ensure that there are no surprises with regard to @seclink["Order_of_Effects"]{order of effects}.
 
 @section{Debugging}
 
@@ -208,6 +200,17 @@ Methodical use of @racket[gen] together with the @seclink["Using_a_Probe"]{probe
 
 @bold{Common example}: Syntax patterns are defined in the @seclink["stxparse" #:doc '(lib "syntax/scribblings/syntax.scrbl")]{syntax/parse} library. If you are using them in Qi macros, you will need to @racket[(require syntax/parse)] at the appropriate phase level.
 
+@subsubsection{Identifier's Binding is Ambiguous}
+
+@codeblock{
+; count: identifier's binding is ambiguous
+;   in: count
+}
+
+@bold{Meaning}: The @tech/guide{expander} attempted to resolve a @tech/reference{reference} and found more than one possible @tech/reference{binding}.
+
+@bold{Common example}: Having a Racket function in scope that has the same name as a Qi form, and attempting to use this @seclink["Identifiers"]{unqualified identifier} as a flow. To avoid the issue, rename the Racket function to something else, or use an explicit @racket[esc] to indicate the Racket binding.
+
 @subsubsection{Not Defined as Syntax Class}
 
 @codeblock{
@@ -322,7 +325,7 @@ But in an idle moment, this clever shortcut may tempt you:
     (~> (3) ((get-f 1)))
   ]
 
-That is, since Qi typically interprets parenthesized expressions as @seclink["Templates_and_Partial_Application"]{partial application templates}, you might expect that this would pass the value @racket[3] to the function resulting from @racket[(get-f 1)]. In fact, that isn't what happens, and an error is raised instead. As there is only one datum within the outer pair of parentheses in @racket[((get-f 1))], the usual interpretation as partial application would not be useful, and could even lead to unexpected behavior (at least, with the current implementation that uses Racket's @racket[curry]). So instead, Qi attempts to interpret the expression as written, that is, as if it were wrapped in @racket[esc]. As a result, it attempts to evaluate @racket[((get-f 1))] and expects to receive a value that can be used as a @tech{flow} here. If, as in the above expression, the function resulting from @racket[(get-f 1)] expects a single argument, this is now an error as it is being invoked with none.
+That is, since Qi typically interprets parenthesized expressions as @seclink["Templates_and_Partial_Application"]{partial application templates}, you might expect that this would pass the value @racket[3] to the function resulting from @racket[(get-f 1)]. In fact, that isn't what happens, and an error is raised instead. As there is only one datum within the outer pair of parentheses in @racket[((get-f 1))], the usual interpretation as partial application would not typically be useful, so Qi opts to treat it as invalid syntax.
 
 One way to dodge this is by using an explicit template:
 
@@ -331,14 +334,6 @@ One way to dodge this is by using an explicit template:
   ]
 
 This works in most cases, but it has different semantics than the version using @racket[esc], as that version evaluates the escaped expression first to yield the @tech{flow} that will be applied to inputs, while this one only evaluates the (up to that point, incomplete) expression when it is actually invoked with arguments. In the most common cases there will be no difference to the result, but if the flow is invoked multiple times (for instance, if it were first defined as @racket[(define-flow my-flow (☯ ((get-f 1) _)))]), then the expression too would be evaluated multiple times, producing different functions each time. This may be computationally more expensive than using @racket[esc], and also, if either @racket[get-f] or the function it produces is stateful in any way (for instance, if it is a @hyperlink["https://www.gnu.org/software/guile/manual/html_node/Closure.html"]{closure} or if there is any randomness involved), then this version would also produce different results than the @racket[esc] version.
-
-Another way to do it is to simply promote the expression out of the nest:
-
-@racketblock[
-    (~> (3) (get-f 1))
-  ]
-
-Now, you might, once again, expect this to be treated as a partial application template, so that this would be equivalent to @racket[(get-f 3 1)] and would raise an error. But in fact, since the expression @racket[(get-f 1)] happens to be fully qualified with all the arguments it needs, the currying employed under the hood to implement partial application in this case @seclink["Using_Racket_to_Define_Flows"]{evaluates to a function result right away}. This then receives the value @racket[3], and consequently, this expression produces the correct result.
 
 So in sum, it's perhaps best to rely on @racket[esc] in such cases to be as explicit as possible about what you mean, rather than rely on quirks of the implementation that are revealed at this boundary between two languages.
 
@@ -358,6 +353,18 @@ This is because @racket[vector-set!] mutates the vector and produces not the res
 Worse still, even though this computation raises an error, we find that the original vector that we started with, @racket[vv], has been mutated to @racket[(vector 5 2 10)], since the same vector is operated on in both channels of the relay prior to the error being encountered.
 
 So in general, use mutable values with caution. Such values can be useful as side effects, for instance to capture some idea of statefulness, perhaps keeping track of the number of times a @tech{flow} was invoked. But they should generally not be used as inputs to a flow, especially if they are to be mutated.
+
+@subsubsection{Order of Effects}
+
+ Qi flows may exhibit a different order of effects (in the functional programming sense) than equivalent Racket functions.
+
+Consider the Racket expression: @racket[(map sqr (filter odd? (list 1 2 3 4 5)))]. As this invokes @racket[odd?] on all of the elements of the input list, followed by @racket[sqr] on all of the elements of the intermediate list, if we imagine that @racket[odd?] and @racket[sqr] print their inputs as a side effect before producing their results, then executing this program would print the numbers in the sequence @racket[1,2,3,4,5,1,3,5].
+
+The equivalent Qi flow is @racket[(~> ((list 1 2 3 4 5)) (filter odd?) (map sqr))]. As this sequence is @seclink["Don_t_Stop_Me_Now"]{"deforested" by Qi's compiler} to avoid multiple passes over the data and the memory overhead of intermediate representations, it invokes the functions in sequence @emph{on each element} rather than @emph{on all of the elements of each list in turn}. The printed sequence with Qi would be @racket[1,1,2,3,3,4,5,5].
+
+Yet, either implementation produces the same output: @racket[(list 1 9 25)].
+
+So, to reiterate, while the output of Qi flows will be the same as the output of equivalent Racket expressions, they may nevertheless exhibit a different order of effects.
 
 @section{Effectively Using Feedback Loops}
 
