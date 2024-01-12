@@ -354,7 +354,7 @@ Worse still, even though this computation raises an error, we find that the orig
 
 So in general, use mutable values with caution. Such values can be useful as side effects, for instance to capture some idea of statefulness, perhaps keeping track of the number of times a @tech{flow} was invoked. But they should generally not be used as inputs to a flow, especially if they are to be mutated.
 
-@subsection{Order of Effects}
+@subsubsection{Order of Effects}
 
  Qi flows may exhibit a different order of effects (in the functional programming sense) than equivalent Racket functions.
 
