@@ -3,7 +3,7 @@
          scribble-abbrevs/manual
          scribble/example
 		 "eval.rkt"
-         @for-label[qi
+         @for-label[(only-space-in qi qi)
                     racket]]
 
 @(define eval-for-docs (make-eval-for-docs))
