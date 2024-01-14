@@ -9,13 +9,13 @@
 ;;   https://github.com/drym-org/qi/wiki/The-Compiler#stream-fusion
 ;; for an overview and some details of this implementation.
 
-(provide (for-syntax deforest-rewrite))
-
 (require (for-syntax racket/base
                      syntax/parse
                      racket/syntax-srcloc
                      syntax/srcloc
-                     "../extended/util.rkt")
+                     "../extended/util.rkt"
+                     "pass.rkt")
+         "passes.rkt"
          racket/performance-hint
          racket/match
          racket/list
@@ -147,22 +147,22 @@
                                 (#%host-expression post-arg) ...))
                               blanket?))
                    form-stx)
-      #:attr next #'range->cstream-next
-      #:attr prepare #'range->cstream-prepare
-      #:attr contract #'(->* (real?) (real? real?) any)
-      #:attr name #'range
-      #:attr curry (make-producer-curry 1 3
-                                        blanket? pre-arg post-arg
-                                        fine? arg
-                                        form-stx))
+             #:attr next #'range->cstream-next
+             #:attr prepare #'range->cstream-prepare
+             #:attr contract #'(->* (real?) (real? real?) any)
+             #:attr name #'range
+             #:attr curry (make-producer-curry 1 3
+                                               blanket? pre-arg post-arg
+                                               fine? arg
+                                               form-stx))
 
     ;; The implicit stream producer from plain list.
     (pattern (~literal list->cstream)
-      #:attr next #'list->cstream-next
-      #:attr prepare #'list->cstream-prepare
-      #:attr contract #'(-> list? any)
-      #:attr name #''list->cstream
-      #:attr curry (λ (ctx name) #'(λ (v) v))))
+             #:attr next #'list->cstream-next
+             #:attr prepare #'list->cstream-prepare
+             #:attr contract #'(-> list? any)
+             #:attr name #''list->cstream
+             #:attr curry (λ (ctx name) #'(λ (v) v))))
 
   ;; Matches any stream transformer that can be in the head position
   ;; of the fused sequence even when there is no explicit
@@ -179,7 +179,7 @@
                    ((#%host-expression (~datum filter))
                     (#%host-expression f)
                     _)))
-      #:attr next #'filter-cstream-next))
+             #:attr next #'filter-cstream-next))
 
   ;; All implemented stream transformers - within the stream, only
   ;; single value is being passed and therefore procedures like `map`
@@ -195,7 +195,7 @@
                    ((#%host-expression (~datum map))
                     (#%host-expression f)
                     _)))
-      #:attr next #'map-cstream-next)
+             #:attr next #'map-cstream-next)
 
     (pattern (~or (#%blanket-template
                    ((#%host-expression (~datum filter))
@@ -205,7 +205,7 @@
                    ((#%host-expression (~datum filter))
                     (#%host-expression f)
                     _)))
-      #:attr next #'filter-cstream-next))
+             #:attr next #'filter-cstream-next))
 
   ;; Terminates the fused sequence (consumes the stream) and produces
   ;; an actual result value.
@@ -222,7 +222,7 @@
                     (#%host-expression op)
                     (#%host-expression init)
                     _)))
-      #:attr end #'(foldr-cstream-next op init))
+             #:attr end #'(foldr-cstream-next op init))
 
     (pattern (~or (#%blanket-template
                    ((#%host-expression (~datum foldl))
@@ -234,7 +234,7 @@
                     (#%host-expression op)
                     (#%host-expression init)
                     _)))
-      #:attr end #'(foldl-cstream-next op init))
+             #:attr end #'(foldl-cstream-next op init))
 
     (pattern (~or (esc (#%host-expression (~datum car)))
                   (#%fine-template
@@ -243,10 +243,10 @@
                   (#%blanket-template
                    ((#%host-expression (~datum car))
                     __)))
-      #:attr end #'(car-cstream-next))
+             #:attr end #'(car-cstream-next))
 
     (pattern (~literal cstream->list)
-      #:attr end #'(cstream-next->list)))
+             #:attr end #'(cstream-next->list)))
 
   ;; Used only in deforest-rewrite to properly recognize the end of
   ;; fusable sequence.
@@ -285,47 +285,49 @@
   ;; Performs one step of deforestation rewrite. Should be used as
   ;; many times as needed - until it returns the source syntax
   ;; unchanged.
-  (define (deforest-rewrite stx)
-    (syntax-parse stx
-      [((~datum thread) _0:non-fusable ...
-                        p:fusable-stream-producer
-                        ;; There can be zero transformers here:
-                        t:fusable-stream-transformer ...
-                        c:fusable-stream-consumer
-                        _1 ...)
-       #:with fused (generate-fused-operation
-                     (syntax->list #'(p t ... c))
-                     stx)
-       #'(thread _0 ... fused _1 ...)]
-      [((~datum thread) _0:non-fusable ...
-                        t1:fusable-stream-transformer0
-                        t:fusable-stream-transformer ...
-                        c:fusable-stream-consumer
-                        _1 ...)
-       #:with fused (generate-fused-operation
-                     (syntax->list #'(list->cstream t1 t ... c))
-                     stx)
-       #'(thread _0 ... fused _1 ...)]
-      [((~datum thread) _0:non-fusable ...
-                        p:fusable-stream-producer
-                        ;; Must be 1 or more transformers here:
-                        t:fusable-stream-transformer ...+
-                        _1 ...)
-       #:with fused (generate-fused-operation
-                     (syntax->list #'(p t ... cstream->list))
-                     stx)
-       #'(thread _0 ... fused _1 ...)]
-      [((~datum thread) _0:non-fusable ...
-                        f1:fusable-stream-transformer0
-                        f:fusable-stream-transformer ...+
-                        _1 ...)
-       #:with fused (generate-fused-operation
-                     (syntax->list #'(list->cstream f1 f ... cstream->list))
-                     stx)
-       #'(thread _0 ... fused _1 ...)]
-      ;; return the input syntax unchanged if no rules
-      ;; are applicable
-      [_ stx])))
+  (define-pass 100 (deforest stx)
+    (find-and-map/qi
+     (syntax-parser
+       [((~datum thread) _0:non-fusable ...
+                         p:fusable-stream-producer
+                         ;; There can be zero transformers here:
+                         t:fusable-stream-transformer ...
+                         c:fusable-stream-consumer
+                         _1 ...)
+        #:with fused (generate-fused-operation
+                      (syntax->list #'(p t ... c))
+                      stx)
+        #'(thread _0 ... fused _1 ...)]
+       [((~datum thread) _0:non-fusable ...
+                         t1:fusable-stream-transformer0
+                         t:fusable-stream-transformer ...
+                         c:fusable-stream-consumer
+                         _1 ...)
+        #:with fused (generate-fused-operation
+                      (syntax->list #'(list->cstream t1 t ... c))
+                      stx)
+        #'(thread _0 ... fused _1 ...)]
+       [((~datum thread) _0:non-fusable ...
+                         p:fusable-stream-producer
+                         ;; Must be 1 or more transformers here:
+                         t:fusable-stream-transformer ...+
+                         _1 ...)
+        #:with fused (generate-fused-operation
+                      (syntax->list #'(p t ... cstream->list))
+                      stx)
+        #'(thread _0 ... fused _1 ...)]
+       [((~datum thread) _0:non-fusable ...
+                         f1:fusable-stream-transformer0
+                         f:fusable-stream-transformer ...+
+                         _1 ...)
+        #:with fused (generate-fused-operation
+                      (syntax->list #'(list->cstream f1 f ... cstream->list))
+                      stx)
+        #'(thread _0 ... fused _1 ...)]
+       ;; return the input syntax unchanged if no rules
+       ;; are applicable
+       [_ stx])
+     stx)))
 
 (begin-encourage-inline
 

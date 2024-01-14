@@ -1,8 +1,6 @@
 #lang racket/base
 
-(provide (for-syntax compile-flow
-                     normalize-pass
-                     deforest-pass))
+(provide (for-syntax compile-flow))
 
 (require (for-syntax racket/base
                      syntax/parse
@@ -12,10 +10,11 @@
                      "../aux-syntax.rkt"
                      "pass.rkt"
                      "debug.rkt"
-                     "normalize.rkt"
                      "private/form-property.rkt")
-         "deforest.rkt"
          "impl.rkt"
+         "passes.rkt"
+         "normalize.rkt"
+         "deforest.rkt"
          (only-in racket/list make-list)
          racket/function
          racket/undefined
@@ -31,27 +30,8 @@
      #`(qi0->racket
         #,(optimize-flow stx))))
 
-  (define (deforest-pass stx)
-    ;; Note: deforestation happens only for threading,
-    ;; and the normalize pass strips the threading form
-    ;; if it contains only one expression, so this would not be hit.
-    (find-and-map/qi deforest-rewrite
-                     stx))
-
-  (define-qi-expansion-step (~deforest-pass stx)
-    (deforest-pass stx))
-
-  (define (normalize-pass stx)
-    (attach-form-property
-     (find-and-map/qi (fix normalize-rewrite)
-                      stx)))
-
-  (define-qi-expansion-step (~normalize-pass stx)
-    (normalize-pass stx))
-
   (define (optimize-flow stx)
-    (~deforest-pass
-     (~normalize-pass stx))))
+    (run-passes stx)))
 
 ;; Transformation rules for the `as` binding form:
 ;;
