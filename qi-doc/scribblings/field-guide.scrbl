@@ -390,7 +390,7 @@ So in general, use mutable values with caution. Such values can be useful as sid
 
 Consider the Racket expression: @racket[(map sqr (filter odd? (list 1 2 3 4 5)))]. As this invokes @racket[odd?] on all of the elements of the input list, followed by @racket[sqr] on all of the elements of the intermediate list, if we imagine that @racket[odd?] and @racket[sqr] print their inputs as a side effect before producing their results, then executing this program would print the numbers in the sequence @racket[1,2,3,4,5,1,3,5].
 
-The equivalent Qi flow is @racket[(~> ((list 1 2 3 4 5)) (filter odd?) (map sqr))]. As this sequence is @seclink["Don_t_Stop_Me_Now"]{"deforested" by Qi's compiler} to avoid multiple passes over the data and the memory overhead of intermediate representations, it invokes the functions in sequence @emph{on each element} rather than @emph{on all of the elements of each list in turn}. The printed sequence with Qi would be @racket[1,1,2,3,3,4,5,5].
+The equivalent Qi flow is @racket[(~> ((list 1 2 3 4 5)) (filter odd?) (map sqr))]. As this sequence is @seclink["Don_t_Stop_Me_Now"]{deforested by Qi's compiler} to avoid multiple passes over the data and the memory overhead of intermediate representations, it invokes the functions in sequence @emph{on each element} rather than @emph{on all of the elements of each list in turn}. The printed sequence with Qi would be @racket[1,1,2,3,3,4,5,5].
 
 Yet, either implementation produces the same output: @racket[(list 1 9 25)].
 
