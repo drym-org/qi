@@ -216,7 +216,7 @@ The core syntax of the Qi language. These forms may be used in any @tech{flow}. 
   @defidform[NOT]
   @defidform[!]
 )]{
-  A Boolean NOT gate, this negates the input.
+  A Boolean NOT gate, this negates the input. This is equivalent to Racket's @racket[not].
 
 @examples[
     #:eval eval-for-docs
