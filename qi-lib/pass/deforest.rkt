@@ -13,9 +13,9 @@
                      syntax/parse
                      racket/syntax-srcloc
                      syntax/srcloc
-                     "../extended/util.rkt"
-                     "pass.rkt")
-         "passes.rkt"
+                     "../flow/extended/util.rkt"
+                     "../flow/core/pass.rkt")
+         "../flow/core/passes.rkt"
          racket/performance-hint
          racket/match
          racket/list

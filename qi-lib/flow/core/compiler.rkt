@@ -1,6 +1,6 @@
 #lang racket/base
 
-(provide (for-syntax compile-flow normalize-pass deforest-pass))
+(provide (for-syntax compile-flow normalize-pass))
 
 (require (for-syntax racket/base
                      syntax/parse
@@ -14,7 +14,6 @@
          "impl.rkt"
          "passes.rkt"
          "normalize.rkt"
-         "deforest.rkt"
          (only-in racket/list make-list)
          racket/function
          racket/undefined
