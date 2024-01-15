@@ -396,7 +396,7 @@ Yet, either implementation produces the same output: @racket[(list 1 9 25)].
 
 So, to reiterate, while the output of Qi flows will be the same as the output of equivalent Racket expressions, they may nevertheless exhibit a different order of effects.
 
-If you'd like to ensure a specific order of effects, use @racket[effect] at the appropriate points in your flow. If you'd like to use Racket's order of effects, define your flow using @racket[esc] (although this would lose any Qi compiler optimizations).
+If you'd like to ensure a particular order of effects, use @racket[effect] at the appropriate points in your flow. If you'd like to use Racket's order of effects, define your flow using @racket[esc] (although this would lose any Qi compiler optimizations).
 
 @section{Effectively Using Feedback Loops}
 
