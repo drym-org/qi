@@ -202,9 +202,16 @@ Methodical use of @racket[gen] together with the @seclink["Using_a_Probe"]{probe
 ;   in: lambda
 }
 
-@bold{Meaning}: The Racket interpreter received syntax, in this case simply "lambda", that it considers to be invalid. Note that if it received something it didn't know anything about, it would say "undefined" rather than "bad syntax." Bad syntax indicates known syntax used in an incorrect way.
+@bold{Meaning}: The expander (either the Racket or Qi expander) received syntax, in this case simply "lambda", that it considers to be invalid. Note that if it received something it didn't know anything about, it would say "undefined" rather than "bad syntax." Bad syntax indicates known syntax used in an incorrect way.
 
-@bold{Common example}: A Racket expression has not been properly escaped within a Qi context. For instance, @racket[(flow (lambda (x) x))] is invalid because the wrapped expression is Racket rather than Qi. To fix this, use @racket[esc], as in @racket[(flow (esc (lambda (x) x)))].
+@bold{Common example}: A Racket expression has not been properly escaped within a Qi context. For instance, @racket[(☯ (lambda (x) x))] is invalid because the wrapped expression is Racket rather than Qi. To fix this, use @racket[esc], as in @racket[(☯ (esc (lambda (x) x)))].
+
+@codeblock{
+; not: bad syntax
+;   in: not
+}
+
+@bold{Common example}: Similar to the previous one, a Racket expression has not been properly escaped within a Qi context, but in a special case where the Racket expression has the same name as a Qi form. In this instance, you may have used @racket[(☯ not)] expecting to invoke Racket's @racket[not] function, since @seclink["Identifiers"]{function identifiers may be used as flows directly} without needing to be escaped. But as Qi has a @racket[not] form as well, Qi's expander first attempts to match this against legitimate use of Qi's @racket[not], which fails, since this expects a flow as an argument and cannot be used in identifier form. To fix this, use an explicit @racket[esc], as in @racket[(☯ (esc not))].
 
 @bold{Common example}: Trying to use a Racket macro (rather than a function), or a macro from another DSL, as a @tech{flow} without first registering it via @racket[define-qi-foreign-syntaxes]. In general, Qi expects flows to be functions unless otherwise explicitly signaled.
 
