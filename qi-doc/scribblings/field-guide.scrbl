@@ -502,9 +502,9 @@ Using this approach, you would need to register each such foreign macro using @r
 
 @subsection{Bindings are an Alternative to Nonlinearity}
 
-In some cases, we'd prefer to think of a nonlinear @tech{flow} as a linear sequence on a subset of arguments that happens to need the remainder of the arguments somewhere down the line. In such cases, it is advisable to employ bindings so that the flow can be defined on this subset of them and employ the remainder by name.
+In some cases, we'd prefer to think of a nonlinear @tech{flow} as a linear sequence on a subset of arguments that happens to need the remainder of the arguments somewhere down the line. In such cases, it is advisable to employ @seclink["Binding"]{bindings} so that the flow can be defined on this subset of them and employ the remainder by name.
 
-For example, these are equivalent:
+For example, for a function called @racket[make-document] accepting two arguments that are the name of the document and a file object, these implementations are equivalent:
 
 @codeblock{
   (define-flow make-document
@@ -516,8 +516,8 @@ For example, these are equivalent:
 }
 
 @codeblock{
-  (define (make-document name file)
-    (~>> (file)
+  (define-flow make-document
+    (~>> (== (as name) _)
          file-contents
          (parse-result document/p)
          △
