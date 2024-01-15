@@ -282,51 +282,50 @@
                      '#,(build-source-location-vector
                          (syntax-srcloc ctx)))))]))
 
-  ;; Performs one step of deforestation rewrite. Should be used as
-  ;; many times as needed - until it returns the source syntax
-  ;; unchanged.
+  ;; Performs deforestation rewrite on the whole syntax tree.
   (define-pass 100 (deforest stx)
     (find-and-map/qi
-     (syntax-parser
-       [((~datum thread) _0:non-fusable ...
-                         p:fusable-stream-producer
-                         ;; There can be zero transformers here:
-                         t:fusable-stream-transformer ...
-                         c:fusable-stream-consumer
-                         _1 ...)
-        #:with fused (generate-fused-operation
-                      (syntax->list #'(p t ... c))
-                      stx)
-        #'(thread _0 ... fused _1 ...)]
-       [((~datum thread) _0:non-fusable ...
-                         t1:fusable-stream-transformer0
-                         t:fusable-stream-transformer ...
-                         c:fusable-stream-consumer
-                         _1 ...)
-        #:with fused (generate-fused-operation
-                      (syntax->list #'(list->cstream t1 t ... c))
-                      stx)
-        #'(thread _0 ... fused _1 ...)]
-       [((~datum thread) _0:non-fusable ...
-                         p:fusable-stream-producer
-                         ;; Must be 1 or more transformers here:
-                         t:fusable-stream-transformer ...+
-                         _1 ...)
-        #:with fused (generate-fused-operation
-                      (syntax->list #'(p t ... cstream->list))
-                      stx)
-        #'(thread _0 ... fused _1 ...)]
-       [((~datum thread) _0:non-fusable ...
-                         f1:fusable-stream-transformer0
-                         f:fusable-stream-transformer ...+
-                         _1 ...)
-        #:with fused (generate-fused-operation
-                      (syntax->list #'(list->cstream f1 f ... cstream->list))
-                      stx)
-        #'(thread _0 ... fused _1 ...)]
-       ;; return the input syntax unchanged if no rules
-       ;; are applicable
-       [_ stx])
+     (lambda (stx)
+       (syntax-parse stx
+         [((~datum thread) _0:non-fusable ...
+                           p:fusable-stream-producer
+                           ;; There can be zero transformers here:
+                           t:fusable-stream-transformer ...
+                           c:fusable-stream-consumer
+                           _1 ...)
+          #:with fused (generate-fused-operation
+                        (syntax->list #'(p t ... c))
+                        stx)
+          #'(thread _0 ... fused _1 ...)]
+         [((~datum thread) _0:non-fusable ...
+                           t1:fusable-stream-transformer0
+                           t:fusable-stream-transformer ...
+                           c:fusable-stream-consumer
+                           _1 ...)
+          #:with fused (generate-fused-operation
+                        (syntax->list #'(list->cstream t1 t ... c))
+                        stx)
+          #'(thread _0 ... fused _1 ...)]
+         [((~datum thread) _0:non-fusable ...
+                           p:fusable-stream-producer
+                           ;; Must be 1 or more transformers here:
+                           t:fusable-stream-transformer ...+
+                           _1 ...)
+          #:with fused (generate-fused-operation
+                        (syntax->list #'(p t ... cstream->list))
+                        stx)
+          #'(thread _0 ... fused _1 ...)]
+         [((~datum thread) _0:non-fusable ...
+                           f1:fusable-stream-transformer0
+                           f:fusable-stream-transformer ...+
+                           _1 ...)
+          #:with fused (generate-fused-operation
+                        (syntax->list #'(list->cstream f1 f ... cstream->list))
+                        stx)
+          #'(thread _0 ... fused _1 ...)]
+         ;; return the input syntax unchanged if no rules
+         ;; are applicable
+         [_ stx]))
      stx)))
 
 (begin-encourage-inline

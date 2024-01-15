@@ -1,7 +1,7 @@
 #lang racket/base
 
 (require (for-syntax racket/base
-                     (for-syntax racket/base)
+                     (for-syntax racket/base racket/syntax)
                      macro-debugger/emit))
 
 (provide (for-syntax define-pass
@@ -32,12 +32,16 @@
   (define-syntax (define-pass stx)
     (syntax-case stx ()
       ((_ prio (name stx) expr ...)
-       #'(register-pass #'name prio (lambda (stx) expr ...)))))
+       (with-syntax ((name-pass (format-id #'name "~a-pass" (syntax-e #'name))))
+         #'(begin
+             (define name-pass (lambda (stx) expr ...))
+             (provide name-pass)
+             (register-pass #'name prio name-pass)
+             )))))
 
   ;; Runs registered passes on given syntax object - should be used by
   ;; the actual compiler.
   (define (run-passes stx)
-    (displayln registered-passes)
     (for/fold ((stx stx))
               ((pass (in-list (unbox registered-passes))))
       (define stx1 ((passdef-parser pass) stx))
