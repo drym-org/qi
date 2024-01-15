@@ -26,12 +26,13 @@
   ;; note: this does not return compiled code but instead,
   ;; syntax whose expansion compiles the code
   (define (compile-flow stx)
-    (process-bindings
-     #`(qi0->racket
-        #,(optimize-flow stx))))
+    (run-passes stx))
 
-  (define (optimize-flow stx)
-    (run-passes stx)))
+  (define-pass 1000 (qi0-wrapper stx)
+    (syntax-parse stx
+      (ex #'(qi0->racket ex))))
+
+  )
 
 ;; Transformation rules for the `as` binding form:
 ;;
@@ -88,7 +89,7 @@
     (with-syntax ([(v ...) ids])
       #`(let ([v undefined] ...) #,stx)))
 
-  (define-qi-expansion-step (process-bindings stx)
+  (define-pass 2000 (bindings stx)
     ;; TODO: use syntax-parse and match ~> specifically.
     ;; Since macros are expanded "outside in," presumably
     ;; it will naturally wrap the outermost ~>
