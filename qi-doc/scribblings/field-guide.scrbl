@@ -396,6 +396,8 @@ Yet, either implementation produces the same output: @racket[(list 1 9 25)].
 
 So, to reiterate, while the output of Qi flows will be the same as the output of equivalent Racket expressions, they may nevertheless exhibit a different order of effects.
 
+If you'd like to ensure a specific order of effects, use @racket[effect] at the appropriate points in your flow. If you'd like to use Racket's order of effects, define your flow using @racket[esc] (although this would lose any Qi compiler optimizations).
+
 @section{Effectively Using Feedback Loops}
 
 @racket[feedback] is Qi's most powerful looping form, useful for arbitrary recursion. As it encourages quite a different way of thinking than Racket's usual looping forms do, here are some tips on "grokking" it.
