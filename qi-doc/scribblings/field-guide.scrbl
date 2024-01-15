@@ -31,7 +31,37 @@ A journeyman of one's craft -- a woodworker, electrician, or a plumber, say -- a
 
 @subsection{Be Intentional About Effects}
 
-Qi encourages a style that avoids "accidental" effects. A flow should either be pure (that is, it should be free of "side effects" such as printing to the screen or writing to a file), or its entire purpose should be to fulfill a side effect. It is considered inadvisable to have a function with sane inputs and outputs (resembling a pure function) that also performs a side effect. It would be better to decouple the effect from the rest of your function (@seclink["Use_Small_Building_Blocks"]{splitting it into smaller functions}, as necessary) and perform the effect explicitly via the @racket[effect] form, or otherwise escape from Qi using something like @racket[esc] (note that @seclink["Identifiers"]{function identifiers} used in a flow context are implicitly @racket[esc]aped) in order to perform the effect. This will ensure that there are no surprises with regard to @seclink["Order_of_Effects"]{order of effects}.
+Qi encourages a style that avoids "accidental" effects.
+
+In functional programming, "effects" refer to anything that the function does that is not captured in its inputs and outputs. This could include things like printing to the screen or writing to a file.
+
+A flow should either be pure (that is, free of such side effects), or its entire purpose should be to fulfill a side effect. It is considered inadvisable to have a function with sane inputs and outputs (resembling a pure function) that also performs a side effect. It would be better to decouple the effect from the rest of your function (@seclink["Use_Small_Building_Blocks"]{splitting it into smaller functions}, as necessary) and perform the effect explicitly via the @racket[effect] form, or otherwise escape from Qi using something like @racket[esc] (note that @seclink["Identifiers"]{function identifiers} used in a flow context are implicitly @racket[esc]aped) in order to perform the effect. This will ensure that there are no surprises with regard to @seclink["Order_of_Effects"]{order of effects}.
+
+For example, say that we wish to perform a simple numeric transformation on an input number, but also print the intermediate values to the screen. We might do it this way:
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+    (define (my-square v)
+      (displayln v)
+      (sqr v))
+
+    (define (my-add1 v)
+      (displayln v)
+      (add1 v))
+
+    (~> (3) my-square my-add1)
+]
+
+This is considered poor style since we've mixed pure functions with implicit effects. Instead, following the above guideline, we would write it this way:
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+	(~> (3) (ε displayln sqr) (ε displayln add1))
+]
+
+This uses the pure functions @racket[sqr] and @racket[add1], extracting the effectful @racket[displayln] as an explicit @racket[effect].
 
 @section{Debugging}
 
