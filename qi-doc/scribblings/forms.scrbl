@@ -819,7 +819,7 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
 @section{Binding}
 
 @defform[(as v ...)]{
-  A @tech{flow} that binds an identifier @racket[v] to the input value. If there are many input values, than there should be as many identifiers as there are inputs.
+  A @tech{flow} that binds an identifier @racket[v] to the input value. If there are many input values, than there should be as many identifiers as there are inputs. Aside from introducing bindings, this flow produces no output.
 
 @examples[
     #:eval eval-for-docs
