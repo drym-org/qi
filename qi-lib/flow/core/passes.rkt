@@ -18,21 +18,23 @@
   (define registered-passes (box '()))
 
   ;; Low-level pass registration: symbol (name), number (priority) and
-  ;; procedure accepting the syntax (parser).
+  ;; procedure accepting the syntax (parser). Sorting upon
+  ;; registration is prefered as register-pass is evaluated only once
+  ;; per registered pass but run-passes can be evaluated many more
+  ;; times - once for each compiled flow.
   (define (register-pass name prio parser)
     (set-box! registered-passes
               (sort (cons (passdef name prio parser)
                           (unbox registered-passes))
-                    (lambda (a b)
-                      (< (passdef-prio a)
-                         (passdef-prio b))))))
+                    <
+                    #:key passdef-prio)))
 
   ;; Syntax macro wrapper for convenient definitions of compiler
   ;; passes. Should be used by modules implementing passes.
   (define-syntax (define-pass stx)
     (syntax-case stx ()
       ((_ prio (name stx) expr ...)
-       (with-syntax ((name-pass (format-id #'name "~a-pass" (syntax-e #'name))))
+       (with-syntax ((name-pass (format-id #'name "~a-pass" #'name)))
          #'(begin
              (define name-pass (lambda (stx) expr ...))
              (provide name-pass)
