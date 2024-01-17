@@ -33,9 +33,9 @@ A journeyman of one's craft -- a woodworker, electrician, or a plumber, say -- a
 
 Qi encourages a style that avoids "accidental" effects.
 
-In functional programming, "effects" refer to anything that the function does that is not captured in its inputs and outputs. This could include things like printing to the screen or writing to a file.
+In functional programming, "effects" refer to anything that the function does that is not captured in its inputs and outputs. This could include things like printing to the screen, writing to a file, or mutating a global variable.
 
-A flow should either be pure (that is, free of such side effects), or its entire purpose should be to fulfill a side effect. It is considered inadvisable to have a function with sane inputs and outputs (resembling a pure function) that also performs a side effect. It would be better to decouple the effect from the rest of your function (@seclink["Use_Small_Building_Blocks"]{splitting it into smaller functions}, as necessary) and perform the effect explicitly via the @racket[effect] form, or otherwise escape from Qi using something like @racket[esc] (note that @seclink["Identifiers"]{function identifiers} used in a flow context are implicitly @racket[esc]aped) in order to perform the effect. This will ensure that there are no surprises with regard to @seclink["Order_of_Effects"]{order of effects}.
+A @tech{flow} should either be pure (that is, free of such side effects), or its entire purpose should be to fulfill a side effect. It is considered inadvisable to have a function with sane inputs and outputs (resembling a pure function) that also performs a side effect. It would be better to decouple the effect from the rest of your function (@seclink["Use_Small_Building_Blocks"]{splitting it into smaller functions}, as necessary) and perform the effect explicitly via the @racket[effect] form, or otherwise escape from Qi using something like @racket[esc] (note that @seclink["Identifiers"]{function identifiers} used in a flow context are implicitly @racket[esc]aped) in order to perform the effect. This will ensure that there are no surprises with regard to @seclink["Order_of_Effects"]{order of effects}.
 
 For example, say that we wish to perform a simple numeric transformation on an input number, but also print the intermediate values to the screen. We might do it this way:
 
@@ -393,7 +393,7 @@ So in general, use mutable values with caution. Such values can be useful as sid
 
 @subsubsection{Order of Effects}
 
- Qi flows may exhibit a different order of effects (in the functional programming sense) than equivalent Racket functions.
+ Qi @tech{flows} may exhibit a different order of effects (in the @seclink["Be_Intentional_About_Effects"]{functional programming sense}) than equivalent Racket functions.
 
 Consider the Racket expression: @racket[(map sqr (filter odd? (list 1 2 3 4 5)))]. As this invokes @racket[odd?] on all of the elements of the input list, followed by @racket[sqr] on all of the elements of the intermediate list, if we imagine that @racket[odd?] and @racket[sqr] print their inputs as a side effect before producing their results, then executing this program would print the numbers in the sequence @racket[1,2,3,4,5,1,3,5].
 
