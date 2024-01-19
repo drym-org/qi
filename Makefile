@@ -40,6 +40,7 @@ help:
 	@echo "coverage-check - Run test coverage checker"
 	@echo "coverage-report - View test coverage report"
 	@echo "docs - view docs in a browser"
+	@echo "new-benchmarks - Run new benchmarks and generate an HTML report"
 	@echo "profile - Get a performance profile of any Racket command"
 	@echo "benchmark - Run comprehensive performance benchmarks"
 	@echo "benchmark-competitive - Run competitive benchmarks"
@@ -189,6 +190,10 @@ profile:
 	@echo "For more options:"
 	@echo "  raco profile --help"
 
+# assumes the existence of the qi-benchmarks folder
+new-benchmarks:
+	cd qi-benchmarks && ./create-benchmarks.sh && mv results/* results/output
+
 benchmark-local:
 	racket $(PACKAGE-NAME)-sdk/benchmarks/local/report.rkt
 
@@ -212,4 +217,4 @@ performance-report:
 performance-regression-report:
 	@racket $(PACKAGE-NAME)-sdk/benchmarks/report.rkt -r $(REF)
 
-.PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-expander test-compiler test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile benchmark-local benchmark-loading benchmark-selected-forms benchmark-competitive benchmark-nonlocal benchmark performance-report performance-regression-report
+.PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-expander test-compiler test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile new-benchmarks benchmark-local benchmark-loading benchmark-selected-forms benchmark-competitive benchmark-nonlocal benchmark performance-report performance-regression-report

@@ -31,13 +31,16 @@ jobs:
         run: make install
       - name: Install SDK
         run: make install-sdk
+      - name: Install New Benchmarks Suite
+        run: |
+          git clone https://gitlab.com/racketeer/qi-benchmarks.git
       - name: Run benchmark
         shell: 'bash --noprofile --norc -eo pipefail {0}'
-        run: make new-benchmarks  # TODO: add this new target
+        run: make new-benchmarks
       - name: Push to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4.4.1
         with:
-          folder: competitive-benchmarks/qi
+          folder: qi-benchmarks/results/output
           target-folder: competitive-benchmarks
           branch: gh-pages
           clean: true
