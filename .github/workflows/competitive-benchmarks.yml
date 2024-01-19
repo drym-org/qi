@@ -3,7 +3,7 @@ name: competitive-benchmarks
 on:
   push:
     branches:
-      - main  # TODO: change to gather-new-benchmark-data
+      - gather-new-benchmark-data
     paths:
       - 'qi-sdk/profile/**'
       - 'qi-lib/**'
