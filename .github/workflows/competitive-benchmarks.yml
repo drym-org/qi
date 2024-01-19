@@ -30,7 +30,7 @@ jobs:
       - name: Install Package and its Dependencies
         run: make install
       - name: Install SDK
-        run: make install-sdk  # TODO: should first add dependency on new benchmarks suite in info.rkt
+        run: make install-sdk
       - name: Run benchmark
         shell: 'bash --noprofile --norc -eo pipefail {0}'
         run: make new-benchmarks  # TODO: add this new target

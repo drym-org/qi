@@ -11,6 +11,7 @@
                "relation-lib"
                "csv-writing"
                "require-latency"
+               "git://gitlab.com/racketeer/qi-benchmarks.git#master"
                "cover"
                "cover-coveralls"))
 (define build-deps '())
