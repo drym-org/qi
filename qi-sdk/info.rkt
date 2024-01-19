@@ -12,6 +12,7 @@
                "csv-writing"
                "require-latency"
                "simple-polynomial"  ; for qi-benchmarks
+               "colorblind-palette"
                "cover"
                "cover-coveralls"))
 (define build-deps '())
