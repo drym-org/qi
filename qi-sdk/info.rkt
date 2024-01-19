@@ -11,6 +11,7 @@
                "relation-lib"
                "csv-writing"
                "require-latency"
+               "simple-polynomial"  ; for qi-benchmarks
                "cover"
                "cover-coveralls"))
 (define build-deps '())
