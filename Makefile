@@ -192,7 +192,7 @@ profile:
 
 # assumes the existence of the qi-benchmarks folder
 new-benchmarks:
-	cd qi-benchmarks && ./create-benchmarks.sh && mv results/* results/output
+	cd qi-benchmarks && chmod +x create-benchmarks.sh && ./create-benchmarks.sh && mv results/* results/output
 
 benchmark-local:
 	racket $(PACKAGE-NAME)-sdk/benchmarks/local/report.rkt
