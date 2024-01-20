@@ -17,6 +17,9 @@ qi
 ===
 An embeddable flow-oriented language.
 
+.. image:: https://github.com/drym-org/qi/assets/401668/d3acf9a9-23f7-4374-95b7-8b5d785f9946
+   :width: 30%
+
 Install it from the `Racket Package Index <https://pkgs.racket-lang.org/package/qi>`_.
 Read `the documentation <https://docs.racket-lang.org/qi/index.html>`_ to learn more. See `the Wiki <https://github.com/drym-org/qi/wiki>`_ for community resources, events, and developer documentation.
 
