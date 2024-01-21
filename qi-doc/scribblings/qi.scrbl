@@ -9,6 +9,13 @@
 
 An embeddable, general-purpose language to allow convenient framing of programming logic in terms of functional @tech{flows}. A flow is a function from inputs to outputs, and Qi provides compact notation for describing complex flows.
 
+@; Modified from Maciej Barc's req package
+@(let ([logo-path
+        "scribblings/assets/img/logo.svg"])
+   (if (file-exists? logo-path)
+       (centered (image logo-path #:scale 0.7))
+       (printf "[WARNING] No ~a file found!~%" logo-path)))
+
 Tired of writing long functional pipelines with nested syntax like this?
 @racketblock[(map _f (filter _g (vector->list _my-awesome-data)))]
 Then Qi is for you!
