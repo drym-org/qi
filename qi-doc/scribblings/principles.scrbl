@@ -122,3 +122,20 @@ It turns out that the core routing forms of Qi fulfill the definition of @hyperl
 So evidently, flows are just @hyperlink["https://www.sciencedirect.com/science/article/pii/S1571066106001666/pdf"]{monoids in suitable subcategories of bifunctors} (what's the problem?), or, in another way of looking at it, @hyperlink["https://bentnib.org/arrows.pdf"]{enriched Freyd categories}.
 
 Therefore, any theoretical results about arrows should generally apply to Qi as well (but not necessarily, since Qi is not @emph{just} arrows).
+
+@section{It's Languages All the Way Down}
+
+Qi is a language implemented on top of another language, Racket, by means of a macro called @racket[flow]. All of the other macros that serve as Qi's @seclink["Embedding_a_Hosted_Language"]{embedding} into Racket, such as (the Racket macros) @racket[~>] and @racket[switch], expand to a use of @racket[flow].
+
+@racket[flow] accepts Qi syntax and (like any @tech/reference{macro}) produces Racket syntax. It does this in two stages:
+
+@itemlist[#:style 'ordered
+  @item{Expansion, where the Qi source expression is translated to a small core language (Core Qi).}
+  @item{Compilation, where the Core Qi expression is optimized and then translated into Racket.}
+]
+
+All of this happens at @seclink["phases" #:doc '(lib "scribblings/guide/guide.scrbl")]{compile time}, and consequently, the generated Racket code is then itself @seclink["expansion" #:doc '(lib "scribblings/reference/reference.scrbl")]{expanded} to a @seclink["fully-expanded" #:doc '(lib "scribblings/reference/reference.scrbl")]{small core language} and then @tech/reference{compiled} to @seclink["JIT" #:doc '(lib "scribblings/guide/guide.scrbl")]{bytecode} for evaluation in the runtime environment, as usual.
+
+Thus, Qi is a special kind of @seclink["Hosted_Languages"]{hosted language}, one that happens to have the same architecture as the host language, Racket, in terms of having distinct expansion and compilation steps. This gives it a lot of flexibility in its implementation, including allowing much of its surface syntax to be implemented as @seclink["Qi_Macros"]{Qi macros} (for instance, Qi's @racket[switch] expands to a use of Qi's @racket[if] just as Racket's @racket[cond] expands to a use of Racket's @racket[if]), allowing it to be naturally macro-extensible by users, and lending it the ability to @seclink["Don_t_Stop_Me_Now"]{perform optimizations on the core language} that allow idiomatic code to be performant.
+
+This architecture is achieved through the use of @seclink["top" #:indirect? #t #:doc '(lib "syntax-spec-v1/scribblings/main.scrbl")]{Syntax Spec}, following the general approach described in @hyperlink["https://dl.acm.org/doi/abs/10.1145/3428297"]{Macros for Domain-Specific Languages (Ballantyne et. al.)}.
