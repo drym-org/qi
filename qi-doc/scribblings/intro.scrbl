@@ -73,7 +73,7 @@ For macros, we cannot use them naively as @tech{flows} because macros expect all
 
 The threading library also provides numerous shorthands for common cases, many of which don't have equivalents in Qi -- if you'd like to have these, please @hyperlink["https://github.com/drym-org/qi/issues/"]{create an issue} on the source repo to register your interest.
 
-Finally, by virtue of having an optimizing compiler, Qi also offers performance benefits in some cases, including for use of sequences of standard functional operations on lists like @racket[map] and @racket[filter], which in Qi @seclink["Don_t_Stop_Me_Now"]{avoid constructing intermediate representations} along the way to generating the final result.
+Finally, by virtue of having an @seclink["It_s_Languages_All_the_Way_Down"]{optimizing compiler}, Qi also offers performance benefits in some cases, including for use of sequences of standard functional operations on lists like @racket[map] and @racket[filter], which in Qi @seclink["Don_t_Stop_Me_Now"]{avoid constructing intermediate representations} along the way to generating the final result.
 
 @close-eval[eval-for-docs]
 @(set! eval-for-docs #f)
