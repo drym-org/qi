@@ -202,7 +202,7 @@ Methodical use of @racket[gen] together with the @seclink["Using_a_Probe"]{probe
 ;   in: lambda
 }
 
-@bold{Meaning}: The expander (either the Racket or Qi expander) received syntax, in this case simply "lambda", that it considers to be invalid. Note that if it received something it didn't know anything about, it would say "undefined" rather than "bad syntax." Bad syntax indicates known syntax used in an incorrect way.
+@bold{Meaning}: The expander (@seclink["It_s_Languages_All_the_Way_Down"]{either the Racket or Qi expander}) received syntax, in this case simply "lambda", that it considers to be invalid. Note that if it received something it didn't know anything about, it would say "undefined" rather than "bad syntax." Bad syntax indicates known syntax used in an incorrect way.
 
 @bold{Common example}: A Racket expression has not been properly escaped within a Qi context. For instance, @racket[(☯ (lambda (x) x))] is invalid because the wrapped expression is Racket rather than Qi. To fix this, use @racket[esc], as in @racket[(☯ (esc (lambda (x) x)))].
 
