@@ -35,7 +35,7 @@ Qi encourages a style that avoids "accidental" effects.
 
 In functional programming, "effects" refer to anything that the function does that is not captured in its inputs and outputs. This could include things like printing to the screen, writing to a file, or mutating a global variable.
 
-A @tech{flow} should either be pure (that is, free of such side effects), or its entire purpose should be to fulfill a side effect. It is considered inadvisable to have a function with sane inputs and outputs (resembling a pure function) that also performs a side effect. It would be better to decouple the effect from the rest of your function (@seclink["Use_Small_Building_Blocks"]{splitting it into smaller functions}, as necessary) and perform the effect explicitly via the @racket[effect] form, or otherwise escape from Qi using something like @racket[esc] (note that @seclink["Identifiers"]{function identifiers} used in a flow context are implicitly @racket[esc]aped) in order to perform the effect. This will ensure that there are no surprises with regard to @seclink["Order_of_Effects"]{order of effects}.
+A @tech{flow} should either be pure (that is, free of such side effects), or its entire purpose should be to fulfill a side effect. It is considered inadvisable to have a function with ordinary inputs and outputs (resembling a pure function) that also performs a side effect. It would be better to decouple the effect from the rest of your function (@seclink["Use_Small_Building_Blocks"]{splitting it into smaller functions}, as necessary) and perform the effect explicitly via the @racket[effect] form, or otherwise escape from Qi using something like @racket[esc] (note that @seclink["Identifiers"]{function identifiers} used in a flow context are implicitly @racket[esc]aped) in order to perform the effect. This will ensure that there are no surprises with regard to @seclink["Order_of_Effects"]{order of effects}.
 
 For example, say that we wish to perform a simple numeric transformation on an input number, but also print the intermediate values to the screen. We might do it this way:
 
@@ -403,7 +403,7 @@ Yet, either implementation produces the same output: @racket[(list 1 9 25)].
 
 So, to reiterate, while the output of Qi flows will be the same as the output of equivalent Racket expressions, they may nevertheless exhibit a different order of effects.
 
-If you'd like to ensure a particular order of effects, use @racket[effect] at the appropriate points in your flow. If you'd like to use Racket's order of effects, define your flow using @racket[esc] (although this would lose any Qi compiler optimizations).
+If you'd like to ensure a particular order of effects, use @racket[effect] at the appropriate points in your flow. If you'd like to use Racket's order of effects, @seclink["Using_Racket_to_Define_Flows"]{define your flow in Racket} by using @racket[esc].
 
 @section{Effectively Using Feedback Loops}
 

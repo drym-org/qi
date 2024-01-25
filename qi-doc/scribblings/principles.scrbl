@@ -127,7 +127,7 @@ Therefore, any theoretical results about arrows should generally apply to Qi as 
 
 Qi is a language implemented on top of another language, Racket, by means of a macro called @racket[flow]. All of the other macros that serve as Qi's @seclink["Embedding_a_Hosted_Language"]{embedding} into Racket, such as (the Racket macros) @racket[~>] and @racket[switch], expand to a use of @racket[flow].
 
-@racket[flow] accepts Qi syntax and (like any @tech/reference{macro}) produces Racket syntax. It does this in two stages:
+The @racket[flow] form accepts Qi syntax and (like any @tech/reference{macro}) produces Racket syntax. It does this in two stages:
 
 @itemlist[#:style 'ordered
   @item{Expansion, where the Qi source expression is translated to a small core language (Core Qi).}
