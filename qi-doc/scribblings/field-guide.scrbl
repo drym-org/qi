@@ -401,9 +401,9 @@ The equivalent Qi flow is @racket[(~> ((list 1 2 3 4 5)) (filter odd?) (map sqr)
 
 Yet, either implementation produces the same output: @racket[(list 1 9 25)].
 
-So, to reiterate, while the behavior of @emph{pure} Qi flows will be the same as that of equivalent Racket expressions, effectful flows may exhibit a different order of effects. In the case where the output of such effectful flows is dependent on those effects (such as relying on a mutable global variable), these flows could even produce different output than otherwise equivalent (from the perspective of inputs and outputs, disregarding effects) Racket or even Qi code.
+So, to reiterate, while the behavior of @emph{pure} Qi flows will be the same as that of equivalent Racket expressions, effectful flows may exhibit a different order of effects. In the case where the output of such effectful flows is dependent on those effects (such as relying on a mutable global variable), these flows could even produce different output than otherwise equivalent (from the perspective of inputs and outputs, disregarding effects) Racket code.
 
-If you'd like to ensure a particular order of effects, use @racket[effect] at the appropriate points in your flow. If you'd like to use Racket's order of effects, @seclink["Using_Racket_to_Define_Flows"]{define your flow in Racket} by using @racket[esc].
+If you'd like to use Racket's order of effects in any flow, @seclink["Using_Racket_to_Define_Flows"]{write the flow in Racket} by using a wrapping @racket[esc].
 
 @section{Effectively Using Feedback Loops}
 
