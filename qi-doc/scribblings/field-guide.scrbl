@@ -29,15 +29,17 @@ Decompose your @tech{flow} into its smallest components, and name each so that t
 
 A journeyman of one's craft -- a woodworker, electrician, or a plumber, say -- always goes to work with a trusty toolbox that contains the tools of the trade, some perhaps even of their own design. An electrician, for instance, may have a voltage tester, a multimeter, and a continuity tester in her toolbox. Although these are "debugging" tools, they aren't just for identifying bugs -- by providing rapid feedback, they enable her to explore and find creative solutions quickly and reliably. It's the same with Qi. Learn to use the @seclink["Debugging"]{debugging tools}, and use them often.
 
-@subsection{Be Intentional About Effects}
+@subsection{Separate Effects from Other Computations}
 
-Qi encourages a style that avoids "accidental" effects.
+In functional programming, "effects" refer to anything a function does that is not captured in its inputs and outputs. This could include things like printing to the screen, writing to a file, or mutating a global variable.
 
-In functional programming, "effects" refer to anything that the function does that is not captured in its inputs and outputs. This could include things like printing to the screen, writing to a file, or mutating a global variable.
+In general, pure functions (that is, functions free of such effects) are easier to understand and easier to reuse, and favoring their use is considered good functional style. But of course, it's necessary for your code to actually do things besides compute values, too! There are many ways in which you might combine effects and pure functions, from mixing them freely, as you might in Racket, to extracting them completely using monads, as you might in Haskell. Qi encourages using pure functions side by side with what we could call "pure effects."
 
-A @tech{flow} should either be pure (that is, free of such side effects), or its entire purpose should be to fulfill a side effect. It is considered inadvisable to have a function with ordinary inputs and outputs (resembling a pure function) that also performs a side effect. It would be better to decouple the effect from the rest of your function (@seclink["Use_Small_Building_Blocks"]{splitting it into smaller functions}, as necessary) and perform the effect explicitly via the @racket[effect] form, or otherwise escape from Qi using something like @racket[esc] (note that @seclink["Identifiers"]{function identifiers} used in a flow context are implicitly @racket[esc]aped) in order to perform the effect. This will ensure that there are no surprises with regard to @seclink["Order_of_Effects"]{order of effects}.
+If you have a function with ordinary inputs and outputs that also performs an effect, then, to adopt this style, decouple the effect from the rest of the function (@seclink["Use_Small_Building_Blocks"]{splitting it into smaller functions}, as necessary) and then invoke it via an explicit use of the @racket[effect] form, thus neatly separating the functional computation from the effect.
 
-For example, say that we wish to perform a simple numeric transformation on an input number, but also print the intermediate values to the screen. We might do it this way:
+Doing it this way encourages smaller, well-scoped functions that do one thing, and which serve as excellent building blocks from which to compose large and complex programs. In contrast, larger, effectful functions make poor building blocks and are difficult to compose.
+
+To illustrate, say that we wish to perform a simple numeric transformation on an input number, but also print the intermediate values to the screen. We might do it this way:
 
 @examples[
     #:eval eval-for-docs
@@ -53,7 +55,9 @@ For example, say that we wish to perform a simple numeric transformation on an i
     (~> (3) my-square my-add1)
 ]
 
-This is considered poor style since we've mixed pure functions with implicit effects. Instead, following the above guideline, we would write it this way:
+This is considered poor style since we've mixed pure functions with implicit effects. It makes these functions less portable since we might find use for such computations in other settings where we might prefer to avoid the side effect, or perhaps perform a different effect like writing the value to a network port. With the functions written this way, we would be encouraged to write similar functions in these different settings, exhibiting the other effects we might desire there, and duplicating the core logic.
+
+Instead, following the above guideline, we would write it this way:
 
 @examples[
     #:eval eval-for-docs
@@ -61,7 +65,7 @@ This is considered poor style since we've mixed pure functions with implicit eff
 	(~> (3) (ε displayln sqr) (ε displayln add1))
 ]
 
-This uses the pure functions @racket[sqr] and @racket[add1], extracting the effectful @racket[displayln] as an explicit @racket[effect].
+This uses the pure functions @racket[sqr] and @racket[add1], extracting the effectful @racket[displayln] as an explicit @racket[effect]. If we wanted to have other effects, we could simply indicate different effects here and reuse the same underlying pure functions.
 
 @section{Debugging}
 
@@ -393,7 +397,7 @@ So in general, use mutable values with caution. Such values can be useful as sid
 
 @subsubsection{Order of Effects}
 
- Qi @tech{flows} may exhibit a different order of effects (in the @seclink["Be_Intentional_About_Effects"]{functional programming sense}) than equivalent Racket functions.
+ Qi @tech{flows} may exhibit a different order of effects (in the @seclink["Separate_Effects_from_Other_Computations"]{functional programming sense}) than equivalent Racket functions.
 
 Consider the Racket expression: @racket[(map sqr (filter odd? (list 1 2 3 4 5)))]. As this invokes @racket[odd?] on all of the elements of the input list, followed by @racket[sqr] on all of the elements of the intermediate list, if we imagine that @racket[odd?] and @racket[sqr] print their inputs as a side effect before producing their results, then executing this program would print the numbers in the sequence @racket[1,2,3,4,5,1,3,5].
 
