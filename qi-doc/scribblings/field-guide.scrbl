@@ -159,6 +159,8 @@ Methodical use of @racket[gen] together with the @seclink["Using_a_Probe"]{probe
 
 @subsection{Common Errors and What They Mean}
 
+Qi aims to produce good error messages that convey what the problem is and clearly imply a remedy. For various reasons, it may not always be possible to provide such a clear message. This section documents known errors of this kind, and suggests possible causes and remedies. If you encounter an inscrutable error, please consider @hyperlink["https://github.com/drym-org/qi/issues/"]{reporting it}. If the error cannot be improved, then it will be documented here.
+
 @subsubsection{Expected Number of Values Not Received}
 
 @codeblock{
