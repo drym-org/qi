@@ -10,7 +10,7 @@
          rackunit
          rackunit/text-ui
          syntax/macro-testing
-         qi/pass/deforest
+         qi/list
          "private/deforest-util.rkt"
          (submod qi/flow/extended/expander invoke))
 
