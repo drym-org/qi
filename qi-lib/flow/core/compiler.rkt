@@ -1,8 +1,6 @@
 #lang racket/base
 
-(provide (for-syntax compile-flow
-                     normalize-pass
-                     deforest-pass))
+(provide (for-syntax compile-flow normalize-pass))
 
 (require (for-syntax racket/base
                      syntax/parse
@@ -12,10 +10,10 @@
                      "../aux-syntax.rkt"
                      "pass.rkt"
                      "debug.rkt"
-                     "normalize.rkt"
                      "private/form-property.rkt")
-         "deforest.rkt"
          "impl.rkt"
+         "passes.rkt"
+         "normalize.rkt"
          (only-in racket/list make-list)
          racket/function
          racket/undefined
@@ -27,31 +25,13 @@
   ;; note: this does not return compiled code but instead,
   ;; syntax whose expansion compiles the code
   (define (compile-flow stx)
-    (process-bindings
-     #`(qi0->racket
-        #,(optimize-flow stx))))
+    (run-passes stx))
 
-  (define (deforest-pass stx)
-    ;; Note: deforestation happens only for threading,
-    ;; and the normalize pass strips the threading form
-    ;; if it contains only one expression, so this would not be hit.
-    (find-and-map/qi deforest-rewrite
-                     stx))
+  (define-and-register-pass 1000 (qi0-wrapper stx)
+    (syntax-parse stx
+      (ex #'(qi0->racket ex))))
 
-  (define-qi-expansion-step (~deforest-pass stx)
-    (deforest-pass stx))
-
-  (define (normalize-pass stx)
-    (attach-form-property
-     (find-and-map/qi (fix normalize-rewrite)
-                      stx)))
-
-  (define-qi-expansion-step (~normalize-pass stx)
-    (normalize-pass stx))
-
-  (define (optimize-flow stx)
-    (~deforest-pass
-     (~normalize-pass stx))))
+  )
 
 ;; Transformation rules for the `as` binding form:
 ;;
@@ -108,7 +88,7 @@
     (with-syntax ([(v ...) ids])
       #`(let ([v undefined] ...) #,stx)))
 
-  (define-qi-expansion-step (process-bindings stx)
+  (define-and-register-pass 2000 (bindings stx)
     ;; TODO: use syntax-parse and match ~> specifically.
     ;; Since macros are expanded "outside in," presumably
     ;; it will naturally wrap the outermost ~>

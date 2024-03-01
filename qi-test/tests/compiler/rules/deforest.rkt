@@ -23,14 +23,14 @@
   (test-true name
              (deforested?
                (phase1-eval
-                (deforest-rewrite
+                (deforest-pass
                   (expand-flow stx))))))
 
 (define-syntax-parse-rule (test-not-deforested name stx)
   (test-false name
               (deforested?
                 (phase1-eval
-                 (deforest-rewrite
+                 (deforest-pass
                    (expand-flow stx))))))
 
 
@@ -43,7 +43,7 @@
    ;; step in compilation) into account
 
    (test-suite
-    "deforest-rewrite"
+    "deforest-pass"
     (test-suite
      "general"
      (test-not-deforested "does not deforest single stream component in isolation"
