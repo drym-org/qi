@@ -193,7 +193,15 @@ profile:
 # assumes the existence of the qi-benchmarks folder
 # TODO: need to update this for vlibench, and rename qi-benchmarks to vlibench
 new-benchmarks:
-	cd qi-benchmarks && chmod +x create-benchmarks.sh && ./create-benchmarks.sh github && mv results/* results/output
+	cd qi-sdk && \
+	scribble \
+		++convert svg \
+		++arg -p \
+		++arg github \
+		--html \
+		--dest results/output \
+		--dest-name index.html \
+		report-qi.scrbl
 
 benchmark-local:
 	racket $(PACKAGE-NAME)-sdk/benchmarks/local/report.rkt

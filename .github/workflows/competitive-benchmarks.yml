@@ -37,7 +37,7 @@ jobs:
       - name: Push to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4.4.1
         with:
-          folder: qi-benchmarks/results/output
+          folder: qi-sdk/results/output
           target-folder: competitive-benchmarks
           branch: gh-pages
           clean: true
