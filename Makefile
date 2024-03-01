@@ -193,7 +193,7 @@ profile:
 # assumes the existence of the qi-benchmarks folder
 # TODO: need to update this for vlibench, and rename qi-benchmarks to vlibench
 new-benchmarks:
-	cd qi-sdk && \
+	cd qi-sdk/profile && \
 	scribble \
 		++convert svg \
 		++arg -p \
