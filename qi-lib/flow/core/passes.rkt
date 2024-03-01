@@ -31,13 +31,11 @@
 
   ;; Syntax macro wrapper for convenient definitions of compiler
   ;; passes. Should be used by modules implementing passes.
-  (define-syntax (define-and-register-pass stx)
-    (syntax-case stx ()
-      ((_ prio (name stx) expr ...)
-       #'(begin
-           (define name (lambda (stx) expr ...))
-           (register-pass #'name prio name)
-           ))))
+  (define-syntax-rule (define-and-register-pass prio (name stx) expr ...)
+    (begin
+      (define name (lambda (stx) expr ...))
+      (register-pass #'name prio name)
+      ))
 
   ;; Runs registered passes on given syntax object - should be used by
   ;; the actual compiler.
