@@ -9,7 +9,7 @@
          ;; necessary to correctly expand the right-threading form
          qi/flow/extended/forms
          qi/flow/core/compiler
-         qi/list
+         qi/flow/core/deforest
          syntax/macro-testing
          (submod qi/flow/extended/expander invoke)
          rackunit
