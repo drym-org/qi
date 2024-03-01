@@ -27,7 +27,7 @@
   (define (compile-flow stx)
     (run-passes stx))
 
-  (define-pass 1000 (qi0-wrapper stx)
+  (define-and-register-pass 1000 (qi0-wrapper stx)
     (syntax-parse stx
       (ex #'(qi0->racket ex))))
 
@@ -88,7 +88,7 @@
     (with-syntax ([(v ...) ids])
       #`(let ([v undefined] ...) #,stx)))
 
-  (define-pass 2000 (bindings stx)
+  (define-and-register-pass 2000 (bindings stx)
     ;; TODO: use syntax-parse and match ~> specifically.
     ;; Since macros are expanded "outside in," presumably
     ;; it will naturally wrap the outermost ~>

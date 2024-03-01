@@ -4,7 +4,7 @@
                      (for-syntax racket/base racket/syntax)
                      macro-debugger/emit))
 
-(provide (for-syntax define-pass
+(provide (for-syntax define-and-register-pass
                      run-passes))
 
 (begin-for-syntax
@@ -31,15 +31,13 @@
 
   ;; Syntax macro wrapper for convenient definitions of compiler
   ;; passes. Should be used by modules implementing passes.
-  (define-syntax (define-pass stx)
+  (define-syntax (define-and-register-pass stx)
     (syntax-case stx ()
       ((_ prio (name stx) expr ...)
-       (with-syntax ((name-pass (format-id #'name "~a-pass" #'name)))
-         #'(begin
-             (define name-pass (lambda (stx) expr ...))
-             (provide name-pass)
-             (register-pass #'name prio name-pass)
-             )))))
+       #'(begin
+           (define name (lambda (stx) expr ...))
+           (register-pass #'name prio name)
+           ))))
 
   ;; Runs registered passes on given syntax object - should be used by
   ;; the actual compiler.

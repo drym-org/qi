@@ -9,6 +9,8 @@
 ;;   https://github.com/drym-org/qi/wiki/The-Compiler#stream-fusion
 ;; for an overview and some details of this implementation.
 
+(provide (for-syntax deforest-pass))
+
 (require (for-syntax racket/base
                      syntax/parse
                      racket/syntax-srcloc
@@ -283,7 +285,7 @@
                          (syntax-srcloc ctx)))))]))
 
   ;; Performs deforestation rewrite on the whole syntax tree.
-  (define-pass 100 (deforest stx)
+  (define-and-register-pass 100 (deforest-pass stx)
     (find-and-map/qi
      (lambda (stx)
        (syntax-parse stx

@@ -1,5 +1,7 @@
 #lang racket/base
 
+(provide (for-syntax normalize-pass))
+
 (require (for-syntax racket/base
                      syntax/parse
                      "pass.rkt"
@@ -8,7 +10,7 @@
 
 ;; 0. "Qi-normal form"
 (begin-for-syntax
-  (define-pass 10 (normalize stx)
+  (define-and-register-pass 10 (normalize-pass stx)
     (attach-form-property
      (find-and-map/qi
       (fix
