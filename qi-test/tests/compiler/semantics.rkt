@@ -6,7 +6,7 @@
          rackunit
          rackunit/text-ui
          (only-in math sqr)
-         (only-in racket/list range)
+         qi/list
          syntax/macro-testing
          racket/function)
 
