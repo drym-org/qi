@@ -34,7 +34,6 @@ jobs:
       - name: Install New Benchmarks Suite
         run: |
           git clone https://gitlab.com/racketeer/qi-benchmarks.git
-          sed -i -e 's/p-preview/p-github/' qi-benchmarks/report.scrbl
       - name: Run benchmark
         shell: 'bash --noprofile --norc -eo pipefail {0}'
         run: make new-benchmarks
