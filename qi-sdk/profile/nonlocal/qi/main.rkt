@@ -19,7 +19,8 @@
 
 (require (only-in math sqr)
          (only-in racket/list range)
-         qi)
+         qi
+         qi/list)
 
 (define-switch conditionals
   [(< 5) sqr]
