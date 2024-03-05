@@ -16,7 +16,7 @@
                      racket/syntax-srcloc
                      syntax/srcloc
                      "../extended/util.rkt"
-                     "pass.rkt")
+                     "strategy.rkt")
          "passes.rkt"
          racket/performance-hint
          racket/match

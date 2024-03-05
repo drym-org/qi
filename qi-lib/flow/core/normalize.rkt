@@ -4,7 +4,7 @@
 
 (require (for-syntax racket/base
                      syntax/parse
-                     "pass.rkt"
+                     "strategy.rkt"
                      "private/form-property.rkt")
          "passes.rkt")
 

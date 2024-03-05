@@ -2,7 +2,7 @@
 
 (provide tests)
 
-(require qi/flow/core/pass
+(require qi/flow/core/strategy
          rackunit
          rackunit/text-ui
          syntax/parse
