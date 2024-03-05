@@ -33,15 +33,15 @@
   ;; passes. Should be used by modules implementing passes.
   (define-syntax-rule (define-and-register-pass prio (name stx) expr ...)
     (begin
-      (define name (lambda (stx) expr ...))
+      (define (name stx) expr ...)
       (register-pass #'name prio name)
       ))
 
   ;; Runs registered passes on given syntax object - should be used by
   ;; the actual compiler.
   (define (run-passes stx)
-    (for/fold ((stx stx))
-              ((pass (in-list (unbox registered-passes))))
+    (for/fold ([stx stx])
+              ([pass (in-list (unbox registered-passes))])
       (define stx1 ((passdef-parser pass) stx))
       (emit-local-step stx stx1 #:id (passdef-name pass))
       stx1))
