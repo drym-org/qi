@@ -8,7 +8,7 @@
                      (only-in racket/list make-list)
                      "syntax.rkt"
                      "../aux-syntax.rkt"
-                     "pass.rkt"
+                     "strategy.rkt"
                      "debug.rkt"
                      "private/form-property.rkt")
          "impl.rkt"
