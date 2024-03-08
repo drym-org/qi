@@ -9,22 +9,25 @@
 	 racket/function]
 
 @;Command-line handling ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-@(define config-profile (make-parameter 'preview))
-@(command-line
-   #:once-each
-   (("-p" "--profile")
-    name
-    "profile name to use (use 'list' to list available profiles)"
-    (when (equal? name "list")
-      (displayln
-       (format
-        "Available profiles: ~a"
-        (string-join
-         (for/list (((k v) vlib/profiles))
-           (symbol->string k))
-         ", ")))
-      (exit 0))
-    (config-profile (string->symbol name))))
+@(define config-profile
+  (let ()
+    (define profile-box (box 'preview))
+    (command-line
+      #:once-each
+      (("-p" "--profile")
+       name
+       "profile name to use (use 'list' to list available profiles)"
+       (when (equal? name "list")
+	 (displayln
+	  (format
+	   "Available profiles: ~a"
+	   (string-join
+	    (for/list (((k v) vlib/profiles))
+	      (symbol->string k))
+	    ", ")))
+	 (exit 0))
+       (set-box! profile-box (string->symbol name))))
+    (unbox prf)))
 
 @title[#:style (with-html5 manual-doc-style)]{Qi Normal/Deforested Competitive Benchmarks}
 
@@ -133,7 +136,7 @@
                 qi-range-map-car-prog))))
 
 @; Processing ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-@define[profile (hash-ref vlib/profiles (config-profile))]
+@define[profile (hash-ref vlib/profiles config-profile)]
 @(define results
   (for/list ((spec (in-list benchmarks-specs)))
     (run-benchmark
