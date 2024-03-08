@@ -5,7 +5,7 @@ on:
     branches:
       - gather-new-benchmark-data
     paths:
-      - 'qi-sdk/profile/**'
+      - 'qi-sdk/benchmarks/**'
       - 'qi-lib/**'
       - '.github/workflows/competitive-benchmarks.yml'
 
