@@ -1,0 +1,43 @@
+name: competitive-benchmarks
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'qi-sdk/benchmarks/competitive/**'
+      - 'qi-lib/**'
+      - '.github/workflows/competitive-benchmarks.yml'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  deploy-benchmarks:
+    runs-on: ubuntu-latest
+    name: Generate and deploy competitive benchmarks
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Install Racket
+        uses: Bogdanp/setup-racket@v1.9.1
+        with:
+          architecture: 'x64'
+          distribution: 'full'
+          variant: 'CS'
+          version: 'stable'
+      - name: Install Package and its Dependencies
+        run: make install
+      - name: Install SDK
+        run: make install-sdk
+      - name: Run benchmark
+        shell: 'bash --noprofile --norc -eo pipefail {0}'
+        run: make new-benchmarks
+      - name: Push to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4.4.1
+        with:
+          folder: qi-sdk/benchmarks/competitive/results
+          target-folder: competitive-benchmarks
+          branch: gh-pages
+          clean: true

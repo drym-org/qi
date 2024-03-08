@@ -12,3 +12,6 @@ coverage
 *.js
 MathJax
 katex
+
+# benchmarks output
+qi-sdk/benchmarks/competitive/results

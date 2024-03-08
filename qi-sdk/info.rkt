@@ -11,6 +11,7 @@
                "relation-lib"
                "csv-writing"
                "require-latency"
+               "vlibench"
                "cover"
                "cover-coveralls"))
 (define build-deps '())
