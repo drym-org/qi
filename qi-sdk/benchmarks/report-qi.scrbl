@@ -27,7 +27,7 @@
 	    ", ")))
 	 (exit 0))
        (set-box! profile-box (string->symbol name))))
-    (unbox prf)))
+    (unbox profile-box)))
 
 @title[#:style (with-html5 manual-doc-style)]{Qi Normal/Deforested Competitive Benchmarks}
 
