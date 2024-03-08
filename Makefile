@@ -201,7 +201,7 @@ new-benchmarks:
 		--html \
 		--dest results \
 		--dest-name index.html \
-		report-qi.scrbl
+		report.scrbl
 
 benchmark-local:
 	racket $(PACKAGE-NAME)-sdk/benchmarks/local/report.rkt
