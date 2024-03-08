@@ -25,7 +25,7 @@ Read `the documentation <https://docs.racket-lang.org/qi/index.html>`_ to learn 
 
 In case the main documentation is unavailable, read the `backup docs <https://drym-org.github.io/qi/docs/>`_.
 
-The `benchmark summaries <https://drym-org.github.io/qi/benchmarks/>`_ provide some visibility into performance trends.
+The `competitive benchmarks report <https://drym-org.github.io/qi/competitive-benchmarks/>`_ shows a rigorous analysis of Qi performance, and the `performance trends report <https://drym-org.github.io/qi/benchmarks/>`_ provides some visibility into performance changes over time. To learn more about these benchmarks, see the wiki on `Performance Benchmarking <https://github.com/drym-org/qi/wiki/Continuous-Performance-Benchmarking>`_.
 
 Supporting this Project
 =======================
