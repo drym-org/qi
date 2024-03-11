@@ -254,6 +254,12 @@
                    ((#%host-expression cad*r:cad*r-datum) __)))
              #:attr end #'(cad*r-cstream-next cad*r.countdown))
 
+    (pattern (~or (#%fine-template
+                   ((#%host-expression (~datum list-ref)) _ idx))
+                  (#%blanket-template
+                   ((#%host-expression (~datum list-ref)) __ idx)))
+             #:attr end #'(cad*r-cstream-next idx))
+
     (pattern (~literal cstream->list)
              #:attr end #'(cstream-next->list)))
 
@@ -420,7 +426,7 @@
                  [countdown init-countdown])
         ((next (λ () ((contract (-> pair? any)
                                 (λ (v) v)
-                                'cadr-cstream-next ctx #f
+                                'cad*r-cstream-next ctx #f
                                 src) '()))
                (λ (state) (loop state countdown))
                (λ (value state)
