@@ -129,6 +129,15 @@
          [else
           (λ (ctx name) #'(λ (v) v))])]))
 
+  (define-syntax-class cad*r-datum
+    #:attributes (countdown)
+    (pattern (~datum car) #:attr countdown #'0)
+    (pattern (~datum cadr) #:attr countdown #'1)
+    (pattern (~datum caddr) #:attr countdown #'2)
+    (pattern (~datum cadddr) #:attr countdown #'3)
+    (pattern (~datum caddddr) #:attr countdown #'4)
+    (pattern (~datum cadddddr) #:attr countdown #'5))
+
   ;; Used for producing the stream from particular
   ;; expressions. Implicit producer is list->cstream-next and it is
   ;; not created by using this class but rather explicitly used when
@@ -238,14 +247,18 @@
                     _)))
              #:attr end #'(foldl-cstream-next op init))
 
-    (pattern (~or (esc (#%host-expression (~datum car)))
+    (pattern (~or (esc (#%host-expression cad*r:cad*r-datum))
                   (#%fine-template
-                   ((#%host-expression (~datum car))
-                    _))
+                   ((#%host-expression cad*r:cad*r-datum) _))
                   (#%blanket-template
-                   ((#%host-expression (~datum car))
-                    __)))
-             #:attr end #'(car-cstream-next))
+                   ((#%host-expression cad*r:cad*r-datum) __)))
+             #:attr end #'(cad*r-cstream-next cad*r.countdown))
+
+    (pattern (~or (#%fine-template
+                   ((#%host-expression (~datum list-ref)) _ idx))
+                  (#%blanket-template
+                   ((#%host-expression (~datum list-ref)) __ idx)))
+             #:attr end #'(cad*r-cstream-next idx))
 
     (pattern (~literal cstream->list)
              #:attr end #'(cstream-next->list)))
@@ -407,16 +420,19 @@
                  (loop (op value acc) state)))
          state))))
 
-  (define-inline (car-cstream-next next ctx src)
+  (define-inline (cad*r-cstream-next init-countdown next ctx src)
     (λ (state)
-      (let loop ([state state])
+      (let loop ([state state]
+                 [countdown init-countdown])
         ((next (λ () ((contract (-> pair? any)
                                 (λ (v) v)
-                                'car-cstream-next ctx #f
+                                'cad*r-cstream-next ctx #f
                                 src) '()))
-               (λ (state) (loop state))
+               (λ (state) (loop state countdown))
                (λ (value state)
-                 value))
+                 (if (zero? countdown)
+                     value
+                     (loop state (sub1 countdown)))))
          state))))
 
   )
