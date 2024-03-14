@@ -99,9 +99,11 @@ To use it, first wrap the entire expression @emph{invoking} the flow with a @rac
   @defform[(probe flo)]
   @defidform[readout]
 )]{
-  @racket[probe] simply marks a @tech{flow} invocation for debugging, and does not change its functionality. Then, when evaluation encounters the first occurrence of @racket[readout] within @racket[flo], the values at that point are immediately returned as the value of the entire @racket[flo]. This is done via a @tech/reference{continuation}, so that you may precede it with whatever flows you like that might help you understand what's happening at that point, and you don't have to worry about it affecting downstream flows during the process of debugging since those flows would simply never be hit. Additionally, readouts may be placed @emph{anywhere} within the flow, and not necessarily on the main stream -- it will always return the values observed at the specific point where you place the readout.
+  @racket[probe] on its own simply marks a @tech{flow} invocation for debugging, and does not change its functionality. Then, when evaluation encounters the first occurrence of @racket[readout] within @racket[flo], the values at that point are immediately returned as the value of the entire @racket[flo]. This is done via a @tech/reference{continuation}, so that you may precede it with whatever flows you like that might help you understand what's happening at that point, and you don't have to worry about it affecting downstream flows during the process of debugging since those flows would simply never be hit. Additionally, readouts may be placed @emph{anywhere} within the flow, and not necessarily on the main stream -- it will always return the values observed at the specific point where you place the readout.
 
   Note that @racket[probe] is a Racket (rather than Qi) form, and it must wrap a flow @emph{invocation} rather than a flow @emph{definition}. The @racket[readout], on the other hand, is a Qi expression and must be placed somewhere within the flow @emph{definition}.
+
+  Finally, it's important to know that placing a readout represents a change to the program, and it could mean that the running program you are observing is subtly different from the original one. See @secref["Schrodinger_s_Probe"] to understand this phenomenon.
 
 @racketblock[
     (~> (5) sqr (* 2) add1)
@@ -424,6 +426,29 @@ So, to reiterate, while the behavior of @emph{pure} Qi flows will be the same as
 If you'd like to use Racket's order of effects in any flow, @seclink["Using_Racket_to_Define_Flows"]{write the flow in Racket} by using a wrapping @racket[esc].
 
 See @secref["Effect_Locality"] for more insights into Qi's handling of effects.
+
+@subsubsection{Schrodinger's Probe}
+
+Another curious thing to watch out for is that use of the @seclink["Using_a_Probe"]{probe debugger} can affect the @seclink["Order_of_Effects"]{order of effects}, as it could suppress optimizations that would be otherwise be performed if the @tech{flow} were unobserved.
+
+Consider this example:
+
+@racketblock[
+(define-flow foo
+  (~> (pass (effect E₁ odd?))) readout (>< (effect E₂ sqr)))
+
+(probe (foo 1 2 3))
+]
+
+Here, with the @racket[readout], all the effects E₁ would occur first, followed by all of the E₂ effects. Without the @racket[readout], the flow would be deforested by the compiler to:
+
+@racketblock[
+  (>< (if (effect E₁ odd?) (effect E₂ sqr) ⏚))
+]
+
+… and the effects E₁ and E₂ would be interleaved. Either order is consistent with @seclink["Effect_Locality"]{locality} but they are @emph{different}. Indeed, the @racket[readout] in this case would not even represent a valid point in the a priori optimized program.
+
+So it's important to bear in mind that one cannot observe a flow using @racket[probe] without changing the program being observed, a change which in some cases has no observable impact, and which in other cases is significant. But now that you understand this phenomenon, you can develop intuition for the nature of such changes, and how best to use the tool to find the answers you are looking for.
 
 @section{Effectively Using Feedback Loops}
 
