@@ -27,13 +27,17 @@
 
  The Qi language allows you to describe and use flows in your code.
 
-@section{Values, Paths and Flows}
+@section{Values and Flows}
 
 @tech{Flows} accept inputs and produce outputs -- they are functions. The things that flow -- the inputs and outputs -- are @emph{values}. Yet, values do not actually "move" through a flow, since a flow does not mutate them. The flow simply produces new values that are related to the inputs by a computation.
 
- Every flow is made up of components that are themselves flows. Thus, each of these components is a relationship between an input set of values and an output set of values, so that at every level, flows produce sequences of sets of values beginning with the inputs and ending with the outputs, with each set related to the preceding one by a computation, and again, no real "motion" of values at all. There may be many such distinct @deftech{paths} over flow components that could be traced (borrowing the term "path" as used in graph theory in this sense), and we may imagine values to flow along these paths.
+ Every flow is made up of components that are themselves flows. Thus, each of these components is a relationship between an input set of values and an output set of values, so that at every level, flows produce sequences of sets of values beginning with the inputs and ending with the outputs, with each set related to the preceding one by a computation, and again, no real "motion" of values at all.
 
  So indeed, when we say that values "flow," there is nothing in fact that truly flows, and it is merely a convenient metaphor.
+
+@section{Flows as Graphs}
+
+ A flow could also be considered an @hyperlink["https://en.wikipedia.org/wiki/Directed_acyclic_graph"]{acyclic graph}, with its component flows as nodes, and a directed edge connecting two flows if an output of one is used as an input of the other. There may be many distinct @deftech{paths} that could be traced over this graph, and we may imagine values to flow along these paths at runtime (although of course, @seclink["Values_and_Flows"]{there is nothing that flows}). At each point in the flow (in this spatial sense), there is a certain number of values present, depending on the runtime inputs. We refer to this number as the @deftech{arity} or the @deftech{volume} of the flow at that point. Volume is a runtime concept since it depends on the actual inputs provided to the flow, although there may be cases where it could be determined at compile time.
 
 @section{Values are Not Collections}
 
