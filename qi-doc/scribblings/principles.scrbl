@@ -119,7 +119,7 @@ That brings us to the guarantee that Qi provides in this case (and in general).
 
 @definition["Effect locality"]{For @tech{flow} invocations @${f} and @${g} and corresponding effects @${ε(f)} and @${ε(g)},
 
-@$${f < g ⇒ ε(f) < ε(g)}
+@$${f \lt g \implies \epsilon(f) \lt \epsilon(g)}
 
 where @${<} on the left denotes the relation of being upstream, and @${<} on the right denotes one effect happening before another.
 }
