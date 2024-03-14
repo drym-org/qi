@@ -152,7 +152,19 @@ By being as fine-grained as possible in expressing computational dependencies, a
 
 @subsection{Racket vs Qi}
 
-In the earlier example, with an input list @racket[(list 1 2 3)], Racket's order of effects follows the invocation order:
+In the earlier example, reproduced here for convenience:
+
+@racketblock[
+  (lambda (vs)
+    (map my-sqr
+         (filter my-odd? vs)))
+]
+
+@racketblock[
+  (~>> (filter my-odd?) (map my-sqr))
+]
+
+… with an input list @racket[(list 1 2 3)], Racket's order of effects follows the invocation order:
 
 @racketblock[
   (my-odd? 1) (my-odd? 2) (my-odd? 3) (my-sqr 1) (my-sqr 3)
