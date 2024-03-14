@@ -63,6 +63,12 @@ Qi is a hosted language on the @hyperlink["https://racket-lang.org/"]{Racket pla
 
  Since some of the forms use and favor unicode characters (while also providing plain-English aliases), see @secref["Flowing_with_the_Flow"] for tips on entering these characters. Otherwise, if you're all set, head on over to the @seclink["Tutorial"]{tutorial}.
 
+@section{Using Qi as a Dependency}
+
+ Qi follows the @hyperlink["https://countvajhula.com/2022/02/22/how-to-organize-your-racket-library/"]{composable package organization scheme}, so that you typically only need to depend on @code{qi-lib} in your @seclink["metadata" #:doc '(lib "pkg/scribblings/pkg.scrbl")]{application or library}. The @code{qi-lib} package entails just those dependencies used in the Qi language itself, rather than those used in tests, benchmarking, documentation, etc. All of those dependencies are encapsulated in separate packages such as @code{qi-test}, @code{qi-doc}, @code{qi-sdk}, and more. This ensures that using Qi as a dependency contributes minimal overhead to your build times.
+
+ Additionally, Qi itself uses few and carefully benchmarked dependencies, so that the load-time overhead of @racket[(require qi)] is minimal.
+
 @section{Relationship to the Threading Macro}
 
 The usual threading macro in @seclink["top" #:indirect? #t #:doc '(lib "scribblings/threading.scrbl")]{Threading Macros} is a purely syntactic transformation that does not make any assumptions about the expressions being threaded through, so that it works out of the box for threading values through both functions as well as macros. On the other hand, Qi is primarily oriented around @emph{functions}, and @tech{flows} are expected to be @seclink["What_is_a_Flow_"]{function-valued}. Threading values through macros using Qi requires special handling.
