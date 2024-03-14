@@ -3,11 +3,19 @@
          scribble-abbrevs/manual
          scribble/example
          racket/sandbox
+         scribble/core
          scribble-math
          @for-label[qi
                     racket]]
 
 @(use-mathjax)
+
+@; based on scribble-abbrevs/latex
+@(define (definition term . defn*)
+  (make-paragraph plain
+    (list
+      (bold "Definition")
+      (cons (element #f (list " (" (deftech term) "). ")) defn*))))
 
 @title{Principles of Qi}
 
@@ -58,6 +66,107 @@ Consider this example:
 }
 
 There are six @tech{flows} here, in all: the entire one, each component of the thread, and each component of the tee junction.
+
+@section{Effect Locality}
+
+Qi programs provide weaker guarantees on @seclink["Order_of_Effects"]{order of effects} than do otherwise equivalent Racket programs.
+
+For instance, this Qi flow:
+
+@codeblock{
+  (~>> (filter my-odd?) (map my-sqr))
+}
+
+is roughly equivalent to this Racket expression:
+
+@codeblock{
+  (lambda (vs)
+    (map my-sqr
+         (filter my-odd? vs)))
+}
+
+But if @racket[my-odd?] and @racket[my-sqr] exhibit any side effects, such as printing their inputs to the screen, then the behavior of these two expressions is not quite the same. Racket guarantees that @emph{all} of the @racket[my-odd?] effects will occur before @emph{any} of the @racket[my-sqr] effects. Qi provides a more minimal (and ultimately very simple) guarantee that can be summarized as (1) effects are only defined in association with function invocations, and (2) they will occur at the same time as the function invocation with which they are associated. We call this property "effect locality."
+
+To understand what this means, we will need to develop some concepts.
+
+@subsection{Functional and Effective}
+
+First, regarding the definability of effects, as far as Qi is concerned, they are only well-defined in connection with some @tech{flow}, and are not independently conceivable.
+
+@definition["Associated effect"]{If a flow @${f} either includes an effect @${e} in its primitive definition or has one declared using @racket[effect], then @${e} is said to be an effect "on" @${f}. We denote an arbitrary effect on @${f} by @${ε(f)}.}
+
+In the case where we use the @racket[effect] form on its own as in @racket[(effect displayln)], the implicit associated function is the identity flow, @racket[_].
+
+@subsection{Upstream and Downstream}
+
+We already saw how a flow can be thought of as a @seclink["Flows_as_Graphs"]{directed graph}. This naturally suggests that some flows are upstream (or downstream) of others in terms of this directionality. Let's define this relation more precisely, as it will be useful to us.
+
+@definition["Upstream and downstream"]{A flow invocation @${f} is @deftech{upstream} of another invocation @${g} if the output of @${f} is @emph{necessary} to determining the input of @${g}. Conversely, @${g} is @deftech{downstream} of @${f}. We will denote this relation @${f < g}.}
+
+Note that this definition relates flow @emph{invocations} rather than @tech{flows} themselves. For now, we need not worry about this distinction, but we will soon see why it matters.
+
+In terms of the @tech{paths} that could be traced over a flow, the ordering implied by @racket[~>] naturally shows us many members of this relation: flows that come later in the sequence in a @racket[~>] form are downstream of those that come earlier, because the output of earlier flows is needed to determine the input to later flows.
+
+In the above example, @racket[filter] and @racket[map] are obviously ordered by @racket[~>] in this way, so that @racket[(filter my-odd?)] is upstream of @racket[(map my-sqr)]. But it's not so obvious how @racket[my-odd?] and @racket[my-sqr] should be treated. These are employed "internally" by the higher-order flows @racket[filter] and @racket[map], and are not directly ordered by the @racket[~>] form. Should @racket[my-odd?] be considered to be upstream of @racket[my-sqr] here?
+
+This is where the distinction between flows and flow invocations comes into play. In fact, not all invocations of @racket[my-odd?] are upstream of any particular invocation of @racket[my-sqr]. Rather, specific invocations of @racket[my-sqr] that use values computed by individual invocations of @racket[my-odd?] are downstream of those invocations, and notably, these invocations involve the individual elements of the input list rather than the entire list, so that the computational dependency expressed by this relation is as fine-grained as possible.
+
+For instance, for an input list @racket[(list 1 2 3)], @racket[(my-odd? 1)] is @tech{upstream} of @racket[(my-sqr 1)], and likewise, @racket[(my-odd? 3)] is @tech{upstream} of @racket[(my-sqr 3)].
+
+That brings us to the guarantee that Qi provides in this case (and in general).
+
+@subsection{Qi's Guarantee on Effects}
+
+@definition["Effect locality"]{For @tech{flow} invocations @${f} and @${g} and corresponding effects @${ε(f)} and @${ε(g)},
+
+@$${f < g ⇒ ε(f) < ε(g)}
+
+where @${<} on the left denotes the relation of being upstream, and @${<} on the right denotes one effect happening before another.
+}
+
+This has a few implications of note.
+
+@subsubsection{The @racket[effect] Form}
+
+First, for the @racket[effect] form, this implies that Qi considers an effectful flow @${f} performing an effect @${e} to be indistinguishable from a flow @racket[(effect e f′)], where @${f′} is @${f} without @${e} (and therefore pure), and effects declared in this way will never be separated from the associated flows. Thus, Qi @seclink["Separate_Effects_from_Other_Computations"]{encourages writing pure functions} while preserving the intuitive association of effects with functions.
+
+@subsubsection{The @racket[esc] Form}
+
+Qi will not optimize a flow that is wrapped with @racket[esc]. Thus, such flows will exhibit @seclink["Racket_vs_Qi"]{Racket's order of effects} (which, as we'll discuss below, also satisfies the requirements of locality).
+
+For more on how @racket[esc] is handled, see @secref["Using_Racket_to_Define_Flows"].
+
+@subsubsection{Truncating Effects}
+
+Next, for a flow like this one:
+
+@racketblock[
+  (~>> (filter my-odd?) (map my-sqr) car)
+]
+
+… when it is invoked with a large input list, Qi in fact only processes the very first value of the list, since it determines, at the end, that no further elements are needed in order to generate the final result. This means that all effects on would-be subsequent invocations of @racket[my-odd?] and @racket[my-sqr] would simply not be performed. Yet, locality is preserved here, since the @techlink[#:key "effect locality"]{defining implication} holds for every flow invocation that actually happens. Locality is about effects being guided by the @emph{necessity} of @techlink[#:key "associated effect"]{associated} computations to the final result.
+
+@subsubsection{A Natural Order of Effects}
+
+By being as fine-grained as possible in expressing computational dependencies, and in tying the execution of effects to such computational dependencies, @tech{effect locality} is in some sense the minimum well-formed guarantee on effects, and a natural one for functional languages to provide.
+
+@subsection{Racket vs Qi}
+
+In the earlier example, with an input list @racket[(list 1 2 3)], Racket's order of effects follows the invocation order:
+
+@racketblock[
+  (my-odd? 1) (my-odd? 2) (my-odd? 3) (my-sqr 1) (my-sqr 3)
+]
+
+Qi's order of effects is:
+
+@racketblock[
+  (my-odd? 1) (my-sqr 1) (my-odd? 2) (my-odd? 3) (my-sqr 3)
+]
+
+Either of these orders @emph{satisfies} @tech{effect locality}, but as we saw earlier, Racket guarantees something more than this minimum, or, in mathematical terms, Racket's guarantees on effects are @emph{stronger} than Qi's.
+
+In principle, this allows Qi to offer @seclink["Don_t_Stop_Me_Now"]{faster performance} in some cases.
 
 @section{Flowy Logic}
 

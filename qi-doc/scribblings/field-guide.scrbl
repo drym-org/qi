@@ -423,6 +423,8 @@ So, to reiterate, while the behavior of @emph{pure} Qi flows will be the same as
 
 If you'd like to use Racket's order of effects in any flow, @seclink["Using_Racket_to_Define_Flows"]{write the flow in Racket} by using a wrapping @racket[esc].
 
+See @secref["Effect_Locality"] for more insights into Qi's handling of effects.
+
 @section{Effectively Using Feedback Loops}
 
 @racket[feedback] is Qi's most powerful looping form, useful for arbitrary recursion. As it encourages quite a different way of thinking than Racket's usual looping forms do, here are some tips on "grokking" it.
