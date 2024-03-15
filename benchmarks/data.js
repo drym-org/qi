@@ -2,7 +2,7 @@ window.BENCHMARK_DATA = {
   "lastUpdate": 1710462159154,
   "repoUrl": "https://github.com/drym-org/qi",
   "entries": {
-    "Qi Benchmarks": [
+    "Qi Performance Trends": [
       {
         "commit": {
           "author": {
@@ -42358,9 +42358,7 @@ window.BENCHMARK_DATA = {
             "unit": "ms"
           }
         ]
-      }
-    ],
-    "Qi Performance Trends": [
+      },
       {
         "commit": {
           "author": {
