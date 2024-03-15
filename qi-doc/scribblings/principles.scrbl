@@ -144,7 +144,26 @@ Next, for a flow like this one:
   (~>> (filter my-odd?) (map my-sqr) car)
 ]
 
-… when it is invoked with a large input list, Qi in fact only processes the very first value of the list, since it determines, at the end, that no further elements are needed in order to generate the final result. This means that all effects on would-be subsequent invocations of @racket[my-odd?] and @racket[my-sqr] would simply not be performed. Yet, locality is preserved here, since the @techlink[#:key "effect locality"]{defining implication} holds for every flow invocation that actually happens. Locality is about effects being guided by the @emph{necessity} of @techlink[#:key "associated effect"]{associated} computations to the final result.
+… when it is invoked with a large input list, Qi in fact @seclink["Don_t_Stop_Me_Now"]{only processes the very first value} of the list, since it determines, at the end, that no further elements are needed in order to generate the final result. This means that all effects on would-be subsequent invocations of @racket[my-odd?] and @racket[my-sqr] would simply not be performed. Yet, @techlink[#:key "effect locality"]{locality} is preserved here, since the @techlink[#:key "effect locality"]{defining implication} holds for every flow invocation that actually happens. Locality is about effects being guided by the @emph{necessity} of @techlink[#:key "associated effect"]{associated} computations to the final result.
+
+@subsubsection{Independent Effects}
+
+For a nonlinear flow like this one:
+
+@racketblock[
+
+(~>> (filter my-odd?)
+     (-< (map my-sqr __)
+         (map my-add1 __))
+     (map my-*)
+     (foldl + 0))
+]
+
+… as invocations of neither @racket[my-sqr] nor @racket[my-add1] are upstream of the other, there is no guarantee on the order of effects either, so that the effects associated with @racket[my-sqr] and @racket[my-add1] are in fact independent of one another.
+
+The effects on @racket[my-sqr] may happen first, or those on @racket[my-add1] may happen first, or they may be interleaved.
+
+But both of these effects would occur before the one on the corresponding @racket[my-*] invocation, since this is downstream of them both.
 
 @subsubsection{A Natural Order of Effects}
 
