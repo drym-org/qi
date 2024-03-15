@@ -10,6 +10,12 @@
 .. image:: https://img.shields.io/badge/wiki-%E2%98%AF-yellowgreen
     :target: https://github.com/drym-org/qi/wiki
 
+.. image:: https://img.shields.io/badge/Benchmarks-%F0%9F%93%8A-yellow
+    :target: https://drym-org.github.io/qi/competitive-benchmarks/
+
+.. image:: https://img.shields.io/badge/Trends-%F0%9F%93%88-red
+    :target: https://drym-org.github.io/qi/benchmarks
+
 .. image:: https://dcbadge.vercel.app/api/server/racket-571040468092321801?style=plastic
     :target: https://discord.gg/racket-571040468092321801
 
@@ -26,6 +32,8 @@ Read `the documentation <https://docs.racket-lang.org/qi/index.html>`_ to learn 
 In case the main documentation is unavailable, read the `backup docs <https://drym-org.github.io/qi/docs/>`_.
 
 The `competitive benchmarks report <https://drym-org.github.io/qi/competitive-benchmarks/>`_ shows a rigorous analysis of Qi performance, and the `performance trends report <https://drym-org.github.io/qi/benchmarks/>`_ provides some visibility into performance changes over time. To learn more about these benchmarks, see the wiki on `Performance Benchmarking <https://github.com/drym-org/qi/wiki/Continuous-Performance-Benchmarking>`_.
+
+Come hang out with us on `Discord <https://discord.gg/racket-571040468092321801>`_.
 
 Supporting this Project
 =======================
