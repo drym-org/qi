@@ -127,12 +127,30 @@ That brings us to the guarantee that Qi provides in this case (and in general).
 
 @subsection{Qi's Guarantee on Effects}
 
-@definition["Effect locality"]{For @tech{flow} invocations @${f} and @${g} and corresponding effects @${ε(f)} and @${ε(g)},
+@definition["Well-ordering"]{For @tech{flow} invocations @${f} and @${g} and corresponding effects @${ε(f)} and @${ε(g)},
 
 @$${f \lt g \implies \epsilon(f) \lt \epsilon(g)}
 
-where @${<} on the left denotes the relation of being upstream, and @${<} on the right denotes one effect happening before another.
+where @${<} on the left denotes the relation of being upstream, and @${<} on the right denotes one effect happening before another. Such effects are said to be @emph{well-ordered}.
 }
+
+Well-ordering is defined in relation to a source program encoding the intended meaning of the flow, which serves as the point of reference for program translations. Qi guarantees that effects will remain well-ordered through any such translations of the source program that are undertaken during @seclink["It_s_Languages_All_the_Way_Down"]{optimization}. As we will soon see, this guarantee assumes, and prescribes, that effects employed in flows be @tech{local}.
+
+@definition["Effect locality"]{@tech{Effects} in a flow F are said to be @deftech{local} if the @tech{output} of F is invariant under all @tech{well-orderings} of effects. Specifically, if a @techlink[#:key "well-ordering"]{well-ordered} program translation causes a program to produce different @tech{output}, then the program contains @deftech{nonlocal} effects.}
+
+For example, effects that mutate shared state serving as the input to other flows are often nonlocal in this way. The section on @secref["Order_of_Effects"] elaborates on this example.
+
+We will discuss the practicalities of these in more detail shortly, but first, it's worth noting that although well-ordered effects seem natural for flows, the property does not necessarily hold under arbitrary program translations without an explicit compiler guarantee (as Qi provides). We can see this in terms of the underlying pure flow that is free of effects.
+
+@definition["Pure projection"]{The pure projection of a flow @${f} is @${f} with all effects removed. We'll denote this @${π(f)}. For flows @${f_{1}} and @${f_{2}}, @${π(f_{1})} is @emph{equivalent} to @${π(f_{2})} if they produce the same @tech{output} given the same @tech{input}.}
+
+@theorem{For a @tech{flow} @${f}, not every flow @${f′} such that @${π(f′)} is equivalent to @${π(f)} preserves @tech{well-ordering} of effects in relation to @${f}.}
+
+For instance, the compiler could accumulate all effects and execute them in an arbitrary order at the end of execution of the flow. For at least some subset of local effects (say, effects that simply print their inputs), the output remains the same even if the effects are not well-ordered.
+
+Locality of effects does not imply well-ordering of effects under program translation, nor vice versa – these are independent.
+
+In sum, Qi guarantees that the @tech{output} of execution of the compiled program is the same as that of the source program, assuming @tech{effects} are @tech{local}, and further, it guarantees that the effects will be @techlink[#:key "well-ordering"]{well-ordered} in relation to the source program.
 
 This has a few implications of note.
 
@@ -154,7 +172,7 @@ Next, for a flow like this one:
   (~>> (filter my-odd?) (map my-sqr) car)
 ]
 
-… when it is invoked with a large input list, Qi in fact @seclink["Don_t_Stop_Me_Now"]{only processes the very first value} of the list, since it determines, at the end, that no further elements are needed in order to generate the final result. This means that all effects on would-be subsequent invocations of @racket[my-odd?] and @racket[my-sqr] would simply not be performed. Yet, @techlink[#:key "effect locality"]{locality} is preserved here, since the @techlink[#:key "effect locality"]{defining implication} holds for every flow invocation that actually happens. Locality is about effects being guided by the @emph{necessity} of @techlink[#:key "associated effect"]{associated} computations to the final result.
+… when it is invoked with a large input list, Qi in fact @seclink["Don_t_Stop_Me_Now"]{only processes the very first value} of the list, since it determines, at the end, that no further elements are needed in order to generate the final result. This means that all effects on would-be subsequent invocations of @racket[my-odd?] and @racket[my-sqr] would simply not be performed. Yet, @techlink[#:key "well-ordering"]{well-ordering} is preserved here, since the @techlink[#:key "well-ordering"]{defining implication} holds for every flow invocation that actually happens. Well-ordering is about effects being guided by the @emph{necessity} of @techlink[#:key "associated effect"]{associated} computations to the final result.
 
 @subsubsection{Independent Effects}
 
@@ -177,7 +195,7 @@ But both of these effects would occur before the one on the corresponding @racke
 
 @subsubsection{A Natural Order of Effects}
 
-By being as fine-grained as possible in expressing computational dependencies, and in tying the execution of effects to such computational dependencies, @tech{effect locality} is in some sense the minimum well-formed guarantee on effects, and a natural one for functional languages to provide.
+By being as fine-grained as possible in expressing computational dependencies, and in tying the execution of effects to such computational dependencies, @tech{well-ordering} is in some sense the minimum well-formed guarantee on effects, and a natural one for functional languages to provide.
 
 @subsection{Racket vs Qi}
 
@@ -205,7 +223,7 @@ Qi's order of effects is:
   (my-odd? 1) (my-sqr 1) (my-odd? 2) (my-odd? 3) (my-sqr 3)
 ]
 
-Either of these orders @emph{satisfies} @tech{effect locality}, but as we saw earlier, Racket guarantees something more than this minimum, or, in mathematical terms, Racket's guarantees on effects are @emph{stronger} than Qi's.
+Either of these orders @emph{satisfies} @tech{well-ordering}, but as we saw earlier, Racket guarantees something more than this minimum, or, in mathematical terms, Racket's guarantees on effects are @emph{stronger} than Qi's.
 
 In principle, this allows Qi to offer @seclink["Don_t_Stop_Me_Now"]{faster performance} in some cases.
 
