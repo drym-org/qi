@@ -14,7 +14,7 @@
 
 Qi may be extended in much the same way as Racket -- using @tech/reference{macros}. Qi macros are indistinguishable from built-in Qi forms during the macro expansion phase, just as user-defined Racket macros are indistinguishable from macros that are part of the Racket language. This allows us to have the same syntactic freedom with Qi as we are used to with Racket, from being able to @seclink["Adding_New_Language_Features"]{add new language features} to implementing @seclink["Writing_Languages_in_Qi"]{entire new languages} in Qi.
 
-This "first class" macro extensibility of Qi follows the general approach described in @hyperlink["https://dl.acm.org/doi/abs/10.1145/3428297"]{Macros for Domain-Specific Languages (Ballantyne et. al.)}.
+For more on how this is accomplished under the hood, see @secref["It_s_Languages_All_the_Way_Down"].
 
 @table-of-contents[]
 

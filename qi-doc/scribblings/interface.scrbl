@@ -336,7 +336,7 @@ The advantage of using these over the general-purpose @racket[define] form is th
 
 @section{Using the Host Language from Qi}
 
-Arbitrary native (e.g. Racket) expressions can be used in @tech{flows} in one of two core ways. This section describes these two ways and also discusses other considerations regarding use of the host language alongside Qi.
+Arbitrary host language (e.g. Racket) expressions can be used in @tech{flows} in one of two core ways. This section describes these two ways and also discusses other considerations regarding use of the host language alongside Qi.
 
 @subsection{Using Racket Values in Qi Flows}
 
@@ -352,11 +352,14 @@ The first and most common way is to simply wrap the expression with a @racket[ge
 
 The second way is if you want to describe a @tech{flow} using the host language instead of Qi. In this case, use the @racket[esc] form. The wrapped expression in this case @emph{must} evaluate to a function, since functions are the only values describable in the host language that can be treated as flows. Note that use of @racket[esc] is unnecessary for function identifiers since these are @seclink["Identifiers"]{usable as flows directly}, and these can even be @seclink["Templates_and_Partial_Application"]{partially applied using standard application syntax}, optionally with @racket[_] and @racket[___] to indicate argument placement. But you may still need @racket[esc] in the specific case where the identifier collides with a Qi form.
 
+Finally, bear in mind that if you use @racket[esc], the @seclink["It_s_Languages_All_the_Way_Down"]{Qi compiler} will not attempt to optimize the resulting flow. Of course, if such a flow occurs within a larger flow, other parts of that containing flow would still be optimized as usual. Yet, as escaped forms are generally not considered in optimizations, the presence of such forms may make it less likely that there would be applicable nonlocal (i.e. involving more than one flow, like @seclink["Phrases"]{phrases}) optimizations.
+
 @examples[
     #:eval eval-for-docs
     (define-flow add-two
       (esc (λ (a b) (+ a b))))
     (~> (3 5) add-two)
+    (~> (3) sqr (esc (λ (x) (+ x 5))))
   ]
 
 @subsection{Using Racket Macros as Flows}

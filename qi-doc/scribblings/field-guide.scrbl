@@ -29,9 +29,43 @@ Decompose your @tech{flow} into its smallest components, and name each so that t
 
 A journeyman of one's craft -- a woodworker, electrician, or a plumber, say -- always goes to work with a trusty toolbox that contains the tools of the trade, some perhaps even of their own design. An electrician, for instance, may have a voltage tester, a multimeter, and a continuity tester in her toolbox. Although these are "debugging" tools, they aren't just for identifying bugs -- by providing rapid feedback, they enable her to explore and find creative solutions quickly and reliably. It's the same with Qi. Learn to use the @seclink["Debugging"]{debugging tools}, and use them often.
 
-@subsection{Be Intentional About Effects}
+@subsection{Separate Effects from Other Computations}
 
-Qi encourages a style that avoids "accidental" effects. A flow should either be pure (that is, it should be free of "side effects" such as printing to the screen or writing to a file), or its entire purpose should be to fulfill a side effect. It is considered inadvisable to have a function with sane inputs and outputs (resembling a pure function) that also performs a side effect. It would be better to decouple the effect from the rest of your function (@seclink["Use_Small_Building_Blocks"]{splitting it into smaller functions}, as necessary) and perform the effect explicitly via the @racket[effect] form, or otherwise escape from Qi using something like @racket[esc] (note that @seclink["Identifiers"]{function identifiers} used in a flow context are implicitly @racket[esc]aped) in order to perform the effect. This will ensure that there are no surprises with regard to @seclink["Order_of_Effects"]{order of effects}.
+In functional programming, "effects" refer to anything a function does that is not captured in its inputs and outputs. This could include things like printing to the screen, writing to a file, or mutating a global variable.
+
+In general, pure functions (that is, functions free of such effects) are easier to understand and easier to reuse, and favoring their use is considered good functional style. But of course, it's necessary for your code to actually do things besides compute values, too! There are many ways in which you might combine effects and pure functions, from mixing them freely, as you might in Racket, to extracting them completely using monads, as you might in Haskell. Qi encourages using pure functions side by side with what we could call "pure effects."
+
+If you have a function with ordinary inputs and outputs that also performs an effect, then, to adopt this style, decouple the effect from the rest of the function (@seclink["Use_Small_Building_Blocks"]{splitting it into smaller functions}, as necessary) and then invoke it via an explicit use of the @racket[effect] form, thus neatly separating the functional computation from the effect.
+
+Doing it this way encourages smaller, well-scoped functions that do one thing, and which serve as excellent building blocks from which to compose large and complex programs. In contrast, larger, effectful functions make poor building blocks and are difficult to compose.
+
+To illustrate, say that we wish to perform a simple numeric transformation on an input number, but also print the intermediate values to the screen. We might do it this way:
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+    (define (my-square v)
+      (displayln v)
+      (sqr v))
+
+    (define (my-add1 v)
+      (displayln v)
+      (add1 v))
+
+    (~> (3) my-square my-add1)
+]
+
+This is considered poor style since we've mixed pure functions with implicit effects. It makes these functions less portable since we might find use for such computations in other settings where we might prefer to avoid the side effect, or perhaps perform a different effect like writing the value to a network port. With the functions written this way, we would be encouraged to write similar functions in these different settings, exhibiting the other effects we might desire there, and duplicating the core logic.
+
+Instead, following the above guideline, we would write it this way:
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+	(~> (3) (ε displayln sqr) (ε displayln add1))
+]
+
+This uses the pure functions @racket[sqr] and @racket[add1], extracting the effectful @racket[displayln] as an explicit @racket[effect]. If we wanted to have other effects, we could simply indicate different effects here and reuse the same underlying pure functions.
 
 @section{Debugging}
 
@@ -125,6 +159,8 @@ Methodical use of @racket[gen] together with the @seclink["Using_a_Probe"]{probe
 
 @subsection{Common Errors and What They Mean}
 
+Qi aims to produce good error messages that convey what the problem is and clearly imply a remedy. For various reasons, it may not always be possible to provide such a clear message. This section documents known errors of this kind, and suggests possible causes and remedies. If you encounter an inscrutable error, please consider @hyperlink["https://github.com/drym-org/qi/issues/"]{reporting it}. If the error cannot be improved, then it will be documented here.
+
 @subsubsection{Expected Number of Values Not Received}
 
 @codeblock{
@@ -172,9 +208,16 @@ Methodical use of @racket[gen] together with the @seclink["Using_a_Probe"]{probe
 ;   in: lambda
 }
 
-@bold{Meaning}: The Racket interpreter received syntax, in this case simply "lambda", that it considers to be invalid. Note that if it received something it didn't know anything about, it would say "undefined" rather than "bad syntax." Bad syntax indicates known syntax used in an incorrect way.
+@bold{Meaning}: The expander (@seclink["It_s_Languages_All_the_Way_Down"]{either the Racket or Qi expander}) received syntax, in this case simply "lambda", that it considers to be invalid. Note that if it received something it didn't know anything about, it would say "undefined" rather than "bad syntax." Bad syntax indicates known syntax used in an incorrect way.
 
-@bold{Common example}: A Racket expression has not been properly escaped within a Qi context. For instance, @racket[(flow (lambda (x) x))] is invalid because the wrapped expression is Racket rather than Qi. To fix this, use @racket[esc], as in @racket[(flow (esc (lambda (x) x)))].
+@bold{Common example}: A Racket expression has not been properly escaped within a Qi context. For instance, @racket[(☯ (lambda (x) x))] is invalid because the wrapped expression is Racket rather than Qi. To fix this, use @racket[esc], as in @racket[(☯ (esc (lambda (x) x)))].
+
+@codeblock{
+; not: bad syntax
+;   in: not
+}
+
+@bold{Common example}: Similar to the previous one, a Racket expression has not been properly escaped within a Qi context, but in a special case where the Racket expression has the same name as a Qi form. In this instance, you may have used @racket[(☯ not)] expecting to invoke Racket's @racket[not] function, since @seclink["Identifiers"]{function identifiers may be used as flows directly} without needing to be escaped. But as Qi has a @racket[not] form as well, Qi's expander first attempts to match this against legitimate use of Qi's @racket[not], which fails, since this expects a flow as an argument and cannot be used in identifier form. To fix this in general, use an explicit @racket[esc], as in @racket[(☯ (esc not))]. In this specific case, you could also use Qi's @racket[(☯ NOT)] instead.
 
 @bold{Common example}: Trying to use a Racket macro (rather than a function), or a macro from another DSL, as a @tech{flow} without first registering it via @racket[define-qi-foreign-syntaxes]. In general, Qi expects flows to be functions unless otherwise explicitly signaled.
 
@@ -254,6 +297,18 @@ Methodical use of @racket[gen] together with the @seclink["Using_a_Probe"]{probe
 @bold{Meaning}: An identifier appears unbound in your code.
 
 @bold{Common example}: Attempting to use a Qi macro in one module without @racketlink[provide]{providing} it from the module where it is defined -- note that Qi macros must be provided as @racket[(provide (for-space qi mac))]. See @secref["Using_Macros" #:doc '(lib "qi/scribblings/qi.scrbl")] for more on this.
+
+@subsubsection{Contract Violation}
+
+@codeblock{
+; map: contract violation
+;   expected: procedure?
+;   given: '(1 2 3)
+}
+
+@bold{Meaning}: The interpreter attempted to apply a function to arguments but found that an argument was not of the expected type.
+
+@bold{Common example}: Using a nested flow (such as a @racket[tee] junction or an @racket[effect]) within a right-threading flow and assuming that the input arguments would be passed on the right. At the moment, Qi does not propagate the threading direction to nested clauses. You could either use a fresh right threading form or indicate the argument positions explicitly in the nested flow using an @seclink["Templates_and_Partial_Application"]{argument template}.
 
 @subsubsection{Compose: Contract Violation}
 
@@ -356,15 +411,17 @@ So in general, use mutable values with caution. Such values can be useful as sid
 
 @subsubsection{Order of Effects}
 
- Qi flows may exhibit a different order of effects (in the functional programming sense) than equivalent Racket functions.
+ Qi @tech{flows} may exhibit a different order of effects (in the @seclink["Separate_Effects_from_Other_Computations"]{functional programming sense}) than equivalent Racket functions.
 
 Consider the Racket expression: @racket[(map sqr (filter odd? (list 1 2 3 4 5)))]. As this invokes @racket[odd?] on all of the elements of the input list, followed by @racket[sqr] on all of the elements of the intermediate list, if we imagine that @racket[odd?] and @racket[sqr] print their inputs as a side effect before producing their results, then executing this program would print the numbers in the sequence @racket[1,2,3,4,5,1,3,5].
 
-The equivalent Qi flow is @racket[(~> ((list 1 2 3 4 5)) (filter odd?) (map sqr))]. As this sequence is @seclink["Don_t_Stop_Me_Now"]{"deforested" by Qi's compiler} to avoid multiple passes over the data and the memory overhead of intermediate representations, it invokes the functions in sequence @emph{on each element} rather than @emph{on all of the elements of each list in turn}. The printed sequence with Qi would be @racket[1,1,2,3,3,4,5,5].
+The equivalent Qi flow is @racket[(~> ((list 1 2 3 4 5)) (filter odd?) (map sqr))]. As this sequence is @seclink["Don_t_Stop_Me_Now"]{deforested by Qi's compiler} to avoid multiple passes over the data and the memory overhead of intermediate representations, it invokes the functions in sequence @emph{on each element} rather than @emph{on all of the elements of each list in turn}. The printed sequence with Qi would be @racket[1,1,2,3,3,4,5,5].
 
 Yet, either implementation produces the same output: @racket[(list 1 9 25)].
 
-So, to reiterate, while the output of Qi flows will be the same as the output of equivalent Racket expressions, they may nevertheless exhibit a different order of effects.
+So, to reiterate, while the behavior of @emph{pure} Qi flows will be the same as that of equivalent Racket expressions, effectful flows may exhibit a different order of effects. In the case where the output of such effectful flows is dependent on those effects (such as relying on a mutable global variable), these flows could even produce different output than otherwise equivalent (from the perspective of inputs and outputs, disregarding effects) Racket code.
+
+If you'd like to use Racket's order of effects in any flow, @seclink["Using_Racket_to_Define_Flows"]{write the flow in Racket} by using a wrapping @racket[esc].
 
 @section{Effectively Using Feedback Loops}
 
@@ -463,9 +520,9 @@ Using this approach, you would need to register each such foreign macro using @r
 
 @subsection{Bindings are an Alternative to Nonlinearity}
 
-In some cases, we'd prefer to think of a nonlinear @tech{flow} as a linear sequence on a subset of arguments that happens to need the remainder of the arguments somewhere down the line. In such cases, it is advisable to employ bindings so that the flow can be defined on this subset of them and employ the remainder by name.
+In some cases, we'd prefer to think of a nonlinear @tech{flow} as a linear sequence on a subset of arguments that happens to need the remainder of the arguments somewhere down the line. In such cases, it is advisable to employ @seclink["Binding"]{bindings} so that the flow can be defined on this subset of them and employ the remainder by name.
 
-For example, these are equivalent:
+For example, for a function called @racket[make-document] accepting two arguments that are the name of the document and a file object, these implementations are equivalent:
 
 @codeblock{
   (define-flow make-document
@@ -477,8 +534,8 @@ For example, these are equivalent:
 }
 
 @codeblock{
-  (define (make-document name file)
-    (~>> (file)
+  (define-flow make-document
+    (~>> (== (as name) _)
          file-contents
          (parse-result document/p)
          △

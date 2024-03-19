@@ -27,13 +27,17 @@
 
  The Qi language allows you to describe and use flows in your code.
 
-@section{Values, Paths and Flows}
+@section{Values and Flows}
 
 @tech{Flows} accept inputs and produce outputs -- they are functions. The things that flow -- the inputs and outputs -- are @emph{values}. Yet, values do not actually "move" through a flow, since a flow does not mutate them. The flow simply produces new values that are related to the inputs by a computation.
 
- Every flow is made up of components that are themselves flows. Thus, each of these components is a relationship between an input set of values and an output set of values, so that at every level, flows produce sequences of sets of values beginning with the inputs and ending with the outputs, with each set related to the preceding one by a computation, and again, no real "motion" of values at all. There may be many such distinct @deftech{paths} over flow components that could be traced (borrowing the term "path" as used in graph theory in this sense), and we may imagine values to flow along these paths.
+ Every flow is made up of components that are themselves flows. Thus, each of these components is a relationship between an input set of values and an output set of values, so that at every level, flows produce sequences of sets of values beginning with the inputs and ending with the outputs, with each set related to the preceding one by a computation, and again, no real "motion" of values at all.
 
  So indeed, when we say that values "flow," there is nothing in fact that truly flows, and it is merely a convenient metaphor.
+
+@section{Flows as Graphs}
+
+ A flow could also be considered an @hyperlink["https://en.wikipedia.org/wiki/Directed_acyclic_graph"]{acyclic graph}, with its component flows as nodes, and a directed edge connecting two flows if an output of one is used as an input of the other. There may be many distinct @deftech{paths} that could be traced over this graph, and we may imagine values to flow along these paths at runtime (although of course, @seclink["Values_and_Flows"]{there is nothing that flows}). At each point in the flow (in this spatial sense), there are a certain number of values present, depending on the runtime inputs. We refer to this number as the @deftech{arity} or the @deftech{volume} of the flow at that point. Volume is a runtime concept since it depends on the actual inputs provided to the flow, although there may be cases where it could be determined at compile time.
 
 @section{Values are Not Collections}
 
@@ -122,3 +126,20 @@ It turns out that the core routing forms of Qi fulfill the definition of @hyperl
 So evidently, flows are just @hyperlink["https://www.sciencedirect.com/science/article/pii/S1571066106001666/pdf"]{monoids in suitable subcategories of bifunctors} (what's the problem?), or, in another way of looking at it, @hyperlink["https://bentnib.org/arrows.pdf"]{enriched Freyd categories}.
 
 Therefore, any theoretical results about arrows should generally apply to Qi as well (but not necessarily, since Qi is not @emph{just} arrows).
+
+@section{It's Languages All the Way Down}
+
+Qi is a language implemented on top of another language, Racket, by means of a macro called @racket[flow]. All of the other macros that serve as Qi's @seclink["Embedding_a_Hosted_Language"]{embedding} into Racket, such as (the Racket macros) @racket[~>] and @racket[switch], expand to a use of @racket[flow].
+
+The @racket[flow] form accepts Qi syntax and (like any @tech/reference{macro}) produces Racket syntax. It does this in two stages:
+
+@itemlist[#:style 'ordered
+  @item{Expansion, where the Qi source expression is translated to a small core language (Core Qi).}
+  @item{Compilation, where the Core Qi expression is optimized and then translated into Racket.}
+]
+
+All of this happens at @seclink["phases" #:doc '(lib "scribblings/guide/guide.scrbl")]{compile time}, and consequently, the generated Racket code is then itself @seclink["expansion" #:doc '(lib "scribblings/reference/reference.scrbl")]{expanded} to a @seclink["fully-expanded" #:doc '(lib "scribblings/reference/reference.scrbl")]{small core language} and then @tech/reference{compiled} to @seclink["JIT" #:doc '(lib "scribblings/guide/guide.scrbl")]{bytecode} for evaluation in the runtime environment, as usual.
+
+Thus, Qi is a special kind of @seclink["Hosted_Languages"]{hosted language}, one that happens to have the same architecture as the host language, Racket, in terms of having distinct expansion and compilation steps. This gives it a lot of flexibility in its implementation, including allowing much of its surface syntax to be implemented as @seclink["Qi_Macros"]{Qi macros} (for instance, Qi's @racket[switch] expands to a use of Qi's @racket[if] just as Racket's @racket[cond] expands to a use of Racket's @racket[if]), allowing it to be naturally macro-extensible by users, and lending it the ability to @seclink["Don_t_Stop_Me_Now"]{perform optimizations on the core language} that allow idiomatic code to be performant.
+
+This architecture is achieved through the use of @seclink["top" #:indirect? #t #:doc '(lib "syntax-spec-v1/scribblings/main.scrbl")]{Syntax Spec}, following the general approach described in @hyperlink["https://dl.acm.org/doi/abs/10.1145/3428297"]{Macros for Domain-Specific Languages (Ballantyne et. al.)}.

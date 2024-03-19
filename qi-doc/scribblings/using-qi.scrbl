@@ -190,7 +190,7 @@ This succinctness is possible because Qi reaps the twin benefits of (1) working 
 
 @section{Don't Stop Me Now}
 
-When you're interested in functionally transforming lists using operations like @racket[map], @racket[filter], @racket[foldl] and @racket[foldr], Qi is a good choice because its optimizing compiler eliminates intermediate representations that would ordinarily be constructed in computing the result of such a sequence, resulting in significant performance gains in some cases.
+When you're interested in functionally transforming lists using operations like @racket[map], @racket[filter], @racket[foldl] and @racket[foldr], Qi is a good choice because its @seclink["It_s_Languages_All_the_Way_Down"]{optimizing compiler} eliminates intermediate representations that would ordinarily be constructed in computing the result of such a sequence, resulting in significant performance gains in some cases.
 
 For example, consider the Racket function:
 
