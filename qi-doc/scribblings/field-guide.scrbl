@@ -453,26 +453,57 @@ See @secref["Effect_Locality"] for more insights into Qi's handling of effects a
 
 @subsubsection{Schrodinger's Probe}
 
-Another curious thing to watch out for is that use of the @seclink["Using_a_Probe"]{probe debugger} can affect the @seclink["Order_of_Effects"]{order of effects}, as it could suppress optimizations that would be otherwise be performed if the @tech{flow} were unobserved.
+Another curious thing to watch out for is that use of the @seclink["Using_a_Probe"]{probe debugger} can affect the @seclink["Order_of_Effects"]{order of effects}, as it could suppress optimizations that would otherwise be performed if the @tech{flow} were unobserved.
 
 Consider this example:
 
 @racketblock[
 (define-flow foo
-  (~> (pass (effect E₁ odd?))) readout (>< (effect E₂ sqr)))
-
-(probe (foo 1 2 3))
+  (~> (pass odd?) (>< sqr)))
 ]
 
-Here, with the @racket[readout], all the effects E₁ would occur first, followed by all of the E₂ effects. Without the @racket[readout], the flow would be deforested by the compiler to:
+This program would be optimized by the Qi compiler to:
+
+@racketblock[
+  (>< (if odd? sqr ⏚))
+]
+
+If we placed a readout here:
+
+@racketblock[
+(define-flow foo
+  (~> (pass odd?) readout (>< sqr)))
+]
+
+… then for an input list @racket[(list 1 2 3)], the readout would show @racket[(list 1 3)]. But in the optimized program above, the readout would not even represent a valid point in the program (where should it be placed?). Thus, the readout is showing values that are flowing in the original program rather than the one that would actually have been executed in the absence of the readout.
+
+The optimization here (by requirement) does not change the meaning of the program in the absence of effects. If there were effects present, however, then the situation gets even more spooky.
+
+The first program would look something like this:
+
+@racketblock[
+(define-flow foo
+  (~> (pass (effect E₁ odd?))) (>< (effect E₂ sqr)))
+]
+
+… where all the effects E₁ would happen before any of the effects E₂. And the second program would look like:
 
 @racketblock[
   (>< (if (effect E₁ odd?) (effect E₂ sqr) ⏚))
 ]
 
-… and the effects E₁ and E₂ would be interleaved. Either order is consistent with @seclink["Effect_Locality"]{locality} but they are @emph{different}. Indeed, the @racket[readout] in this case would not even represent a valid point in the a priori optimized program.
+… where the effects E₁ and E₂ would be interleaved. Though it changes the order of effects, the optimization is possible because it preserves @tech{well-ordering}. The second program here represents what will actually be executed when the first program is written.
 
-So it's important to bear in mind that one cannot observe a flow using @racket[probe] without changing the program being observed, a change which in some cases has no observable impact, and which in other cases is significant. But now that you understand this phenomenon, you can develop intuition for the nature of such changes, and how best to use the tool to find the answers you are looking for.
+But what happens when we place a @racket[readout] in the source program, this time?
+
+@racketblock[
+(define-flow foo
+  (~> (pass (effect E₁ odd?))) readout (>< (effect E₂ sqr)))
+]
+
+Here, with the @racket[readout], the program would once again not be optimized, and thus, all the effects E₁ would occur first before the values are read out. Without the @racket[readout], the flow would be @seclink["Don_t_Stop_Me_Now"]{deforested} by the compiler, and as we have just seen, the effects E₁ and E₂ would be interleaved, so that the effects observed in the presence of the readout are different from what would be observed without it.
+
+So it's important to bear in mind that one cannot observe a flow using @racket[probe] without changing the program being observed, a change which in some cases has no observable impact, and which in other cases (i.e. when there are effects involved) could be significant. But now that you understand this phenomenon, you can develop intuition for the nature of such changes, and how best to use the tool to find the answers you are looking for.
 
 @section{Effectively Using Feedback Loops}
 
