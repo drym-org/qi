@@ -31,9 +31,9 @@ A journeyman of one's craft -- a woodworker, electrician, or a plumber, say -- a
 
 @subsection{Separate Effects from Other Computations}
 
-In functional programming, "effects" refer to anything a function does that is not captured in its inputs and outputs. This could include things like printing to the screen, writing to a file, or mutating a global variable.
+In functional programming, @deftech{effects} refer to anything a function does that is not captured in its @tech{inputs} and @tech{outputs}. This could include things like printing to the screen, writing to a file, or mutating a global variable.
 
-In general, pure functions (that is, functions free of such effects) are easier to understand and easier to reuse, and favoring their use is considered good functional style. But of course, it's necessary for your code to actually do things besides compute values, too! There are many ways in which you might combine effects and pure functions, from mixing them freely, as you might in Racket, to extracting them completely using monads, as you might in Haskell. Qi encourages using pure functions side by side with what we could call "pure effects."
+In general, pure functions (that is, functions free of such effects) are easier to understand and easier to reuse, and favoring their use is considered good functional style. But of course, it's necessary for your code to actually do things besides compute values, too! There are many ways in which you might combine effects and pure functions, from mixing them freely, as you might in Racket, to extracting them completely using monads, as you might in Haskell. Qi encourages using pure functions side by side with what we could call @deftech{pure effects}.
 
 If you have a function with ordinary inputs and outputs that also performs an effect, then, to adopt this style, decouple the effect from the rest of the function (@seclink["Use_Small_Building_Blocks"]{splitting it into smaller functions}, as necessary) and then invoke it via an explicit use of the @racket[effect] form, thus neatly separating the functional computation from the effect.
 
@@ -413,17 +413,39 @@ So in general, use mutable values with caution. Such values can be useful as sid
 
 @subsubsection{Order of Effects}
 
- Qi @tech{flows} may exhibit a different order of effects (in the @seclink["Separate_Effects_from_Other_Computations"]{functional programming sense}) than equivalent Racket functions.
+In general, the behavior of @emph{pure} Qi @tech{flows} (in the @seclink["Separate_Effects_from_Other_Computations"]{functional programming sense}) is the same as that of equivalent Racket expressions, but effectful flows may exhibit a different order of effects.
 
 Consider the Racket expression: @racket[(map sqr (filter odd? (list 1 2 3 4 5)))]. As this invokes @racket[odd?] on all of the elements of the input list, followed by @racket[sqr] on all of the elements of the intermediate list, if we imagine that @racket[odd?] and @racket[sqr] print their inputs as a side effect before producing their results, then executing this program would print the numbers in the sequence @racket[1,2,3,4,5,1,3,5].
 
-The equivalent Qi flow is @racket[(~> ((list 1 2 3 4 5)) (filter odd?) (map sqr))]. As this sequence is @seclink["Don_t_Stop_Me_Now"]{deforested by Qi's compiler} to avoid multiple passes over the data and the memory overhead of intermediate representations, it invokes the functions in sequence @emph{on each element} rather than @emph{on all of the elements of each list in turn}. The printed sequence with Qi would be @racket[1,1,2,3,3,4,5,5].
+The equivalent Qi flow is @racket[(~>> ((list 1 2 3 4 5)) (filter odd?) (map sqr))]. As this sequence is @seclink["Don_t_Stop_Me_Now"]{deforested by Qi's compiler} to avoid multiple passes over the data and the memory overhead of intermediate representations, it invokes the functions in sequence @emph{on each element} rather than @emph{on all of the elements of each list in turn}. The printed sequence with Qi would be @racket[1,1,2,3,3,4,5,5].
 
-Yet, either implementation produces the same output: @racket[(list 1 9 25)].
+Yet, in this case, either implementation produces the same output: @racket[(list 1 9 25)]. Often, as we see here, exhibiting a different order of effects does not make a difference to the @tech{output} of the program.
 
-So, to reiterate, while the behavior of @emph{pure} Qi flows will be the same as that of equivalent Racket expressions, effectful flows may exhibit a different order of effects. In the case where the output of such effectful flows is dependent on those effects (such as relying on a mutable global variable), these flows could even produce different output than otherwise equivalent (from the perspective of inputs and outputs, disregarding effects) Racket code.
+But in the case where the output of such effectful flows is dependent on those effects (such as by incorporating mutable state), these flows could produce different output than otherwise equivalent Racket code, as this next example shows.
 
-If you'd like to use Racket's order of effects in any flow, @seclink["Using_Racket_to_Define_Flows"]{write the flow in Racket} by using a wrapping @racket[esc].
+@racketblock[
+  (define add-count
+    (let ([v 0])
+      (lambda (arg)
+        (set! v (+ v 1))
+        (+ arg v))))
+
+  (~>> ((list 1 2 3)) (filter odd?) (map add-count) (map add-count))
+]
+
+Here, the unoptimized program would be equivalent to:
+
+@racketblock[
+  ((lambda (lst)
+     (map add-count
+          (map add-count
+               (filter odd? lst))))
+   (list 1 2 3))
+]
+
+… which produces the output @racket[(list 5 9)].
+
+The optimized program deforests the sequence of functional operations, interleaving the effects (as discussed above), producing a different result, @racket[(list 4 10)].
 
 See @secref["Effect_Locality"] for more insights into Qi's handling of effects.
 
