@@ -15,7 +15,15 @@
   (make-paragraph plain
     (list
       (bold "Definition")
-      (cons (element #f (list " (" (deftech term) "). ")) defn*))))
+      (element #f (list " (" (deftech term) "). "))
+      defn*)))
+
+@(define (theorem . thm*)
+  (make-paragraph plain
+    (list
+      (bold "Theorem")
+      (element #f (list ". "))
+      thm*)))
 
 @title{Principles of Qi}
 
