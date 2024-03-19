@@ -37,7 +37,7 @@
 
  A @deftech{flow} is either made up of flows, or is a native (e.g. Racket) @seclink["lambda" #:doc '(lib "scribblings/guide/guide.scrbl")]{function}. Flows may be composed using a number of combinators that could yield either linear or nonlinear composite flows.
 
- A flow in general accepts @code{m} inputs and yields @code{n} outputs, for arbitrary non-negative integers @code{m} and @code{n}. We say that such a flow is @code{m × n}.
+ A flow in general accepts @code{m} @deftech{inputs} and yields @code{n} @deftech{outputs}, for arbitrary non-negative integers @code{m} and @code{n}. We say that such a flow is @code{m × n}.
 
  The semantics of a flow is function invocation -- simply invoke a flow with inputs (i.e. ordinary arguments) to obtain the outputs.
 
@@ -104,6 +104,8 @@ First, regarding the definability of effects, as far as Qi is concerned, they ar
 @definition["Associated effect"]{If a flow @${f} either includes an effect @${e} in its primitive definition or has one declared using @racket[effect], then @${e} is said to be an effect "on" @${f}. We denote an arbitrary effect on @${f} by @${ε(f)}.}
 
 In the case where we use the @racket[effect] form on its own as in @racket[(effect displayln)], the implicit associated function is the identity flow, @racket[_].
+
+Note that @tech{effects} are a distinct concept from program @tech{inputs} and @tech{outputs}.
 
 @subsection{Upstream and Downstream}
 
