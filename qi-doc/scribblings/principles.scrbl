@@ -37,7 +37,7 @@
 
  A @deftech{flow} is either made up of flows, or is a native (e.g. Racket) @seclink["lambda" #:doc '(lib "scribblings/guide/guide.scrbl")]{function}. Flows may be composed using a number of combinators that could yield either linear or nonlinear composite flows.
 
- A flow in general accepts @code{m} @deftech{inputs} and yields @code{n} @deftech{outputs}, for arbitrary non-negative integers @code{m} and @code{n}. We say that such a flow is @code{m × n}.
+ A flow in general accepts @code{m} @deftech{inputs} and yields @code{n} @deftech{outputs}, for arbitrary non-negative integers @code{m} and @code{n}. We say that such a flow is @code{m × n}. Inputs and outputs are ordinary @tech/reference{values}.
 
  The semantics of a flow is function invocation -- simply invoke a flow with inputs (i.e. ordinary arguments) to obtain the outputs.
 
@@ -57,7 +57,7 @@
 
 @section{Values are Not Collections}
 
- The things that flow are values. Individual values may happen to be collections such as lists, but the values that are flowing are not, together, a collection of any kind.
+ The things that flow are @tech/reference{values}. Individual values may happen to be collections such as @tech/guide{lists}, but the values that are flowing are not, together, a collection of any kind.
 
  To understand this with an example: when we employ a tee junction in a @tech{flow}, colloquially, we might say that the junction "divides the flow into two," which might suggest that there are now two flows. But in fact, there is just one flow that divides @emph{values} down two separate flows which are part of its makeup. More precisely, @racket[-<] composes two flows to yield a single composite flow. Like any flow, this composite flow accepts values and produces values, not collections of values. There is no way to differentiate, at the output end, which values came from the first channel of the junction and which ones came from the second, since downstream flows have no idea about the structure of upstream flows and only see the values they receive.
 
@@ -121,7 +121,7 @@ In the above example, @racket[filter] and @racket[map] are obviously ordered by 
 
 This is where the distinction between flows and flow invocations comes into play. In fact, not all invocations of @racket[my-odd?] are upstream of any particular invocation of @racket[my-sqr]. Rather, specific invocations of @racket[my-sqr] that use values computed by individual invocations of @racket[my-odd?] are downstream of those invocations, and notably, these invocations involve the individual elements of the input list rather than the entire list, so that the computational dependency expressed by this relation is as fine-grained as possible.
 
-For instance, for an input list @racket[(list 1 2 3)], @racket[(my-odd? 1)] is @tech{upstream} of @racket[(my-sqr 1)], and likewise, @racket[(my-odd? 3)] is @tech{upstream} of @racket[(my-sqr 3)].
+For instance, for an input list @racket[(list 1 2 3)], @racket[(my-odd? 1)] is @tech{upstream} of @racket[(my-sqr 1)], and likewise, @racket[(my-odd? 3)] is @tech{upstream} of @racket[(my-sqr 3)], but @racket[(my-odd? 3)] is not upstream of @racket[(my-sqr 1)], and @racket[(my-odd? 2)] isn't upstream of anything.
 
 That brings us to the guarantee that Qi provides in this case (and in general).
 
@@ -150,7 +150,7 @@ For instance, the compiler could accumulate all effects and execute them in an a
 
 Locality of effects does not imply well-ordering of effects under program translation, nor vice versa – these are independent.
 
-In sum, Qi guarantees that the @tech{output} of execution of the compiled program is the same as that of the source program, assuming @tech{effects} are @tech{local}, and further, it guarantees that the effects will be @techlink[#:key "well-ordering"]{well-ordered} in relation to the source program.
+In sum, @emph{Qi guarantees that the @tech{output} of execution of the compiled program is the same as that of the source program, assuming @tech{effects} are @tech{local}, and further, it guarantees that the effects will be @techlink[#:key "well-ordering"]{well-ordered} in relation to the source program.}
 
 This has a few implications of note.
 
@@ -172,7 +172,7 @@ Next, for a flow like this one:
   (~>> (filter my-odd?) (map my-sqr) car)
 ]
 
-… when it is invoked with a large input list, Qi in fact @seclink["Don_t_Stop_Me_Now"]{only processes the very first value} of the list, since it determines, at the end, that no further elements are needed in order to generate the final result. This means that all effects on would-be subsequent invocations of @racket[my-odd?] and @racket[my-sqr] would simply not be performed. Yet, @techlink[#:key "well-ordering"]{well-ordering} is preserved here, since the @techlink[#:key "well-ordering"]{defining implication} holds for every flow invocation that actually happens. Well-ordering is about effects being guided by the @emph{necessity} of @techlink[#:key "associated effect"]{associated} computations to the final result.
+… when it is invoked with a large input list, Qi in fact @seclink["Don_t_Stop_Me_Now"]{only processes the very first value} of the list, since it determines, at the end, that no further elements are needed in order to generate the final result. This means that all effects on would-be subsequent invocations of @racket[my-odd?] and @racket[my-sqr] would simply not be performed. Yet, @tech{well-ordering} is preserved here, since the @techlink[#:key "well-ordering"]{defining implication} holds for every flow invocation that actually happens. Well-ordering is about effects being guided by the @emph{necessity} of @techlink[#:key "associated effect"]{associated} computations to the final result.
 
 @subsubsection{Independent Effects}
 
@@ -187,13 +187,13 @@ For a nonlinear flow like this one:
      (foldl + 0))
 ]
 
-… as invocations of neither @racket[my-sqr] nor @racket[my-add1] are @tech{upstream} of the other, there is no guarantee on the mutual order of effects either. For instance, the effects @techlink[#:key "associated effect"]{on} @racket[my-sqr] may happen first, or those on @racket[my-add1] may happen first, or they may be interleaved.
+… as invocations of neither @racket[my-sqr] nor @racket[my-add1] are @tech{upstream} of the other, there is no guarantee on the mutual order of effects either. For instance, the effects @techlink[#:key "associated effect"]{on} @racket[my-sqr] may happen first, or those @techlink[#:key "associated effect"]{on} @racket[my-add1] may happen first, or they may be interleaved.
 
-But both of these effects would occur before the one on the corresponding @racket[my-*] invocation, since this is downstream of them both.
+But both of these effects would occur before the one on the corresponding @racket[my-*] invocation, since this is @tech{downstream} of them both.
 
 @subsubsection{Designing Effects}
 
-The guarantee of well-ordering of effects provided by the compiler represents a prescription for the design of @tech{effects} by users.
+The guarantee of @tech{well-ordering} of effects provided by the compiler represents a prescription for the design of @tech{effects} by users.
 
 As @secref["Order_of_Effects"] elaborates on, it's possible that the @tech{output} of effectful flows will differ from that of seemingly equivalent Racket programs. In fact, it's precisely in the cases where the program contains @tech{nonlocal} effects that the output could differ.
 
@@ -305,7 +305,7 @@ Therefore, any theoretical results about arrows should generally apply to Qi as 
 
 @section{It's Languages All the Way Down}
 
-Qi is a language implemented on top of another language, Racket, by means of a macro called @racket[flow]. All of the other macros that serve as Qi's @seclink["Embedding_a_Hosted_Language"]{embedding} into Racket, such as (the Racket macros) @racket[~>] and @racket[switch], expand to a use of @racket[flow].
+Qi is a language implemented on top of another language, Racket, by means of a @tech/reference{macro} called @racket[flow]. All of the other macros that serve as Qi's @seclink["Embedding_a_Hosted_Language"]{embedding} into Racket, such as (the Racket macros) @racket[~>] and @racket[switch], expand to a use of @racket[flow].
 
 The @racket[flow] form accepts Qi syntax and (like any @tech/reference{macro}) produces Racket syntax. It does this in two stages:
 

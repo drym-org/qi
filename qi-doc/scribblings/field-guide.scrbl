@@ -413,7 +413,7 @@ So in general, use mutable values with caution. Such values can be useful as sid
 
 @subsubsection{Order of Effects}
 
-In general, the behavior of @emph{pure} Qi @tech{flows} (in the @seclink["Separate_Effects_from_Other_Computations"]{functional programming sense}) is the same as that of equivalent Racket expressions, but effectful flows may exhibit a different order of effects.
+In general, the behavior of @emph{pure} (in the @seclink["Separate_Effects_from_Other_Computations"]{functional programming sense}) Qi @tech{flows} is the same as that of equivalent Racket expressions, but effectful flows may exhibit a different order of effects.
 
 Consider the Racket expression: @racket[(map sqr (filter odd? (list 1 2 3 4 5)))]. As this invokes @racket[odd?] on all of the elements of the input list, followed by @racket[sqr] on all of the elements of the intermediate list, if we imagine that @racket[odd?] and @racket[sqr] print their inputs as a side effect before producing their results, then executing this program would print the numbers in the sequence @racket[1,2,3,4,5,1,3,5].
 
