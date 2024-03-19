@@ -187,9 +187,7 @@ For a nonlinear flow like this one:
      (foldl + 0))
 ]
 
-… as invocations of neither @racket[my-sqr] nor @racket[my-add1] are upstream of the other, there is no guarantee on the order of effects either, so that the effects associated with @racket[my-sqr] and @racket[my-add1] are in fact independent of one another.
-
-The effects on @racket[my-sqr] may happen first, or those on @racket[my-add1] may happen first, or they may be interleaved.
+… as invocations of neither @racket[my-sqr] nor @racket[my-add1] are @tech{upstream} of the other, there is no guarantee on the mutual order of effects either. For instance, the effects @techlink[#:key "associated effect"]{on} @racket[my-sqr] may happen first, or those on @racket[my-add1] may happen first, or they may be interleaved.
 
 But both of these effects would occur before the one on the corresponding @racket[my-*] invocation, since this is downstream of them both.
 
