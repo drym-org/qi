@@ -191,6 +191,16 @@ For a nonlinear flow like this one:
 
 But both of these effects would occur before the one on the corresponding @racket[my-*] invocation, since this is downstream of them both.
 
+@subsubsection{Designing Effects}
+
+The guarantee of well-ordering of effects provided by the compiler represents a prescription for the design of @tech{effects} by users.
+
+As @secref["Order_of_Effects"] elaborates on, it's possible that the @tech{output} of effectful flows will differ from that of seemingly equivalent Racket programs. In fact, it's precisely in the cases where the program contains @tech{nonlocal} effects that the output could differ.
+
+From Qi's perspective, such effects are poorly defined as they are either too broadly scoped or likely have the scope of their operation diffused over multiple function invocations in a way that is not neatly captured by their composition.
+
+In general, Qi encourages designing your programs so that effects are @tech{local}.
+
 @subsubsection{A Natural Order of Effects}
 
 By being as fine-grained as possible in expressing computational dependencies, and in tying the execution of effects to such computational dependencies, @tech{well-ordering} is in some sense the minimum well-formed guarantee on effects, and a natural one for functional languages to provide.

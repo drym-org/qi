@@ -447,7 +447,9 @@ Here, the unoptimized program would be equivalent to:
 
 The optimized program deforests the sequence of functional operations, interleaving the effects (as discussed above), producing a different result, @racket[(list 4 10)].
 
-See @secref["Effect_Locality"] for more insights into Qi's handling of effects.
+From the perspective of Qi, such programs are poorly defined, and it is better to @seclink["Designing_Effects"]{design effects} to avoid such nonlocal interactions. If you'd like to employ such effects all the same, it would be advisable to write the program in Racket, encapsulating such behavior in a flow that could be used at a higher level without nonlocal effects, for instance @seclink["Using_Racket_to_Define_Flows"]{by using a wrapping @racket[esc]}. A flow specified with @racket[esc] follows Racket's order of effects since it is a Racket program.
+
+See @secref["Effect_Locality"] for more insights into Qi's handling of effects and its implications for the design of effects in your flows.
 
 @subsubsection{Schrodinger's Probe}
 
