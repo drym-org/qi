@@ -477,7 +477,9 @@ If we placed a readout here:
 
 … then for an input list @racket[(list 1 2 3)], the readout would show @racket[(list 1 3)]. But in the optimized program above, the readout would not even represent a valid point in the program (where should it be placed?). Thus, the readout is showing values that are flowing in the original program rather than the one that would actually have been executed in the absence of the readout.
 
-The optimization here (by requirement) does not change the meaning of the program in the absence of effects. If there were effects present, however, then the situation gets even more spooky.
+Yet, the optimization (@seclink["Qi_s_Guarantee_on_Effects"]{by requirement}) does not change the meaning of the program in the absence of effects, and so the actual @tech{output} of the program is consistent with the intermediate values that are read out.
+
+If there are @tech{effects} present, however, then the situation gets more spooky.
 
 The first program would look something like this:
 
@@ -492,7 +494,7 @@ The first program would look something like this:
   (>< (if (effect E₁ odd?) (effect E₂ sqr) ⏚))
 ]
 
-… where the effects E₁ and E₂ would be interleaved. Though it changes the order of effects, the optimization is possible because it preserves @tech{well-ordering}. The second program here represents what will actually be executed when the first program is written.
+… where the effects E₁ and E₂ would be interleaved. Though it changes the order of effects, the optimization is still valid because it preserves @tech{well-ordering}. The second program here represents what will actually be executed when the first program is written.
 
 But what happens when we place a @racket[readout] in the source program, this time?
 
@@ -501,7 +503,7 @@ But what happens when we place a @racket[readout] in the source program, this ti
   (~> (pass (effect E₁ odd?))) readout (>< (effect E₂ sqr)))
 ]
 
-Here, with the @racket[readout], the program would once again not be optimized, and thus, all the effects E₁ would occur first before the values are read out. Without the @racket[readout], the flow would be @seclink["Don_t_Stop_Me_Now"]{deforested} by the compiler, and as we have just seen, the effects E₁ and E₂ would be interleaved, so that the effects observed in the presence of the readout are different from what would be observed without it.
+Here, with the @racket[readout], the program once again would not be optimized, and thus, all the effects E₁ would occur first before the values are read out. Without the @racket[readout], the flow would be optimized, as we have just seen, and the effects E₁ and E₂ would be interleaved, so that the effects observed in the presence of the readout are different from what would be observed without it!
 
 So it's important to bear in mind that one cannot observe a flow using @racket[probe] without changing the program being observed, a change which in some cases has no observable impact, and which in other cases (i.e. when there are effects involved) could be significant. But now that you understand this phenomenon, you can develop intuition for the nature of such changes, and how best to use the tool to find the answers you are looking for.
 
