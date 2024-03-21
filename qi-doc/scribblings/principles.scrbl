@@ -113,6 +113,11 @@ We already saw how a flow can be thought of as a @seclink["Flows_as_Graphs"]{dir
 
 @definition["Upstream and downstream"]{A flow invocation @${f} is @deftech{upstream} of another invocation @${g} if the output of @${f} is @emph{necessary} to determining the input of @${g}. Conversely, @${g} is @deftech{downstream} of @${f}. We will denote this relation @${f < g}.}
 
+@; This relation, like the usual strict order relation on numbers, is
+@; irreflexive (f isn't upstream of itself, not f < f),
+@; asymmetric (f < g ⇒ not g < f)
+@; and transitive (f < g and g < h ⇒ f < h)
+
 Note that this definition relates flow @emph{invocations} rather than @tech{flows} themselves. For now, we need not worry about this distinction, but we will soon see why it matters.
 
 In terms of the @tech{paths} that could be traced over a flow, the ordering implied by @racket[~>] naturally shows us many members of this relation: flows that come later in the sequence in a @racket[~>] form are downstream of those that come earlier, because the output of earlier flows is needed to determine the input to later flows.
