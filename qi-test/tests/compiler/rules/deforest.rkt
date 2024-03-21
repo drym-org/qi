@@ -55,6 +55,8 @@
                              (filter odd?)
                              (map sqr)
                              values))
+     ;; TODO: need a test to justify / validate the need for
+     ;; fixed-point finding in the deforestation pass
      (test-deforested "deforestation in arbitrary positions"
                       #'(~>>
                          values
