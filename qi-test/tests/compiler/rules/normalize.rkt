@@ -98,9 +98,9 @@
     ;; match at one level during tree traversal
     ;; (in find-and-map), we do not traverse the expression
     ;; further.
-    ;; (test-normalize "multiple levels of normalization"
-    ;;                 #'(~> (>< (~> f)))
-    ;;                 #'(>< f))
+    (test-normalize "multiple levels of normalization"
+                    #'(~> (>< (~> f)))
+                    #'(>< f))
     (test-normalize "_ is collapsed inside ~>"
                     #'(~> _ f _)
                     #'f)

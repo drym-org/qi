@@ -13,26 +13,21 @@
 ;; to the leaves, applying a transformation to each node.
 ;; The transforming function is expected to either return transformed
 ;; syntax or false.
-;; The traversal terminates at a node if either the transforming function
-;; "succeeds," returning syntax different from the original, or if it
-;; returns false, indicating that the node should not be explored.
-;; In the latter case, the node is left unchanged.
-;; Otherwise, as long as the transformation is the identity, it will continue
-;; traversing subexpressions of the node.
+;; The traversal terminates at a node either if the transforming function
+;; returns false, indicating that the node should not be explored, or if
+;; an atom (leaf in the syntax tree) is encountered.
+;; The terminating node is left unchanged.
 (define (find-and-map f stx)
   ;; f : syntax? -> (or/c syntax? #f)
   (match stx
     [(? syntax?) (let ([stx^ (f stx)])
                    (if stx^
-                       (if (eq? stx^ stx)
-                           ;; no transformation was applied, so
-                           ;; keep traversing
-                           (datum->syntax stx
-                             (find-and-map f (syntax-e stx))
-                             stx
-                             stx)
-                           ;; transformation was applied, so we stop
-                           stx^)
+                       ;; we keep traversing the produced syntax
+                       ;; to transform nested syntax as needed
+                       (datum->syntax stx^
+                         (find-and-map f (syntax-e stx^))
+                         stx^
+                         stx^)
                        ;; false was returned, so we stop
                        stx))]
     [(cons a d) (cons (find-and-map f a)

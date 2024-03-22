@@ -329,7 +329,7 @@
   ;; Performs deforestation rewrite on the whole syntax tree.
   (define-and-register-pass 100 (deforest-pass stx)
     (find-and-map/qi
-     deforest-rewrite
+     (fix deforest-rewrite)
      stx)))
 
 (begin-encourage-inline
