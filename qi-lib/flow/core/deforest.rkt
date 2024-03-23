@@ -260,6 +260,25 @@
                    ((#%host-expression (~datum list-ref)) __ idx)))
              #:attr end #'(cad*r-cstream-next idx))
 
+    (pattern (~or (esc
+                   (#%host-expression (~datum length)))
+                  (#%fine-template
+                   ((#%host-expression (~datum length)) _))
+                  (#%blanket-template
+                   ((#%host-expression (~datum length)) __)))
+             #:attr end #'(length-cstream-next))
+
+    (pattern (~or (esc
+                   (#%host-expression (~or (~datum empty?)
+                                           (~datum null?))))
+                  (#%fine-template
+                   ((#%host-expression (~or (~datum empty?)
+                                            (~datum null?))) _))
+                  (#%blanket-template
+                   ((#%host-expression (~or (~datum empty?)
+                                            (~datum null?))) __)))
+             #:attr end #'(empty?-cstream-next))
+
     (pattern (~literal cstream->list)
              #:attr end #'(cstream-next->list)))
 
@@ -433,6 +452,24 @@
                  (if (zero? countdown)
                      value
                      (loop state (sub1 countdown)))))
+         state))))
+
+  (define-inline (length-cstream-next next ctx src)
+    (λ (state)
+      (let loop ([state state]
+                 [the-length 0])
+        ((next (λ () the-length)
+               (λ (state) (loop state the-length))
+               (λ (value state)
+                 (loop state (add1 the-length))))
+         state))))
+
+  (define-inline (empty?-cstream-next next ctx src)
+    (λ (state)
+      (let loop ([state state])
+        ((next (λ () #t)
+               (λ (state) (loop state))
+               (λ (value state) #f))
          state))))
 
   )
