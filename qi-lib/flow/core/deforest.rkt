@@ -180,17 +180,17 @@
   ;; producer. Procedures accepting variable number of arguments like
   ;; `map` cannot be in this class.
   (define-syntax-class fusable-stream-transformer0
-    #:attributes (f next)
     #:datum-literals (#%host-expression #%blanket-template __ _ #%fine-template)
     (pattern (~or (#%blanket-template
-                   ((#%host-expression (~datum filter))
+                   ((#%host-expression (~or (~datum filter)
+                                            (~datum filter-map)))
                     (#%host-expression f)
                     __))
                   (#%fine-template
-                   ((#%host-expression (~datum filter))
+                   ((#%host-expression (~or (~datum filter)
+                                            (~datum filter-map)))
                     (#%host-expression f)
-                    _)))
-             #:attr next #'filter-cstream-next))
+                    _)))))
 
   ;; All implemented stream transformers - within the stream, only
   ;; single value is being passed and therefore procedures like `map`
@@ -216,7 +216,17 @@
                    ((#%host-expression (~datum filter))
                     (#%host-expression f)
                     _)))
-             #:attr next #'filter-cstream-next))
+             #:attr next #'filter-cstream-next)
+
+    (pattern (~or (#%blanket-template
+                   ((#%host-expression (~datum filter-map))
+                    (#%host-expression f)
+                    __))
+                  (#%fine-template
+                   ((#%host-expression (~datum filter-map))
+                    (#%host-expression f)
+                    _)))
+             #:attr next #'filter-map-cstream-next))
 
   ;; Terminates the fused sequence (consumes the stream) and produces
   ;; an actual result value.
@@ -409,6 +419,16 @@
               (if (f value)
                   (yield value state)
                   (skip state))))))
+
+  (define-inline (filter-map-cstream-next f next)
+    (λ (done skip yield)
+      (next done
+            skip
+            (λ (value state)
+              (let ([fv (f value)])
+                (if fv
+                    (yield fv state)
+                    (skip state)))))))
 
   ;; Consumers
 
