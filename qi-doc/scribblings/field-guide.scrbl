@@ -2,7 +2,7 @@
 @require[scribble/manual
          scribble-abbrevs/manual
          scribble/example
-		 "eval.rkt"
+         "eval.rkt"
          @for-label[qi
                     qi/probe
                     racket]]
@@ -62,7 +62,7 @@ Instead, following the above guideline, we would write it this way:
 @examples[
     #:eval eval-for-docs
     #:label #f
-	(~> (3) (ε displayln sqr) (ε displayln add1))
+    (~> (3) (ε displayln sqr) (ε displayln add1))
 ]
 
 This uses the pure functions @racket[sqr] and @racket[add1], extracting the effectful @racket[displayln] as an explicit @racket[effect]. If we wanted to have other effects, we could simply indicate different effects here and reuse the same underlying pure functions.

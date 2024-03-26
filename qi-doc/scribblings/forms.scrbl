@@ -2,7 +2,7 @@
 @require[scribble/manual
          scribble-abbrevs/manual
          scribble/example
-		 "eval.rkt"
+         "eval.rkt"
          @for-label[(only-space-in qi qi)
                     racket]]
 
@@ -826,7 +826,7 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
     ((☯ (~> (-< (~> list (as vs))
                 +)
             (~a "The sum of " vs " is " _)))
-	 1 2)
+     1 2)
     ((☯ (~> (-< + count)
             (as total number)
             (/ total number)))
@@ -929,8 +929,8 @@ Usually, the @racket[_] symbol indicates the trivial or identity flow, simply pa
     ((☯ (< 5 _ 7 _ 10)) 6 9)
     ((☯ (< 5 _ 7 _ 10)) 6 11)
     ((☯ (~> (clos *) (_ 3))) 10)
-	(eval:alts #, @racket[((☯ (< 5 #,my-__ 10)) 6 7 8)]  ((☯ (< 5 __ 10)) 6 7 8))
-	(eval:alts #, @racket[((☯ (< 5 #,my-__ 10)) 6 7 11)]  ((☯ (< 5 __ 10)) 6 7 11))
+    (eval:alts #, @racket[((☯ (< 5 #,my-__ 10)) 6 7 8)]  ((☯ (< 5 __ 10)) 6 7 8))
+    (eval:alts #, @racket[((☯ (< 5 #,my-__ 10)) 6 7 11)]  ((☯ (< 5 __ 10)) 6 7 11))
   ]
 
 @section{Utilities}
