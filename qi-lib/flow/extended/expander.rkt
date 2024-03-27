@@ -20,6 +20,23 @@
                      syntax/parse
                      "../../private/util.rkt"))
 
+#|
+This module implements the Qi expander using Syntax Spec.  Here, we
+notate the core language grammar from which Syntax Spec infers and
+constructs an appropriate expander.  As part of this, we annotate the
+grammar with binding scope rules (e.g. for the `as` form) which allows
+the expander to propagate scope in accordance with these specified
+rules and also raise errors at compile time when identifiers used are
+unbound.
+
+In addition to the core language grammar and scoping rules, we also
+specify a few ad hoc expansion rules here in order to expand surface
+syntax that may not be neatly expressible as a macro to an appropriate
+use of a core form. Such rules are necessary so that the core language
+can be uniformly expressed in terms of such prefix forms (it's similar
+to the Racket core language's use of #%app, etc.).
+|#
+
 (syntax-spec
 
   ;; Declare a compile-time datatype by which qi macros may
