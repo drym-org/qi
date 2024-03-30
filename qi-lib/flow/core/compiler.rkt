@@ -9,7 +9,6 @@
                      "syntax.rkt"
                      "../aux-syntax.rkt"
                      "strategy.rkt"
-                     "debug.rkt"
                      "private/form-property.rkt")
          "impl.rkt"
          "passes.rkt"

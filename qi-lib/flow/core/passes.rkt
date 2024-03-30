@@ -1,13 +1,19 @@
 #lang racket/base
 
 (require (for-syntax racket/base
-                     (for-syntax racket/base racket/syntax)
-                     macro-debugger/emit))
+                     (for-syntax racket/base racket/syntax)))
 
 (provide (for-syntax define-and-register-pass
                      run-passes))
 
 (begin-for-syntax
+
+  (define my-emit-local-step
+    (with-handlers ((exn? (lambda (ex)
+                            (make-keyword-procedure
+                             (lambda (kws kw-args . rest)
+                               (void))))))
+      (dynamic-require 'macro-debugger/emit 'emit-local-step)))
 
   ;; Could be a list but for future extensibility a custom struct is
   ;; probably a better idea.
@@ -43,7 +49,7 @@
     (for/fold ([stx stx])
               ([pass (in-list (unbox registered-passes))])
       (define stx1 ((passdef-parser pass) stx))
-      (emit-local-step stx stx1 #:id (passdef-name pass))
+      (my-emit-local-step stx stx1 #:id (passdef-name pass))
       stx1))
 
   )
