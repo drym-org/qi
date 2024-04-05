@@ -9,6 +9,8 @@
 (begin-for-syntax
 
   (define my-emit-local-step
+    ;; See "Breaking Out of the Sandbox"
+    ;; https://github.com/drym-org/qi/wiki/Qi-Meeting-Mar-29-2024
     (with-handlers ((exn? (lambda (ex)
                             (make-keyword-procedure
                              (lambda (kws kw-args . rest)
