@@ -262,13 +262,13 @@
                    ((#%host-expression cad*r:cad*r-datum) _))
                   (#%blanket-template
                    ((#%host-expression cad*r:cad*r-datum) __)))
-             #:attr end #'(cad*r-cstream-next cad*r.countdown))
+             #:attr end #'(cad*r-cstream-next cad*r.countdown 'cad*r))
 
     (pattern (~or (#%fine-template
                    ((#%host-expression (~datum list-ref)) _ idx))
                   (#%blanket-template
                    ((#%host-expression (~datum list-ref)) __ idx)))
-             #:attr end #'(cad*r-cstream-next idx))
+             #:attr end #'(cad*r-cstream-next idx 'list-ref))
 
     (pattern (~or (esc
                    (#%host-expression (~datum length)))
@@ -459,13 +459,13 @@
                  (loop (op value acc) state)))
          state))))
 
-  (define-inline (cad*r-cstream-next init-countdown next ctx src)
+  (define-inline (cad*r-cstream-next init-countdown name next ctx src)
     (λ (state)
       (let loop ([state state]
                  [countdown init-countdown])
         ((next (λ () ((contract (-> pair? any)
                                 (λ (v) v)
-                                'cad*r-cstream-next ctx #f
+                                name ctx #f
                                 src) '()))
                (λ (state) (loop state countdown))
                (λ (value state)
