@@ -97,7 +97,7 @@ But if @racket[my-odd?] and @racket[my-sqr] exhibit any side effects, such as pr
 
 To understand what this means, we will need to develop some concepts.
 
-@subsection{Functional and Effective}
+@subsection{Functional Effects}
 
 First, regarding the definability of effects, as far as Qi is concerned, they are only well-defined in connection with some @tech{flow}, and are not independently conceivable.
 
