@@ -30,11 +30,12 @@ rules and also raise errors at compile time when identifiers used are
 unbound.
 
 In addition to the core language grammar and scoping rules, we also
-specify a few ad hoc expansion rules here in order to expand surface
-syntax that may not be neatly expressible as a macro to an appropriate
-use of a core form. Such rules are necessary so that the core language
-can be uniformly expressed in terms of such prefix forms (it's similar
-to the Racket core language's use of #%app, etc.).
+specify a few ad hoc expansion rules here (via Syntax Spec "rewrite
+productions") in order to expand surface syntax that may not be neatly
+expressible as a macro to an appropriate use of a core form. Such
+rules are necessary so that the core language can be uniformly
+expressed in terms of such prefix forms (it's similar to the Racket
+core language's use of #%app, etc.).
 |#
 
 (syntax-spec
@@ -50,6 +51,12 @@ to the Racket core language's use of #%app, etc.).
     f:floe
     #:binding (nest-one f []))
 
+  ;; "floe" stands for "FLOw Expression" and is a _nonterminal_ that
+  ;; expresses valid syntax for Qi expressions. It's analogous
+  ;; to `expr` for Racket expressions (e.g. as used in syntax-parse).
+  ;; Not to be confused with `flow` which is a Racket _form_
+  ;; that extends Racket syntax by introducing a `floe` position
+  ;; whose expansion is specified here.
   (nonterminal/nesting floe (nested)
     #:description "a flow expression"
     #:allow-extension qi-macro
