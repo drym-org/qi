@@ -6,6 +6,12 @@ PACKAGE-NAME=qi
 DEPS-FLAGS=--check-pkg-deps --unused-pkg-deps
 
 help:
+	@echo "Run common development actions."
+	@echo
+	@echo "    Usage: make <target>"
+	@echo "    where <target> is one of:"
+	@echo
+	@echo "help - show this menu"
 	@echo "install - install package along with dependencies"
 	@echo "install-sdk - install the SDK which includes developer tools"
 	@echo "remove - remove package"
