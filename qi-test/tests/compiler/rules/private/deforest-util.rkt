@@ -20,4 +20,4 @@
   (string-contains? (format "~a" exp) "filter-cstream"))
 
 (define (car-deforested? exp)
-  (string-contains? (format "~a" exp) "cad*r-cstream"))
+  (string-contains? (format "~a" exp) "list-ref-cstream"))
