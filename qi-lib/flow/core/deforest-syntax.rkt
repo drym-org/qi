@@ -1,16 +1,16 @@
 #lang racket/base
 
-(provide fusable-stream-producer
+(provide fsp-intf
          fsp-range
          fsp-default
 
-         fusable-stream-transformer
+         fst-intf
          fst-filter
          fst-map
          fst-filter-map
          fst-take
 
-         fusable-stream-consumer
+         fsc-intf
          fsc-foldr
          fsc-foldl
          fsc-list-ref
@@ -73,101 +73,107 @@
            #:attr contract #'(-> list? any)
            #:attr name #''list->cstream))
 
-(define-syntax-class fusable-stream-producer
-  (pattern (~or range:fsp-range
-                default:fsp-default)))
+(define-syntax-class fsp-intf
+  (pattern (~or _:fsp-range
+                _:fsp-default)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Transformers
 
 (define-syntax-class fst-filter
   #:attributes (f)
-  #:datum-literals (#%host-expression #%blanket-template __ _ #%fine-template filter)
-  (pattern (~or (#%blanket-template
-                 ((#%host-expression filter)
-                  (#%host-expression f)
-                  __))
-                (#%fine-template
-                 ((#%host-expression filter)
-                  (#%host-expression f)
-                  _)))))
+  #:literal-sets (fs-literals)
+  #:datum-literals (filter)
+  (pattern (#%blanket-template
+            ((#%host-expression filter)
+             (#%host-expression f)
+             __)))
+  (pattern (#%fine-template
+            ((#%host-expression filter)
+             (#%host-expression f)
+             _))))
 
 (define-syntax-class fst-map
   #:attributes (f)
-  #:datum-literals (#%host-expression #%blanket-template __ _ #%fine-template map)
-  (pattern (~or (#%blanket-template
-                 ((#%host-expression map)
-                  (#%host-expression f)
-                  __))
-                (#%fine-template
-                 ((#%host-expression map)
-                  (#%host-expression f)
-                  _)))))
+  #:literal-sets (fs-literals)
+  #:datum-literals (map)
+  (pattern (#%blanket-template
+            ((#%host-expression map)
+             (#%host-expression f)
+             __)))
+  (pattern (#%fine-template
+            ((#%host-expression map)
+             (#%host-expression f)
+             _))))
 
 (define-syntax-class fst-filter-map
   #:attributes (f)
-  #:datum-literals (#%host-expression #%blanket-template __ _ #%fine-template filter-map)
-  (pattern (~or (#%blanket-template
-                 ((#%host-expression filter-map)
-                  (#%host-expression f)
-                  __))
-                (#%fine-template
-                 ((#%host-expression filter-map)
-                  (#%host-expression f)
-                  _)))))
+  #:literal-sets (fs-literals)
+  #:datum-literals (filter-map)
+  (pattern (#%blanket-template
+            ((#%host-expression filter-map)
+             (#%host-expression f)
+             __)))
+  (pattern (#%fine-template
+            ((#%host-expression filter-map)
+             (#%host-expression f)
+             _))))
 
 (define-syntax-class fst-take
   #:attributes (n)
-  #:datum-literals (#%host-expression #%blanket-template __ _ #%fine-template take)
-  (pattern (~or (#%blanket-template
-                 ((#%host-expression take)
-                  __
-                  (#%host-expression n)))
-                (#%fine-template
-                 ((#%host-expression take)
-                  _
-                  (#%host-expression n))))))
+  #:literal-sets (fs-literals)
+  #:datum-literals (take)
+  (pattern (#%blanket-template
+            ((#%host-expression take)
+             __
+             (#%host-expression n))))
+  (pattern (#%fine-template
+            ((#%host-expression take)
+             _
+             (#%host-expression n)))))
 
-(define-syntax-class fusable-stream-transformer0
+(define-syntax-class fst-intf0
   (pattern (~or filter:fst-filter
                 filter-map:fst-filter-map)))
 
-(define-syntax-class fusable-stream-transformer
-  (pattern (~or filter:fst-filter
-                map:fst-map
-                filter-map:fst-filter-map
-                take:fst-take)))
+(define-syntax-class fst-intf
+  (pattern (~or _:fst-filter
+                _:fst-map
+                _:fst-filter-map
+                _:fst-take)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Consumers
 
 (define-syntax-class fsc-foldr
   #:attributes (op init)
-  #:datum-literals (#%host-expression #%blanket-template __ _ #%fine-template foldr)
-  (pattern (~or (#%blanket-template
-                 ((#%host-expression foldr)
-                  (#%host-expression op)
-                  (#%host-expression init)
-                  __))
-                (#%fine-template
-                 ((#%host-expression foldr)
-                  (#%host-expression op)
-                  (#%host-expression init)
-                  _)))))
+  #:literal-sets (fs-literals)
+  #:datum-literals (foldr)
+  (pattern (#%blanket-template
+            ((#%host-expression foldr)
+             (#%host-expression op)
+             (#%host-expression init)
+             __)))
+  (pattern (#%fine-template
+            ((#%host-expression foldr)
+             (#%host-expression op)
+             (#%host-expression init)
+             _))))
 
 (define-syntax-class fsc-foldl
   #:attributes (op init)
-  #:datum-literals (#%host-expression #%blanket-template __ _ #%fine-template foldl)
-  (pattern (~or (#%blanket-template
-                 ((#%host-expression foldl)
-                  (#%host-expression op)
-                  (#%host-expression init)
-                  __))
-                (#%fine-template
-                 ((#%host-expression foldl)
-                  (#%host-expression op)
-                  (#%host-expression init)
-                  _)))))
+  #:literal-sets (fs-literals)
+  #:datum-literals (foldl)
+  (pattern (#%blanket-template
+            ((#%host-expression foldl)
+             (#%host-expression op)
+             (#%host-expression init)
+             __)))
+  (pattern (#%fine-template
+            ((#%host-expression foldl)
+             (#%host-expression op)
+             (#%host-expression init)
+             _))))
 
 (define-syntax-class cad*r-datum
   #:attributes (countdown)
@@ -180,7 +186,8 @@
 
 (define-syntax-class fsc-list-ref
   #:attributes (pos name)
-  #:datum-literals (#%host-expression #%blanket-template __ _ #%fine-template list-ref)
+  #:literal-sets (fs-literals)
+  #:datum-literals (list-ref)
   (pattern (~or (#%fine-template
                  ((#%host-expression list-ref) _ idx))
                 (#%blanket-template
@@ -196,37 +203,39 @@
            #:attr name #'cad*r))
 
 (define-syntax-class fsc-length
-  #:datum-literals (#%host-expression #%blanket-template __ _ #%fine-template length)
-  (pattern (~or (esc
-                 (#%host-expression length))
-                (#%fine-template
-                 ((#%host-expression length) _))
-                (#%blanket-template
-                 ((#%host-expression length) __)))))
+  #:literal-sets (fs-literals)
+  #:datum-literals (length)
+  (pattern (esc
+            (#%host-expression length)))
+  (pattern (#%fine-template
+            ((#%host-expression length) _)))
+  (pattern (#%blanket-template
+            ((#%host-expression length) __))))
 
 (define-syntax-class fsc-empty?
-  #:datum-literals (#%host-expression #%blanket-template __ _ #%fine-template empty? null?)
-  (pattern (~or (esc
-                 (#%host-expression (~or empty?
-                                         null?)))
-                (#%fine-template
-                 ((#%host-expression (~or empty?
-                                          null?)) _))
-                (#%blanket-template
-                 ((#%host-expression (~or empty?
-                                          null?)) __)))))
+  #:literal-sets (fs-literals)
+  #:datum-literals (empty? null?)
+  (pattern (esc
+            (#%host-expression (~or empty?
+                                    null?))))
+  (pattern (#%fine-template
+            ((#%host-expression (~or empty?
+                                     null?)) _)))
+  (pattern (#%blanket-template
+            ((#%host-expression (~or empty?
+                                     null?)) __))))
 
 (define-syntax-class fsc-default
-  #:datum-literals (#%host-expression #%blanket-template __ _ #%fine-template cstream->list)
+  #:datum-literals (cstream->list)
   (pattern cstream->list))
 
-(define-syntax-class fusable-stream-consumer
-  (pattern (~or foldr:fsc-foldr
-                foldl:fsc-foldl
-                list-ref:fsc-list-ref
-                lenght:fsc-length
-                empty?:fsc-empty?
-                default:fsc-default
+(define-syntax-class fsc-intf
+  (pattern (~or _:fsc-foldr
+                _:fsc-foldl
+                _:fsc-list-ref
+                _:fsc-length
+                _:fsc-empty?
+                _:fsc-default
                 )))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -235,44 +244,44 @@
 ;; Used only in deforest-rewrite to properly recognize the end of
 ;; fusable sequence.
 (define-syntax-class non-fusable
-  (pattern (~not (~or _:fusable-stream-transformer
-                      _:fusable-stream-producer
-                      _:fusable-stream-consumer))))
+  (pattern (~not (~or _:fst-intf
+                      _:fsp-intf
+                      _:fsc-intf))))
 
 (define (make-deforest-rewrite generate-fused-operation)
   (lambda (stx)
     (syntax-parse stx
       [((~datum thread) _0:non-fusable ...
-                        p:fusable-stream-producer
+                        p:fsp-intf
                         ;; There can be zero transformers here:
-                        t:fusable-stream-transformer ...
-                        c:fusable-stream-consumer
+                        t:fst-intf ...
+                        c:fsc-intf
                         _1 ...)
        #:with fused (generate-fused-operation
                      (syntax->list #'(p t ... c))
                      stx)
        #'(thread _0 ... fused _1 ...)]
       [((~datum thread) _0:non-fusable ...
-                        t1:fusable-stream-transformer0
-                        t:fusable-stream-transformer ...
-                        c:fusable-stream-consumer
+                        t1:fst-intf0
+                        t:fst-intf ...
+                        c:fsc-intf
                         _1 ...)
        #:with fused (generate-fused-operation
                      (syntax->list #'(list->cstream t1 t ... c))
                      stx)
        #'(thread _0 ... fused _1 ...)]
       [((~datum thread) _0:non-fusable ...
-                        p:fusable-stream-producer
+                        p:fsp-intf
                         ;; Must be 1 or more transformers here:
-                        t:fusable-stream-transformer ...+
+                        t:fst-intf ...+
                         _1 ...)
        #:with fused (generate-fused-operation
                      (syntax->list #'(p t ... cstream->list))
                      stx)
        #'(thread _0 ... fused _1 ...)]
       [((~datum thread) _0:non-fusable ...
-                        f1:fusable-stream-transformer0
-                        f:fusable-stream-transformer ...+
+                        f1:fst-intf0
+                        f:fst-intf ...+
                         _1 ...)
        #:with fused (generate-fused-operation
                      (syntax->list #'(list->cstream f1 f ... cstream->list))
