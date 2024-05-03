@@ -29,7 +29,7 @@
 
 (define tests
   (test-suite
-   "Compiler pass utilities tests"
+   "Compiler pass strategies tests"
 
    (test-suite
     "fixed point"
@@ -74,14 +74,11 @@
                              [_ this-syntax])
                             #'(a c d)
                             #'(a c d))
-    ;; TODO: review this, it does not transform multi-level matches.
-    ;; See a TODO in tests/compiler/rules/normalize.rkt for a case
-    ;; where we would need it
     (test-syntax-map-equal? "matches at multiple levels"
                             ([((~datum a) b ...) #'(b ...)]
                              [_ this-syntax])
                             #'(a c (a d e))
-                            #'(c (a d e)))
+                            #'(c (d e)))
     (test-syntax-map-equal? "does not match spliced"
                             ([((~datum a) b ...) #'(b ...)]
                              [_ this-syntax])

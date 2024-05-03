@@ -60,7 +60,19 @@
                          values
                          (filter string-upcase)
                          (foldl string-append "I")
-                         values)))
+                         values))
+     ;; TODO: this test is for a case where deforestation should be applied twice
+     ;; to the same expression. But currently, the test does not differentiate
+     ;; between the optimization being applied once vs twice. We would like it
+     ;; to do so in order to validate and justify the need for fixed-point
+     ;; finding in the deforestation pass.
+     (test-deforested "multiple applications of deforestation to the same expression"
+                      #'(~>> (filter odd?)
+                             (map sqr)
+                             (foldr + 0)
+                             range
+                             (filter odd?)
+                             (map sqr))))
 
     (test-suite
      "transformers"

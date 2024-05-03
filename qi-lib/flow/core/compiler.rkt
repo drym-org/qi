@@ -76,8 +76,10 @@
     (let ([ids null])
       (find-and-map/qi (syntax-parser
                          [((~datum as) x ...)
-                          (set! ids
-                                (append (attribute x) ids))]
+                          (begin
+                            (set! ids (append (attribute x) ids))
+                            ;; we don't need to traverse further
+                            #f)]
                          [_ this-syntax])
                        stx)
       ids))
