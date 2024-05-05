@@ -4,9 +4,9 @@
 
 (require (for-syntax racket/base
                      syntax/parse
-                     "strategy.rkt"
-                     "private/form-property.rkt")
-         "passes.rkt")
+                     "../strategy.rkt"
+                     "../private/form-property.rkt")
+         "../passes.rkt")
 
 ;; 0. "Qi-normal form"
 (begin-for-syntax
