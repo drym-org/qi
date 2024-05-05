@@ -329,7 +329,10 @@ the DSL.
       [_:id
        #'filter-values]
       [(_ onex:clause)
-       #'(curry filter-values (qi0->racket onex))]))
+       #'(λ args
+           (apply filter-values
+                  (qi0->racket onex)
+                  args))]))
 
   (define (fold-left-parser stx)
     (syntax-parse stx
