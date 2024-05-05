@@ -22,12 +22,12 @@
          )
 
 (require syntax/parse
-         "passes.rkt"
-         "strategy.rkt"
+         "../../passes.rkt"
+         "../../strategy.rkt"
          (for-template racket/base
-                       "passes.rkt"
-                       "strategy.rkt"
-                       "deforest-templates.rkt")
+                       "../../passes.rkt"
+                       "../../strategy.rkt"
+                       "templates.rkt")
          (for-syntax racket/base
                      syntax/parse))
 

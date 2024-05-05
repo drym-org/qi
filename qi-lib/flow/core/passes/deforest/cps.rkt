@@ -4,11 +4,11 @@
 
 (require (for-syntax racket/base
                      syntax/parse
-                     "deforest-syntax.rkt"
-                     "../extended/util.rkt"
+                     "syntax.rkt"
+                     "../../../extended/util.rkt"
                      syntax/srcloc
                      racket/syntax-srcloc)
-         "deforest-templates.rkt"
+         "templates.rkt"
          racket/performance-hint
          racket/match
          racket/contract/base)
