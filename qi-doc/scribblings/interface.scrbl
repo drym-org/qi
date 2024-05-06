@@ -163,6 +163,8 @@ This produces a value that is an ordinary function. When invoked with arguments,
 
 See also @racket[on] and @racket[~>], which are shorthands to invoke the flow with arguments immediately.
 
+See @secref["Flowing_with_the_Flow"] for ways to enter the @racket[☯] symbol in your editor.
+
 @examples[
     #:eval eval-for-docs
     ((☯ (* 5)) 3)
