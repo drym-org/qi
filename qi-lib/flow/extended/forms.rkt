@@ -15,7 +15,8 @@
          syntax/parse/define
          "expander.rkt"
          "../../macro.rkt"
-         "../space.rkt"
+         (only-in "../space.rkt"
+                  define-for-qi)
          "impl.rkt")
 
 ;;; Predicates
