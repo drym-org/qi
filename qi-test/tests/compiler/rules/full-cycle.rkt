@@ -11,22 +11,15 @@
          rackunit/text-ui
          syntax/macro-testing
          qi/flow/core/deforest
+         qi/flow/core/compiler
          "private/deforest-util.rkt"
          (submod qi/flow/extended/expander invoke))
 
 (begin-for-syntax
-  (require syntax/parse/define
-           (for-template qi/flow/core/compiler)
-           (for-syntax racket/base))
-
-  ;; A macro that accepts surface syntax, expands it, and then applies the
-  ;; indicated optimization passes.
-  (define-syntax-parser test-compile~>
-    [(_ stx)
-     #'(expand-flow stx)]
-    [(_ stx pass ... passN)
-     #'(passN
-        (test-compile~> stx pass ...))]))
+  ;; A function that expands and compiles surface syntax
+  (define (qi-compile stx)
+    (compile-flow
+     (expand-flow stx))))
 
 
 (define tests
@@ -39,9 +32,8 @@
     (test-true "normalize → deforest"
                (deforested?
                  (phase1-eval
-                  (test-compile~> #'(~>> (filter odd?) values (map sqr))
-                                  normalize-pass
-                                  deforest-pass)))))))
+                  (qi-compile
+                   #'(~>> (filter odd?) values (map sqr)))))))))
 
 (module+ main
   (void
