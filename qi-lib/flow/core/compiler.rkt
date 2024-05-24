@@ -4,9 +4,9 @@
 
 (require (for-syntax racket/base
                      syntax/parse)
-         "passes/pass-1000-qi0.rkt"
-         "passes/pass-2000-bindings.rkt"
-         "passes/pass-0010-normalize.rkt"
+         "compiler/1000-qi0.rkt"
+         "compiler/2000-bindings.rkt"
+         "compiler/0010-normalize.rkt"
          "passes.rkt")
 
 (begin-for-syntax
