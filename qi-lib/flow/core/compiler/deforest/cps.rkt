@@ -21,7 +21,8 @@
 (define-syntax inline-compose1
   (syntax-rules ()
     [(_ f) f]
-    [(_ [op (f ...)] rest ...) (op f ... (inline-compose1 rest ...))]))
+    [(_ [op (f ...) g ...] rest ...) (op f ... (inline-compose1 rest ...) g ...)]
+    ))
 
 (define-syntax inline-consing
   (syntax-rules ()
@@ -205,8 +206,13 @@
                         (define cstate (inline-consing state t.state ...))
                         cstate)
                       (#,@#'c.end
-                       (inline-compose1 [t.next t.f] ...
-                                        p.next)
+                       (inline-compose1 [t.next t.f
+                                                '#,(prettify-flow-syntax ctx)
+                                                '#,(build-source-location-vector
+                                                    (syntax-srcloc ctx))
+                                                ] ...
+                                        p.next
+                                        )
                        '#,(prettify-flow-syntax ctx)
                        '#,(build-source-location-vector
                            (syntax-srcloc ctx))))
@@ -251,14 +257,14 @@
 
   ;; Transformers
 
-  (define-inline (map-cstream-next f next)
+  (define-inline (map-cstream-next f next ctx src)
     (λ (done skip yield)
       (next done
             skip
             (λ (value state)
               (yield (f value) state)))))
 
-  (define-inline (filter-cstream-next f next)
+  (define-inline (filter-cstream-next f next ctx src)
     (λ (done skip yield)
       (next done
             skip
@@ -267,7 +273,7 @@
                   (yield value state)
                   (skip state))))))
 
-  (define-inline (filter-map-cstream-next f next)
+  (define-inline (filter-map-cstream-next f next ctx src)
     (λ (done skip yield)
       (next done
             skip
@@ -277,7 +283,7 @@
                     (yield fv state)
                     (skip state)))))))
 
-  (define-inline (take-cstream-next next)
+  (define-inline (take-cstream-next next ctx src)
     (λ (done skip yield)
       (λ (take-state)
         (define n (car take-state))
@@ -286,7 +292,12 @@
                (done))
               (else
                ((next (λ ()
-                        (error 'take-cstream-next "not enough"))
+                        ((contract (-> pair? any)
+                                   (λ (v) v)
+                                   'take ctx
+                                   #f
+                                   src
+                                   ) '()))
                       skip
                       (λ (value state)
                         (define new-state (cons (sub1 n) state))
