@@ -21,7 +21,7 @@
 (define-syntax inline-compose1
   (syntax-rules ()
     [(_ f) f]
-    [(_ [op f] rest ...) (op f (inline-compose1 rest ...))]))
+    [(_ [op (f ...)] rest ...) (op f ... (inline-compose1 rest ...))]))
 
 (begin-for-syntax
 
@@ -142,14 +142,17 @@
   (define-syntax-class fst
     #:attributes (next f)
     (pattern filter:fst-filter
-             #:attr f #'filter.f
+             #:attr f #'(filter.f)
              #:attr next #'filter-cstream-next)
     (pattern map:fst-map
-             #:attr f #'map.f
+             #:attr f #'(map.f)
              #:attr next #'map-cstream-next)
     (pattern filter-map:fst-filter-map
-             #:attr f #'filter-map.f
+             #:attr f #'(filter-map.f)
              #:attr next #'filter-map-cstream-next)
+    (pattern take:fst-take
+             #:attr f #'((box take.n))
+             #:attr next #'take-cstream-next)
     )
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -257,6 +260,20 @@
                 (if fv
                     (yield fv state)
                     (skip state)))))))
+
+  (define-inline (take-cstream-next bn next)
+    (λ (done skip yield)
+      (λ (state)
+        (define n (unbox bn))
+        (if (zero? n)
+            (done)
+            ((next (λ ()
+                     (error 'take-cstream-next "not enough"))
+                   skip
+                   (λ (value state)
+                     (set-box! bn (sub1 n))
+                     (yield value state)))
+             state)))))
 
   ;; Consumers
 
