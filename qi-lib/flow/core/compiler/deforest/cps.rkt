@@ -23,6 +23,13 @@
     [(_ f) f]
     [(_ [op (f ...)] rest ...) (op f ... (inline-compose1 rest ...))]))
 
+(define-syntax inline-consing
+  (syntax-rules ()
+    [(_ state () rest ...) (inline-consing state rest ...)]
+    [(_ state (arg) rest ...) (inline-consing (cons arg state) rest ...)]
+    [(_ state) state]
+    ))
+
 (begin-for-syntax
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -140,19 +147,23 @@
   ;; Transformers
 
   (define-syntax-class fst
-    #:attributes (next f)
+    #:attributes (next f state)
     (pattern filter:fst-filter
              #:attr f #'(filter.f)
-             #:attr next #'filter-cstream-next)
+             #:attr next #'filter-cstream-next
+             #:attr state #'())
     (pattern map:fst-map
              #:attr f #'(map.f)
-             #:attr next #'map-cstream-next)
+             #:attr next #'map-cstream-next
+             #:attr state #'())
     (pattern filter-map:fst-filter-map
              #:attr f #'(filter-map.f)
-             #:attr next #'filter-map-cstream-next)
+             #:attr next #'filter-map-cstream-next
+             #:attr state #'())
     (pattern take:fst-take
-             #:attr f #'((box take.n))
-             #:attr next #'take-cstream-next)
+             #:attr f #'()
+             #:attr next #'take-cstream-next
+             #:attr state #'(take.n))
     )
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -190,6 +201,9 @@
           (#,((attribute p.curry) ctx (attribute p.name))
            (contract p.contract
                      (p.prepare
+                      (lambda (state)
+                        (define cstate (inline-consing state t.state ...))
+                        cstate)
                       (#,@#'c.end
                        (inline-compose1 [t.next t.f] ...
                                         p.next)
@@ -200,7 +214,9 @@
                      '#,(prettify-flow-syntax ctx)
                      #f
                      '#,(build-source-location-vector
-                         (syntax-srcloc ctx)))))])))
+                         (syntax-srcloc ctx)))))]))
+
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Runtime
@@ -214,9 +230,9 @@
       (cond [(null? state) (done)]
             [else (yield (car state) (cdr state))])))
 
-  (define-inline (list->cstream-prepare next)
+  (define-inline (list->cstream-prepare consing next)
     (case-lambda
-      [(lst) (next lst)]
+      [(lst) (next (consing lst))]
       [rest (void)]))
 
   (define-inline (range->cstream-next done skip yield)
@@ -226,11 +242,11 @@
              (yield l (cons (+ l s) (cdr state)))]
             [else (done)])))
 
-  (define-inline (range->cstream-prepare next)
+  (define-inline (range->cstream-prepare consing next)
     (case-lambda
-      [(h) (next (list 0 h 1))]
-      [(l h) (next (list l h 1))]
-      [(l h s) (next (list l h s))]
+      [(h) (next (consing (list 0 h 1)))]
+      [(l h) (next (consing (list l h 1)))]
+      [(l h s) (next (consing (list l h s)))]
       [rest (void)]))
 
   ;; Transformers
@@ -261,19 +277,21 @@
                     (yield fv state)
                     (skip state)))))))
 
-  (define-inline (take-cstream-next bn next)
+  (define-inline (take-cstream-next next)
     (λ (done skip yield)
-      (λ (state)
-        (define n (unbox bn))
-        (if (zero? n)
-            (done)
-            ((next (λ ()
-                     (error 'take-cstream-next "not enough"))
-                   skip
-                   (λ (value state)
-                     (set-box! bn (sub1 n))
-                     (yield value state)))
-             state)))))
+      (λ (take-state)
+        (define n (car take-state))
+        (define state (cdr take-state))
+        (cond ((zero? n)
+               (done))
+              (else
+               ((next (λ ()
+                        (error 'take-cstream-next "not enough"))
+                      skip
+                      (λ (value state)
+                        (define new-state (cons (sub1 n) state))
+                        (yield value new-state)))
+                state))))))
 
   ;; Consumers
 
