@@ -6,7 +6,10 @@
 (provide (for-syntax define-and-register-pass
                      run-passes))
 
-(begin-for-syntax
+(module macro-debug racket/base
+  ;; See tests/compiler/rules/full-cycle.rkt for an explanation
+  ;; re: sandboxed evaluation, submodules and test coverage.
+  (provide my-emit-local-step)
 
   (define my-emit-local-step
     ;; See "Breaking Out of the Sandbox"
@@ -15,7 +18,11 @@
                             (make-keyword-procedure
                              (lambda (kws kw-args . rest)
                                (void))))))
-      (dynamic-require 'macro-debugger/emit 'emit-local-step)))
+      (dynamic-require 'macro-debugger/emit 'emit-local-step))))
+
+(require (for-syntax 'macro-debug))
+
+(begin-for-syntax
 
   ;; Could be a list but for future extensibility a custom struct is
   ;; probably a better idea.
