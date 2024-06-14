@@ -183,7 +183,19 @@
                   '(25))
      (test-equal? "~>> (range _ 10 3) [1] (5)"
                   (~>> (5) (range _ 10 3) (filter odd?) (map sqr))
-                  '(25))))))
+                  '(25)))
+
+    (test-suite
+     "take (stateful transformer)"
+     (test-equal? "take after filter"
+                  (~>> (20) range (filter odd?) (take _ 5) (map sqr))
+                  '(1 9 25 49 81))
+
+     (test-equal? "two takes after filter"
+                  (~>> (20) range (filter odd?) (take _ 5) (take _ 3) (map sqr))
+                  '(1 9 25))
+
+     ))))
 
 (module+ main
   (void (run-tests tests)))
