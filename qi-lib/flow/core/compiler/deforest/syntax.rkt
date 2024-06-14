@@ -27,7 +27,8 @@
          (for-template racket/base
                        "../../passes.rkt"
                        "../../strategy.rkt"
-                       "templates.rkt")
+                       "templates.rkt"
+                       (prefix-in qi: "bindings.rkt"))
          (for-syntax racket/base
                      syntax/parse))
 
@@ -41,15 +42,15 @@
 (define-syntax-class fsp-range
   #:attributes (blanket? fine? arg pre-arg post-arg)
   #:literal-sets (fs-literals)
-  #:datum-literals (range)
-  (pattern (esc (#%host-expression range))
+  #:literals (qi:range)
+  (pattern (esc (#%host-expression qi:range))
            #:attr arg #f
            #:attr pre-arg #f
            #:attr post-arg #f
            #:attr blanket? #f
            #:attr fine? #f)
   (pattern (#%fine-template
-            ((#%host-expression range)
+            ((#%host-expression qi:range)
              the-arg ...))
            #:attr arg #'(the-arg ...)
            #:attr pre-arg #f
@@ -57,7 +58,7 @@
            #:attr blanket? #f
            #:attr fine? #t)
   (pattern (#%blanket-template
-            ((#%host-expression range)
+            ((#%host-expression qi:range)
              (#%host-expression the-pre-arg) ...
              __
              (#%host-expression the-post-arg) ...))
@@ -83,52 +84,52 @@
 (define-syntax-class fst-filter
   #:attributes (f)
   #:literal-sets (fs-literals)
-  #:datum-literals (filter)
+  #:literals (qi:filter)
   (pattern (#%blanket-template
-            ((#%host-expression filter)
+            ((#%host-expression qi:filter)
              (#%host-expression f)
              __)))
   (pattern (#%fine-template
-            ((#%host-expression filter)
+            ((#%host-expression qi:filter)
              (#%host-expression f)
              _))))
 
 (define-syntax-class fst-map
   #:attributes (f)
   #:literal-sets (fs-literals)
-  #:datum-literals (map)
+  #:literals (qi:map)
   (pattern (#%blanket-template
-            ((#%host-expression map)
+            ((#%host-expression qi:map)
              (#%host-expression f)
              __)))
   (pattern (#%fine-template
-            ((#%host-expression map)
+            ((#%host-expression qi:map)
              (#%host-expression f)
              _))))
 
 (define-syntax-class fst-filter-map
   #:attributes (f)
   #:literal-sets (fs-literals)
-  #:datum-literals (filter-map)
+  #:literals (qi:filter-map)
   (pattern (#%blanket-template
-            ((#%host-expression filter-map)
+            ((#%host-expression qi:filter-map)
              (#%host-expression f)
              __)))
   (pattern (#%fine-template
-            ((#%host-expression filter-map)
+            ((#%host-expression qi:filter-map)
              (#%host-expression f)
              _))))
 
 (define-syntax-class fst-take
   #:attributes (n)
   #:literal-sets (fs-literals)
-  #:datum-literals (take)
+  #:literals (qi:take)
   (pattern (#%blanket-template
-            ((#%host-expression take)
+            ((#%host-expression qi:take)
              __
              (#%host-expression n))))
   (pattern (#%fine-template
-            ((#%host-expression take)
+            ((#%host-expression qi:take)
              _
              (#%host-expression n)))))
 
@@ -148,14 +149,14 @@
 (define-syntax-class fsc-foldr
   #:attributes (op init)
   #:literal-sets (fs-literals)
-  #:datum-literals (foldr)
+  #:literals (qi:foldr)
   (pattern (#%blanket-template
-            ((#%host-expression foldr)
+            ((#%host-expression qi:foldr)
              (#%host-expression op)
              (#%host-expression init)
              __)))
   (pattern (#%fine-template
-            ((#%host-expression foldr)
+            ((#%host-expression qi:foldr)
              (#%host-expression op)
              (#%host-expression init)
              _))))
@@ -163,35 +164,33 @@
 (define-syntax-class fsc-foldl
   #:attributes (op init)
   #:literal-sets (fs-literals)
-  #:datum-literals (foldl)
+  #:literals (qi:foldl)
   (pattern (#%blanket-template
-            ((#%host-expression foldl)
+            ((#%host-expression qi:foldl)
              (#%host-expression op)
              (#%host-expression init)
              __)))
   (pattern (#%fine-template
-            ((#%host-expression foldl)
+            ((#%host-expression qi:foldl)
              (#%host-expression op)
              (#%host-expression init)
              _))))
 
 (define-syntax-class cad*r-datum
   #:attributes (countdown)
-  (pattern (~datum car) #:attr countdown #'0)
-  (pattern (~datum cadr) #:attr countdown #'1)
-  (pattern (~datum caddr) #:attr countdown #'2)
-  (pattern (~datum cadddr) #:attr countdown #'3)
-  (pattern (~datum caddddr) #:attr countdown #'4)
-  (pattern (~datum cadddddr) #:attr countdown #'5))
+  (pattern (~literal qi:car) #:attr countdown #'0)
+  (pattern (~literal qi:cadr) #:attr countdown #'1)
+  (pattern (~literal qi:caddr) #:attr countdown #'2)
+  (pattern (~literal qi:cadddr) #:attr countdown #'3))
 
 (define-syntax-class fsc-list-ref
   #:attributes (pos name)
   #:literal-sets (fs-literals)
-  #:datum-literals (list-ref)
+  #:literals (qi:list-ref)
   (pattern (~or (#%fine-template
-                 ((#%host-expression list-ref) _ idx))
+                 ((#%host-expression qi:list-ref) _ idx))
                 (#%blanket-template
-                 ((#%host-expression list-ref) __ idx)))
+                 ((#%host-expression qi:list-ref) __ idx)))
            #:attr pos #'idx
            #:attr name #'list-ref)
   (pattern (~or (esc (#%host-expression cad*r:cad*r-datum))
@@ -204,26 +203,26 @@
 
 (define-syntax-class fsc-length
   #:literal-sets (fs-literals)
-  #:datum-literals (length)
+  #:literals (qi:length)
   (pattern (esc
-            (#%host-expression length)))
+            (#%host-expression qi:length)))
   (pattern (#%fine-template
-            ((#%host-expression length) _)))
+            ((#%host-expression qi:length) _)))
   (pattern (#%blanket-template
-            ((#%host-expression length) __))))
+            ((#%host-expression qi:length) __))))
 
 (define-syntax-class fsc-empty?
   #:literal-sets (fs-literals)
-  #:datum-literals (empty? null?)
+  #:literals (qi:null? qi:empty?)
   (pattern (esc
-            (#%host-expression (~or empty?
-                                    null?))))
+            (#%host-expression (~or qi:empty?
+                                    qi:null?))))
   (pattern (#%fine-template
-            ((#%host-expression (~or empty?
-                                     null?)) _)))
+            ((#%host-expression (~or qi:empty?
+                                     qi:null?)) _)))
   (pattern (#%blanket-template
-            ((#%host-expression (~or empty?
-                                     null?)) __))))
+            ((#%host-expression (~or qi:empty?
+                                     qi:null?)) __))))
 
 (define-syntax-class fsc-default
   #:datum-literals (cstream->list)

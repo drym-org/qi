@@ -198,29 +198,30 @@
        ;; A static runtime contract is placed at the beginning of the
        ;; fused sequence. And runtime checks for consumers are in
        ;; their respective implementation procedure.
-       #`(esc
-          (#,((attribute p.curry) ctx (attribute p.name))
-           (contract p.contract
-                     (p.prepare
-                      (lambda (state)
-                        (define cstate (inline-consing state t.state ...))
-                        cstate)
-                      (#,@#'c.end
-                       (inline-compose1 [t.next t.f
-                                                '#,(prettify-flow-syntax ctx)
-                                                '#,(build-source-location-vector
-                                                    (syntax-srcloc ctx))
-                                                ] ...
-                                        p.next
-                                        )
+       (with-syntax (((rt ...) (reverse (attribute t.state))))
+         #`(esc
+            (#,((attribute p.curry) ctx (attribute p.name))
+             (contract p.contract
+                       (p.prepare
+                        (lambda (state)
+                          (define cstate (inline-consing state rt ...))
+                          cstate)
+                        (#,@#'c.end
+                         (inline-compose1 [t.next t.f
+                                                  '#,(prettify-flow-syntax ctx)
+                                                  '#,(build-source-location-vector
+                                                      (syntax-srcloc ctx))
+                                                  ] ...
+                                          p.next
+                                          )
+                         '#,(prettify-flow-syntax ctx)
+                         '#,(build-source-location-vector
+                             (syntax-srcloc ctx))))
+                       p.name
                        '#,(prettify-flow-syntax ctx)
+                       #f
                        '#,(build-source-location-vector
-                           (syntax-srcloc ctx))))
-                     p.name
-                     '#,(prettify-flow-syntax ctx)
-                     #f
-                     '#,(build-source-location-vector
-                         (syntax-srcloc ctx)))))]))
+                           (syntax-srcloc ctx))))))]))
 
   )
 
@@ -298,7 +299,8 @@
                                    #f
                                    src
                                    ) '()))
-                      skip
+                      (λ (state)
+                        (skip (cons n state)))
                       (λ (value state)
                         (define new-state (cons (sub1 n) state))
                         (yield value new-state)))
