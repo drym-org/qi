@@ -1,16 +1,13 @@
 #lang racket/base
 
-(provide fsp-intf
-         fsp-range
+(provide fsp-range
          fsp-default
 
-         fst-intf
          fst-filter
          fst-map
          fst-filter-map
          fst-take
 
-         fsc-intf
          fsc-foldr
          fsc-foldl
          fsc-list-ref
@@ -74,7 +71,7 @@
            #:attr contract #'(-> list? any)
            #:attr name #''list->cstream))
 
-(define-syntax-class fsp-intf
+(define-syntax-class fsp-syntax
   (pattern (~or _:fsp-range
                 _:fsp-default)))
 
@@ -137,7 +134,7 @@
   (pattern (~or filter:fst-filter
                 filter-map:fst-filter-map)))
 
-(define-syntax-class fst-intf
+(define-syntax-class fst-syntax
   (pattern (~or _:fst-filter
                 _:fst-map
                 _:fst-filter-map
@@ -228,7 +225,7 @@
   #:datum-literals (cstream->list)
   (pattern cstream->list))
 
-(define-syntax-class fsc-intf
+(define-syntax-class fsc-syntax
   (pattern (~or _:fsc-foldr
                 _:fsc-foldl
                 _:fsc-list-ref
@@ -243,18 +240,18 @@
 ;; Used only in deforest-rewrite to properly recognize the end of
 ;; fusable sequence.
 (define-syntax-class non-fusable
-  (pattern (~not (~or _:fst-intf
-                      _:fsp-intf
-                      _:fsc-intf))))
+  (pattern (~not (~or _:fst-syntax
+                      _:fsp-syntax
+                      _:fsc-syntax))))
 
 (define (make-deforest-rewrite generate-fused-operation)
   (lambda (stx)
     (syntax-parse stx
       [((~datum thread) _0:non-fusable ...
-                        p:fsp-intf
+                        p:fsp-syntax
                         ;; There can be zero transformers here:
-                        t:fst-intf ...
-                        c:fsc-intf
+                        t:fst-syntax ...
+                        c:fsc-syntax
                         _1 ...)
        #:with fused (generate-fused-operation
                      (syntax->list #'(p t ... c))
@@ -262,17 +259,17 @@
        #'(thread _0 ... fused _1 ...)]
       [((~datum thread) _0:non-fusable ...
                         t1:fst-intf0
-                        t:fst-intf ...
-                        c:fsc-intf
+                        t:fst-syntax ...
+                        c:fsc-syntax
                         _1 ...)
        #:with fused (generate-fused-operation
                      (syntax->list #'(list->cstream t1 t ... c))
                      stx)
        #'(thread _0 ... fused _1 ...)]
       [((~datum thread) _0:non-fusable ...
-                        p:fsp-intf
+                        p:fsp-syntax
                         ;; Must be 1 or more transformers here:
-                        t:fst-intf ...+
+                        t:fst-syntax ...+
                         _1 ...)
        #:with fused (generate-fused-operation
                      (syntax->list #'(p t ... cstream->list))
@@ -280,7 +277,7 @@
        #'(thread _0 ... fused _1 ...)]
       [((~datum thread) _0:non-fusable ...
                         f1:fst-intf0
-                        f:fst-intf ...+
+                        f:fst-syntax ...+
                         _1 ...)
        #:with fused (generate-fused-operation
                      (syntax->list #'(list->cstream f1 f ... cstream->list))
