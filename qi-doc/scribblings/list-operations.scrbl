@@ -54,23 +54,65 @@ Deforestable version of @racket[take] from @racketmodname[racket/list].
 
 @section{Consumers}
 
-foldr
+@defproc[(foldl (proc procedure?) (init any/c) (lst list?) ...+) any/c]{
 
-foldl
+Deforestable version of @racket[foldl] from @racketmodname[racket/base].
 
-car
+}
 
-cadr
+@defproc[(foldr (proc procedure?) (init any/c) (lst list?) ...+) any/c]{
 
-caddr
+Deforestable version of @racket[foldr] from @racketmodname[racket/base].
 
-cadddr
+}
 
-list-ref
+@defproc[(car (p pair?)) any/c]{
 
-length
+Deforestable version of @racket[car] from @racketmodname[racket/base].
 
-empty?
+}
 
-null?
+@defproc[(cadr (v (cons/c any/c pair?))) any/c]{
+
+Deforestable version of @racket[cadr] from @racketmodname[racket/base].
+
+}
+
+@defproc[(caddr (v (cons/c any/c (cons/c any/c pair?)))) any/c]{
+
+Deforestable version of @racket[caddr] from @racketmodname[racket/base].
+
+}
+
+@defproc[(cadddr (v (cons/c any/c (cons/c any/c (cons/c any/c pair?))))) any/c]{
+
+Deforestable version of @racket[cadddr] from @racketmodname[racket/base].
+
+}
+
+@defproc*[(((list-ref (lst list?) (pos exact-nonnegative-integer?)) any/c)
+ 	   ((list-ref (lst pair?) (pos exact-nonnegative-integer?)) any/c))]{
+
+Deforestable version of @racket[list-ref] from @racketmodname[racket/base].
+
+}
+
+@defproc[(length (lst list?)) exact-nonnegative-integer?]{
+
+Deforestable version of @racket[length] from @racketmodname[racket/base].
+
+}
+
+@defproc[(empty? (v any/c)) boolean?]{
+
+Deforestable version of @racket[empty?] from @racketmodname[racket/list].
+
+}
+
+@defproc[(null? (v any/c)) boolean?]{
+
+Deforestable version of @racket[null?] from @racketmodname[racket/base].
+
+}
+
 
