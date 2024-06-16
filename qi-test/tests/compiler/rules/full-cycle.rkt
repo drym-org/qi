@@ -21,8 +21,8 @@
            (for-template qi/flow/core/compiler)
            (for-syntax racket/base))
 
-  ;; A macro that expands and compiles surface syntax
-  (define-syntax-parse-rule (qi-compile stx)
+  ;; A function that expands and compiles surface syntax
+  (define (qi-compile stx)
     (compile-flow
      (expand-flow stx))))
 
