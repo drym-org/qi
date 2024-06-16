@@ -59,34 +59,11 @@
                   ;; We address this by putting `my-emit-local-step` in a
                   ;; submodule, which, by default, are ignored by coverage.
                   (lambda ()
-                    (let ([eval (parameterize ([sandbox-output 'string]
-                                               [sandbox-error-output 'string]
-                                               [sandbox-memory-limit #f])
-                                  (make-evaluator
-                                   'racket/base
-                                   '(require (for-syntax racket/base)
-                                             ;; necessary to recognize and expand core forms correctly
-                                             qi/flow/extended/expander
-                                             ;; necessary to correctly expand the right-threading form
-                                             qi/flow/extended/forms
-                                             syntax/macro-testing
-                                             racket/list
-                                             qi/flow/core/compiler
-                                             (submod qi/flow/extended/expander invoke))
-
-                                   '(begin-for-syntax
-                                      (require syntax/parse/define
-                                               (for-template qi/flow/core/compiler)
-                                               (for-syntax racket/base))
-
-                                      ;; A macro that expands and compiles surface syntax
-                                      (define-syntax-parse-rule (qi-compile stx)
-                                        (compile-flow
-                                         (expand-flow stx))))))])
+                    (let ([eval (make-evaluator
+                                 'racket/base
+                                 '(require qi))])
                       (eval
-                       '(phase1-eval
-                         (qi-compile
-                          #'sqr)))))))))
+                       '(~> (3) (* 2) add1))))))))
 
 (module+ main
   (void
