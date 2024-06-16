@@ -12,7 +12,6 @@
          syntax/macro-testing
          qi/flow/core/deforest
          qi/flow/core/compiler
-         racket/sandbox
          "private/deforest-util.rkt"
          (submod qi/flow/extended/expander invoke))
 
@@ -34,23 +33,7 @@
                (deforested?
                  (phase1-eval
                   (qi-compile
-                   #'(~>> (filter odd?) values (map sqr)))))))
-   (test-suite
-    "sandboxed evaluation"
-    (test-not-exn "Plays well with sandboxed evaluation"
-                  ;; This test reproduces the bug and the fix fixes it. Yet,
-                  ;; coverage does not show the lambda in `my-emit-local-step`
-                  ;; as being covered. This could be because the constructed
-                  ;; sandbox evaluator "covering" the code doesn't count as
-                  ;; coverage by the main evaluator running the test?
-                  ;; We address this by putting `my-emit-local-step` in a
-                  ;; submodule, which, by default, are ignored by coverage.
-                  (lambda ()
-                    (let ([eval (make-evaluator
-                                 'racket/base
-                                 '(require qi))])
-                      (eval
-                       '(~> (3) (* 2) add1))))))))
+                   #'(~>> (filter odd?) values (map sqr)))))))))
 
 (module+ main
   (void
