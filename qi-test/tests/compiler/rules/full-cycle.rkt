@@ -21,15 +21,6 @@
            (for-template qi/flow/core/compiler)
            (for-syntax racket/base))
 
-  ;; A macro that accepts surface syntax, expands it, and then applies the
-  ;; indicated optimization passes.
-  (define-syntax-parser test-passes~>
-    [(_ stx)
-     #'(expand-flow stx)]
-    [(_ stx pass ... passN)
-     #'(passN
-        (test-passes~> stx pass ...))])
-
   ;; A macro that expands and compiles surface syntax
   (define-syntax-parse-rule (qi-compile stx)
     (compile-flow
