@@ -11,6 +11,7 @@
          racket/string
          racket/function
          racket/format
+         racket/sandbox
          (except-in "private/util.rkt"
                     add-two)
          syntax/macro-testing)
@@ -1657,7 +1658,29 @@
                 (thunk
                  ((☯ (== _ _ _))
                   3)))
-      (test-equal? "relay-_" ((☯ _) 3) 3))))))
+      (test-equal? "relay-_" ((☯ _) 3) 3))))
+
+   (test-suite
+    "regression tests"
+    (test-suite
+     "sandboxed evaluation"
+     (test-not-exn "Plays well with sandboxed evaluation"
+                   ;; See "Breaking Out of the Sandbox"
+                   ;; https://github.com/drym-org/qi/wiki/Qi-Meeting-Mar-29-2024
+                   ;;
+                   ;; This test reproduces the bug and the fix fixes it. Yet,
+                   ;; coverage does not show the lambda in `my-emit-local-step`
+                   ;; as being covered. This could be because the constructed
+                   ;; sandbox evaluator "covering" the code doesn't count as
+                   ;; coverage by the main evaluator running the test?
+                   ;; We address this by putting `my-emit-local-step` in a
+                   ;; submodule, which, by default, are ignored by coverage.
+                   (lambda ()
+                     (let ([eval (make-evaluator
+                                  'racket/base
+                                  '(require qi))])
+                       (eval
+                        '(☯ add1)))))))))
 
 (module+ main
   (void (run-tests tests)))
