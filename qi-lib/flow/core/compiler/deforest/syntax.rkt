@@ -1,6 +1,11 @@
 #lang racket/base
 
-(provide fsp-range
+(provide fsp-syntax
+         fst-syntax0
+         fst-syntax
+         fsc-syntax
+
+         fsp-range
          fsp-default
 
          fst-filter
@@ -15,7 +20,6 @@
          fsc-empty?
          fsc-default
 
-         define-and-register-deforest-pass
          )
 
 (require syntax/parse
@@ -29,12 +33,19 @@
          (for-syntax racket/base
                      syntax/parse))
 
+;; Literals set used for matching Fusable Stream Literals
 (define-literal-set fs-literals
   #:datum-literals (esc #%host-expression #%fine-template #%blanket-template _ __)
   ())
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Producers
+;; Fusable Stream Producers
+;;
+;; Syntax classes used for matching functions that produce a sequence
+;; of values and they annotate the syntax with attributes that will be
+;; used in the compiler to apply optimizations.
+;;
+;; All are prefixed with fsp- for clarity.
 
 (define-syntax-class fsp-range
   #:attributes (blanket? fine? arg pre-arg post-arg)
@@ -76,7 +87,12 @@
                 _:fsp-default)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Transformers
+;; Fusable Stream Transformers
+;;
+;; Syntax classes matching functions acting as transformers of the
+;; sequence of values passing through.
+;;
+;; All are prefixed with fst- for clarity.
 
 (define-syntax-class fst-filter
   #:attributes (f)
@@ -130,7 +146,7 @@
              _
              (#%host-expression n)))))
 
-(define-syntax-class fst-intf0
+(define-syntax-class fst-syntax0
   (pattern (~or filter:fst-filter
                 filter-map:fst-filter-map)))
 
@@ -141,7 +157,12 @@
                 _:fst-take)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Consumers
+;; Fusable Stream Consumers
+;;
+;; Syntax classes used for matching functions that can consume all
+;; values from a sequence and create a single value from those.
+;;
+;; Prefixed with fsc- for clarity.
 
 (define-syntax-class fsc-foldr
   #:attributes (op init)
@@ -233,66 +254,3 @@
                 _:fsc-empty?
                 _:fsc-default
                 )))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; The actual fusion generator implementation
-
-;; Used only in deforest-rewrite to properly recognize the end of
-;; fusable sequence.
-(define-syntax-class non-fusable
-  (pattern (~not (~or _:fst-syntax
-                      _:fsp-syntax
-                      _:fsc-syntax))))
-
-(define (make-deforest-rewrite generate-fused-operation)
-  (lambda (stx)
-    (syntax-parse stx
-      [((~datum thread) _0:non-fusable ...
-                        p:fsp-syntax
-                        ;; There can be zero transformers here:
-                        t:fst-syntax ...
-                        c:fsc-syntax
-                        _1 ...)
-       #:with fused (generate-fused-operation
-                     (syntax->list #'(p t ... c))
-                     stx)
-       #'(thread _0 ... fused _1 ...)]
-      [((~datum thread) _0:non-fusable ...
-                        t1:fst-intf0
-                        t:fst-syntax ...
-                        c:fsc-syntax
-                        _1 ...)
-       #:with fused (generate-fused-operation
-                     (syntax->list #'(list->cstream t1 t ... c))
-                     stx)
-       #'(thread _0 ... fused _1 ...)]
-      [((~datum thread) _0:non-fusable ...
-                        p:fsp-syntax
-                        ;; Must be 1 or more transformers here:
-                        t:fst-syntax ...+
-                        _1 ...)
-       #:with fused (generate-fused-operation
-                     (syntax->list #'(p t ... cstream->list))
-                     stx)
-       #'(thread _0 ... fused _1 ...)]
-      [((~datum thread) _0:non-fusable ...
-                        f1:fst-intf0
-                        f:fst-syntax ...+
-                        _1 ...)
-       #:with fused (generate-fused-operation
-                     (syntax->list #'(list->cstream f1 f ... cstream->list))
-                     stx)
-       #'(thread _0 ... fused _1 ...)]
-      ;; return the input syntax unchanged if no rules
-      ;; are applicable
-      [_ stx])))
-
-(define-syntax (define-and-register-deforest-pass stx)
-  (syntax-parse stx
-    ((_ (deforest-pass ops ctx) expr ...)
-     #'(define-and-register-pass 100 (deforest-pass stx)
-         (find-and-map/qi
-          (make-deforest-rewrite
-           (lambda (ops ctx)
-             expr ...))
-          stx)))))

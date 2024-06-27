@@ -7,7 +7,8 @@
                      "syntax.rkt"
                      "../../../extended/util.rkt"
                      syntax/srcloc
-                     racket/syntax-srcloc)
+                     racket/syntax-srcloc
+                     "fusion.rkt")
          "templates.rkt"
          racket/performance-hint
          racket/match
@@ -24,6 +25,13 @@
     [(_ [op (f ...) g ...] rest ...) (op f ... (inline-compose1 rest ...) g ...)]
     ))
 
+;; Adds the initial states of all stateful transformers in the
+;; required order to the initial producer state. Uses (cons Tx S)
+;; where Tx is the transformer's initial state and S is the producer's
+;; initial state with all preceding transformer states already
+;; added. Nothing is added for stateless transformers which pass () as
+;; their initial state expression. For example: (inline-consing (T1)
+;; () (T2) P) -> (cons T2 (cons T1 P))
 (define-syntax inline-consing
   (syntax-rules ()
     [(_ state () rest ...) (inline-consing state rest ...)]
@@ -289,22 +297,21 @@
       (λ (take-state)
         (define n (car take-state))
         (define state (cdr take-state))
-        (cond ((zero? n)
-               (done))
-              (else
-               ((next (λ ()
-                        ((contract (-> pair? any)
-                                   (λ (v) v)
-                                   'take ctx
-                                   #f
-                                   src
-                                   ) '()))
-                      (λ (state)
-                        (skip (cons n state)))
-                      (λ (value state)
-                        (define new-state (cons (sub1 n) state))
-                        (yield value new-state)))
-                state))))))
+        (if (zero? n)
+            (done)
+            ((next (λ ()
+                     ((contract (-> pair? any)
+                                (λ (v) v)
+                                'take ctx
+                                #f
+                                src)
+                      '()))
+                   (λ (state)
+                     (skip (cons n state)))
+                   (λ (value state)
+                     (define new-state (cons (sub1 n) state))
+                     (yield value new-state)))
+             state)))))
 
   ;; Consumers
 
@@ -342,7 +349,8 @@
         ((next (λ () ((contract (-> pair? any)
                                 (λ (v) v)
                                 name ctx #f
-                                src) '()))
+                                src)
+                      '()))
                (λ (state) (loop state countdown))
                (λ (value state)
                  (if (zero? countdown)
