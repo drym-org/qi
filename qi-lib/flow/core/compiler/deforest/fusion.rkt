@@ -7,7 +7,9 @@
          syntax/parse
          "syntax.rkt"
          "../../passes.rkt"
-         "../../strategy.rkt")
+         "../../strategy.rkt"
+         (for-template "../../passes.rkt"))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; The actual fusion generator implementation
 
