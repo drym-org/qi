@@ -8,7 +8,8 @@
          "syntax.rkt"
          "../../passes.rkt"
          "../../strategy.rkt"
-         (for-template "../../passes.rkt"))
+         (for-template "../../passes.rkt")
+         "../../private/form-property.rkt")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; The actual fusion generator implementation
@@ -22,46 +23,47 @@
 
 (define (make-deforest-rewrite generate-fused-operation)
   (lambda (stx)
-    (syntax-parse stx
-      [((~datum thread) _0:non-fusable ...
-                        p:fsp-syntax
-                        ;; There can be zero transformers here:
-                        t:fst-syntax ...
-                        c:fsc-syntax
-                        _1 ...)
-       #:with fused (generate-fused-operation
-                     (syntax->list #'(p t ... c))
-                     stx)
-       #'(thread _0 ... fused _1 ...)]
-      [((~datum thread) _0:non-fusable ...
-                        t1:fst-syntax0
-                        t:fst-syntax ...
-                        c:fsc-syntax
-                        _1 ...)
-       #:with fused (generate-fused-operation
-                     (syntax->list #'(list->cstream t1 t ... c))
-                     stx)
-       #'(thread _0 ... fused _1 ...)]
-      [((~datum thread) _0:non-fusable ...
-                        p:fsp-syntax
-                        ;; Must be 1 or more transformers here:
-                        t:fst-syntax ...+
-                        _1 ...)
-       #:with fused (generate-fused-operation
-                     (syntax->list #'(p t ... cstream->list))
-                     stx)
-       #'(thread _0 ... fused _1 ...)]
-      [((~datum thread) _0:non-fusable ...
-                        f1:fst-syntax0
-                        f:fst-syntax ...+
-                        _1 ...)
-       #:with fused (generate-fused-operation
-                     (syntax->list #'(list->cstream f1 f ... cstream->list))
-                     stx)
-       #'(thread _0 ... fused _1 ...)]
-      ;; return the input syntax unchanged if no rules
-      ;; are applicable
-      [_ stx])))
+    (attach-form-property
+     (syntax-parse stx
+       [((~datum thread) _0:non-fusable ...
+                         p:fsp-syntax
+                         ;; There can be zero transformers here:
+                         t:fst-syntax ...
+                         c:fsc-syntax
+                         _1 ...)
+        #:with fused (generate-fused-operation
+                      (syntax->list #'(p t ... c))
+                      stx)
+        #'(thread _0 ... fused _1 ...)]
+       [((~datum thread) _0:non-fusable ...
+                         t1:fst-syntax0
+                         t:fst-syntax ...
+                         c:fsc-syntax
+                         _1 ...)
+        #:with fused (generate-fused-operation
+                      (syntax->list #'(list->cstream t1 t ... c))
+                      stx)
+        #'(thread _0 ... fused _1 ...)]
+       [((~datum thread) _0:non-fusable ...
+                         p:fsp-syntax
+                         ;; Must be 1 or more transformers here:
+                         t:fst-syntax ...+
+                         _1 ...)
+        #:with fused (generate-fused-operation
+                      (syntax->list #'(p t ... cstream->list))
+                      stx)
+        #'(thread _0 ... fused _1 ...)]
+       [((~datum thread) _0:non-fusable ...
+                         f1:fst-syntax0
+                         f:fst-syntax ...+
+                         _1 ...)
+        #:with fused (generate-fused-operation
+                      (syntax->list #'(list->cstream f1 f ... cstream->list))
+                      stx)
+        #'(thread _0 ... fused _1 ...)]
+       ;; return the input syntax unchanged if no rules
+       ;; are applicable
+       [_ stx]))))
 
 ;; This syntax is actively used only once as it is intended to be used
 ;; by alternative implementations. Currently only the CPS
