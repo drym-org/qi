@@ -8,7 +8,8 @@
                      "../../../extended/util.rkt"
                      syntax/srcloc
                      racket/syntax-srcloc
-                     "fusion.rkt")
+                     "fusion.rkt"
+                     "../../private/form-property.rkt")
          "templates.rkt"
          racket/performance-hint
          racket/match
@@ -207,29 +208,30 @@
        ;; fused sequence. And runtime checks for consumers are in
        ;; their respective implementation procedure.
        (with-syntax (((rt ...) (reverse (attribute t.state))))
-         #`(esc
-            (#,((attribute p.curry) ctx (attribute p.name))
-             (contract p.contract
-                       (p.prepare
-                        (lambda (state)
-                          (define cstate (inline-consing state rt ...))
-                          cstate)
-                        (#,@#'c.end
-                         (inline-compose1 [t.next t.f
-                                                  '#,(prettify-flow-syntax ctx)
-                                                  '#,(build-source-location-vector
-                                                      (syntax-srcloc ctx))
-                                                  ] ...
-                                          p.next
-                                          )
-                         '#,(prettify-flow-syntax ctx)
-                         '#,(build-source-location-vector
-                             (syntax-srcloc ctx))))
-                       p.name
-                       '#,(prettify-flow-syntax ctx)
-                       #f
-                       '#,(build-source-location-vector
-                           (syntax-srcloc ctx))))))]))
+         (attach-form-property
+          #`(esc
+             (#,((attribute p.curry) ctx (attribute p.name))
+              (contract p.contract
+                        (p.prepare
+                         (lambda (state)
+                           (define cstate (inline-consing state rt ...))
+                           cstate)
+                         (#,@#'c.end
+                          (inline-compose1 [t.next t.f
+                                                   '#,(prettify-flow-syntax ctx)
+                                                   '#,(build-source-location-vector
+                                                       (syntax-srcloc ctx))
+                                                   ] ...
+                                           p.next
+                                           )
+                          '#,(prettify-flow-syntax ctx)
+                          '#,(build-source-location-vector
+                              (syntax-srcloc ctx))))
+                        p.name
+                        '#,(prettify-flow-syntax ctx)
+                        #f
+                        '#,(build-source-location-vector
+                            (syntax-srcloc ctx)))))))]))
 
   )
 
