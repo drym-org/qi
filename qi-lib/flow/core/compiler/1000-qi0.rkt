@@ -4,7 +4,9 @@
          (prefix-in fancy: fancy-app)
          "../impl.rkt"
          racket/function
-         (only-in racket/list make-list)
+         (only-in racket/list
+                  make-list
+                  range)
          (for-syntax racket/base
                      syntax/parse
                      "../syntax.rkt"
@@ -395,7 +397,19 @@ the DSL.
     (syntax-parse stx
       [((~datum #%deforestable) (~datum filter) (proc:clause) (arg:expr ...))
        #'(lambda (v)
-           (filter (qi0->racket proc) v))]))
+           (filter (qi0->racket proc) v))]
+      [((~datum #%deforestable) (~datum map) (proc:clause) (arg:expr ...))
+       #'(lambda (v)
+           (map (qi0->racket proc) v))]
+      [((~datum #%deforestable) (~datum foldl) (proc:clause) (init:expr))
+       #'(lambda (v)
+           (foldl (qi0->racket proc) init v))]
+      [((~datum #%deforestable) (~datum foldr) (proc:clause) (init:expr))
+       #'(lambda (v)
+           (foldr (qi0->racket proc) init v))]
+      [((~datum #%deforestable) (~datum range) () (arg:expr ...))
+       #'(lambda ()
+           (range arg ...))]))
 
   (define (blanket-template-form-parser stx)
     (syntax-parse stx
