@@ -286,6 +286,11 @@
                    10
                    "normal racket expressions"))
     (test-suite
+     "lambda escape shortcut"
+     (check-equal? ((☯ (lambda (v) v)) 3) 3)
+     (check-equal? ((☯ (λ (v) v)) 3) 3)
+     (check-equal? ((☯ (λ () 3))) 3))
+    (test-suite
      "elementary boolean gates"
      (test-suite
       "AND"
