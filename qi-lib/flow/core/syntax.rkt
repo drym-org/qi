@@ -17,7 +17,8 @@
          fold-left-form
          fold-right-form
          loop-form
-         clos-form)
+         clos-form
+         deforestable-form)
 
 (require syntax/parse)
 
@@ -26,10 +27,13 @@ These syntax classes are used in the flow macro to handle matching of
 the input syntax to valid Qi syntax. Typically, _matching_ is the only
 function these syntax classes fulfill, and once matched, the input
 syntax is typically handed over to dedicated parsers that
-independently parse and expand the input. It's done this way to keep
-the clauses of the flow macro specific to individual forms, instead of
-these forms appearing in multiple clauses, so that the code for each
-form is decoupled from the rest of the flow macro.
+independently parse and expand the input. It's done this way for two
+reasons. First, the syntax has already been parsed/validated by the
+expander and we don't need to worry about validation at the compiler
+level. And second, to keep the clauses of the Qi0→Racket codegen macro
+specific to individual forms, instead of these forms appearing in
+multiple clauses, so that the code for each form is neatly decoupled
+from code generation for other forms.
 
 See comments in flow.rkt for more details.
 |#
@@ -131,3 +135,7 @@ See comments in flow.rkt for more details.
    (~datum clos))
   (pattern
    ((~datum clos) arg ...)))
+
+(define-syntax-class deforestable-form
+  (pattern
+   ((~datum #%deforestable) arg ...)))

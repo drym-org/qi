@@ -183,6 +183,9 @@ core language's use of #%app, etc.).
     (clos onex:closed-floe)
     (esc ex:racket-expr)
 
+    ;; core form to express deforestable operations
+    (#%deforestable name:id (proc:closed-floe) (arg:racket-expr ...))
+
     ;; backwards compat macro extensibility via Racket macros
     (~> ((~var ext-form (starts-with "qi:")) expr ...)
         #'(esc (ext-form expr ...)))

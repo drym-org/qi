@@ -96,6 +96,7 @@
     [(~datum appleye)
      #'call]
     [e:clos-form (clos-parser #'e)]
+    [e:deforestable-form (deforestable-parser #'e)]
     ;; escape hatch for racket expressions or anything
     ;; to be "passed through"
     [((~datum esc) ex:expr)
@@ -105,9 +106,6 @@
 
     ;; Partial application with syntactically pre-supplied arguments
     ;; in a blanket template
-    ;; Note: at this point it's already been parsed/validated
-    ;; by the expander and we don't need to worry about checking
-    ;; the syntax at the compiler level
     [((~datum #%blanket-template) e)
      (blanket-template-form-parser this-syntax)]
 
@@ -395,6 +393,12 @@ the DSL.
            #'(λ args
                (qi0->racket (~> (-< (~> (gen args) △) _)
                                 onex))))]))
+
+  (define (deforestable-parser stx)
+    (syntax-parse stx
+      [((~datum #%deforestable) (~datum filter) (proc:clause) (arg:expr ...))
+       #'(lambda (v)
+           (filter (qi0->racket proc) v))]))
 
   (define (blanket-template-form-parser stx)
     (syntax-parse stx
