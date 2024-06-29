@@ -182,6 +182,10 @@ core language's use of #%app, etc.).
     clos
     (clos onex:closed-floe)
     (esc ex:racket-expr)
+    (~> ((~literal lambda) e ...)
+        #'(esc (lambda e ...)))
+    (~> ((~literal λ) e ...)
+        #'(lambda e ...))
 
     ;; backwards compat macro extensibility via Racket macros
     (~> ((~var ext-form (starts-with "qi:")) expr ...)
