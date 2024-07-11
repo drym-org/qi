@@ -7,6 +7,7 @@
          "compiler/1000-qi0.rkt"
          "compiler/2000-bindings.rkt"
          "compiler/0010-normalize.rkt"
+         "compiler/0100-deforest.rkt"
          "passes.rkt")
 
 (begin-for-syntax
