@@ -420,7 +420,10 @@ the DSL.
       [((~datum #%deforestable) (~datum caddr))
        #'caddr]
       [((~datum #%deforestable) (~datum cadddr))
-       #'cadddr]))
+       #'cadddr]
+      [((~datum #%deforestable) ((~datum list-ref) n:expr))
+       #'(lambda (v)
+           (list-ref v n))]))
 
   (define (blanket-template-form-parser stx)
     (syntax-parse stx
