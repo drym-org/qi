@@ -412,7 +412,9 @@ the DSL.
            (range arg ...))]
       [((~datum #%deforestable) ((~datum take) n:expr))
        #'(lambda (v)
-           (take v n))]))
+           (take v n))]
+      [((~datum #%deforestable) (~datum car))
+       #'car]))
 
   (define (blanket-template-form-parser stx)
     (syntax-parse stx

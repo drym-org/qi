@@ -31,3 +31,6 @@
 
 (define-qi-syntax-rule (take n:expr)
   (#%deforestable (take n)))
+
+(define-qi-syntax-parser car
+  [_:id #'(#%deforestable car)])

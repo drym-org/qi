@@ -170,7 +170,7 @@
 
 (define-syntax-class cad*r-datum
   #:attributes (countdown)
-  (pattern (~literal qi:car) #:attr countdown #'0)
+  (pattern (#%deforestable (~datum car)) #:attr countdown #'0)
   (pattern (~literal qi:cadr) #:attr countdown #'1)
   (pattern (~literal qi:caddr) #:attr countdown #'2)
   (pattern (~literal qi:cadddr) #:attr countdown #'3))
@@ -189,7 +189,8 @@
                 (#%fine-template
                  ((#%host-expression cad*r:cad*r-datum) _))
                 (#%blanket-template
-                 ((#%host-expression cad*r:cad*r-datum) __)))
+                 ((#%host-expression cad*r:cad*r-datum) __))
+                cad*r:cad*r-datum)
            #:attr pos #'cad*r.countdown
            #:attr name #'cad*r))
 
