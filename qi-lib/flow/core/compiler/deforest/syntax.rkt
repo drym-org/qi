@@ -56,7 +56,7 @@
     #:attr pre-arg #f
     #:attr post-arg #f
     #:attr blanket? #f
-    #:attr fine? #f))
+    #:attr fine? #t))
 
 (define-syntax-class fsp-default
   #:datum-literals (list->cstream)
