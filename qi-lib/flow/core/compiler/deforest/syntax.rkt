@@ -97,28 +97,14 @@
 (define-syntax-class fst-filter
   #:attributes (f)
   #:literal-sets (fs-literals)
-  #:literals (qi:filter)
-  (pattern (#%blanket-template
-            ((#%host-expression qi:filter)
-             (#%host-expression f)
-             __)))
-  (pattern (#%fine-template
-            ((#%host-expression qi:filter)
-             (#%host-expression f)
-             _))))
+  #:datum-literals (filter)
+  (pattern (#%deforestable (filter (#%host-expression f)))))
 
 (define-syntax-class fst-map
   #:attributes (f)
   #:literal-sets (fs-literals)
-  #:literals (qi:map)
-  (pattern (#%blanket-template
-            ((#%host-expression qi:map)
-             (#%host-expression f)
-             __)))
-  (pattern (#%fine-template
-            ((#%host-expression qi:map)
-             (#%host-expression f)
-             _))))
+  #:datum-literals (map)
+  (pattern (#%deforestable (map (#%host-expression f)))))
 
 (define-syntax-class fst-filter-map
   #:attributes (f)
