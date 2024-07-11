@@ -171,9 +171,9 @@
 (define-syntax-class cad*r-datum
   #:attributes (countdown)
   (pattern (#%deforestable (~datum car)) #:attr countdown #'0)
-  (pattern (~literal qi:cadr) #:attr countdown #'1)
-  (pattern (~literal qi:caddr) #:attr countdown #'2)
-  (pattern (~literal qi:cadddr) #:attr countdown #'3))
+  (pattern (#%deforestable (~datum cadr)) #:attr countdown #'1)
+  (pattern (#%deforestable (~datum caddr)) #:attr countdown #'2)
+  (pattern (#%deforestable (~datum cadddr)) #:attr countdown #'3))
 
 (define-syntax-class fsc-list-ref
   #:attributes (pos name)
@@ -185,12 +185,7 @@
                  ((#%host-expression qi:list-ref) __ idx)))
            #:attr pos #'idx
            #:attr name #'list-ref)
-  (pattern (~or (esc (#%host-expression cad*r:cad*r-datum))
-                (#%fine-template
-                 ((#%host-expression cad*r:cad*r-datum) _))
-                (#%blanket-template
-                 ((#%host-expression cad*r:cad*r-datum) __))
-                cad*r:cad*r-datum)
+  (pattern cad*r:cad*r-datum
            #:attr pos #'cad*r.countdown
            #:attr name #'cad*r))
 
