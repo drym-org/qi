@@ -17,6 +17,9 @@
 (define-qi-syntax-rule (filter f:expr)
   (#%deforestable (filter f)))
 
+(define-qi-syntax-rule (filter-map f:expr)
+  (#%deforestable (filter-map f)))
+
 (define-qi-syntax-rule (foldl f:expr init:expr)
   (#%deforestable (foldl f init)))
 
