@@ -193,16 +193,9 @@
 
 (define-syntax-class fsc-empty?
   #:literal-sets (fs-literals)
-  #:literals (qi:null? qi:empty?)
-  (pattern (esc
-            (#%host-expression (~or qi:empty?
-                                    qi:null?))))
-  (pattern (#%fine-template
-            ((#%host-expression (~or qi:empty?
-                                     qi:null?)) _)))
-  (pattern (#%blanket-template
-            ((#%host-expression (~or qi:empty?
-                                     qi:null?)) __))))
+  #:datum-literals (null? empty?)
+  (pattern (#%deforestable (~or empty?
+                                null?))))
 
 (define-syntax-class fsc-default
   #:datum-literals (cstream->list)

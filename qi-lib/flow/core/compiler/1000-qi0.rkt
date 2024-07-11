@@ -428,7 +428,9 @@ the DSL.
        #'(lambda (v)
            (list-ref v n))]
       [((~datum #%deforestable) (~datum length))
-       #'length]))
+       #'length]
+      [((~datum #%deforestable) (~or* (~datum empty?) (~datum null?)))
+       #'empty?]))
 
   (define (blanket-template-form-parser stx)
     (syntax-parse stx

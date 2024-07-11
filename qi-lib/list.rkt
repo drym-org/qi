@@ -7,6 +7,8 @@
                      "private/util.rkt")
          syntax/parse/define
          "flow/extended/expander.rkt"
+         (only-in "flow/space.rkt"
+                  define-qi-alias)
          "macro.rkt")
 
 (define-qi-syntax-rule (map f:expr)
@@ -49,3 +51,8 @@
 
 (define-qi-syntax-parser length
   [_:id #'(#%deforestable length)])
+
+(define-qi-syntax-parser empty?
+  [_:id #'(#%deforestable empty?)])
+
+(define-qi-alias null? empty?)
