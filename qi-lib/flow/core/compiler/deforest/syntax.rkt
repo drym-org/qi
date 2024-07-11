@@ -50,31 +50,13 @@
 (define-syntax-class fsp-range
   #:attributes (blanket? fine? arg pre-arg post-arg)
   #:literal-sets (fs-literals)
-  #:literals (qi:range)
-  (pattern (esc (#%host-expression qi:range))
-           #:attr arg #f
-           #:attr pre-arg #f
-           #:attr post-arg #f
-           #:attr blanket? #f
-           #:attr fine? #f)
-  (pattern (#%fine-template
-            ((#%host-expression qi:range)
-             the-arg ...))
-           #:attr arg #'(the-arg ...)
-           #:attr pre-arg #f
-           #:attr post-arg #f
-           #:attr blanket? #f
-           #:attr fine? #t)
-  (pattern (#%blanket-template
-            ((#%host-expression qi:range)
-             (#%host-expression the-pre-arg) ...
-             __
-             (#%host-expression the-post-arg) ...))
-           #:attr arg #f
-           #:attr pre-arg #'(the-pre-arg ...)
-           #:attr post-arg #'(the-post-arg ...)
-           #:attr blanket? #t
-           #:attr fine? #f))
+  #:datum-literals (range)
+  (pattern (#%deforestable (range the-arg ...))
+    #:attr arg #'(the-arg ...)
+    #:attr pre-arg #f
+    #:attr post-arg #f
+    #:attr blanket? #f
+    #:attr fine? #f))
 
 (define-syntax-class fsp-default
   #:datum-literals (list->cstream)
