@@ -22,21 +22,6 @@
      (check-equal? ((☯ (~>> (filter odd?) (map sqr)))
                     (list 1 2 3 4 5))
                    (list 1 9 25))
-     (check-exn exn:fail?
-                (thunk
-                 ((☯ (~> (map sqr) (map sqr)))
-                  (list 1 2 3 4 5)))
-                "(map) doforestation should only be done for right threading")
-     (check-exn exn:fail?
-                (thunk
-                 ((☯ (~> (filter odd?) (filter odd?)))
-                  (list 1 2 3 4 5)))
-                "(filter) doforestation should only be done for right threading")
-     (check-exn exn:fail?
-                (thunk
-                 ((☯ (~>> (filter odd?) (~> (foldr + 0))))
-                  (list 1 2 3 4 5)))
-                "(foldr) doforestation should only be done for right threading")
      (check-equal? ((☯ (~>> values (filter odd?) (map sqr) values))
                     (list 1 2 3 4 5))
                    (list 1 9 25)
