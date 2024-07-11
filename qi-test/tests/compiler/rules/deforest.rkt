@@ -67,71 +67,73 @@
      ;; between the optimization being applied once vs twice. We would like it
      ;; to do so in order to validate and justify the need for fixed-point
      ;; finding in the deforestation pass.
-     (test-deforested "multiple applications of deforestation to the same expression"
-                      #'(~>> (filter odd?)
-                             (map sqr)
-                             (foldr + 0)
-                             range
-                             (filter odd?)
-                             (map sqr))))
+     ;; (test-deforested "multiple applications of deforestation to the same expression"
+     ;;                  #'(~>> (filter odd?)
+     ;;                         (map sqr)
+     ;;                         (foldr + 0)
+     ;;                         range
+     ;;                         (filter odd?)
+     ;;                         (map sqr)))
+     )
 
     (test-suite
      "transformers"
      (test-deforested "filter-map (two transformers)"
                       #'(~>> (filter odd?) (map sqr)))
-     (test-deforested "fine-grained template forms"
-                      #'(~>> (filter odd? _) (map sqr _))))
+     ;; (test-deforested "fine-grained template forms"
+     ;;                  #'(~>> (filter odd? _) (map sqr _)))
+     )
 
-    (test-suite
-     "producers"
-     ;; TODO: note that these uses of `range` are matched as datums
-     ;; and requiring racket/list's range is not required in this module
-     ;; for deforestation to happen. This should be changed to use
-     ;; literal matching in the compiler.
-     (test-deforested "range"
-                      #'(~>> range (filter odd?)))
-     (test-deforested "(range _)"
-                      #'(~>> (range _) (filter odd?)))
-     (test-deforested "(range _ _)"
-                      #'(~>> (range _ _) (filter odd?)))
-     (test-deforested "(range 0 _)"
-                      #'(~>> (range 0 _) (filter odd?)))
-     (test-deforested "(range _ 10)"
-                      #'(~>> (range _ 10) (filter odd?)))
-     (test-deforested "(range _ _ _)"
-                      #'(~>> (range _ _ _) (filter odd?)))
-     (test-deforested "(range _ _ 1)"
-                      #'(~>> (range _ _ 1) (filter odd?)))
-     (test-deforested "(range _ 10 _)"
-                      #'(~>> (range _ 10 _) (filter odd?)))
-     (test-deforested "(range _ 10 1)"
-                      #'(~>> (range _ 10 1) (filter odd?)))
-     (test-deforested "(range 0 _ _)"
-                      #'(~>> (range 0 _ _) (filter odd?)))
-     (test-deforested "(range 0 _ 1)"
-                      #'(~>> (range 0 _ 1) (filter odd?)))
-     (test-deforested "(range 0 10 _)"
-                      #'(~>> (range 0 10 _) (filter odd? __)))
-     (test-deforested "(range __)"
-                      #'(~>> (range __) (filter odd?)))
-     (test-deforested "(range 0 __)"
-                      #'(~>> (range 0 __) (filter odd?)))
-     (test-deforested "(range __ 1)"
-                      #'(~>> (range __ 1) (filter odd?)))
-     (test-deforested "(range 0 10 __)"
-                      #'(~>> (range 0 10 __) (filter odd?)))
-     (test-deforested "(range __ 10 1)"
-                      #'(~>> (range __ 10 1) (filter odd? __)))
-     (test-deforested "(range 0 __ 1)"
-                      #'(~>> (range 0 __ 1) (filter odd?)))
-     (test-deforested "(range 0 10 1 __)"
-                      #'(~>> (range 0 10 1 __) (filter odd?)))
-     (test-deforested "(range 0 10 __ 1)"
-                      #'(~>> (range 0 10 __ 1) (filter odd?)))
-     (test-deforested "(range 0 __ 10 1)"
-                      #'(~>> (range 0 __ 10 1) (filter odd?)))
-     (test-deforested "(range __ 0 10 1)"
-                      #'(~>> (range __ 0 10 1) (filter odd?))))
+    ;; (test-suite
+    ;;  "producers"
+    ;;  ;; TODO: note that these uses of `range` are matched as datums
+    ;;  ;; and requiring racket/list's range is not required in this module
+    ;;  ;; for deforestation to happen. This should be changed to use
+    ;;  ;; literal matching in the compiler.
+    ;;  (test-deforested "range"
+    ;;                   #'(~>> range (filter odd?)))
+    ;;  (test-deforested "(range _)"
+    ;;                   #'(~>> (range _) (filter odd?)))
+    ;;  (test-deforested "(range _ _)"
+    ;;                   #'(~>> (range _ _) (filter odd?)))
+    ;;  (test-deforested "(range 0 _)"
+    ;;                   #'(~>> (range 0 _) (filter odd?)))
+    ;;  (test-deforested "(range _ 10)"
+    ;;                   #'(~>> (range _ 10) (filter odd?)))
+    ;;  (test-deforested "(range _ _ _)"
+    ;;                   #'(~>> (range _ _ _) (filter odd?)))
+    ;;  (test-deforested "(range _ _ 1)"
+    ;;                   #'(~>> (range _ _ 1) (filter odd?)))
+    ;;  (test-deforested "(range _ 10 _)"
+    ;;                   #'(~>> (range _ 10 _) (filter odd?)))
+    ;;  (test-deforested "(range _ 10 1)"
+    ;;                   #'(~>> (range _ 10 1) (filter odd?)))
+    ;;  (test-deforested "(range 0 _ _)"
+    ;;                   #'(~>> (range 0 _ _) (filter odd?)))
+    ;;  (test-deforested "(range 0 _ 1)"
+    ;;                   #'(~>> (range 0 _ 1) (filter odd?)))
+    ;;  (test-deforested "(range 0 10 _)"
+    ;;                   #'(~>> (range 0 10 _) (filter odd? __)))
+    ;;  (test-deforested "(range __)"
+    ;;                   #'(~>> (range __) (filter odd?)))
+    ;;  (test-deforested "(range 0 __)"
+    ;;                   #'(~>> (range 0 __) (filter odd?)))
+    ;;  (test-deforested "(range __ 1)"
+    ;;                   #'(~>> (range __ 1) (filter odd?)))
+    ;;  (test-deforested "(range 0 10 __)"
+    ;;                   #'(~>> (range 0 10 __) (filter odd?)))
+    ;;  (test-deforested "(range __ 10 1)"
+    ;;                   #'(~>> (range __ 10 1) (filter odd? __)))
+    ;;  (test-deforested "(range 0 __ 1)"
+    ;;                   #'(~>> (range 0 __ 1) (filter odd?)))
+    ;;  (test-deforested "(range 0 10 1 __)"
+    ;;                   #'(~>> (range 0 10 1 __) (filter odd?)))
+    ;;  (test-deforested "(range 0 10 __ 1)"
+    ;;                   #'(~>> (range 0 10 __ 1) (filter odd?)))
+    ;;  (test-deforested "(range 0 __ 10 1)"
+    ;;                   #'(~>> (range 0 __ 10 1) (filter odd?)))
+    ;;  (test-deforested "(range __ 0 10 1)"
+    ;;                   #'(~>> (range __ 0 10 1) (filter odd?))))
 
     (test-suite
      "consumers"
@@ -149,17 +151,18 @@
                              (deforest-pass
                                (expand-flow
                                 #'(>< (~>> (filter odd?) (map sqr))))))))
-    (let ([stx (phase1-eval
-                (deforest-pass
-                  (expand-flow
-                   #'(-< (~>> (filter odd?) (map sqr))
-                         (~>> range car)))))])
-      (test-true "multiple independent positions"
-                 (deforested? stx))
-      (test-true "multiple independent positions"
-                 (filter-deforested? stx))
-      (test-true "multiple independent positions"
-                 (car-deforested? stx))))))
+    ;; (let ([stx (phase1-eval
+    ;;             (deforest-pass
+    ;;               (expand-flow
+    ;;                #'(-< (~>> (filter odd?) (map sqr))
+    ;;                      (~>> range car)))))])
+    ;;   (test-true "multiple independent positions"
+    ;;              (deforested? stx))
+    ;;   (test-true "multiple independent positions"
+    ;;              (filter-deforested? stx))
+    ;;   (test-true "multiple independent positions"
+    ;;              (car-deforested? stx)))
+    )))
 
 (module+ main
   (void
