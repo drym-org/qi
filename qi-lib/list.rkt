@@ -34,3 +34,12 @@
 
 (define-qi-syntax-parser car
   [_:id #'(#%deforestable car)])
+
+(define-qi-syntax-parser cadr
+  [_:id #'(#%deforestable cadr)])
+
+(define-qi-syntax-parser caddr
+  [_:id #'(#%deforestable caddr)])
+
+(define-qi-syntax-parser cadddr
+  [_:id #'(#%deforestable cadddr)])

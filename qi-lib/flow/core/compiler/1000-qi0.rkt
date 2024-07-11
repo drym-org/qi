@@ -417,7 +417,13 @@ the DSL.
        #'(lambda (v)
            (take v n))]
       [((~datum #%deforestable) (~datum car))
-       #'car]))
+       #'car]
+      [((~datum #%deforestable) (~datum cadr))
+       #'cadr]
+      [((~datum #%deforestable) (~datum caddr))
+       #'caddr]
+      [((~datum #%deforestable) (~datum cadddr))
+       #'cadddr]))
 
   (define (blanket-template-form-parser stx)
     (syntax-parse stx
