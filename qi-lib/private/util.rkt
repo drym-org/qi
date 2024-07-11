@@ -24,6 +24,18 @@
                                  ""
                                  (string-append "\n"
                                                 (string-join msgs "\n"))))
+                         stx)]
+    [name
+     (raise-syntax-error name
+                         (~a "Syntax error in "
+                             name
+                             "\n"
+                             "Usage:\n"
+                             "  " usage
+                             (if (null? msgs)
+                                 ""
+                                 (string-append "\n"
+                                                (string-join msgs "\n"))))
                          stx)]))
 
 (define-syntax-parse-rule (define-alias alias:id name:id)
