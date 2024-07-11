@@ -178,11 +178,8 @@
 (define-syntax-class fsc-list-ref
   #:attributes (pos name)
   #:literal-sets (fs-literals)
-  #:literals (qi:list-ref)
-  (pattern (~or (#%fine-template
-                 ((#%host-expression qi:list-ref) _ idx))
-                (#%blanket-template
-                 ((#%host-expression qi:list-ref) __ idx)))
+  #:datum-literals (list-ref)
+  (pattern (#%deforestable (list-ref idx))
            #:attr pos #'idx
            #:attr name #'list-ref)
   (pattern cad*r:cad*r-datum

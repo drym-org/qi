@@ -43,3 +43,6 @@
 
 (define-qi-syntax-parser cadddr
   [_:id #'(#%deforestable cadddr)])
+
+(define-qi-syntax-rule (list-ref n:expr)
+  (#%deforestable (list-ref n)))
