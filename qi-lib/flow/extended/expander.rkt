@@ -185,6 +185,7 @@ core language's use of #%app, etc.).
 
     ;; core form to express deforestable operations
     (#%deforestable (name:id arg:racket-expr ...))
+    (#%deforestable name:id)
 
     ;; backwards compat macro extensibility via Racket macros
     (~> ((~var ext-form (starts-with "qi:")) expr ...)
