@@ -426,7 +426,9 @@ the DSL.
        #'cadddr]
       [((~datum #%deforestable) ((~datum list-ref) n:expr))
        #'(lambda (v)
-           (list-ref v n))]))
+           (list-ref v n))]
+      [((~datum #%deforestable) (~datum length))
+       #'length]))
 
   (define (blanket-template-form-parser stx)
     (syntax-parse stx

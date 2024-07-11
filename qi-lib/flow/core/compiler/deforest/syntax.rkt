@@ -188,13 +188,8 @@
 
 (define-syntax-class fsc-length
   #:literal-sets (fs-literals)
-  #:literals (qi:length)
-  (pattern (esc
-            (#%host-expression qi:length)))
-  (pattern (#%fine-template
-            ((#%host-expression qi:length) _)))
-  (pattern (#%blanket-template
-            ((#%host-expression qi:length) __))))
+  #:datum-literals (length)
+  (pattern (#%deforestable length)))
 
 (define-syntax-class fsc-empty?
   #:literal-sets (fs-literals)

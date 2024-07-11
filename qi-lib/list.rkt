@@ -46,3 +46,6 @@
 
 (define-qi-syntax-rule (list-ref n:expr)
   (#%deforestable (list-ref n)))
+
+(define-qi-syntax-parser length
+  [_:id #'(#%deforestable length)])
