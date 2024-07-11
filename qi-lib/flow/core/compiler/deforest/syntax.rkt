@@ -153,32 +153,20 @@
 (define-syntax-class fsc-foldr
   #:attributes (op init)
   #:literal-sets (fs-literals)
-  #:literals (qi:foldr)
-  (pattern (#%blanket-template
-            ((#%host-expression qi:foldr)
+  #:datum-literals (foldr)
+  (pattern (#%deforestable
+            (foldr
              (#%host-expression op)
-             (#%host-expression init)
-             __)))
-  (pattern (#%fine-template
-            ((#%host-expression qi:foldr)
-             (#%host-expression op)
-             (#%host-expression init)
-             _))))
+             (#%host-expression init)))))
 
 (define-syntax-class fsc-foldl
   #:attributes (op init)
   #:literal-sets (fs-literals)
-  #:literals (qi:foldl)
-  (pattern (#%blanket-template
-            ((#%host-expression qi:foldl)
+  #:datum-literals (foldl)
+  (pattern (#%deforestable
+            (foldl
              (#%host-expression op)
-             (#%host-expression init)
-             __)))
-  (pattern (#%fine-template
-            ((#%host-expression qi:foldl)
-             (#%host-expression op)
-             (#%host-expression init)
-             _))))
+             (#%host-expression init)))))
 
 (define-syntax-class cad*r-datum
   #:attributes (countdown)
