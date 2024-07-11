@@ -109,15 +109,8 @@
 (define-syntax-class fst-filter-map
   #:attributes (f)
   #:literal-sets (fs-literals)
-  #:literals (qi:filter-map)
-  (pattern (#%blanket-template
-            ((#%host-expression qi:filter-map)
-             (#%host-expression f)
-             __)))
-  (pattern (#%fine-template
-            ((#%host-expression qi:filter-map)
-             (#%host-expression f)
-             _))))
+  #:datum-literals (filter-map)
+  (pattern (#%deforestable (filter-map (#%host-expression f)))))
 
 (define-syntax-class fst-take
   #:attributes (n)

@@ -398,6 +398,9 @@ the DSL.
       [((~datum #%deforestable) ((~datum filter) proc:clause))
        #'(lambda (v)
            (filter proc v))]
+      [((~datum #%deforestable) ((~datum filter-map) proc:clause))
+       #'(lambda (v)
+           (filter-map proc v))]
       [((~datum #%deforestable) ((~datum map) proc:clause))
        #'(lambda (v)
            (map proc v))]
