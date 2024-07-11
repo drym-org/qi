@@ -115,15 +115,8 @@
 (define-syntax-class fst-take
   #:attributes (n)
   #:literal-sets (fs-literals)
-  #:literals (qi:take)
-  (pattern (#%blanket-template
-            ((#%host-expression qi:take)
-             __
-             (#%host-expression n))))
-  (pattern (#%fine-template
-            ((#%host-expression qi:take)
-             _
-             (#%host-expression n)))))
+  #:datum-literals (take)
+  (pattern (#%deforestable (take (#%host-expression n)))))
 
 (define-syntax-class fst-syntax0
   (pattern (~or filter:fst-filter
