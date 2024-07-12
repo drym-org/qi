@@ -8,6 +8,7 @@
          (only-in math sqr)
          qi/list
          syntax/macro-testing
+         racket/string
          racket/function)
 
 (define tests
@@ -169,6 +170,60 @@
     ;;  (test-equal? "~>> (range _ 10 3) [1] (5)"
     ;;               (~>> (5) (range _ 10 3) (filter odd?) (map sqr))
     ;;               '(25)))
+
+    (test-suite
+     "range"
+     (test-equal? "range"
+                  (~> () (range 10) (filter odd?))
+                  '(1 3 5 7 9)))
+    (test-suite
+     "filter"
+     (test-equal? "filter"
+                  (~> () (range 10) (filter odd?))
+                  '(1 3 5 7 9)))
+    (test-suite
+     "map"
+     (test-equal? "map"
+                  (~> () (range 4) (map sqr))
+                  '(0 1 4 9)))
+    (test-suite
+     "filter-map"
+     (test-equal? "filter-map"
+                  (~> () (range 4) (filter-map sqr))
+                  '(0 1 4 9)))
+    (test-suite
+     "foldl"
+     (test-equal? "foldl"
+                  (~> ((list "a" "b" "c")) (filter non-empty-string?) (foldl string-append ""))
+                  "cba"))
+    (test-suite
+     "foldr"
+     (test-equal? "foldr"
+                  (~> ((list "a" "b" "c")) (filter non-empty-string?) (foldr string-append ""))
+                  "abc"))
+    (test-suite
+     "list-ref"
+     (test-equal? "car"
+                  (~> () (range 10) car)
+                  0)
+     (test-equal? "list-ref"
+                  (~> () (range 10) (list-ref 2))
+                  2))
+    (test-suite
+     "length"
+     (test-equal? "length"
+                  (~> () (range 10) length)
+                  10))
+    (test-suite
+     "empty?"
+     (test-false "empty?"
+                 (~> () (range 10) empty?))
+     (test-true "empty?"
+                (~> () (range 0) empty?))
+     (test-false "null?"
+                 (~> () (range 10) null?))
+     (test-true "null?"
+                (~> () (range 0) null?)))
 
     (test-suite
      "take (stateful transformer)"
