@@ -101,8 +101,8 @@
   (pattern (#%deforestable (take (#%host-expression n)))))
 
 (define-syntax-class fst-syntax0
-  (pattern (~or filter:fst-filter
-                filter-map:fst-filter-map)))
+  (pattern (~or _:fst-filter
+                _:fst-filter-map)))
 
 (define-syntax-class fst-syntax
   (pattern (~or _:fst-filter
