@@ -80,19 +80,21 @@
   #:attributes (f)
   #:literal-sets (fs-literals)
   #:datum-literals (filter)
-  (pattern (#%deforestable filter (f))))
-
+  (pattern (#%deforestable filter (f-uncompiled))
+    #:attr f (run-passes #'f-uncompiled)))
 (define-syntax-class fst-map
   #:attributes (f)
   #:literal-sets (fs-literals)
   #:datum-literals (map)
-  (pattern (#%deforestable map (f))))
+  (pattern (#%deforestable map (f-uncompiled))
+    #:attr f (run-passes #'f-uncompiled)))
 
 (define-syntax-class fst-filter-map
   #:attributes (f)
   #:literal-sets (fs-literals)
   #:datum-literals (filter-map)
-  (pattern (#%deforestable filter-map (f))))
+  (pattern (#%deforestable filter-map (f-uncompiled))
+    #:attr f (run-passes #'f-uncompiled)))
 
 (define-syntax-class fst-take
   #:attributes (n)
@@ -124,8 +126,9 @@
   #:datum-literals (foldr)
   (pattern (#%deforestable
             foldr
-            (op)
-            ((#%host-expression init)))))
+            (op-uncompiled)
+            ((#%host-expression init)))
+    #:attr op (run-passes #'op-uncompiled)))
 
 (define-syntax-class fsc-foldl
   #:attributes (op init)
@@ -133,8 +136,9 @@
   #:datum-literals (foldl)
   (pattern (#%deforestable
             foldl
-            (op)
-            ((#%host-expression init)))))
+            (op-uncompiled)
+            ((#%host-expression init)))
+    #:attr op (run-passes #'op-uncompiled)))
 
 (define-syntax-class cad*r-datum
   #:attributes (countdown)
