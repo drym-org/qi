@@ -287,14 +287,14 @@
                    "normal racket expressions"))
     (test-suite
      "#%deforestable"
-     (check-equal? ((☯ (#%deforestable (filter odd?))) (list 1 2 3)) (list 1 3))
-     (check-equal? ((☯ (#%deforestable (map sqr))) (list 1 2 3)) (list 1 4 9))
-     (check-equal? ((☯ (#%deforestable (foldl + 0))) (list 1 2 3)) 6)
-     (check-equal? ((☯ (#%deforestable (foldr + 0))) (list 1 2 3)) 6)
-     (check-equal? ((☯ (#%deforestable (range 3)))) (list 0 1 2))
-     (check-equal? ((☯ (#%deforestable (range 0 3)))) (list 0 1 2))
-     (check-equal? ((☯ (#%deforestable (range 0 5 2)))) (list 0 2 4))
-     (check-equal? ((☯ (#%deforestable (take 2))) (list 1 2 3)) (list 1 2)))
+     (check-equal? ((☯ (#%deforestable filter (odd?))) (list 1 2 3)) (list 1 3))
+     (check-equal? ((☯ (#%deforestable map (sqr))) (list 1 2 3)) (list 1 4 9))
+     (check-equal? ((☯ (#%deforestable foldl (+) (0))) (list 1 2 3)) 6)
+     (check-equal? ((☯ (#%deforestable foldr (+) (0))) (list 1 2 3)) 6)
+     (check-equal? ((☯ (#%deforestable range () (3)))) (list 0 1 2))
+     (check-equal? ((☯ (#%deforestable range () (0 3)))) (list 0 1 2))
+     (check-equal? ((☯ (#%deforestable range () (0 5 2)))) (list 0 2 4))
+     (check-equal? ((☯ (#%deforestable take () (2))) (list 1 2 3)) (list 1 2)))
     (test-suite
      "elementary boolean gates"
      (test-suite

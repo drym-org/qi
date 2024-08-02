@@ -398,25 +398,25 @@ the DSL.
 
   (define (deforestable-parser stx)
     (syntax-parse stx
-      [((~datum #%deforestable) ((~datum filter) proc:clause))
+      [((~datum #%deforestable) (~datum filter) (proc:clause))
        #'(lambda (v)
            (filter (qi0->racket proc) v))]
-      [((~datum #%deforestable) ((~datum filter-map) proc:clause))
+      [((~datum #%deforestable) (~datum filter-map) (proc:clause))
        #'(lambda (v)
            (filter-map (qi0->racket proc) v))]
-      [((~datum #%deforestable) ((~datum map) proc:clause))
+      [((~datum #%deforestable) (~datum map) (proc:clause))
        #'(lambda (v)
            (map (qi0->racket proc) v))]
-      [((~datum #%deforestable) ((~datum foldl) proc:clause init:expr))
+      [((~datum #%deforestable) (~datum foldl) (proc:clause) (init:expr))
        #'(lambda (v)
            (foldl (qi0->racket proc) init v))]
-      [((~datum #%deforestable) ((~datum foldr) proc:clause init:expr))
+      [((~datum #%deforestable) (~datum foldr) (proc:clause) (init:expr))
        #'(lambda (v)
            (foldr (qi0->racket proc) init v))]
-      [((~datum #%deforestable) ((~datum range) arg:expr ...))
+      [((~datum #%deforestable) (~datum range) () (arg:expr ...))
        #'(lambda ()
            (range arg ...))]
-      [((~datum #%deforestable) ((~datum take) n:expr))
+      [((~datum #%deforestable) (~datum take) () (n:expr))
        #'(lambda (v)
            (take v n))]
       [((~datum #%deforestable) (~datum car))
@@ -427,7 +427,7 @@ the DSL.
        #'caddr]
       [((~datum #%deforestable) (~datum cadddr))
        #'cadddr]
-      [((~datum #%deforestable) ((~datum list-ref) n:expr))
+      [((~datum #%deforestable) (~datum list-ref) () (n:expr))
        #'(lambda (v)
            (list-ref v n))]
       [((~datum #%deforestable) (~datum length))

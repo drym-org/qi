@@ -51,7 +51,7 @@
   #:attributes (blanket? fine? arg pre-arg post-arg)
   #:literal-sets (fs-literals)
   #:datum-literals (range)
-  (pattern (#%deforestable (range the-arg ...))
+  (pattern (#%deforestable range () (the-arg ...))
     #:attr arg #'(the-arg ...)
     #:attr pre-arg #f
     #:attr post-arg #f
@@ -80,25 +80,25 @@
   #:attributes (f)
   #:literal-sets (fs-literals)
   #:datum-literals (filter)
-  (pattern (#%deforestable (filter (#%host-expression f)))))
+  (pattern (#%deforestable filter (f))))
 
 (define-syntax-class fst-map
   #:attributes (f)
   #:literal-sets (fs-literals)
   #:datum-literals (map)
-  (pattern (#%deforestable (map (#%host-expression f)))))
+  (pattern (#%deforestable map (f))))
 
 (define-syntax-class fst-filter-map
   #:attributes (f)
   #:literal-sets (fs-literals)
   #:datum-literals (filter-map)
-  (pattern (#%deforestable (filter-map (#%host-expression f)))))
+  (pattern (#%deforestable filter-map (f))))
 
 (define-syntax-class fst-take
   #:attributes (n)
   #:literal-sets (fs-literals)
   #:datum-literals (take)
-  (pattern (#%deforestable (take (#%host-expression n)))))
+  (pattern (#%deforestable take () ((#%host-expression n)))))
 
 (define-syntax-class fst-syntax0
   (pattern (~or _:fst-filter
@@ -123,18 +123,18 @@
   #:literal-sets (fs-literals)
   #:datum-literals (foldr)
   (pattern (#%deforestable
-            (foldr
-             (#%host-expression op)
-             (#%host-expression init)))))
+            foldr
+            (op)
+            ((#%host-expression init)))))
 
 (define-syntax-class fsc-foldl
   #:attributes (op init)
   #:literal-sets (fs-literals)
   #:datum-literals (foldl)
   (pattern (#%deforestable
-            (foldl
-             (#%host-expression op)
-             (#%host-expression init)))))
+            foldl
+            (op)
+            ((#%host-expression init)))))
 
 (define-syntax-class cad*r-datum
   #:attributes (countdown)
@@ -147,12 +147,14 @@
   #:attributes (pos name)
   #:literal-sets (fs-literals)
   #:datum-literals (list-ref)
-  (pattern (#%deforestable (list-ref idx))
-           #:attr pos #'idx
-           #:attr name #'list-ref)
+  ;; TODO: need #%host-expression wrapping idx?
+  (pattern (#%deforestable list-ref () (idx))
+    #:attr pos #'idx
+    #:attr name #'list-ref)
+  ;; TODO: bring wrapping #%deforestable out here?
   (pattern cad*r:cad*r-datum
-           #:attr pos #'cad*r.countdown
-           #:attr name #'cad*r))
+    #:attr pos #'cad*r.countdown
+    #:attr name #'cad*r))
 
 (define-syntax-class fsc-length
   #:literal-sets (fs-literals)
