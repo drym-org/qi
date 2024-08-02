@@ -400,19 +400,19 @@ the DSL.
     (syntax-parse stx
       [((~datum #%deforestable) ((~datum filter) proc:clause))
        #'(lambda (v)
-           (filter proc v))]
+           (filter (qi0->racket proc) v))]
       [((~datum #%deforestable) ((~datum filter-map) proc:clause))
        #'(lambda (v)
-           (filter-map proc v))]
+           (filter-map (qi0->racket proc) v))]
       [((~datum #%deforestable) ((~datum map) proc:clause))
        #'(lambda (v)
-           (map proc v))]
+           (map (qi0->racket proc) v))]
       [((~datum #%deforestable) ((~datum foldl) proc:clause init:expr))
        #'(lambda (v)
-           (foldl proc init v))]
+           (foldl (qi0->racket proc) init v))]
       [((~datum #%deforestable) ((~datum foldr) proc:clause init:expr))
        #'(lambda (v)
-           (foldr proc init v))]
+           (foldr (qi0->racket proc) init v))]
       [((~datum #%deforestable) ((~datum range) arg:expr ...))
        #'(lambda ()
            (range arg ...))]
