@@ -40,6 +40,7 @@ This site hosts @emph{user} documentation. If you are interested in contributing
 @include-section["tutorial.scrbl"]
 @include-section["interface.scrbl"]
 @include-section["forms.scrbl"]
+@include-section["list-operations.scrbl"]
 @include-section["macros.scrbl"]
 @include-section["field-guide.scrbl"]
 @include-section["principles.scrbl"]
