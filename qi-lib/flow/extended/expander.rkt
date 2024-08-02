@@ -184,7 +184,8 @@ core language's use of #%app, etc.).
     (esc ex:racket-expr)
 
     ;; core form to express deforestable operations
-    (#%deforestable (name:id arg:racket-expr ...))
+    (#%deforestable name:id (f:closed-floe ...) (arg:racket-expr ...))
+    (#%deforestable name:id (f:closed-floe ...+))
     (#%deforestable name:id)
 
     ;; backwards compat macro extensibility via Racket macros
