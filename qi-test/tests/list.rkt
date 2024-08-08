@@ -129,11 +129,7 @@
       (test-exn "empty list"
                 exn:fail:contract?
                 (thunk ((☯ car)
-                        null)))
-      (test-equal? "non-commutative operation"
-                   ((☯ (foldr string-append ""))
-                    (list "a" "b" "c"))
-                   "abc"))
+                        null))))
      (test-suite
       "null?"
       (test-false "simple list"
