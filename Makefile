@@ -98,6 +98,9 @@ build-all:
 build-standalone-docs:
 	scribble +m --redirect-main http://pkg-build.racket-lang.org/doc/ --htmls --dest ./docs ./qi-doc/scribblings/qi.scrbl
 
+build-sdk:
+	raco setup --no-docs --pkgs $(PACKAGE-NAME)-sdk
+
 # Note: Each collection's info.rkt can say what to clean, for example
 # (define clean '("compiled" "doc" "doc/<collect>")) to clean
 # generated docs, too.
