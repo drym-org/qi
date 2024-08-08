@@ -50,7 +50,11 @@
       (test-equal? "all matching values"
                    ((☯ (filter odd?))
                     (list 1 3 5))
-                   (list 1 3 5)))
+                   (list 1 3 5))
+      (test-equal? "filter with higher-order Qi syntax"
+                   ((☯ (filter (and positive? integer?)))
+                    (list 1 -2 3 0.2 4))
+                   (list 1 3 4)))
      (test-suite
       "map"
       (test-equal? "simple list"
@@ -60,7 +64,11 @@
       (test-equal? "empty list"
                    ((☯ (map sqr))
                     null)
-                   null))
+                   null)
+      (test-equal? "map with higher-order Qi syntax"
+                   ((☯ (map (~> sqr add1)))
+                    (list 1 2 3))
+                   (list 2 5 10)))
      (test-suite
       "filter-map"
       (test-equal? "simple list"
@@ -105,7 +113,14 @@
       (test-equal? "non-commutative operation"
                    ((☯ (foldl string-append ""))
                     (list "a" "b" "c"))
-                   "cba"))
+                   "cba")
+      (test-equal? "foldl with higher-order Qi syntax"
+                   ((☯ (foldl (~> (>< number->string)
+                                  string-append
+                                  string->number)
+                              0))
+                    (list 1 2 3))
+                   3210))
      (test-suite
       "foldr"
       (test-equal? "simple list"
@@ -119,7 +134,14 @@
       (test-equal? "non-commutative operation"
                    ((☯ (foldr string-append ""))
                     (list "a" "b" "c"))
-                   "abc"))
+                   "abc")
+      (test-equal? "foldr with higher-order Qi syntax"
+                   ((☯ (foldr (~> (>< number->string)
+                                  string-append
+                                  string->number)
+                              0))
+                    (list 1 2 3))
+                   1230))
      (test-suite
       "car"
       (test-equal? "simple list"
