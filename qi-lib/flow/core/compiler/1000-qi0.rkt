@@ -4,9 +4,7 @@
          (prefix-in fancy: fancy-app)
          "../impl.rkt"
          racket/function
-         "deforest/bindings.rkt"
-         (only-in racket/list
-                  make-list)
+         racket/list
          (for-syntax racket/base
                      syntax/parse
                      "../syntax.rkt"
