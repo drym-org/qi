@@ -18,7 +18,6 @@
          double-values)
 
 (require (only-in math sqr)
-         (only-in racket/list range)
          qi
          qi/list)
 
