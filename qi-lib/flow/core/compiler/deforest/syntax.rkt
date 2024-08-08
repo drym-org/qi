@@ -28,8 +28,7 @@
          (for-template racket/base
                        "../../passes.rkt"
                        "../../strategy.rkt"
-                       "templates.rkt"
-                       (prefix-in qi: "bindings.rkt"))
+                       "templates.rkt")
          (for-syntax racket/base
                      syntax/parse))
 
