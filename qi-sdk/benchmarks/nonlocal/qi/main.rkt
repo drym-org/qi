@@ -95,8 +95,8 @@
        (filter odd?)
        (map sqr)
        values
-       (filter (λ (v) (< (remainder v 10) 5)))
-       (map (λ (v) (* 2 v)))
+       (filter (~> (remainder 10) (< 5)))
+       (map (* 2))
        (foldl + 0)))
 
 ;; (define filter-double
