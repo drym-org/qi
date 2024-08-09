@@ -72,14 +72,14 @@
      ;; between the optimization being applied once vs twice. We would like it
      ;; to do so in order to validate and justify the need for fixed-point
      ;; finding in the deforestation pass.
-     ;; (test-deforested "multiple applications of deforestation to the same expression"
-     ;;                  #'(~>> (filter odd?)
-     ;;                         (map sqr)
-     ;;                         (foldr + 0)
-     ;;                         range
-     ;;                         (filter odd?)
-     ;;                         (map sqr)))
-     )
+     (test-deforested "multiple applications of deforestation to the same expression"
+                      #'(~> (filter odd?)
+                            (map sqr)
+                            (foldr + 0)
+                            (as v)
+                            (range v)
+                            (filter odd?)
+                            (map sqr))))
 
     (test-suite
      "transformers"
