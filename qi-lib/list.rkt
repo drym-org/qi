@@ -30,6 +30,9 @@
   [(_ low:expr high:expr step:expr) #'(#%deforestable range () (low high step))]
   [(_ low:expr high:expr) #'(#%deforestable range () (low high 1))]
   [(_ high:expr) #'(#%deforestable range () (0 high 1))]
+  ;; not strictly necessary but this provides a better error
+  ;; message than simply "range: bad syntax" that's warranted
+  ;; to differentiate from racket/list's `range`
   [_:id (report-syntax-error this-syntax
           "(range arg ...)"
           "range expects at least one argument")])
