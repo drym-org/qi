@@ -6,6 +6,7 @@
          qi/list
          rackunit
          rackunit/text-ui
+         syntax/macro-testing
          (only-in racket/function thunk)
          (only-in racket/string non-empty-string?)
          (only-in math sqr))
@@ -29,7 +30,12 @@
                    (list 1 2 3))
       (test-equal? "three args"
                    ((☯ (range 1 6 2)))
-                   (list 1 3 5))))
+                   (list 1 3 5))
+      (test-exn "expects at least one argument"
+                exn:fail:syntax?
+                (thunk
+                 (convert-compile-time-error
+                  ((☯ range)))))))
 
     (test-suite
      "stream transformers"
