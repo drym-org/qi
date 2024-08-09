@@ -103,7 +103,12 @@
                  #'(thread (#%blanket-template
                             ((#%host-expression f)
                              (#%host-expression 1)
-                             __)))))
+                             __))))
+    (test-expand "#%deforestable"
+                 #'(#%deforestable name (_) (_))
+                 #'(#%deforestable name
+                                   (_)
+                                   ((#%host-expression _)))))
    (test-suite
     "utils"
     ;; this is just temporary until we properly track source expressions through
