@@ -185,6 +185,16 @@
                     null)
                    0))
      (test-suite
+      "list-ref"
+      (test-equal? "simple list"
+                   ((☯ (list-ref 1))
+                    (list 1 2 3))
+                   2)
+      (test-exn "empty list"
+                exn:fail:contract?
+                (thunk ((☯ (list-ref 1))
+                        null))))
+     (test-suite
       "cadr"
       (test-equal? "simple list"
                    ((☯ cadr)
