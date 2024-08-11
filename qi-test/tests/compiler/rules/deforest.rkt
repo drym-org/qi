@@ -90,6 +90,15 @@
                               (deforest-pass
                                 (expand-flow
                                  #'(>< (~> (filter odd?) (map sqr))))))))
+     ;; TODO: this test fails because normalization would not collapse
+     ;; forms with different threading directions, but in some cases
+     ;; (like this test), deforestation should not care about the chirality
+     ;; difference.
+     ;; (test-true "nested, different threading direction"
+     ;;            (deforested? (phase1-eval
+     ;;                          (deforest-pass
+     ;;                            (expand-flow
+     ;;                             #'(~> (filter odd?) (~>> (map sqr))))))))
      (test-case "multiple independent positions"
        (let ([stx (phase1-eval
                    (deforest-pass
