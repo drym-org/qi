@@ -45,8 +45,14 @@
   (test-suite
    "deforestation"
    ;; Note that these test deforestation in isolation
-   ;; without necessarily taking normalization (a preceding
-   ;; step in compilation) into account
+   ;; *without* taking normalization (a preceding
+   ;; step in compilation) into account.
+   ;; If a test is failing that you are expecting should pass,
+   ;; it could be that it implicitly assumes that normalization
+   ;; will be done, so double check this.
+   ;; For testing behavior of the full cycle of compilation
+   ;; involving normalization as well as deforestation, use the
+   ;; `full-cycle.rkt` test module.
 
    (test-suite
     "deforest-pass"
@@ -90,15 +96,6 @@
                               (deforest-pass
                                 (expand-flow
                                  #'(>< (~> (filter odd?) (map sqr))))))))
-     ;; TODO: this test fails because normalization would not collapse
-     ;; forms with different threading directions, but in some cases
-     ;; (like this test), deforestation should not care about the chirality
-     ;; difference.
-     ;; (test-true "nested, different threading direction"
-     ;;            (deforested? (phase1-eval
-     ;;                          (deforest-pass
-     ;;                            (expand-flow
-     ;;                             #'(~> (filter odd?) (~>> (map sqr))))))))
      (test-case "multiple independent positions"
        (let ([stx (phase1-eval
                    (deforest-pass
