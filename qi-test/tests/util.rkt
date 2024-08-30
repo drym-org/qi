@@ -18,7 +18,10 @@
                         "blah: blah"
                         "Use it"
                         "like"
-                        "this"))))))
+                        "this")))
+    (check-exn exn:fail:syntax?
+               (thunk (report-syntax-error #'dummy
+                        "blah: blah"))))))
 
 (module+ main
   (void (run-tests tests)))
