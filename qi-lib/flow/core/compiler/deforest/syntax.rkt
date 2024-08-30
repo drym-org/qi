@@ -28,8 +28,7 @@
          (for-template racket/base
                        "../../passes.rkt"
                        "../../strategy.rkt"
-                       "templates.rkt"
-                       (prefix-in qi: "bindings.rkt"))
+                       "templates.rkt")
          (for-syntax racket/base
                      syntax/parse))
 
@@ -50,31 +49,13 @@
 (define-syntax-class fsp-range
   #:attributes (blanket? fine? arg pre-arg post-arg)
   #:literal-sets (fs-literals)
-  #:literals (qi:range)
-  (pattern (esc (#%host-expression qi:range))
-           #:attr arg #f
-           #:attr pre-arg #f
-           #:attr post-arg #f
-           #:attr blanket? #f
-           #:attr fine? #f)
-  (pattern (#%fine-template
-            ((#%host-expression qi:range)
-             the-arg ...))
-           #:attr arg #'(the-arg ...)
-           #:attr pre-arg #f
-           #:attr post-arg #f
-           #:attr blanket? #f
-           #:attr fine? #t)
-  (pattern (#%blanket-template
-            ((#%host-expression qi:range)
-             (#%host-expression the-pre-arg) ...
-             __
-             (#%host-expression the-post-arg) ...))
-           #:attr arg #f
-           #:attr pre-arg #'(the-pre-arg ...)
-           #:attr post-arg #'(the-post-arg ...)
-           #:attr blanket? #t
-           #:attr fine? #f))
+  #:datum-literals (range)
+  (pattern (#%deforestable range () (the-arg ...))
+    #:attr arg #'(the-arg ...)
+    #:attr pre-arg #f
+    #:attr post-arg #f
+    #:attr blanket? #f
+    #:attr fine? #t))
 
 (define-syntax-class fsp-default
   #:datum-literals (list->cstream)
@@ -97,58 +78,32 @@
 (define-syntax-class fst-filter
   #:attributes (f)
   #:literal-sets (fs-literals)
-  #:literals (qi:filter)
-  (pattern (#%blanket-template
-            ((#%host-expression qi:filter)
-             (#%host-expression f)
-             __)))
-  (pattern (#%fine-template
-            ((#%host-expression qi:filter)
-             (#%host-expression f)
-             _))))
-
+  #:datum-literals (filter)
+  (pattern (#%deforestable filter (f-uncompiled))
+    #:attr f (run-passes #'f-uncompiled)))
 (define-syntax-class fst-map
   #:attributes (f)
   #:literal-sets (fs-literals)
-  #:literals (qi:map)
-  (pattern (#%blanket-template
-            ((#%host-expression qi:map)
-             (#%host-expression f)
-             __)))
-  (pattern (#%fine-template
-            ((#%host-expression qi:map)
-             (#%host-expression f)
-             _))))
+  #:datum-literals (map)
+  (pattern (#%deforestable map (f-uncompiled))
+    #:attr f (run-passes #'f-uncompiled)))
 
 (define-syntax-class fst-filter-map
   #:attributes (f)
   #:literal-sets (fs-literals)
-  #:literals (qi:filter-map)
-  (pattern (#%blanket-template
-            ((#%host-expression qi:filter-map)
-             (#%host-expression f)
-             __)))
-  (pattern (#%fine-template
-            ((#%host-expression qi:filter-map)
-             (#%host-expression f)
-             _))))
+  #:datum-literals (filter-map)
+  (pattern (#%deforestable filter-map (f-uncompiled))
+    #:attr f (run-passes #'f-uncompiled)))
 
 (define-syntax-class fst-take
   #:attributes (n)
   #:literal-sets (fs-literals)
-  #:literals (qi:take)
-  (pattern (#%blanket-template
-            ((#%host-expression qi:take)
-             __
-             (#%host-expression n))))
-  (pattern (#%fine-template
-            ((#%host-expression qi:take)
-             _
-             (#%host-expression n)))))
+  #:datum-literals (take)
+  (pattern (#%deforestable take () ((#%host-expression n)))))
 
 (define-syntax-class fst-syntax0
-  (pattern (~or filter:fst-filter
-                filter-map:fst-filter-map)))
+  (pattern (~or _:fst-filter
+                _:fst-filter-map)))
 
 (define-syntax-class fst-syntax
   (pattern (~or _:fst-filter
@@ -167,80 +122,53 @@
 (define-syntax-class fsc-foldr
   #:attributes (op init)
   #:literal-sets (fs-literals)
-  #:literals (qi:foldr)
-  (pattern (#%blanket-template
-            ((#%host-expression qi:foldr)
-             (#%host-expression op)
-             (#%host-expression init)
-             __)))
-  (pattern (#%fine-template
-            ((#%host-expression qi:foldr)
-             (#%host-expression op)
-             (#%host-expression init)
-             _))))
+  #:datum-literals (foldr)
+  (pattern (#%deforestable
+            foldr
+            (op-uncompiled)
+            ((#%host-expression init)))
+    #:attr op (run-passes #'op-uncompiled)))
 
 (define-syntax-class fsc-foldl
   #:attributes (op init)
   #:literal-sets (fs-literals)
-  #:literals (qi:foldl)
-  (pattern (#%blanket-template
-            ((#%host-expression qi:foldl)
-             (#%host-expression op)
-             (#%host-expression init)
-             __)))
-  (pattern (#%fine-template
-            ((#%host-expression qi:foldl)
-             (#%host-expression op)
-             (#%host-expression init)
-             _))))
+  #:datum-literals (foldl)
+  (pattern (#%deforestable
+            foldl
+            (op-uncompiled)
+            ((#%host-expression init)))
+    #:attr op (run-passes #'op-uncompiled)))
 
 (define-syntax-class cad*r-datum
   #:attributes (countdown)
-  (pattern (~literal qi:car) #:attr countdown #'0)
-  (pattern (~literal qi:cadr) #:attr countdown #'1)
-  (pattern (~literal qi:caddr) #:attr countdown #'2)
-  (pattern (~literal qi:cadddr) #:attr countdown #'3))
+  (pattern (#%deforestable (~datum car)) #:attr countdown #'0)
+  (pattern (#%deforestable (~datum cadr)) #:attr countdown #'1)
+  (pattern (#%deforestable (~datum caddr)) #:attr countdown #'2)
+  (pattern (#%deforestable (~datum cadddr)) #:attr countdown #'3))
 
 (define-syntax-class fsc-list-ref
   #:attributes (pos name)
   #:literal-sets (fs-literals)
-  #:literals (qi:list-ref)
-  (pattern (~or (#%fine-template
-                 ((#%host-expression qi:list-ref) _ idx))
-                (#%blanket-template
-                 ((#%host-expression qi:list-ref) __ idx)))
-           #:attr pos #'idx
-           #:attr name #'list-ref)
-  (pattern (~or (esc (#%host-expression cad*r:cad*r-datum))
-                (#%fine-template
-                 ((#%host-expression cad*r:cad*r-datum) _))
-                (#%blanket-template
-                 ((#%host-expression cad*r:cad*r-datum) __)))
-           #:attr pos #'cad*r.countdown
-           #:attr name #'cad*r))
+  #:datum-literals (list-ref)
+  ;; TODO: need #%host-expression wrapping idx?
+  (pattern (#%deforestable list-ref () (idx))
+    #:attr pos #'idx
+    #:attr name #'list-ref)
+  ;; TODO: bring wrapping #%deforestable out here?
+  (pattern cad*r:cad*r-datum
+    #:attr pos #'cad*r.countdown
+    #:attr name #'cad*r))
 
 (define-syntax-class fsc-length
   #:literal-sets (fs-literals)
-  #:literals (qi:length)
-  (pattern (esc
-            (#%host-expression qi:length)))
-  (pattern (#%fine-template
-            ((#%host-expression qi:length) _)))
-  (pattern (#%blanket-template
-            ((#%host-expression qi:length) __))))
+  #:datum-literals (length)
+  (pattern (#%deforestable length)))
 
 (define-syntax-class fsc-empty?
   #:literal-sets (fs-literals)
-  #:literals (qi:null? qi:empty?)
-  (pattern (esc
-            (#%host-expression (~or qi:empty?
-                                    qi:null?))))
-  (pattern (#%fine-template
-            ((#%host-expression (~or qi:empty?
-                                     qi:null?)) _)))
-  (pattern (#%blanket-template
-            ((#%host-expression (~or qi:empty?
-                                     qi:null?)) __))))
+  #:datum-literals (null? empty?)
+  (pattern (#%deforestable (~or empty?
+                                null?))))
 
 (define-syntax-class fsc-default
   #:datum-literals (cstream->list)

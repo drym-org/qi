@@ -4,7 +4,7 @@
          (prefix-in fancy: fancy-app)
          "../impl.rkt"
          racket/function
-         (only-in racket/list make-list)
+         racket/list
          (for-syntax racket/base
                      syntax/parse
                      "../syntax.rkt"
@@ -96,6 +96,7 @@
     [(~datum appleye)
      #'call]
     [e:clos-form (clos-parser #'e)]
+    [e:deforestable-form (deforestable-parser #'e)]
     ;; escape hatch for racket expressions or anything
     ;; to be "passed through"
     [((~datum esc) ex:expr)
@@ -105,9 +106,6 @@
 
     ;; Partial application with syntactically pre-supplied arguments
     ;; in a blanket template
-    ;; Note: at this point it's already been parsed/validated
-    ;; by the expander and we don't need to worry about checking
-    ;; the syntax at the compiler level
     [((~datum #%blanket-template) e)
      (blanket-template-form-parser this-syntax)]
 
@@ -392,6 +390,45 @@ the DSL.
            #'(λ args
                (qi0->racket (~> (-< (~> (gen args) △) _)
                                 onex))))]))
+
+  (define (deforestable-parser stx)
+    (syntax-parse stx
+      [((~datum #%deforestable) (~datum filter) (proc:clause))
+       #'(lambda (v)
+           (filter (qi0->racket proc) v))]
+      [((~datum #%deforestable) (~datum filter-map) (proc:clause))
+       #'(lambda (v)
+           (filter-map (qi0->racket proc) v))]
+      [((~datum #%deforestable) (~datum map) (proc:clause))
+       #'(lambda (v)
+           (map (qi0->racket proc) v))]
+      [((~datum #%deforestable) (~datum foldl) (proc:clause) (init:expr))
+       #'(lambda (v)
+           (foldl (qi0->racket proc) init v))]
+      [((~datum #%deforestable) (~datum foldr) (proc:clause) (init:expr))
+       #'(lambda (v)
+           (foldr (qi0->racket proc) init v))]
+      [((~datum #%deforestable) (~datum range) () (arg:expr ...))
+       #'(lambda ()
+           (range arg ...))]
+      [((~datum #%deforestable) (~datum take) () (n:expr))
+       #'(lambda (v)
+           (take v n))]
+      [((~datum #%deforestable) (~datum car))
+       #'car]
+      [((~datum #%deforestable) (~datum cadr))
+       #'cadr]
+      [((~datum #%deforestable) (~datum caddr))
+       #'caddr]
+      [((~datum #%deforestable) (~datum cadddr))
+       #'cadddr]
+      [((~datum #%deforestable) (~datum list-ref) () (n:expr))
+       #'(lambda (v)
+           (list-ref v n))]
+      [((~datum #%deforestable) (~datum length))
+       #'length]
+      [((~datum #%deforestable) (~or* (~datum empty?) (~datum null?)))
+       #'empty?]))
 
   (define (blanket-template-form-parser stx)
     (syntax-parse stx

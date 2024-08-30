@@ -11,7 +11,8 @@
          (prefix-in macro: "macro.rkt")
          (prefix-in util: "util.rkt")
          (prefix-in expander: "expander.rkt")
-         (prefix-in compiler: "compiler.rkt"))
+         (prefix-in compiler: "compiler.rkt")
+         (prefix-in list: "list.rkt"))
 
 (define tests
   (test-suite
@@ -26,7 +27,8 @@
    macro:tests
    util:tests
    expander:tests
-   compiler:tests))
+   compiler:tests
+   list:tests))
 
 (module+ test
   (void
