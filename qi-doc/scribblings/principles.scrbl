@@ -13,7 +13,7 @@
 
  After many patient hours meticulously crafting Qi flows, you may find that you seek a deeper understanding; insight into guiding principles and inner workings, so that you can hone your skills on firmer ground.
 
- Welcome. Your wanderings have brought you to the right place. In this section, we will cover various topics that will help you have a fuller understanding and a sound conceptual model of how Qi works. This kind of facility with the fundamentals will be useful as you employ Qi for more complex tasks, enabling you to engage in higher level reasoning about the task at hand rather than be mired in conceptual building blocks.
+ Welcome. Your wanderings have brought you to the right place. In this chapter, we discuss various topics that will help you have a fuller understanding and a sound conceptual model of how Qi works. This kind of facility with the fundamentals will be useful as you employ Qi for more complex tasks, enabling you to engage in higher level reasoning about the task at hand rather than be mired in conceptual building blocks.
 
 @table-of-contents[]
 
