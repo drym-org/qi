@@ -12,7 +12,7 @@
                                 [sep △]
                                 [collect ▽])))
 
-(require syntax-spec-v1
+(require syntax-spec-v2
          "../space.rkt"
          (for-syntax "../aux-syntax.rkt"
                      "syntax.rkt"
@@ -63,7 +63,7 @@ core language's use of #%app, etc.).
     #:binding-space qi
 
     (as v:racket-var ...+)
-    #:binding {(bind v) nested}
+    #:binding (scope (bind v) nested)
 
     (thread f:floe ...)
     #:binding (nest f nested)
