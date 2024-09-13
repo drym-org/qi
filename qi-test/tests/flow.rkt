@@ -472,15 +472,15 @@
                           (filter p)))
                   odd?)
                  (list 1 3 5 7 9))
+    (test-equal? "binding a value used in a floe position"
+                 ((☯ (~> (as p)
+                         (range 10)
+                         △
+                         (pass p)
+                         ▽))
+                  odd?)
+                 (list 1 3 5 7 9))
     ;; See issue #181
-    ;; (test-equal? "binding a value used in a floe position"
-    ;;              ((☯ (~> (as p)
-    ;;                      (range 10)
-    ;;                      △
-    ;;                      (pass p)
-    ;;                      ▽))
-    ;;               odd?)
-    ;;              (list 1 3 5 7 9))
     ;; (test-exn "using a qi binding as a primitive flow"
     ;;           exn:fail:contract:arity?
     ;;           (thunk ((☯ (~> (as p) p)) odd?)))
