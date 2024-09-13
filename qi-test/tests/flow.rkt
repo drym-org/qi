@@ -459,8 +459,32 @@
                     "Racket functions named `as` aren't clobbered")
       (check-equal? ((☯ (~> (esc (lambda (v) (as v))))) 3)
                     3
-                    "Racket functions named `as` aren't clobbered")))
-
+                    "Racket functions named `as` aren't clobbered"))
+    (test-equal? "binding used in Racket expr position"
+                 ((☯ (~> (as p) (gen p))) 5)
+                 5)
+    (test-equal? "binding used in Racket expr position"
+                 ((☯ (~> (as p) (gen p))) odd?)
+                 odd?)
+    (test-equal? "binding a value used in a Racket expr position as a function"
+                 ((☯ (~>> (as p)
+                          (range 10)
+                          (filter p)))
+                  odd?)
+                 (list 1 3 5 7 9))
+    ;; See issue #181
+    ;; (test-equal? "binding a value used in a floe position"
+    ;;              ((☯ (~> (as p)
+    ;;                      (range 10)
+    ;;                      △
+    ;;                      (pass p)
+    ;;                      ▽))
+    ;;               odd?)
+    ;;              (list 1 3 5 7 9))
+    ;; (test-exn "using a qi binding as a primitive flow"
+    ;;           exn:fail:contract:arity?
+    ;;           (thunk ((☯ (~> (as p) p)) odd?)))
+    )
    (test-suite
     "routing forms"
     (test-suite
