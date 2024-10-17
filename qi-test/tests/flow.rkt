@@ -1568,7 +1568,51 @@
                    '("ba" "ca" "da")
                    "clos respects threading direction at the site of definition")
      (check-equal? ((☯ (~> (-< (~> second (clos *)) _) map)) (list 1 2 3))
-                   '(2 4 6))))
+                   '(2 4 6)))
+
+    (test-suite
+     "zip"
+     (test-equal? "lists of the same size"
+                  ((☯ (~> zip ▽))
+                   '(a b c) '(1 2 3))
+                  '((a 1) (b 2) (c 3)))
+     (test-equal? "lists of different sizes truncates at shortest list"
+                  ((☯ (~> zip ▽))
+                   '(a b) '(1 2 3))
+                  '((a 1) (b 2)))
+     (test-equal? "lists of different sizes truncates at shortest list"
+                  ((☯ (~> zip ▽))
+                   '(a b c) '(1 2))
+                  '((a 1) (b 2)))
+     (test-equal? "any empty list causes no values to be returned"
+                  ((☯ (~> zip ▽))
+                   '() '(1 2 3))
+                  null)
+     (test-equal? "any empty list causes no values to be returned"
+                  ((☯ (~> zip ▽))
+                   '(a b c) '())
+                  null)
+     (test-equal? "more than two lists"
+                  ((☯ (~> zip ▽))
+                   '(a b c) '(1 2 3) '(P Q R))
+                  '((a 1 P) (b 2 Q) (c 3 R)))
+     (test-equal? "just one list"
+                  ((☯ (~> zip ▽))
+                   '(a b c))
+                  '((a) (b) (c)))
+     (test-equal? "no lists"
+                  ((☯ (~> zip ▽)))
+                  null)
+
+     (test-equal? "zip with primitive operation"
+                  ((☯ (~> (zip +) ▽))
+                   '(1 2) '(3 4))
+                  '(4 6))
+     ;; (test-equal? "zip with flow operation"
+     ;;              ((☯ (~> (zip (~> string->number +)) ▽))
+     ;;               '("1" "2") '("3" "4"))
+     ;;              '(4 6))
+     ))
 
    (test-suite
     "language extension"
