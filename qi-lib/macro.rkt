@@ -15,7 +15,8 @@
                   esc)
          qi/flow/space
          syntax/parse/define
-         syntax/parse)
+         syntax/parse
+         syntax-spec-v2)
 
 (begin-for-syntax
 
@@ -62,50 +63,48 @@
 
   (define (make-qi-foreign-syntax-transformer original-macro-id)
     (define/syntax-parse original-macro original-macro-id)
-    (qi-macro
-     (syntax-parser
-       [(name pre-form ... (~datum __) post-form ...)
-        (let ([name (syntax->datum #'name)])
-          (raise-syntax-error name
-                              (~a "Syntax error in "
-                                  `(,name
-                                    ,@(syntax->datum #'(pre-form ...))
-                                    "__"
-                                    ,@(syntax->datum #'(post-form ...)))
-                                  "\n"
-                                  "  __ templates are not supported for foreign macros.\n"
-                                  "  Use _'s to indicate a specific number of expected arguments, instead.")))]
-       [(name pre-form ... (~datum _) post-form ...)
-        (foreign-macro-template-expand
-         (datum->syntax this-syntax
-           (cons #'original-macro
-                 (cdr (syntax->list this-syntax)))))]
-       [(name form ...)
-        #:do [(define chirality (syntax-property this-syntax 'chirality))]
-        (if (and chirality (eq? chirality 'right))
-            #'(esc (lambda (v) (original-macro form ... v)))
-            #'(esc (lambda (v) (original-macro v form ...))))]
-       [name:id #'(esc (lambda (v) (original-macro v)))]))))
+    (syntax-parser
+      [(name pre-form ... (~datum __) post-form ...)
+       (let ([name (syntax->datum #'name)])
+         (raise-syntax-error name
+                             (~a "Syntax error in "
+                                 `(,name
+                                   ,@(syntax->datum #'(pre-form ...))
+                                   "__"
+                                   ,@(syntax->datum #'(post-form ...)))
+                                 "\n"
+                                 "  __ templates are not supported for foreign macros.\n"
+                                 "  Use _'s to indicate a specific number of expected arguments, instead.")))]
+      [(name pre-form ... (~datum _) post-form ...)
+       (foreign-macro-template-expand
+        (datum->syntax this-syntax
+          (cons #'original-macro
+                (cdr (syntax->list this-syntax)))))]
+      [(name form ...)
+       #:do [(define chirality (syntax-property this-syntax 'chirality))]
+       (if (and chirality (eq? chirality 'right))
+           #'(esc (lambda (v) (original-macro form ... v)))
+           #'(esc (lambda (v) (original-macro v form ...))))]
+      [name:id #'(esc (lambda (v) (original-macro v)))])))
 
 (define-syntax define-qi-syntax-rule
   (syntax-parser
     [(_ (name . pat) template)
-     #'(define-qi-syntax name
-         (qi-macro
-          (syntax-parser
-            [(_ . pat) #'template])))]))
+     #'(define-dsl-syntax name qi-macro
+         (syntax-parser
+           [(_ . pat) #'template]))]))
 
 (define-syntax define-qi-syntax-parser
   (syntax-parser
     [(_ name clause ...)
-     #'(define-qi-syntax name
-         (qi-macro
-          (syntax-parser
-            clause ...)))]))
+     #'(define-dsl-syntax name qi-macro
+         (syntax-parser
+           clause ...))]))
 
 (define-syntax define-qi-foreign-syntaxes
   (syntax-parser
     [(_ form-name ...)
      #'(begin
-         (define-qi-syntax form-name (make-qi-foreign-syntax-transformer #'form-name))
+         (define-dsl-syntax form-name qi-macro
+           (make-qi-foreign-syntax-transformer #'form-name))
          ...)]))
