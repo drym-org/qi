@@ -113,7 +113,7 @@
          ...)]))
 
 (begin-for-syntax
-  (define (op-transformer info spec)
+  (define (op-transformer name info spec)
     ;; use the `spec` to rewrite the source expression to expand
     ;; to a corresponding number of clauses in the core form, like:
     ;; (op e1 e2 e3) → (#%optimizable-app #,info [f e1] [e e2] [f e3])
@@ -122,7 +122,7 @@
        (syntax-parser
          [(_ e ...) (if (= (length (attribute e))
                            (length (attribute arg-name)))
-                        #`(#%deforestable2 #,info [tag e] ...)
+                        #`(#%deforestable2 #,name #,info [tag e] ...)
                         (raise-syntax-error #f
                                             "Wrong number of arguments!"
                                             this-syntax))])])))
@@ -147,4 +147,4 @@
            (deforestable-info codegen-f))
 
          (define-dsl-syntax name qi-macro
-           (op-transformer #'info #'(spec ...))))]))
+           (op-transformer #'name #'info #'(spec ...))))]))
