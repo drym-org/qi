@@ -125,6 +125,9 @@ test:
 test-flow:
 	racket -y $(PACKAGE-NAME)-test/tests/flow.rkt
 
+test-list:
+	racket -y $(PACKAGE-NAME)-test/tests/list.rkt
+
 test-on:
 	racket -y $(PACKAGE-NAME)-test/tests/on.rkt
 
