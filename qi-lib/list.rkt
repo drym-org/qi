@@ -10,7 +10,8 @@
          (only-in "flow/space.rkt"
                   define-qi-alias)
          "macro.rkt"
-         (prefix-in r: racket/base))
+         (prefix-in r: racket/base)
+         (prefix-in r: racket/list))
 
 (define-deforestable
   (map [f f])
@@ -22,8 +23,10 @@
   #'(λ (vs)
       (r:filter f vs)))
 
-(define-qi-syntax-rule (filter-map f:expr)
-  (#%deforestable filter-map (f)))
+(define-deforestable
+  (filter-map [f f])
+  #'(λ (vs)
+      (r:filter-map f vs)))
 
 (define-qi-syntax-rule (foldl f:expr init:expr)
   (#%deforestable foldl (f) (init)))
