@@ -28,11 +28,15 @@
   #'(λ (vs)
       (r:filter-map f vs)))
 
-(define-qi-syntax-rule (foldl f:expr init:expr)
-  (#%deforestable foldl (f) (init)))
+(define-deforestable
+  (foldl [f f] [e init])
+  #'(λ (vs)
+      (r:foldl f init vs)))
 
-(define-qi-syntax-rule (foldr f:expr init:expr)
-  (#%deforestable foldr (f) (init)))
+(define-deforestable
+  (foldr [f f] [e init])
+  #'(λ (vs)
+      (r:foldr f init vs)))
 
 (define-qi-syntax-parser range
   [(_ low:expr high:expr step:expr) #'(#%deforestable range () (low high step))]

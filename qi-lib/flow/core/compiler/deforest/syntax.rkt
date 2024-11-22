@@ -124,20 +124,22 @@
   #:attributes (op init)
   #:literal-sets (fs-literals)
   #:datum-literals (foldr)
-  (pattern (#%deforestable
+  (pattern (#%deforestable2
             foldr
-            (op-uncompiled)
-            ((#%host-expression init)))
+            _name
+            ((~datum f) op-uncompiled)
+            ((~datum e) init))
     #:attr op (run-passes #'op-uncompiled)))
 
 (define-syntax-class fsc-foldl
   #:attributes (op init)
   #:literal-sets (fs-literals)
   #:datum-literals (foldl)
-  (pattern (#%deforestable
+  (pattern (#%deforestable2
             foldl
-            (op-uncompiled)
-            ((#%host-expression init)))
+            _name
+            ((~datum f) op-uncompiled)
+            ((~datum e) init))
     #:attr op (run-passes #'op-uncompiled)))
 
 (define-syntax-class cad*r-datum
