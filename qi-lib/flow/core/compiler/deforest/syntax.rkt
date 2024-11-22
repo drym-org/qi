@@ -79,8 +79,9 @@
   #:attributes (f)
   #:literal-sets (fs-literals)
   #:datum-literals (filter)
-  (pattern (#%deforestable filter (f-uncompiled))
+  (pattern (#%deforestable2 filter _info ((~datum f) f-uncompiled))
     #:attr f (run-passes #'f-uncompiled)))
+
 (define-syntax-class fst-map
   #:attributes (f)
   #:literal-sets (fs-literals)

@@ -17,8 +17,10 @@
   #'(lambda (vs)  ; single list arg
       (r:map f vs)))
 
-(define-qi-syntax-rule (filter f:expr)
-  (#%deforestable filter (f)))
+(define-deforestable
+  (filter [f f])
+  #'(λ (vs)
+      (r:filter f vs)))
 
 (define-qi-syntax-rule (filter-map f:expr)
   (#%deforestable filter-map (f)))
