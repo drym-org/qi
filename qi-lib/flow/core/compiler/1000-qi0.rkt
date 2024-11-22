@@ -6,6 +6,7 @@
          racket/function
          racket/list
          (for-syntax racket/base
+                     racket/match
                      syntax/parse
                      "../syntax.rkt"
                      "../../aux-syntax.rkt"
@@ -13,12 +14,9 @@
                      ))
 
 (begin-for-syntax
-  
   (define-and-register-pass 1000 (qi0-wrapper stx)
     (syntax-parse stx
-      (ex #'(qi0->racket ex))))
-
-  )
+      (ex #'(qi0->racket ex)))))
 
 (define-syntax (qi0->racket stx)
   ;; this is a macro so it receives the entire expression
@@ -96,6 +94,7 @@
     [(~datum appleye)
      #'call]
     [e:clos-form (clos-parser #'e)]
+    [e:deforestable2-form (deforestable2-parser #'e)]
     [e:deforestable-form (deforestable-parser #'e)]
     ;; escape hatch for racket expressions or anything
     ;; to be "passed through"
@@ -393,6 +392,21 @@ the DSL.
            #'(λ args
                (qi0->racket (~> (-< (~> (gen args) △) _)
                                 onex))))]))
+
+  (define (deforestable2-clause-parser c)
+    (syntax-parse c
+      [((~datum f) e) #'(qi0->racket e)]
+      [((~datum e) e) #'e]))
+
+  (define (deforestable2-parser e)
+    (syntax-parse e
+      #:datum-literals (#%optimizable-app)
+      [((~datum #%deforestable2) op c ...)
+       (define es^ (map deforestable2-clause-parser (attribute c)))
+       (define info (syntax-local-value #'op))
+       (match info
+         [(deforestable-info codegen)
+          (apply codegen es^)])]))
 
   (define (deforestable-parser stx)
     (syntax-parse stx

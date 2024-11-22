@@ -4,6 +4,7 @@
          define-qi-syntax-rule
          define-qi-syntax-parser
          define-qi-foreign-syntaxes
+         define-deforestable
          (for-syntax qi-macro))
 
 (require (for-syntax racket/base
@@ -12,8 +13,10 @@
                      racket/list)
          (only-in "flow/extended/expander.rkt"
                   qi-macro
-                  esc)
+                  esc
+                  #%deforestable2)
          qi/flow/space
+         (for-syntax qi/flow/aux-syntax)
          syntax/parse/define
          syntax/parse
          syntax-spec-v2)
@@ -108,3 +111,40 @@
          (define-dsl-syntax form-name qi-macro
            (make-qi-foreign-syntax-transformer #'form-name))
          ...)]))
+
+(begin-for-syntax
+  (define (op-transformer info spec)
+    ;; use the `spec` to rewrite the source expression to expand
+    ;; to a corresponding number of clauses in the core form, like:
+    ;; (op e1 e2 e3) → (#%optimizable-app #,info [f e1] [e e2] [f e3])
+    (syntax-parse spec
+      [([tag arg-name] ...)
+       (syntax-parser
+         [(_ e ...) (if (= (length (attribute e))
+                           (length (attribute arg-name)))
+                        #`(#%deforestable2 #,info [tag e] ...)
+                        (raise-syntax-error #f
+                                            "Wrong number of arguments!"
+                                            this-syntax))])])))
+
+(define-syntax define-deforestable
+  (syntax-parser
+    [(_ (name spec ...) codegen)
+     #:with ([typ arg] ...) #'(spec ...)
+     #:with codegen-f #'(lambda (arg ...)
+                          ;; var bindings vs pattern bindings
+                          ;; arg are syntax objects but we can't
+                          ;; use them as variable bindings, so
+                          ;; we use with-syntax to handle them
+                          ;; as pattern bindings
+                          (with-syntax ([arg arg] ...)
+                            codegen))
+     #'(begin
+
+         ;; capture the codegen in an instance of
+         ;; the compile time struct
+         (define-syntax info
+           (deforestable-info codegen-f))
+
+         (define-dsl-syntax name qi-macro
+           (op-transformer #'info #'(spec ...))))]))

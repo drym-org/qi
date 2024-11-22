@@ -9,10 +9,13 @@
          "flow/extended/expander.rkt"
          (only-in "flow/space.rkt"
                   define-qi-alias)
-         "macro.rkt")
+         "macro.rkt"
+         (prefix-in r: racket/base))
 
-(define-qi-syntax-rule (map f:expr)
-  (#%deforestable map (f)))
+(define-deforestable
+  (map [f f])
+  #'(lambda (vs)  ; single list arg
+      (r:map f vs)))
 
 (define-qi-syntax-rule (filter f:expr)
   (#%deforestable filter (f)))

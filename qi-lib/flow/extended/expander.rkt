@@ -187,6 +187,7 @@ core language's use of #%app, etc.).
     (#%deforestable name:id (f:closed-floe ...) (arg:racket-expr ...))
     (#%deforestable name:id (f:closed-floe ...+))
     (#%deforestable name:id)
+    (#%deforestable2 name:id e:deforestable-clause ...)
 
     ;; backwards compat macro extensibility via Racket macros
     (~> ((~var ext-form (starts-with "qi:")) expr ...)
@@ -241,6 +242,10 @@ core language's use of #%app, etc.).
     (~> f:id
         #:with spaced-f (introduce-qi-syntax #'f)
         #'(esc spaced-f)))
+
+  (nonterminal deforestable-clause
+    ((~datum f) e:closed-floe)
+    ((~datum e) g:racket-expr))
 
   (nonterminal arg-stx
     (~datum _)
