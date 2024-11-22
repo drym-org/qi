@@ -49,8 +49,10 @@
           "(range arg ...)"
           "range expects at least one argument")])
 
-(define-qi-syntax-rule (take n:expr)
-  (#%deforestable take () (n)))
+(define-deforestable
+  (take [e n])
+  #'(λ (vs)
+      (r:take vs n)))
 
 (define-qi-syntax-parser car
   [_:id #'(#%deforestable car)])

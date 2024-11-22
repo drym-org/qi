@@ -100,7 +100,7 @@
   #:attributes (n)
   #:literal-sets (fs-literals)
   #:datum-literals (take)
-  (pattern (#%deforestable take () ((#%host-expression n)))))
+  (pattern (#%deforestable2 take _info ((~datum e) n))))
 
 (define-syntax-class fst-syntax0
   (pattern (~or _:fst-filter
