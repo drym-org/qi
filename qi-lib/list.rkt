@@ -13,28 +13,23 @@
          (prefix-in r: racket/base)
          (prefix-in r: racket/list))
 
-(define-deforestable
-  (map [f f])
+(define-deforestable (map [f f])
   #'(lambda (vs)  ; single list arg
       (r:map f vs)))
 
-(define-deforestable
-  (filter [f f])
+(define-deforestable (filter [f f])
   #'(λ (vs)
       (r:filter f vs)))
 
-(define-deforestable
-  (filter-map [f f])
+(define-deforestable (filter-map [f f])
   #'(λ (vs)
       (r:filter-map f vs)))
 
-(define-deforestable
-  (foldl [f f] [e init])
+(define-deforestable (foldl [f f] [e init])
   #'(λ (vs)
       (r:foldl f init vs)))
 
-(define-deforestable
-  (foldr [f f] [e init])
+(define-deforestable (foldr [f f] [e init])
   #'(λ (vs)
       (r:foldr f init vs)))
 
@@ -49,8 +44,7 @@
           "(range arg ...)"
           "range expects at least one argument")])
 
-(define-deforestable
-  (take [e n])
+(define-deforestable (take [e n])
   #'(λ (vs)
       (r:take vs n)))
 
