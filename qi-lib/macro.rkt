@@ -14,7 +14,7 @@
          (only-in "flow/extended/expander.rkt"
                   qi-macro
                   esc
-                  #%deforestable2)
+                  #%deforestable)
          qi/flow/space
          (for-syntax qi/flow/aux-syntax)
          syntax/parse/define
@@ -124,10 +124,10 @@
           #:fail-unless (= (length (attribute e))
                            (length (attribute arg-name)))
           "Wrong number of arguments!"
-          #`(#%deforestable2 #,name #,info [tag e] ...)]
+          #`(#%deforestable #,name #,info [tag e] ...)]
          ;; TODO, check: instead of `car`, does `(car)` produce
          ;; a useful syntax error?
-         [_:id #`(#%deforestable2 #,name #,info)])])))
+         [_:id #`(#%deforestable #,name #,info)])])))
 
 (define-syntax define-deforestable
   (syntax-parser

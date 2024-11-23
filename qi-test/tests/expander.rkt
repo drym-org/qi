@@ -105,10 +105,11 @@
                              (#%host-expression 1)
                              __))))
     (test-expand "#%deforestable"
-                 #'(#%deforestable name (_) (_))
+                 #'(#%deforestable name info (f 0) (e 0))
                  #'(#%deforestable name
-                                   (_)
-                                   ((#%host-expression _)))))
+                                   info
+                                   (f (gen (#%host-expression 0)))
+                                   (e (#%host-expression 0)))))
    (test-suite
     "utils"
     ;; this is just temporary until we properly track source expressions through

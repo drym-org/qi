@@ -18,8 +18,7 @@
          fold-right-form
          loop-form
          clos-form
-         deforestable-form
-         deforestable2-form)
+         deforestable-form)
 
 (require syntax/parse)
 
@@ -140,7 +139,3 @@ See comments in flow.rkt for more details.
 (define-syntax-class deforestable-form
   (pattern
    ((~datum #%deforestable) arg ...)))
-
-(define-syntax-class deforestable2-form
-  (pattern
-   ((~datum #%deforestable2) arg ...)))
