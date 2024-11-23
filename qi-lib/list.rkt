@@ -64,8 +64,8 @@
   #'(λ (vs)
       (r:list-ref vs n)))
 
-(define-qi-syntax-parser length
-  [_:id #'(#%deforestable length)])
+(define-deforestable length
+  #'r:length)
 
 (define-qi-syntax-parser empty?
   [_:id #'(#%deforestable empty?)])

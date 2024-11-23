@@ -165,8 +165,8 @@
 
 (define-syntax-class fsc-length
   #:literal-sets (fs-literals)
-  #:datum-literals (length)
-  (pattern (#%deforestable length)))
+  #:datum-literals (#%deforestable2 length)
+  (pattern (#%deforestable2 length _info)))
 
 (define-syntax-class fsc-empty?
   #:literal-sets (fs-literals)
