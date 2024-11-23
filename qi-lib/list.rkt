@@ -33,10 +33,14 @@
   #'(λ (vs)
       (r:foldr f init vs)))
 
+(define-deforestable (range2 [e low] [e high] [e step])
+  #'(λ ()
+      (r:range low high step)))
+
 (define-qi-syntax-parser range
-  [(_ low:expr high:expr step:expr) #'(#%deforestable range () (low high step))]
-  [(_ low:expr high:expr) #'(#%deforestable range () (low high 1))]
-  [(_ high:expr) #'(#%deforestable range () (0 high 1))]
+  [(_ low:expr high:expr step:expr) #'(range2 low high step)]
+  [(_ low:expr high:expr) #'(range2 low high 1)]
+  [(_ high:expr) #'(range2 0 high 1)]
   ;; not strictly necessary but this provides a better error
   ;; message than simply "range: bad syntax" that's warranted
   ;; to differentiate from racket/list's `range`
