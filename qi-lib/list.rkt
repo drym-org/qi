@@ -1,7 +1,10 @@
 #lang racket/base
 
 (provide (for-space qi
-                    (all-defined-out)))
+                    (except-out (all-defined-out)
+                                range2
+                                range)
+                    (rename-out [range2 range])))
 
 (require (for-syntax racket/base
                      "private/util.rkt")
@@ -33,14 +36,21 @@
   #'(λ (vs)
       (r:foldr f init vs)))
 
-(define-deforestable (range2 [e low] [e high] [e step])
+(define-deforestable (range [e low] [e high] [e step])
   #'(λ ()
       (r:range low high step)))
 
-(define-qi-syntax-parser range
-  [(_ low:expr high:expr step:expr) #'(range2 low high step)]
-  [(_ low:expr high:expr) #'(range2 low high 1)]
-  [(_ high:expr) #'(range2 0 high 1)]
+;; We'd like to indicate multiple surface variants for `range` that
+;; expand to a canonical form, and provide a single codegen just for the
+;; canonical form.
+;; Since `define-deforestable` doesn't support indicating multiple cases
+;; yet, we use the ordinary macro machinery to expand surface variants of
+;; `range` to a canonical form that is defined using
+;; `define-deforestable`.
+(define-qi-syntax-parser range2
+  [(_ low:expr high:expr step:expr) #'(range low high step)]
+  [(_ low:expr high:expr) #'(range low high 1)]
+  [(_ high:expr) #'(range 0 high 1)]
   ;; not strictly necessary but this provides a better error
   ;; message than simply "range: bad syntax" that's warranted
   ;; to differentiate from racket/list's `range`

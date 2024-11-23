@@ -49,8 +49,8 @@
 (define-syntax-class fsp-range
   #:attributes (blanket? fine? arg pre-arg post-arg)
   #:literal-sets (fs-literals)
-  #:datum-literals (#%deforestable2 range2)
-  (pattern (#%deforestable2 range2 _info ((~datum e) the-arg) ...)
+  #:datum-literals (#%deforestable2 range)
+  (pattern (#%deforestable2 range _info ((~datum e) the-arg) ...)
     #:attr arg #'(the-arg ...)
     #:attr pre-arg #f
     #:attr post-arg #f
