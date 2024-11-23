@@ -170,9 +170,8 @@
 
 (define-syntax-class fsc-empty?
   #:literal-sets (fs-literals)
-  #:datum-literals (null? empty?)
-  (pattern (#%deforestable (~or empty?
-                                null?))))
+  #:datum-literals (#%deforestable2 empty?) ; note: null? expands to empty?
+  (pattern (#%deforestable2 empty? _info)))
 
 (define-syntax-class fsc-default
   #:datum-literals (cstream->list)

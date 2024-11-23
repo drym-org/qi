@@ -67,7 +67,7 @@
 (define-deforestable length
   #'r:length)
 
-(define-qi-syntax-parser empty?
-  [_:id #'(#%deforestable empty?)])
+(define-deforestable empty?
+  #'r:empty?)
 
 (define-qi-alias null? empty?)
