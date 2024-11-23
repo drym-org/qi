@@ -120,12 +120,11 @@
     (syntax-parse spec
       [([tag arg-name] ...)
        (syntax-parser
-         [(_ e ...+) (if (= (length (attribute e))
-                            (length (attribute arg-name)))
-                         #`(#%deforestable2 #,name #,info [tag e] ...)
-                         (raise-syntax-error #f
-                                             "Wrong number of arguments!"
-                                             this-syntax))]
+         [(_ e ...+)
+          #:fail-unless (= (length (attribute e))
+                           (length (attribute arg-name)))
+          "Wrong number of arguments!"
+          #`(#%deforestable2 #,name #,info [tag e] ...)]
          ;; TODO, check: instead of `car`, does `(car)` produce
          ;; a useful syntax error?
          [_:id #`(#%deforestable2 #,name #,info)])])))
