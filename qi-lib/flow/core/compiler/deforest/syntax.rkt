@@ -126,7 +126,7 @@
   #:datum-literals (foldr)
   (pattern (#%deforestable2
             foldr
-            _name
+            _info
             ((~datum f) op-uncompiled)
             ((~datum e) init))
     #:attr op (run-passes #'op-uncompiled)))
@@ -137,7 +137,7 @@
   #:datum-literals (foldl)
   (pattern (#%deforestable2
             foldl
-            _name
+            _info
             ((~datum f) op-uncompiled)
             ((~datum e) init))
     #:attr op (run-passes #'op-uncompiled)))
