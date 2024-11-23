@@ -48,20 +48,21 @@
   #'(λ (vs)
       (r:take vs n)))
 
-(define-qi-syntax-parser car
-  [_:id #'(#%deforestable car)])
+(define-deforestable car
+  #'r:car)
 
-(define-qi-syntax-parser cadr
-  [_:id #'(#%deforestable cadr)])
+(define-deforestable cadr
+  #'r:cadr)
 
-(define-qi-syntax-parser caddr
-  [_:id #'(#%deforestable caddr)])
+(define-deforestable caddr
+  #'r:caddr)
 
-(define-qi-syntax-parser cadddr
-  [_:id #'(#%deforestable cadddr)])
+(define-deforestable cadddr
+  #'r:cadddr)
 
-(define-qi-syntax-rule (list-ref n:expr)
-  (#%deforestable list-ref () (n)))
+(define-deforestable (list-ref [e n])
+  #'(λ (vs)
+      (r:list-ref vs n)))
 
 (define-qi-syntax-parser length
   [_:id #'(#%deforestable length)])

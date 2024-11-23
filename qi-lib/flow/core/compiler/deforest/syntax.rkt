@@ -144,17 +144,18 @@
 
 (define-syntax-class cad*r-datum
   #:attributes (countdown)
-  (pattern (#%deforestable (~datum car)) #:attr countdown #'0)
-  (pattern (#%deforestable (~datum cadr)) #:attr countdown #'1)
-  (pattern (#%deforestable (~datum caddr)) #:attr countdown #'2)
-  (pattern (#%deforestable (~datum cadddr)) #:attr countdown #'3))
+  #:datum-literals (#%deforestable2 car cadr caddr cadddr)
+  (pattern (#%deforestable2 car _info) #:attr countdown #'0)
+  (pattern (#%deforestable2 cadr _info) #:attr countdown #'1)
+  (pattern (#%deforestable2 caddr _info) #:attr countdown #'2)
+  (pattern (#%deforestable2 cadddr _info) #:attr countdown #'3))
 
 (define-syntax-class fsc-list-ref
   #:attributes (pos name)
   #:literal-sets (fs-literals)
-  #:datum-literals (list-ref)
+  #:datum-literals (#%deforestable2 list-ref)
   ;; TODO: need #%host-expression wrapping idx?
-  (pattern (#%deforestable list-ref () (idx))
+  (pattern (#%deforestable2 list-ref _info ((~datum e) idx))
     #:attr pos #'idx
     #:attr name #'list-ref)
   ;; TODO: bring wrapping #%deforestable out here?

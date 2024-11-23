@@ -120,12 +120,15 @@
     (syntax-parse spec
       [([tag arg-name] ...)
        (syntax-parser
-         [(_ e ...) (if (= (length (attribute e))
-                           (length (attribute arg-name)))
-                        #`(#%deforestable2 #,name #,info [tag e] ...)
-                        (raise-syntax-error #f
-                                            "Wrong number of arguments!"
-                                            this-syntax))])])))
+         [(_ e ...+) (if (= (length (attribute e))
+                            (length (attribute arg-name)))
+                         #`(#%deforestable2 #,name #,info [tag e] ...)
+                         (raise-syntax-error #f
+                                             "Wrong number of arguments!"
+                                             this-syntax))]
+         ;; TODO, check: instead of `car`, does `(car)` produce
+         ;; a useful syntax error?
+         [_:id #`(#%deforestable2 #,name #,info)])])))
 
 (define-syntax define-deforestable
   (syntax-parser
@@ -147,4 +150,15 @@
            (deforestable-info codegen-f))
 
          (define-dsl-syntax name qi-macro
-           (op-transformer #'name #'info #'(spec ...))))]))
+           (op-transformer #'name #'info #'(spec ...))))]
+    [(_ name:id codegen)
+     #:with codegen-f #'(lambda () codegen)
+     #'(begin
+
+         ;; capture the codegen in an instance of
+         ;; the compile time struct
+         (define-syntax info
+           (deforestable-info codegen-f))
+
+         (define-dsl-syntax name qi-macro
+           (op-transformer #'name #'info #'())))]))
