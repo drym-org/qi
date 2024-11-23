@@ -78,28 +78,28 @@
 (define-syntax-class fst-filter
   #:attributes (f)
   #:literal-sets (fs-literals)
-  #:datum-literals (filter)
+  #:datum-literals (#%deforestable2 filter)
   (pattern (#%deforestable2 filter _info ((~datum f) f-uncompiled))
     #:attr f (run-passes #'f-uncompiled)))
 
 (define-syntax-class fst-map
   #:attributes (f)
   #:literal-sets (fs-literals)
-  #:datum-literals (map)
+  #:datum-literals (#%deforestable2 map)
   (pattern (#%deforestable2 map _info ((~datum f) f-uncompiled))
     #:attr f (run-passes #'f-uncompiled)))
 
 (define-syntax-class fst-filter-map
   #:attributes (f)
   #:literal-sets (fs-literals)
-  #:datum-literals (filter-map)
+  #:datum-literals (#%deforestable2 filter-map)
   (pattern (#%deforestable2 filter-map _info ((~datum f) f-uncompiled))
     #:attr f (run-passes #'f-uncompiled)))
 
 (define-syntax-class fst-take
   #:attributes (n)
   #:literal-sets (fs-literals)
-  #:datum-literals (take)
+  #:datum-literals (#%deforestable2 take)
   (pattern (#%deforestable2 take _info ((~datum e) n))))
 
 (define-syntax-class fst-syntax0
@@ -123,7 +123,7 @@
 (define-syntax-class fsc-foldr
   #:attributes (op init)
   #:literal-sets (fs-literals)
-  #:datum-literals (foldr)
+  #:datum-literals (#%deforestable2 foldr)
   (pattern (#%deforestable2
             foldr
             _info
@@ -134,7 +134,7 @@
 (define-syntax-class fsc-foldl
   #:attributes (op init)
   #:literal-sets (fs-literals)
-  #:datum-literals (foldl)
+  #:datum-literals (#%deforestable2 foldl)
   (pattern (#%deforestable2
             foldl
             _info
