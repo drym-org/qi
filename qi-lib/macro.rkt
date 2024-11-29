@@ -118,20 +118,24 @@
     ;; to a corresponding number of clauses in the core form, like:
     ;; (op e1 e2 e3) → (#%optimizable-app #,info [f e1] [e e2] [f e3])
     (syntax-parse spec
-      [([tag arg-name] ...)
+      #:datum-literals (op)
+      [(op [tag arg-name] ...)
        (syntax-parser
          [(_ e ...+)
           #:fail-unless (= (length (attribute e))
                            (length (attribute arg-name)))
           "Wrong number of arguments!"
-          #`(#%deforestable #,name #,info [tag e] ...)]
-         ;; TODO, check: instead of `car`, does `(car)` produce
-         ;; a useful syntax error?
-         [_:id #`(#%deforestable #,name #,info)])])))
+          #`(#%deforestable #,name #,info [tag e] ...)])]
+      ;; TODO, check: instead of `car`, does `(car)` produce
+      ;; a useful syntax error?
+      ;; TODO: can add complementary error clauses in these two
+      ;; patterns; test that default errors are good enough. But if not
+      ;; can add the error clauses.
+      [op (syntax-parser [_:id #`(#%deforestable #,name #,info)])])))
 
 (define-syntax define-deforestable
   (syntax-parser
-    [(_ (name spec ...) codegen)
+    [(_ (name spec ...+) codegen)
      #:with ([typ arg] ...) #'(spec ...)
      #:with codegen-f #'(lambda (arg ...)
                           ;; var bindings vs pattern bindings
@@ -149,7 +153,7 @@
            (deforestable-info codegen-f))
 
          (define-dsl-syntax name qi-macro
-           (op-transformer #'name #'info #'(spec ...))))]
+           (op-transformer #'name #'info #'(op spec ...))))]
     [(_ name:id codegen)
      #:with codegen-f #'(lambda () codegen)
      #'(begin
@@ -160,4 +164,4 @@
            (deforestable-info codegen-f))
 
          (define-dsl-syntax name qi-macro
-           (op-transformer #'name #'info #'())))]))
+           (op-transformer #'name #'info #'op)))]))
