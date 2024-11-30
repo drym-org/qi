@@ -125,13 +125,18 @@
           #:fail-unless (= (length (attribute e))
                            (length (attribute arg-name)))
           "Wrong number of arguments!"
-          #`(#%deforestable #,name #,info [tag e] ...)])]
-      ;; TODO, check: instead of `car`, does `(car)` produce
-      ;; a useful syntax error?
-      ;; TODO: can add complementary error clauses in these two
-      ;; patterns; test that default errors are good enough. But if not
-      ;; can add the error clauses.
-      [op (syntax-parser [_:id #`(#%deforestable #,name #,info)])])))
+          #`(#%deforestable #,name #,info [tag e] ...)]
+         [_:id
+          (raise-syntax-error #f
+                              (format "Bad syntax. Usage: (~a arg ...)"
+                                      (syntax->datum this-syntax))
+                              this-syntax)])]
+      [op
+       (syntax-parser
+         ;; already raises a good error if used as a
+         ;; form with arguments (rather than as an identifier)
+         ;; so no special error handling needed here
+         [_:id #`(#%deforestable #,name #,info)])])))
 
 (define-syntax define-deforestable
   (syntax-parser
