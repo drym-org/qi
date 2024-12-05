@@ -75,8 +75,12 @@ remove-sdk:
 
 # Primarily for day-to-day dev.
 # Build libraries from source.
+# Note that  `raco setup --pkgs qi-lib` ends up building
+# the entire `qi` collection and takes a long time, so we
+# use `raco make -l <module>` here instead.
+# See https://github.com/racket/racket/issues/5129
 build:
-	raco setup --no-docs --pkgs $(PACKAGE-NAME)-lib
+	raco make -l qi -v
 
 # Primarily for day-to-day dev.
 # Build docs (if any).
