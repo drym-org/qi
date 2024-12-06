@@ -3,10 +3,12 @@
 (provide literal
          subject
          clause
-         starts-with)
+         starts-with
+         (struct-out deforestable-info))
 
 (require syntax/parse
-         racket/string)
+         racket/string
+         (for-syntax racket/base))
 
 (define-syntax-class literal
   (pattern
@@ -56,3 +58,11 @@
             (symbol->string
              (syntax-e #'i))
             pfx)))
+
+;; A datatype used at compile time to convey user-defined data through
+;; the various stages of compilation for the purposes of extending Qi
+;; deforestation to custom list operations. It is currently used to
+;; convey a Racket runtime for macros in qi/list through to the code
+;; generation stage of Qi compilation (and could be used by any similar
+;; "deep" macros written by users).
+(struct deforestable-info [codegen])

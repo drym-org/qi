@@ -6,6 +6,7 @@
          racket/function
          racket/list
          (for-syntax racket/base
+                     racket/match
                      syntax/parse
                      "../syntax.rkt"
                      "../../aux-syntax.rkt"
@@ -13,12 +14,9 @@
                      ))
 
 (begin-for-syntax
-  
   (define-and-register-pass 1000 (qi0-wrapper stx)
     (syntax-parse stx
-      (ex #'(qi0->racket ex))))
-
-  )
+      (ex #'(qi0->racket ex)))))
 
 (define-syntax (qi0->racket stx)
   ;; this is a macro so it receives the entire expression
@@ -394,44 +392,18 @@ the DSL.
                (qi0->racket (~> (-< (~> (gen args) △) _)
                                 onex))))]))
 
-  (define (deforestable-parser stx)
-    (syntax-parse stx
-      [((~datum #%deforestable) (~datum filter) (proc:clause))
-       #'(lambda (v)
-           (filter (qi0->racket proc) v))]
-      [((~datum #%deforestable) (~datum filter-map) (proc:clause))
-       #'(lambda (v)
-           (filter-map (qi0->racket proc) v))]
-      [((~datum #%deforestable) (~datum map) (proc:clause))
-       #'(lambda (v)
-           (map (qi0->racket proc) v))]
-      [((~datum #%deforestable) (~datum foldl) (proc:clause) (init:expr))
-       #'(lambda (v)
-           (foldl (qi0->racket proc) init v))]
-      [((~datum #%deforestable) (~datum foldr) (proc:clause) (init:expr))
-       #'(lambda (v)
-           (foldr (qi0->racket proc) init v))]
-      [((~datum #%deforestable) (~datum range) () (arg:expr ...))
-       #'(lambda ()
-           (range arg ...))]
-      [((~datum #%deforestable) (~datum take) () (n:expr))
-       #'(lambda (v)
-           (take v n))]
-      [((~datum #%deforestable) (~datum car))
-       #'car]
-      [((~datum #%deforestable) (~datum cadr))
-       #'cadr]
-      [((~datum #%deforestable) (~datum caddr))
-       #'caddr]
-      [((~datum #%deforestable) (~datum cadddr))
-       #'cadddr]
-      [((~datum #%deforestable) (~datum list-ref) () (n:expr))
-       #'(lambda (v)
-           (list-ref v n))]
-      [((~datum #%deforestable) (~datum length))
-       #'length]
-      [((~datum #%deforestable) (~or* (~datum empty?) (~datum null?)))
-       #'empty?]))
+  (define (deforestable-clause-parser c)
+    (syntax-parse c
+      [((~datum f) e) #'(qi0->racket e)]
+      [((~datum e) e) #'e]))
+
+  (define (deforestable-parser e)
+    (syntax-parse e
+      #:datum-literals (#%deforestable)
+      [(#%deforestable _name info c ...)
+       (let ([es^ (map deforestable-clause-parser (attribute c))])
+         (match-let ([(deforestable-info codegen) (syntax-local-value #'info)])
+           (apply codegen es^)))]))
 
   (define (blanket-template-form-parser stx)
     (syntax-parse stx

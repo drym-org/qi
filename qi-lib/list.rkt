@@ -1,7 +1,10 @@
 #lang racket/base
 
 (provide (for-space qi
-                    (all-defined-out)))
+                    (except-out (all-defined-out)
+                                range2
+                                range)
+                    (rename-out [range2 range])))
 
 (require (for-syntax racket/base
                      "private/util.rkt")
@@ -9,27 +12,45 @@
          "flow/extended/expander.rkt"
          (only-in "flow/space.rkt"
                   define-qi-alias)
-         "macro.rkt")
+         "macro.rkt"
+         (prefix-in r: racket/base)
+         (prefix-in r: racket/list))
 
-(define-qi-syntax-rule (map f:expr)
-  (#%deforestable map (f)))
+(define-deforestable (map [f f])
+  #'(lambda (vs)  ; single list arg
+      (r:map f vs)))
 
-(define-qi-syntax-rule (filter f:expr)
-  (#%deforestable filter (f)))
+(define-deforestable (filter [f f])
+  #'(λ (vs)
+      (r:filter f vs)))
 
-(define-qi-syntax-rule (filter-map f:expr)
-  (#%deforestable filter-map (f)))
+(define-deforestable (filter-map [f f])
+  #'(λ (vs)
+      (r:filter-map f vs)))
 
-(define-qi-syntax-rule (foldl f:expr init:expr)
-  (#%deforestable foldl (f) (init)))
+(define-deforestable (foldl [f f] [e init])
+  #'(λ (vs)
+      (r:foldl f init vs)))
 
-(define-qi-syntax-rule (foldr f:expr init:expr)
-  (#%deforestable foldr (f) (init)))
+(define-deforestable (foldr [f f] [e init])
+  #'(λ (vs)
+      (r:foldr f init vs)))
 
-(define-qi-syntax-parser range
-  [(_ low:expr high:expr step:expr) #'(#%deforestable range () (low high step))]
-  [(_ low:expr high:expr) #'(#%deforestable range () (low high 1))]
-  [(_ high:expr) #'(#%deforestable range () (0 high 1))]
+(define-deforestable (range [e low] [e high] [e step])
+  #'(λ ()
+      (r:range low high step)))
+
+;; We'd like to indicate multiple surface variants for `range` that
+;; expand to a canonical form, and provide a single codegen just for the
+;; canonical form.
+;; Since `define-deforestable` doesn't support indicating multiple cases
+;; yet, we use the ordinary macro machinery to expand surface variants of
+;; `range` to a canonical form that is defined using
+;; `define-deforestable`.
+(define-qi-syntax-parser range2
+  [(_ low:expr high:expr step:expr) #'(range low high step)]
+  [(_ low:expr high:expr) #'(range low high 1)]
+  [(_ high:expr) #'(range 0 high 1)]
   ;; not strictly necessary but this provides a better error
   ;; message than simply "range: bad syntax" that's warranted
   ;; to differentiate from racket/list's `range`
@@ -37,28 +58,30 @@
           "(range arg ...)"
           "range expects at least one argument")])
 
-(define-qi-syntax-rule (take n:expr)
-  (#%deforestable take () (n)))
+(define-deforestable (take [e n])
+  #'(λ (vs)
+      (r:take vs n)))
 
-(define-qi-syntax-parser car
-  [_:id #'(#%deforestable car)])
+(define-deforestable car
+  #'r:car)
 
-(define-qi-syntax-parser cadr
-  [_:id #'(#%deforestable cadr)])
+(define-deforestable cadr
+  #'r:cadr)
 
-(define-qi-syntax-parser caddr
-  [_:id #'(#%deforestable caddr)])
+(define-deforestable caddr
+  #'r:caddr)
 
-(define-qi-syntax-parser cadddr
-  [_:id #'(#%deforestable cadddr)])
+(define-deforestable cadddr
+  #'r:cadddr)
 
-(define-qi-syntax-rule (list-ref n:expr)
-  (#%deforestable list-ref () (n)))
+(define-deforestable (list-ref [e n])
+  #'(λ (vs)
+      (r:list-ref vs n)))
 
-(define-qi-syntax-parser length
-  [_:id #'(#%deforestable length)])
+(define-deforestable length
+  #'r:length)
 
-(define-qi-syntax-parser empty?
-  [_:id #'(#%deforestable empty?)])
+(define-deforestable empty?
+  #'r:empty?)
 
 (define-qi-alias null? empty?)
