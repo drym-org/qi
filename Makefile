@@ -98,6 +98,9 @@ build-all:
 build-standalone-docs:
 	scribble +m --redirect-main http://pkg-build.racket-lang.org/doc/ --htmls --dest ./docs ./qi-doc/scribblings/qi.scrbl
 
+build-sdk:
+	raco setup --no-docs --pkgs $(PACKAGE-NAME)-sdk
+
 # Note: Each collection's info.rkt can say what to clean, for example
 # (define clean '("compiled" "doc" "doc/<collect>")) to clean
 # generated docs, too.
@@ -121,6 +124,9 @@ test:
 
 test-flow:
 	racket -y $(PACKAGE-NAME)-test/tests/flow.rkt
+
+test-list:
+	racket -y $(PACKAGE-NAME)-test/tests/list.rkt
 
 test-on:
 	racket -y $(PACKAGE-NAME)-test/tests/on.rkt

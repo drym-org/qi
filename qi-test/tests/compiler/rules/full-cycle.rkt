@@ -10,8 +10,8 @@
          rackunit
          rackunit/text-ui
          syntax/macro-testing
-         qi/flow/core/deforest
          qi/flow/core/compiler
+         qi/list
          "private/deforest-util.rkt"
          (submod qi/flow/extended/expander invoke))
 
@@ -33,7 +33,18 @@
                (deforested?
                  (phase1-eval
                   (qi-compile
-                   #'(~>> (filter odd?) values (map sqr)))))))))
+                   #'(~>> (filter odd?) values (map sqr))))))
+    ;; We expect the Qi expander to translate threading direction simply to
+    ;; chirality of individual contained forms (indicated by the presence of
+    ;; a blanket template on either side) if they are applications of host
+    ;; language functions, and to leave them unchanged if they are syntactic
+    ;; forms (where chirality is irrelevant). We also expect normalization
+    ;; to collapse nested threading forms, so that the following should be
+    ;; deforested.
+    (test-true "nested, different threading direction"
+               (deforested? (phase1-eval
+                             (qi-compile
+                              #'(~> (filter odd?) (~>> (map sqr))))))))))
 
 (module+ main
   (void

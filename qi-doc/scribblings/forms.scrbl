@@ -100,6 +100,20 @@ The core syntax of the Qi language. These forms may be used in any @tech{flow}. 
   ]
 }
 
+@deftogether[(
+  @defform[(lambda expr ...)]
+  @defform[(λ expr ...)]
+)]{
+  Shorthand for @racket[(esc (lambda ...))].
+
+That is, this lambda is a @emph{Qi} form that expands to a use of @emph{Racket}'s lambda form, providing a shorthand for a common way to describe a flow using Racket.
+
+@examples[
+    #:eval eval-for-docs
+    ((☯ (λ (x) (+ 2 x))) 3)
+  ]
+}
+
 @defform[(clos flo)]{
   A @tech{flow} that generates a flow as a value. Any inputs to the @racket[clos] flow are available to @racket[flo] when it is applied to inputs, i.e. it is analogous to a @hyperlink["https://www.gnu.org/software/guile/manual/html_node/Closure.html"]{closure} in Racket.
 
