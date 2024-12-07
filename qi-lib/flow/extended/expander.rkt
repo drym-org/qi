@@ -182,6 +182,10 @@ core language's use of #%app, etc.).
     clos
     (clos onex:closed-floe)
     (esc ex:racket-expr)
+    (~> ((~literal lambda) e ...)
+        #'(esc (lambda e ...)))
+    (~> ((~literal λ) e ...)
+        #'(lambda e ...))
 
     ;; core form to express deforestable operations
     (#%deforestable name:id info:id e:deforestable-clause ...)
