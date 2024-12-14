@@ -116,11 +116,14 @@ clean-sdk:
 check-deps:
 	raco setup --no-docs $(DEPS-FLAGS) $(PACKAGE-NAME)
 
+test-all: test test-probe
+
 # Suitable for both day-to-day dev and CI
 # Note: we don't test qi-doc since there aren't any tests there atm
 # and it also seems to make things extremely slow to include it.
-test:
-	raco test -exp $(PACKAGE-NAME)-{lib,test,probe}
+test: build
+	raco make -l qi/tests/qi -v
+	raco test -exp $(PACKAGE-NAME)-{lib,test}
 
 test-flow:
 	racket -y $(PACKAGE-NAME)-test/tests/flow.rkt
@@ -251,4 +254,4 @@ performance-report:
 performance-regression-report:
 	@racket $(PACKAGE-NAME)-sdk/benchmarks/report.rkt -r $(REF)
 
-.PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-expander test-compiler test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile new-benchmarks new-benchmarks-preview benchmark-local benchmark-loading benchmark-selected-forms benchmark-competitive benchmark-nonlocal benchmark performance-report performance-regression-report
+.PHONY:	help install remove build build-docs build-all clean check-deps test-all test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-expander test-compiler test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile new-benchmarks new-benchmarks-preview benchmark-local benchmark-loading benchmark-selected-forms benchmark-competitive benchmark-nonlocal benchmark performance-report performance-regression-report
