@@ -217,6 +217,17 @@ new-benchmarks:
 		--dest-name index.html \
 		report.scrbl
 
+new-benchmarks-preview:
+	cd qi-sdk/benchmarks/competitive && \
+	scribble \
+		++convert svg \
+		++arg -p \
+		++arg preview \
+		--html \
+		--dest results \
+		--dest-name index.html \
+		report.scrbl
+
 benchmark-local:
 	racket $(PACKAGE-NAME)-sdk/benchmarks/local/report.rkt
 
@@ -240,4 +251,4 @@ performance-report:
 performance-regression-report:
 	@racket $(PACKAGE-NAME)-sdk/benchmarks/report.rkt -r $(REF)
 
-.PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-expander test-compiler test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile new-benchmarks benchmark-local benchmark-loading benchmark-selected-forms benchmark-competitive benchmark-nonlocal benchmark performance-report performance-regression-report
+.PHONY:	help install remove build build-docs build-all clean check-deps test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-expander test-compiler test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile new-benchmarks new-benchmarks-preview benchmark-local benchmark-loading benchmark-selected-forms benchmark-competitive benchmark-nonlocal benchmark performance-report performance-regression-report
