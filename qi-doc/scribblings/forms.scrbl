@@ -14,9 +14,151 @@
 
 @title[#:tag "Qi_Forms"]{The Qi Language}
 
-The core syntax of the Qi language. These forms may be used in any @tech{flow}. Flows may be specified in Racket via the @seclink["Language_Interface"]{language interface}.
+The syntax and semantics of the Qi language. Qi @tech{flows} may be described using these forms and @seclink["Embedding_a_Hosted_Language"]{embedded} into Racket using the @seclink["Language_Interface"]{language interface}.
 
 @table-of-contents[]
+
+@section{Syntax}
+
+The syntax of a language is most economically and clearly expressed using a grammar, in the form of "nonterminal" symbols along with production rules expressing the syntax that is entailed in positions marked by those symbols. We may thus take the single starting symbol in such a grammar to formally designate the entire syntax of the language.
+
+The symbol @racket[expr] is typically used in this sense to indicate a Racket nonterminal position in the syntax -- that is, a position that expects a Racket expression. Analogously, we use the identifier @deftech{@racket[floe]} (pronounced "flow-e," for "flow expression") to refer to the Qi nonterminal, i.e. a position expecting Qi syntax.
+
+The full syntax of Qi ("Standard Qi") is given below. Note that Standard Qi expands to a @seclink["The_Qi_Core_Language"]{smaller core language} before being @seclink["It_s_Languages_All_the_Way_Down"]{compiled to Racket}.
+
+@racketgrammar*[
+[floe _
+      (gen expr ...)
+      △
+      sep
+      ▽
+      collect
+      (esc expr)
+      (clos floe)
+      (as identifier ...)
+      (one-of? expr ...)
+      (all floe)
+      (any floe)
+      (none floe)
+      (and floe ...)
+      (or floe ...)
+      (not floe)
+      (and% floe ...)
+      (or% floe ...)
+      NOT
+      !
+      AND
+      &
+      OR
+      ∥
+      NOR
+      NAND
+      XOR
+      XNOR
+      any?
+      all?
+      none?
+      inverter
+      ⏚
+      ground
+      (~> floe ...)
+      (thread floe ...)
+      (~>> floe ...)
+      (thread-right floe ...)
+      X
+      crossover
+      ==
+      (== floe ...)
+      relay
+      (relay floe ...)
+      (==* floe ...)
+      (relay* floe ...)
+      -<
+      (-< floe ...)
+      tee
+      (tee floe ...)
+      fanout
+      (fanout nat)
+      feedback
+      (feedback nat floe)
+      (feedback nat (then floe) floe)
+      (feedback (while floe) floe)
+      (feedback (while floe) (then floe) floe)
+      count
+      1>
+      2>
+      3>
+      4>
+      5>
+      6>
+      7>
+      8>
+      9>
+      (select index ...)
+      (block index ...)
+      (bundle (index ...) floe floe)
+      group
+      (group nat floe floe)
+      sieve
+      (sieve floe floe floe)
+      (partition [floe floe] ...)
+      (if floe floe)
+      (if floe floe floe)
+      (when floe floe)
+      (unless floe floe)
+      switch
+      (switch switch-expr ...)
+      (switch (% floe) switch-expr ...)
+      (switch (divert floe) switch-expr ...)
+      (gate floe)
+      ><
+      (>< floe)
+      amp
+      (amp floe)
+      pass
+      (pass floe)
+      <<
+      (<< floe)
+      (<< floe floe)
+      >>
+      (>> floe)
+      (>> floe floe)
+      (loop floe)
+      (loop floe floe)
+      (loop floe floe floe)
+      (loop floe floe floe floe)
+      (loop2 floe floe floe)
+      (ε floe floe)
+      (effect floe floe)
+      apply
+      (qi:* expr ...)
+      (expr expr ... __ expr ...)
+      (expr expr ... _ expr ...)
+      (expr expr ...)
+      literal
+      identifier]
+[literal boolean
+         char
+         string
+         bytes
+         number
+         regexp
+         byte-regexp
+         vector-literal
+         box-literal
+         prefab-literal
+         (@#,racket[quote] value)
+         (quasiquote value)
+         (quote-syntax value)
+         (syntax value)]
+[expr a-racket-expression]
+[index exact-positive-integer?]
+[nat exact-nonnegative-integer?]
+[switch-expr [floe floe]
+             [floe (=> floe)]
+             [else floe]]
+[identifier a-racket-identifier]
+[value a-racket-value]]
 
 @section{Basic}
 
@@ -528,9 +670,9 @@ A form of generalized @racket[sieve], passing all the inputs that satisfy each
                [(switch maybe-divert-expr switch-expr ...)]
                 ([maybe-divert-expr (divert condition-gate-flow consequent-gate-flow)
                                     (% condition-gate-flow consequent-gate-flow)]
-                 [switch-expr [flow-expr flow-expr]
-                              [flow-expr (=> flow-expr)]
-                              [else flow-expr]])]{
+                 [switch-expr [floe floe]
+                              [floe (=> floe)]
+                              [else floe]])]{
   The @tech{flow} analogue of @racket[cond], this is a dispatcher where the condition and consequent expressions are all flows which operate on the switch inputs.
 
   Typically, each of the component flows -- conditions and consequents both -- receives all of the original inputs to the @racket[switch]. This can be changed by using a @racket[divert] clause, which takes two flow arguments, the first of whose outputs go to all of the condition flows, and the second of whose outputs go to all of the consequent flows. This can be useful in cases where multiple values flow, but only some of them are predicated upon, and others (or all of them) inform the actions to be taken. Using @racket[(divert _ _)] is equivalent to not using it. @racket[%] is a symbolic alias for @racket[divert] -- parse it visually not as the percentage sign, but as a convenient way to depict a "floodgate" diverting values down different channels.
