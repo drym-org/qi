@@ -22,8 +22,8 @@ The core entry-point to Qi from the host language is the form @racket[☯]. In a
 @subsection{Core}
 
 @deftogether[(
-  @defform[(☯ @#,seclink["Syntax"]{@racket[floe]})]
-  @defform[(flow @#,seclink["Syntax"]{@racket[floe]})]
+  @defform[(☯ @#,tech{floe})]
+  @defform[(flow @#,tech{floe})]
   )]{
   Define a @tech{flow} by using the various @seclink["Qi_Forms"]{forms} of the Qi language.
 
@@ -41,14 +41,14 @@ See @secref["Flowing_with_the_Flow"] for ways to enter the @racket[☯] symbol i
   ]
 }
 
-@defform[(on (arg ...) @#,seclink["Syntax"]{@racket[floe]})]{
+@defform[(on (arg ...) @#,tech{floe})]{
   Define and execute a @tech{flow} with the inputs named in advance.
 
   This is a way to pass inputs to a flow that is an alternative to the usual function invocation syntax (i.e. an alternative to simply invoking the flow with arguments). It may be preferable in certain cases, since the inputs are named at the beginning rather than at the end.
 
   In the respect that it both defines as well as invokes the flow, it has the same relationship to @racket[☯] as @racket[let] has to @racket[lambda], and can be used in analogous ways.
 
-  Equivalent to @racket[((☯ @#,seclink["Syntax"]{@racket[floe]}) arg ...)].
+  Equivalent to @racket[((☯ @#,tech{floe}) arg ...)].
 
 @examples[
     #:eval eval-for-docs
@@ -62,8 +62,8 @@ See @secref["Flowing_with_the_Flow"] for ways to enter the @racket[☯] symbol i
 @subsection{Threading}
 
 @deftogether[(
-@defform[(~> (args ...) @#,seclink["Syntax"]{@racket[floe]} ...)]
-@defform[(~>> (args ...) @#,seclink["Syntax"]{@racket[floe]} ...)]
+@defform[(~> (args ...) @#,tech{floe} ...)]
+@defform[(~>> (args ...) @#,tech{floe} ...)]
 )]{
   These @emph{Racket} forms leverage the identically-named @emph{Qi} forms to thread inputs through a sequence of @tech{flows}. @racket[~>] threads arguments in the first position by default, while @racket[~>>] uses the last position, but in either case the positions can instead be explicitly indicated by using @racket[_] or @racket[___].
 
@@ -75,7 +75,7 @@ See @secref["Flowing_with_the_Flow"] for ways to enter the @racket[☯] symbol i
 
   In the respect that these both define as well as invoke the flow, they have the same relationship to @racket[☯] as @racket[let] has to @racket[lambda], and can be used in analogous ways.
 
-  Equivalent to @racket[((☯ (~> @#,seclink["Syntax"]{@racket[floe]} ...)) args ...)].
+  Equivalent to @racket[((☯ (~> @#,tech{floe} ...)) args ...)].
 
   See also: @secref["Relationship_to_the_Threading_Macro"].
 
@@ -118,11 +118,11 @@ Each of the @racket[predicate] and @racket[consequent] expressions is a @tech{fl
   These anonymous function forms may be used in cases where you need to explicitly @emph{name} the arguments for some reason. Otherwise, in most cases, just use @racket[☯] directly instead as it produces a function while avoiding the extraneous layer of bindings.
 
 @deftogether[(
-  @defform[(flow-lambda args @#,seclink["Syntax"]{@racket[floe]})]
-  @defform[(flow-λ args @#,seclink["Syntax"]{@racket[floe]})]
-  @defform[(π args @#,seclink["Syntax"]{@racket[floe]})]
+  @defform[(flow-lambda args @#,tech{floe})]
+  @defform[(flow-λ args @#,tech{floe})]
+  @defform[(π args @#,tech{floe})]
 )]{
-  Similiar to @racket[lambda] but constrained to the flow language. This is exactly equivalent to @racket[(lambda args (on (args) @#,seclink["Syntax"]{@racket[floe]}))] except that the keywords only introduce bindings, and aren't part of the values that are fed into @seclink["Syntax"]{@racket[floe]}. @racket[flow-λ] and @racket[π] are aliases for @racket[flow-lambda]. The present form mainly finds its use internally in @racket[define-flow], and in most cases you should use @racket[☯] directly.
+  Similiar to @racket[lambda] but constrained to the flow language. This is exactly equivalent to @racket[(lambda args (on (args) @#,tech{floe}))] except that the keywords only introduce bindings, and aren't part of the values that are fed into @tech{floe}. @racket[flow-λ] and @racket[π] are aliases for @racket[flow-lambda]. The present form mainly finds its use internally in @racket[define-flow], and in most cases you should use @racket[☯] directly.
 
 @examples[
     #:eval eval-for-docs
@@ -152,7 +152,7 @@ Each of the @racket[predicate] and @racket[consequent] expressions is a @tech{fl
              ...
              [else consequent ...])]
 )]{
-  Similar to @racket[lambda] but constrained to be a flow-based dispatcher. This is exactly equivalent to @racket[(lambda args (switch (args) maybe-divert-clause [predicate consequent ...] ... [else consequent ...]))] except that the keywords only introduce bindings, and aren't part of the values that are fed into @seclink["Syntax"]{@racket[floe]}. @racket[switch-λ] and @racket[λ01] are aliases for @racket[switch-lambda].
+  Similar to @racket[lambda] but constrained to be a flow-based dispatcher. This is exactly equivalent to @racket[(lambda args (switch (args) maybe-divert-clause [predicate consequent ...] ... [else consequent ...]))] except that the keywords only introduce bindings, and aren't part of the values that are fed into @tech{floe}. @racket[switch-λ] and @racket[λ01] are aliases for @racket[switch-lambda].
 
 @examples[
     #:eval eval-for-docs
@@ -173,10 +173,10 @@ Each of the @racket[predicate] and @racket[consequent] expressions is a @tech{fl
 The following definition forms may be used in place of the usual general-purpose @racket[define] form when defining @tech{flows}.
 
 @deftogether[(
-  @defform[(define-flow name @#,seclink["Syntax"]{@racket[floe]})]
+  @defform[(define-flow name @#,tech{floe})]
   @defform[#:link-target? #f
-           (define-flow (head args) @#,seclink["Syntax"]{@racket[floe]})])]{
-  Similiar to the function form of @racket[define] but constrained to the flow language. This is exactly equivalent to @racket[(define head (flow-lambda args @#,seclink["Syntax"]{@racket[floe]}))].
+           (define-flow (head args) @#,tech{floe})])]{
+  Similiar to the function form of @racket[define] but constrained to the flow language. This is exactly equivalent to @racket[(define head (flow-lambda args @#,tech{floe}))].
 }
 
 @deftogether[(
