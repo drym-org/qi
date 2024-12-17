@@ -165,7 +165,6 @@ Qi flow expressions expand to a small core language which is then @seclink["It_s
       NOT
       !
       XOR
-      ⏚
       ground
       (thread floe ...)
       relay

@@ -27,116 +27,64 @@ The symbol @racket[expr] is typically used in this sense to indicate a Racket no
 The full syntax of Qi ("Standard Qi") is given below. Note that Standard Qi expands to a @seclink["The_Qi_Core_Language"]{smaller core language} before being @seclink["It_s_Languages_All_the_Way_Down"]{compiled to Racket}.
 
 @racketgrammar*[
-[floe _
-      (gen expr ...)
-      △
-      sep
-      ▽
-      collect
-      (esc expr)
-      (clos floe)
-      (as identifier ...)
-      (one-of? expr ...)
-      (all floe)
-      (any floe)
-      (none floe)
-      (and floe ...)
-      (or floe ...)
-      (not floe)
-      (and% floe ...)
-      (or% floe ...)
-      NOT
-      !
-      AND
-      &
-      OR
-      ∥
-      NOR
-      NAND
-      XOR
-      XNOR
-      any?
-      all?
-      none?
-      inverter
-      ⏚
-      ground
-      (~> floe ...)
-      (thread floe ...)
-      (~>> floe ...)
-      (thread-right floe ...)
-      X
-      crossover
-      ==
-      (== floe ...)
-      relay
-      (relay floe ...)
-      (==* floe ...)
-      (relay* floe ...)
-      -<
-      (-< floe ...)
-      tee
-      (tee floe ...)
-      fanout
-      (fanout nat)
-      feedback
-      (feedback nat floe)
-      (feedback nat (then floe) floe)
-      (feedback (while floe) floe)
-      (feedback (while floe) (then floe) floe)
-      count
-      1>
-      2>
-      3>
-      4>
-      5>
-      6>
-      7>
-      8>
-      9>
-      (select index ...)
-      (block index ...)
-      (bundle (index ...) floe floe)
-      group
-      (group nat floe floe)
-      sieve
-      (sieve floe floe floe)
-      (partition [floe floe] ...)
-      (if floe floe)
-      (if floe floe floe)
-      (when floe floe)
-      (unless floe floe)
-      switch
-      (switch switch-expr ...)
-      (switch (% floe) switch-expr ...)
-      (switch (divert floe) switch-expr ...)
-      (gate floe)
-      ><
-      (>< floe)
-      amp
-      (amp floe)
-      pass
-      (pass floe)
-      <<
-      (<< floe)
-      (<< floe floe)
-      >>
-      (>> floe)
-      (>> floe floe)
-      (loop floe)
-      (loop floe floe)
-      (loop floe floe floe)
-      (loop floe floe floe floe)
-      (loop2 floe floe floe)
-      (ε floe floe)
-      (effect floe floe)
-      apply
-      (qi:* expr ...)
-      (expr expr ... __ expr ...)
-      (expr expr ... _ expr ...)
-      (expr expr ...)
-      literal
-      identifier]
+[floe @#,seclink["The_Qi_Core_Language"]{core-form}
+      macro-form]
+[macro-form △
+            ▽
+            (one-of? expr ...)
+            (and% floe ...)
+            (or% floe ...)
+            AND
+            &
+            OR
+            ∥
+            NOR
+            NAND
+            XNOR
+            any?
+            all?
+            none?
+            inverter
+            ⏚
+            (~> floe ...)
+            (~>> floe ...)
+            (thread-right floe ...)
+            X
+            crossover
+            ==
+            (== floe ...)
+            (==* floe ...)
+            (relay* floe ...)
+            -<
+            (-< floe ...)
+            count
+            1>
+            2>
+            3>
+            4>
+            5>
+            6>
+            7>
+            8>
+            9>
+            (bundle (index ...) floe floe)
+            (when floe floe)
+            (unless floe floe)
+            switch
+            (switch switch-expr ...)
+            (switch (% floe) switch-expr ...)
+            (switch (divert floe) switch-expr ...)
+            (gate floe)
+            ><
+            (>< floe)
+            (ε floe floe)
+            (effect floe floe)
+            apply
+            (expr expr ... __ expr ...)
+            (expr expr ... _ expr ...)
+            (expr expr ...)
+            literal
+            identifier]
 [literal boolean
          char
          string
