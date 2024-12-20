@@ -1,20 +1,40 @@
 #lang scribble/doc
 @require[scribble/manual
-	 (for-label racket/list
-	 	    racket/base)]
+         (for-label racket/list
+                    racket/base)]
 
 @title{List Operations}
 
 @defmodule[qi/list]
 
-This module defines bindings that can leverage stream fusion /
-deforestation optimization when found in succession within a
-flow. When not part of optimized flow, their behavior is identical to
-the bindings of the same name from @racketmodname[racket/base] and
-@racketmodname[racket/list].
+This module defines functional list operations analogous to those in
+@racketmodname[racket/base] and @racketmodname[racket/list], except
+that these forms support @tech{flows} in higher-order function
+positions and leverage the @seclink["Don_t_Stop_Me_Now"]{stream fusion
+/ deforestation} optimization to avoid constructing intermediate
+representations along the way to computing the result.
 
-The bindings are categorized based on their intended usage inside the
-deforested pipeline.
+The forms in this module extend the syntax of the @seclink["The_Qi_Core_Language"]{core Qi language}. This extended syntax is given below:
+
+@racketgrammar*[
+[floe (map floe)
+      (filter floe)
+      (filter-map floe)
+      (foldl floe expr)
+      (foldr floe expr)
+      (range expr expr expr)
+      (take expr)
+      car
+      cadr
+      caddr
+      cadddr
+      (list-ref expr)
+      length
+      empty?
+      null?]]
+
+The operations are categorized based on their role in the deforested
+pipeline.
 
 @section{Producers}
 
