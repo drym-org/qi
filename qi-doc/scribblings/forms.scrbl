@@ -24,6 +24,8 @@ The syntax of a language is most economically and clearly expressed using a gram
 
 The symbol @racket[expr] is typically used in this sense to indicate a Racket nonterminal position in the syntax, i.e., a position that expects a Racket expression. Analogously, we use the identifier @deftech{@racket[floe]} (pronounced "flow-e," for "flow expression") to refer to the Qi nonterminal, i.e., a position expecting Qi syntax.
 
+@tech{floe} is not to be confused with @tech{flow}. The relationship between the two is one of syntax and semantics, that is, the meaning of a @tech{floe} is a @tech{flow}.
+
 The full surface syntax of Qi is given below. Note that this expands to a @seclink["The_Qi_Core_Language"]{smaller core language} before being @seclink["It_s_Languages_All_the_Way_Down"]{compiled to Racket}. It does not include the @seclink["List_Operations"]{list-oriented forms}, which may be added via @racket[(require qi/list)].
 
 @racketgrammar*[

@@ -19,11 +19,11 @@
 
 @section{What is a Flow?}
 
- A @deftech{flow} is either made up of flows, or is a native (e.g. Racket) @seclink["lambda" #:doc '(lib "scribblings/guide/guide.scrbl")]{function}. Flows may be composed using a number of combinators that could yield either linear or nonlinear composite flows.
+ A @deftech{flow} is either composed of flows, or is a native (e.g. Racket) @seclink["lambda" #:doc '(lib "scribblings/guide/guide.scrbl")]{function}. In the former case, the composite flow is made up of flows that are combined in @seclink["Qi_Forms"]{well-defined structural ways} specifying the role of each component flow.
 
  A flow in general accepts @code{m} inputs and yields @code{n} outputs, for arbitrary non-negative integers @code{m} and @code{n}. We say that such a flow is @code{m × n}.
 
- The semantics of a flow is function invocation -- simply invoke a flow with inputs (i.e. ordinary arguments) to obtain the outputs.
+ Flows are @seclink["Embedding_a_Hosted_Language"]{embedded} into the host language (e.g. Racket) using the @racket[☯] macro which evaluates to an ordinary function. To use the flow, simply invoke this function with inputs as ordinary arguments to obtain the outputs as ordinary return values.
 
  The Qi language allows you to describe and use flows in your code.
 
@@ -146,7 +146,7 @@ This architecture is achieved through the use of @seclink["top" #:indirect? #t #
 
 @section{The Qi Core Language}
 
-Qi flow expressions expand to a small core language which is then @seclink["It_s_Languages_All_the_Way_Down"]{optimized and compiled to Racket}. The core language specification is given below. This syntax is a sub-language of the @seclink["Syntax"]{full Qi language}.
+Qi flow expressions expand to a small core language which is then @seclink["It_s_Languages_All_the_Way_Down"]{optimized and compiled to Racket}. The core language specification is given below. This syntax is a subset of the @seclink["Syntax"]{full Qi language}.
 
 @racketgrammar*[
 [floe _
