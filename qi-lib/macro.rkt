@@ -141,7 +141,7 @@
 (define-syntax define-deforestable
   (syntax-parser
     [(_ (name spec ...+) codegen)
-     #:with ([typ arg] ...) #'(spec ...)
+     #:with ([_typ arg] ...) #'(spec ...)
      #:with codegen-f #'(lambda (arg ...)
                           ;; var bindings vs pattern bindings
                           ;; arg are syntax objects but we can't

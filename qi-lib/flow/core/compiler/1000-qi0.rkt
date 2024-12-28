@@ -394,8 +394,8 @@ the DSL.
 
   (define (deforestable-clause-parser c)
     (syntax-parse c
-      [((~datum f) e) #'(qi0->racket e)]
-      [((~datum e) e) #'e]))
+      [((~datum floe) e) #'(qi0->racket e)]
+      [((~datum expr) e) #'e]))
 
   (define (deforestable-parser e)
     (syntax-parse e
