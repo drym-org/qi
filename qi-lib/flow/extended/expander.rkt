@@ -245,8 +245,8 @@ core language's use of #%app, etc.).
         #'(esc spaced-f)))
 
   (nonterminal deforestable-clause
-    ((~datum f) e:closed-floe)
-    ((~datum e) g:racket-expr))
+    ((~datum floe) e:closed-floe)
+    ((~datum expr) g:racket-expr))
 
   (nonterminal arg-stx
     (~datum _)

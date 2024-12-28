@@ -14,7 +14,9 @@ positions and leverage the @seclink["Don_t_Stop_Me_Now"]{stream fusion
 / deforestation} optimization to avoid constructing intermediate
 representations along the way to computing the result.
 
-The forms in this module extend the syntax of the @seclink["The_Qi_Core_Language"]{core Qi language}. This extended syntax is given below:
+The forms in this module extend the syntax of the
+@seclink["The_Qi_Core_Language"]{core Qi language}. This extended
+syntax is given below:
 
 @racketgrammar*[
 [floe (map floe)
@@ -22,6 +24,8 @@ The forms in this module extend the syntax of the @seclink["The_Qi_Core_Language
       (filter-map floe)
       (foldl floe expr)
       (foldr floe expr)
+      (range expr)
+      (range expr expr)
       (range expr expr expr)
       (take expr)
       car

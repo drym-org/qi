@@ -22,7 +22,9 @@ The syntax and semantics of the Qi language. Qi @tech{flows} may be described us
 
 The syntax of a language is most economically and clearly expressed using a grammar, in the form of "nonterminal" symbols along with production rules expressing the syntax that is entailed in positions marked by those symbols. We may thus take the single starting symbol in such a grammar to formally designate the entire syntax of the language.
 
-The symbol @racket[expr] is typically used in this sense to indicate a Racket nonterminal position in the syntax -- that is, a position that expects a Racket expression. Analogously, we use the identifier @deftech{@racket[floe]} (pronounced "flow-e," for "flow expression") to refer to the Qi nonterminal, i.e. a position expecting Qi syntax.
+The symbol @racket[expr] is typically used in this sense to indicate a Racket nonterminal position in the syntax, i.e., a position that expects a Racket expression. Analogously, we use the identifier @deftech{@racket[floe]} (pronounced "flow-e," for "flow expression") to refer to the Qi nonterminal, i.e., a position expecting Qi syntax.
+
+@tech{floe} is not to be confused with @tech{flow}. The relationship between the two is one of syntax and semantics, that is, the meaning of a @tech{floe} is a @tech{flow}.
 
 The full surface syntax of Qi is given below. Note that this expands to a @seclink["The_Qi_Core_Language"]{smaller core language} before being @seclink["It_s_Languages_All_the_Way_Down"]{compiled to Racket}. It does not include the @seclink["List_Operations"]{list-oriented forms}, which may be added via @racket[(require qi/list)].
 
@@ -96,9 +98,9 @@ The full surface syntax of Qi is given below. Note that this expands to a @secli
          box-literal
          prefab-literal
          (@#,racket[quote] value)
-         (quasiquote value)
-         (quote-syntax value)
-         (syntax value)]
+         (@#,racket[quasiquote] value)
+         (@#,racket[quote-syntax] value)
+         (@#,racket[syntax] value)]
 [expr a-racket-expression]
 [index exact-positive-integer?]
 [nat exact-nonnegative-integer?]

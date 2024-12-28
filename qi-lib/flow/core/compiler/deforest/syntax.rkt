@@ -50,7 +50,7 @@
   #:attributes (blanket? fine? arg pre-arg post-arg)
   #:literal-sets (fs-literals)
   #:datum-literals (range)
-  (pattern (#%deforestable range _info ((~datum e) the-arg) ...)
+  (pattern (#%deforestable range _info ((~datum expr) the-arg) ...)
     #:attr arg #'(the-arg ...)
     #:attr pre-arg #f
     #:attr post-arg #f
@@ -79,28 +79,28 @@
   #:attributes (f)
   #:literal-sets (fs-literals)
   #:datum-literals (filter)
-  (pattern (#%deforestable filter _info ((~datum f) f-uncompiled))
+  (pattern (#%deforestable filter _info ((~datum floe) f-uncompiled))
     #:attr f (run-passes #'f-uncompiled)))
 
 (define-syntax-class fst-map
   #:attributes (f)
   #:literal-sets (fs-literals)
   #:datum-literals (map)
-  (pattern (#%deforestable map _info ((~datum f) f-uncompiled))
+  (pattern (#%deforestable map _info ((~datum floe) f-uncompiled))
     #:attr f (run-passes #'f-uncompiled)))
 
 (define-syntax-class fst-filter-map
   #:attributes (f)
   #:literal-sets (fs-literals)
   #:datum-literals (filter-map)
-  (pattern (#%deforestable filter-map _info ((~datum f) f-uncompiled))
+  (pattern (#%deforestable filter-map _info ((~datum floe) f-uncompiled))
     #:attr f (run-passes #'f-uncompiled)))
 
 (define-syntax-class fst-take
   #:attributes (n)
   #:literal-sets (fs-literals)
   #:datum-literals (take)
-  (pattern (#%deforestable take _info ((~datum e) n))))
+  (pattern (#%deforestable take _info ((~datum expr) n))))
 
 (define-syntax-class fst-syntax0
   (pattern (~or _:fst-filter
@@ -127,8 +127,8 @@
   (pattern (#%deforestable
             foldr
             _info
-            ((~datum f) op-uncompiled)
-            ((~datum e) init))
+            ((~datum floe) op-uncompiled)
+            ((~datum expr) init))
     #:attr op (run-passes #'op-uncompiled)))
 
 (define-syntax-class fsc-foldl
@@ -138,8 +138,8 @@
   (pattern (#%deforestable
             foldl
             _info
-            ((~datum f) op-uncompiled)
-            ((~datum e) init))
+            ((~datum floe) op-uncompiled)
+            ((~datum expr) init))
     #:attr op (run-passes #'op-uncompiled)))
 
 (define-syntax-class cad*r-datum
@@ -155,7 +155,7 @@
   #:literal-sets (fs-literals)
   #:datum-literals (list-ref)
   ;; TODO: need #%host-expression wrapping idx?
-  (pattern (#%deforestable list-ref _info ((~datum e) idx))
+  (pattern (#%deforestable list-ref _info ((~datum expr) idx))
     #:attr pos #'idx
     #:attr name #'list-ref)
   ;; TODO: bring wrapping #%deforestable out here?
