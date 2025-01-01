@@ -16,6 +16,17 @@
    "qi/list tests"
 
    (test-suite
+    "syntax"
+    (check-exn exn:fail?
+               (thunk (convert-compile-time-error
+                       (☯ (filter odd? (list 1 2 3)))))
+               "more arguments are provided than indicated in the spec")
+    (check-exn exn:fail?
+               (thunk (convert-compile-time-error
+                       (☯ filter)))
+               "form is used as an identifier but the spec indicates expected arguments"))
+
+   (test-suite
     "basic"
 
     (test-suite
@@ -272,6 +283,18 @@
                  ((☯ (~> (range 10)
                          car)))
                  0)
+    (test-equal? "range..cadr"
+                 ((☯ (~> (range 10)
+                         cadr)))
+                 1)
+    (test-equal? "range..caddr"
+                 ((☯ (~> (range 10)
+                         caddr)))
+                 2)
+    (test-equal? "range..cadddr"
+                 ((☯ (~> (range 10)
+                         cadddr)))
+                 3)
     (test-equal? "range..map"
                  ((☯ (~> (range 3)
                          (map sqr))))
