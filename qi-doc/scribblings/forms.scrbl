@@ -486,6 +486,19 @@ Note that the symbol form uses Unicode @code{0x2225} corresponding to LaTeX's @c
 }
 
 @deftogether[(
+@defform[(zip flo)]
+@defidform[zip]
+)]{
+  Combines corresponding members of each input list using @racket[flo] and produces as many output values.
+
+@examples[
+    #:eval eval-for-docs
+    ((☯ zip) '(a b c) '(1 2 3))
+    ((☯ (zip +)) (list 1 2 3) (list 1 2 3))
+  ]
+}
+
+@deftogether[(
 @defidform[fanout]
 @defform[#:link-target? #f
          (fanout N)]

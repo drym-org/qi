@@ -171,6 +171,8 @@ Qi flow expressions expand to a small core language which is then @seclink["It_s
       (relay floe ...)
       tee
       (tee floe ...)
+      zip
+      (zip floe)
       fanout
       (fanout nat)
       feedback

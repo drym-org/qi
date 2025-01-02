@@ -104,6 +104,9 @@
                             ((#%host-expression f)
                              (#%host-expression 1)
                              __))))
+    (test-expand "zip"
+                 #'(zip (>< f))
+                 #'(zip (amp (esc (#%host-expression f)))))
     (test-expand "#%deforestable"
                  #'(#%deforestable name info (floe 0) (expr 0))
                  #'(#%deforestable name
@@ -125,6 +128,7 @@
                                  (relay (esc (#%host-expression f)) (esc (#%host-expression g)))
                                  (tee (esc (#%host-expression f)) (esc (#%host-expression g)))
                                  (thread (esc (#%host-expression f)) (esc (#%host-expression g)))
+                                 (zip (esc (#%host-expression f)))
                                  (gen (#%host-expression 2) (#%host-expression 3))
                                  (pass (esc (#%host-expression f)))
                                  (sep (esc (#%host-expression g)))
@@ -158,6 +162,7 @@
                          (== f g)
                          (-< f g)
                          (~> f g)
+                         (zip f)
                          (gen 2 3)
                          (pass f)
                          (sep g)
