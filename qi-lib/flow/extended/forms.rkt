@@ -39,10 +39,6 @@
 (define-qi-syntax-rule (none onex:clause)
   (not (any onex)))
 
-(define-qi-syntax-parser zip
-  [(_ op:clause) #'(~zip op __)]
-  [_:id #'(zip list)])
-
 (define-qi-syntax-parser NOR
   [_:id #'(~> OR NOT)])
 

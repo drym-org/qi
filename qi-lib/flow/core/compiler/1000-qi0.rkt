@@ -59,6 +59,7 @@
     ;; map and filter
     [e:amp-form (amp-parser #'e)] ; NOTE: technically not core
     [e:pass-form (pass-parser #'e)] ; NOTE: technically not core
+    [e:zip-form (zip-parser #'e)]
     ;; prisms
     [e:sep-form (sep-parser #'e)]
     [(~or* (~datum ▽) (~datum collect))
@@ -142,22 +143,23 @@
     [((~datum #%host-expression) hex)
      this-syntax]))
 
-;; The form-specific parsers, which are delegated to from
-;; the qi0->racket macro:
-
 #|
+
+The form-specific parsers, which are delegated to from the qi0->racket
+macro, are below.
+
+Keep in mind that as we are at the code generation stage here -- which
+is post-expansion and post-optimization -- for any synthesized syntax
+at this stage, any floe positions there must be expressed purely in
+the core language and should be recursively codegen'd by calling
+`qi0->racket` on them. In particular, any Racket functions used must
+be explicitly `esc`aped, as plain function identifiers are not part of
+the core language though they are part of the surface language.
+
 A note on error handling:
 
-Some forms, in addition to handling legitimate syntax, also have
-catch-all versions that exist purely to provide a helpful message
-indicating a syntax error. We do this since a priori the qi0->racket macro
-would ignore syntax that doesn't match any pattern. Yet, for all of
-these named forms, we know that (or at least, it is prudent to assume
-that) the user intended to employ that particular form of the DSL. So
-instead of allowing it to fall through for interpretation as Racket
-code, which would yield potentially inscrutable errors, the catch-all
-forms allow us to provide appropriate error messages at the level of
-the DSL.
+There should be no syntax errors reported at this stage, as that is
+already handled during expansion by Syntax Spec.
 
 |#
 
@@ -334,6 +336,12 @@ the DSL.
        #'(qi0->racket ==)]
       [(_ onex:clause)
        #'(curry map-values (qi0->racket onex))]))
+
+  (define (zip-parser stx)
+    (syntax-parse stx
+      [(_ op:clause)
+       #'(zip-with (qi0->racket op))]
+      [_:id #'(qi0->racket (zip (esc list)))]))
 
   (define (pass-parser stx)
     (syntax-parse stx

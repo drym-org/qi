@@ -16,7 +16,8 @@
          values->list
          feedback-times
          feedback-while
-         kw-helper)
+         kw-helper
+         zip-with)
 
 (require racket/match
          (only-in racket/function
@@ -170,17 +171,25 @@
 
 (define for-all andmap)
 
-(define (zip-with op . seqs)
-  (if (exists empty? seqs)
-      (if (for-all empty? seqs)
-          null
-          (apply raise-arity-error
-                 'relay
-                 0
-                 (first (filter (negate empty?) seqs))))
-      (let ([vs (map first seqs)])
-        (append (values->list (apply op vs))
-                (apply zip-with op (map rest seqs))))))
+(define (~zip-with op seqs truncate)
+  (if (empty? seqs)
+      null
+      (if (exists empty? seqs)
+       (if (for-all empty? seqs)
+           null
+           (if truncate
+               null
+               (apply raise-arity-error
+                      'zip-with
+                      0
+                      (first (filter (negate empty?) seqs)))))
+       (let ([vs (map first seqs)])
+         (append (values->list (apply op vs))
+                 (~zip-with op (map rest seqs) truncate))))))
+
+(define (zip-with op)
+  (λ seqs
+    (apply values (apply ~zip-with (list op seqs #true)))))
 
 ;; from mischief/function - requiring it runs aground
 ;; of some "name is protected" error while building docs, not sure why;
@@ -192,7 +201,7 @@
 
 (define (relay . fs)
   (λ args
-    (apply values (zip-with call fs args))))
+    (apply values (~zip-with call (list fs args) #false))))
 
 (define (repeat-values n . vs)
   (apply values (apply append (make-list n vs))))

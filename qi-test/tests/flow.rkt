@@ -1608,11 +1608,10 @@
                   ((☯ (~> (zip +) ▽))
                    '(1 2) '(3 4))
                   '(4 6))
-     ;; (test-equal? "zip with flow operation"
-     ;;              ((☯ (~> (zip (~> string->number +)) ▽))
-     ;;               '("1" "2") '("3" "4"))
-     ;;              '(4 6))
-     ))
+     (test-equal? "zip with flow operation"
+                  ((☯ (~> (zip (~> (>< string->number) +)) ▽))
+                   '("1" "2") '("3" "4"))
+                  '(4 6))))
 
    (test-suite
     "language extension"

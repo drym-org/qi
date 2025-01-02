@@ -10,8 +10,7 @@
          ~any?
          ~none?
          ~count
-         ~live?
-         ~zip)
+         ~live?)
 
 (define (->boolean v) (and v #t))
 
@@ -40,15 +39,3 @@
 
 (define (~live? . args)
   (not (null? args)))
-
-(define (zip-lists op lsts)
-  (if (null? lsts)
-      null
-      (if (ormap null? lsts)
-       null
-       (let ([vs (map car lsts)])
-         (cons (apply op vs)
-               (zip-lists op (map cdr lsts)))))))
-
-(define (~zip op . lsts)
-  (apply values (zip-lists op lsts)))

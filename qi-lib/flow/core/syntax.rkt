@@ -14,6 +14,7 @@
          fanout-form
          if-form
          pass-form
+         zip-form
          fold-left-form
          fold-right-form
          loop-form
@@ -111,6 +112,12 @@ See comments in flow.rkt for more details.
    (~datum pass))
   (pattern
    ((~datum pass) arg ...)))
+
+(define-syntax-class zip-form
+  (pattern
+   (~datum zip))
+  (pattern
+   ((~datum zip) arg)))
 
 (define-syntax-class fold-left-form
   (pattern
