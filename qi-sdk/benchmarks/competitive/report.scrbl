@@ -64,17 +64,20 @@
 
   (define qi-long-pipeline-prog
     (make-vlib/prog impl-label
-                    (flow (~>> range
-                               (filter odd?)
-                               (map sqr)
-                               values
-                               (filter (lambda (v) (< (remainder v 10) 5)))
-                               (map (lambda (v) (* v 2)))
-                               (foldl + 0)))))
+                    (λ (high)
+                      (~>> ()
+                        (range high)
+                        (filter odd?)
+                        (map sqr)
+                        values
+                        (filter (lambda (v) (< (remainder v 10) 5)))
+                        (map (lambda (v) (* v 2)))
+                        (foldl + 0)))))
 
   (define qi-range-map-car-prog
     (make-vlib/prog impl-label
-                    (flow (~>> range (map sqr) car))))
+                    (λ (high)
+                      (~>> () (range high) (map sqr) car))))
   )
 
 @(module qi-deforested racket/base
@@ -100,21 +103,24 @@
 
   (define qi/d-long-pipeline-prog
     (make-vlib/prog impl-label
-                    (flow (~>> range
-                               (filter odd?)
-                               (map sqr)
-                               values
-                               (filter (lambda (v) (< (remainder v 10) 5)))
-                               (map (lambda (v) (* v 2)))
-                               (foldl + 0)))))
+                    (λ (high)
+                      (~>> ()
+                        (range high)
+                        (filter odd?)
+                        (map sqr)
+                        values
+                        (filter (lambda (v) (< (remainder v 10) 5)))
+                        (map (lambda (v) (* v 2)))
+                        (foldl + 0)))))
 
   (define qi/d-range-map-car-prog
     (make-vlib/prog impl-label
-                    (flow (~>> range (map sqr) car))))
+                    (λ (high)
+                      (~>> () (range high) (map sqr) car))))
   )
 
 @(require 'qi-default
-         'qi-deforested)
+          'qi-deforested)
 
 @(define benchmarks-specs
   (list
