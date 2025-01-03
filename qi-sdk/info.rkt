@@ -7,13 +7,18 @@
                "adjutor"
                "cli"
                "math-lib"
-               "collections-lib"
                "relation-lib"
                "csv-writing"
                "require-latency"
-               "vlibench"
+               ;; these are only used via `raco` in the Makefile,
+               ;; and so they don't appear as dependencies of the
+               ;; modules in this package but they are still needed
                "cover"
                "cover-coveralls"))
-(define build-deps '())
+(define build-deps '("vlibench"
+                     "scribble-lib"
+                     "scribble-math"
+                     "srfi-lite-lib"))
+(define module-suffixes '(#"scrbl"))
 (define clean '("compiled" "private/compiled"))
 (define pkg-authors '(countvajhula))

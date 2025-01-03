@@ -2,6 +2,7 @@
 @require[scribble/manual
          scribble-abbrevs/manual
          scribble/example
+         metapict ; technically only used dynamically, but adding here for info deps
          "eval.rkt"
          @for-label[(only-space-in qi qi)
                     racket]]
