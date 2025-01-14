@@ -17,7 +17,7 @@
          "../../macro.rkt"
          (only-in "../space.rkt"
                   define-for-qi)
-         "impl.rkt")
+         "runtime.rkt")
 
 ;;; Predicates
 

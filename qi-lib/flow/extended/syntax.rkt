@@ -12,7 +12,7 @@
 
 (require syntax/parse
          "../aux-syntax.rkt"
-         (for-template "impl.rkt"))
+         (for-template "runtime.rkt"))
 
 (define-syntax-class conjux-clause ; "juxtaposed" conjoin
   #:attributes (parsed)

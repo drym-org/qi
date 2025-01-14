@@ -2,7 +2,7 @@
 
 (require "../passes.rkt"
          (prefix-in fancy: fancy-app)
-         "../impl.rkt"
+         "../runtime.rkt"
          racket/function
          racket/list
          (for-syntax racket/base

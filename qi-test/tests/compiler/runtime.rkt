@@ -2,7 +2,7 @@
 
 (provide tests)
 
-(require qi/flow/core/impl
+(require qi/flow/core/runtime
          rackunit
          rackunit/text-ui
          (only-in racket/function thunk))
