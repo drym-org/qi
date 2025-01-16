@@ -10,7 +10,8 @@
                                 [tee -<]
                                 [amp ><]
                                 [sep △]
-                                [collect ▽])))
+                                [collect ▽]
+                                [NOT !])))
 
 (require syntax-spec-v2
          "../space.rkt"

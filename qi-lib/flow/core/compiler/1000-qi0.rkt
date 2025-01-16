@@ -28,6 +28,21 @@
     ;;;; Core language forms ;;;;
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+    ;; A note regarding symbolic aliases like ~>, ⏚ and △:
+    ;;
+    ;; These aren't technically part of the core language
+    ;; as they aren't directly part of the syntax
+    ;; spec in the expander (which includes only, e.g.,
+    ;; thread and tee and so on). Instead, they are simply
+    ;; aliased at the module level there when provided.
+    ;; Yet, during code generation in the present module,
+    ;; it's more convenient to express expansions
+    ;; using these symbolic aliases, and that's the
+    ;; reason we retain these in the patterns below. As
+    ;; these patterns are matched as _datum literals_,
+    ;; it doesn't matter that they aren't actually the
+    ;; literal core forms declared in the expander.
+
     [((~datum gen) ex:expr ...)
      #'(λ _ (values ex ...))]
     ;; pass-through (identity flow)
