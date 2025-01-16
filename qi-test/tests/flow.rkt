@@ -1611,7 +1611,15 @@
      (test-equal? "zip with flow operation"
                   ((☯ (~> (zip (~> (>< string->number) +)) ▽))
                    '("1" "2") '("3" "4"))
-                  '(4 6))))
+                  '(4 6))
+     (test-equal? "zip with multi-valued flow"
+                  ((☯ (~> (zip _) ▽))
+                   '("1" "2") '("3" "4"))
+                  '("1" "3" "2" "4"))
+     (test-equal? "zip with arity-reducing flow"
+                  ((☯ (~> (zip (pass (equal? "1"))) ▽))
+                   '("1" "2") '("3" "4"))
+                  '("1"))))
 
    (test-suite
     "language extension"

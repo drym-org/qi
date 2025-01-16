@@ -487,14 +487,19 @@ Note that the symbol form uses Unicode @code{0x2225} corresponding to LaTeX's @c
 
 @deftogether[(
 @defform[(zip flo)]
-@defidform[zip]
+@defidform[#:link-target? #f zip]
 )]{
-  Combines corresponding members of each input list using @racket[flo] and produces as many output values.
+  Combine corresponding members of each input list using @racket[flo], producing these results directly as @seclink["values-model" #:doc '(lib "scribblings/reference/reference.scrbl")]{values}.
+
+  If the lists aren't all of the same size, the operation is truncated when the shortest list is exhausted. If no @racket[flo] is specified, it defaults to @racket[list].
+
+  In the common case where @racket[flo] is @code{1 × 1} (i.e., where it accepts one input and produces one output), and where the input lists are all of the same size, the number of outputs will be the same as the length of each input list. But as @seclink["What_is_a_Flow_"]{flows can produce any number of values}, this is not necessarily the case in general.
 
 @examples[
     #:eval eval-for-docs
     ((☯ zip) '(a b c) '(1 2 3))
     ((☯ (zip +)) (list 1 2 3) (list 1 2 3))
+    ((☯ (zip (~> (-< _ _) ▽))) (list 1 2 3))
   ]
 }
 
