@@ -4,6 +4,7 @@
          define-qi-syntax-rule
          define-qi-syntax-parser
          define-qi-foreign-syntaxes
+         define-deforestable
          (for-syntax qi-macro))
 
 (require (for-syntax racket/base
@@ -12,10 +13,13 @@
                      racket/list)
          (only-in "flow/extended/expander.rkt"
                   qi-macro
-                  esc)
+                  esc
+                  #%deforestable)
          qi/flow/space
+         (for-syntax qi/flow/aux-syntax)
          syntax/parse/define
-         syntax/parse)
+         syntax/parse
+         syntax-spec-v2)
 
 (begin-for-syntax
 
@@ -62,50 +66,107 @@
 
   (define (make-qi-foreign-syntax-transformer original-macro-id)
     (define/syntax-parse original-macro original-macro-id)
-    (qi-macro
-     (syntax-parser
-       [(name pre-form ... (~datum __) post-form ...)
-        (let ([name (syntax->datum #'name)])
-          (raise-syntax-error name
-                              (~a "Syntax error in "
-                                  `(,name
-                                    ,@(syntax->datum #'(pre-form ...))
-                                    "__"
-                                    ,@(syntax->datum #'(post-form ...)))
-                                  "\n"
-                                  "  __ templates are not supported for foreign macros.\n"
-                                  "  Use _'s to indicate a specific number of expected arguments, instead.")))]
-       [(name pre-form ... (~datum _) post-form ...)
-        (foreign-macro-template-expand
-         (datum->syntax this-syntax
-           (cons #'original-macro
-                 (cdr (syntax->list this-syntax)))))]
-       [(name form ...)
-        #:do [(define chirality (syntax-property this-syntax 'chirality))]
-        (if (and chirality (eq? chirality 'right))
-            #'(esc (lambda (v) (original-macro form ... v)))
-            #'(esc (lambda (v) (original-macro v form ...))))]
-       [name:id #'(esc (lambda (v) (original-macro v)))]))))
+    (syntax-parser
+      [(name pre-form ... (~datum __) post-form ...)
+       (let ([name (syntax->datum #'name)])
+         (raise-syntax-error name
+                             (~a "Syntax error in "
+                                 `(,name
+                                   ,@(syntax->datum #'(pre-form ...))
+                                   "__"
+                                   ,@(syntax->datum #'(post-form ...)))
+                                 "\n"
+                                 "  __ templates are not supported for foreign macros.\n"
+                                 "  Use _'s to indicate a specific number of expected arguments, instead.")))]
+      [(name pre-form ... (~datum _) post-form ...)
+       (foreign-macro-template-expand
+        (datum->syntax this-syntax
+          (cons #'original-macro
+                (cdr (syntax->list this-syntax)))))]
+      [(name form ...)
+       #:do [(define chirality (syntax-property this-syntax 'chirality))]
+       (if (and chirality (eq? chirality 'right))
+           #'(esc (lambda (v) (original-macro form ... v)))
+           #'(esc (lambda (v) (original-macro v form ...))))]
+      [name:id #'(esc (lambda (v) (original-macro v)))])))
 
 (define-syntax define-qi-syntax-rule
   (syntax-parser
     [(_ (name . pat) template)
-     #'(define-qi-syntax name
-         (qi-macro
-          (syntax-parser
-            [(_ . pat) #'template])))]))
+     #'(define-dsl-syntax name qi-macro
+         (syntax-parser
+           [(_ . pat) #'template]))]))
 
 (define-syntax define-qi-syntax-parser
   (syntax-parser
     [(_ name clause ...)
-     #'(define-qi-syntax name
-         (qi-macro
-          (syntax-parser
-            clause ...)))]))
+     #'(define-dsl-syntax name qi-macro
+         (syntax-parser
+           clause ...))]))
 
 (define-syntax define-qi-foreign-syntaxes
   (syntax-parser
     [(_ form-name ...)
      #'(begin
-         (define-qi-syntax form-name (make-qi-foreign-syntax-transformer #'form-name))
+         (define-dsl-syntax form-name qi-macro
+           (make-qi-foreign-syntax-transformer #'form-name))
          ...)]))
+
+(begin-for-syntax
+  (define (op-transformer name info spec)
+    ;; use the `spec` to rewrite the source expression to expand
+    ;; to a corresponding number of clauses in the core form, like:
+    ;; (op e1 e2 e3) → (#%optimizable-app #,info [f e1] [e e2] [f e3])
+    (syntax-parse spec
+      #:datum-literals (op)
+      [(op [tag arg-name] ...)
+       (syntax-parser
+         [(_ e ...+)
+          #:fail-unless (= (length (attribute e))
+                           (length (attribute arg-name)))
+          "Wrong number of arguments!"
+          #`(#%deforestable #,name #,info [tag e] ...)]
+         [_:id
+          (raise-syntax-error #f
+                              (format "Bad syntax. Usage: (~a arg ...)"
+                                      (syntax->datum this-syntax))
+                              this-syntax)])]
+      [op
+       (syntax-parser
+         ;; already raises a good error if used as a
+         ;; form with arguments (rather than as an identifier)
+         ;; so no special error handling needed here
+         [_:id #`(#%deforestable #,name #,info)])])))
+
+(define-syntax define-deforestable
+  (syntax-parser
+    [(_ (name spec ...+) codegen)
+     #:with ([_typ arg] ...) #'(spec ...)
+     #:with codegen-f #'(lambda (arg ...)
+                          ;; var bindings vs pattern bindings
+                          ;; arg are syntax objects but we can't
+                          ;; use them as variable bindings, so
+                          ;; we use with-syntax to handle them
+                          ;; as pattern bindings
+                          (with-syntax ([arg arg] ...)
+                            codegen))
+     #'(begin
+
+         ;; capture the codegen in an instance of
+         ;; the compile time struct
+         (define-syntax info
+           (deforestable-info codegen-f))
+
+         (define-dsl-syntax name qi-macro
+           (op-transformer #'name #'info #'(op spec ...))))]
+    [(_ name:id codegen)
+     #:with codegen-f #'(lambda () codegen)
+     #'(begin
+
+         ;; capture the codegen in an instance of
+         ;; the compile time struct
+         (define-syntax info
+           (deforestable-info codegen-f))
+
+         (define-dsl-syntax name qi-macro
+           (op-transformer #'name #'info #'op)))]))

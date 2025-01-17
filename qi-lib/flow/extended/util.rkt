@@ -35,7 +35,8 @@
                       feedback
                       loop
                       loop2
-                      clos)
+                      clos
+                      #%deforestable)
     [(thread
       expr ...)
      #`(~> #,@(map prettify-flow-syntax (syntax->list #'(expr ...))))]
@@ -118,4 +119,6 @@
       expr ...)
      #`(clos #,@(map prettify-flow-syntax (syntax->list #'(expr ...))))]
     [(esc expr) (prettify-flow-syntax #'expr)]
+    [(#%deforestable name _info ((~or* (~datum floe) (~datum expr)) expr) ...)
+     #`(name #,@(map prettify-flow-syntax (syntax->list #'(expr ...))))]
     [expr #'expr]))

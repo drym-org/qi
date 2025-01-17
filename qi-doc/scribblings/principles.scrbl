@@ -19,11 +19,11 @@
 
 @section{What is a Flow?}
 
- A @deftech{flow} is either made up of flows, or is a native (e.g. Racket) @seclink["lambda" #:doc '(lib "scribblings/guide/guide.scrbl")]{function}. Flows may be composed using a number of combinators that could yield either linear or nonlinear composite flows.
+ A @deftech{flow} is either composed of flows, or is a native (e.g. Racket) @seclink["lambda" #:doc '(lib "scribblings/guide/guide.scrbl")]{function}. In the former case, the composite flow is made up of flows that are combined in @seclink["Qi_Forms"]{well-defined structural ways} specifying the role of each component flow.
 
  A flow in general accepts @code{m} inputs and yields @code{n} outputs, for arbitrary non-negative integers @code{m} and @code{n}. We say that such a flow is @code{m × n}.
 
- The semantics of a flow is function invocation -- simply invoke a flow with inputs (i.e. ordinary arguments) to obtain the outputs.
+ Flows are @seclink["Embedding_a_Hosted_Language"]{embedded} into the host language (e.g. Racket) using the @racket[☯] macro which evaluates to an ordinary function. To use the flow, simply invoke this function with inputs as ordinary arguments to obtain the outputs as ordinary return values.
 
  The Qi language allows you to describe and use flows in your code.
 
@@ -134,7 +134,7 @@ Qi is a language implemented on top of another language, Racket, by means of a m
 The @racket[flow] form accepts Qi syntax and (like any @tech/reference{macro}) produces Racket syntax. It does this in two stages:
 
 @itemlist[#:style 'ordered
-  @item{Expansion, where the Qi source expression is translated to a small core language (Core Qi).}
+  @item{Expansion, where the Qi source expression is translated to a small core language (@seclink["The_Qi_Core_Language"]{Core Qi}).}
   @item{Compilation, where the Core Qi expression is optimized and then translated into Racket.}
 ]
 
@@ -143,3 +143,74 @@ All of this happens at @seclink["phases" #:doc '(lib "scribblings/guide/guide.sc
 Thus, Qi is a special kind of @seclink["Hosted_Languages"]{hosted language}, one that happens to have the same architecture as the host language, Racket, in terms of having distinct expansion and compilation steps. This gives it a lot of flexibility in its implementation, including allowing much of its surface syntax to be implemented as @seclink["Qi_Macros"]{Qi macros} (for instance, Qi's @racket[switch] expands to a use of Qi's @racket[if] just as Racket's @racket[cond] expands to a use of Racket's @racket[if]), allowing it to be naturally macro-extensible by users, and lending it the ability to @seclink["Don_t_Stop_Me_Now"]{perform optimizations on the core language} that allow idiomatic code to be performant.
 
 This architecture is achieved through the use of @seclink["top" #:indirect? #t #:doc '(lib "syntax-spec-v2/scribblings/main.scrbl")]{Syntax Spec}, following the general approach described in @hyperlink["https://dl.acm.org/doi/abs/10.1145/3674627"]{Compiled, Extensible, Multi-language DSLs (Ballantyne et. al.)} and @hyperlink["https://dl.acm.org/doi/abs/10.1145/3428297"]{Macros for Domain-Specific Languages (Ballantyne et. al.)}.
+
+@section{The Qi Core Language}
+
+Qi flow expressions expand to a small core language which is then @seclink["It_s_Languages_All_the_Way_Down"]{optimized and compiled to Racket}. The core language specification is given below. This syntax is a subset of the @seclink["Syntax"]{full Qi language}.
+
+@racketgrammar*[
+[floe _
+      (gen expr ...)
+      sep
+      collect
+      (esc expr)
+      (clos floe)
+      (as identifier ...)
+      (all floe)
+      (any floe)
+      (none floe)
+      (and floe ...)
+      (or floe ...)
+      (not floe)
+      NOT
+      !
+      XOR
+      ground
+      (thread floe ...)
+      relay
+      (relay floe ...)
+      tee
+      (tee floe ...)
+      fanout
+      (fanout nat)
+      feedback
+      (feedback nat floe)
+      (feedback nat (then floe) floe)
+      (feedback (while floe) floe)
+      (feedback (while floe) (then floe) floe)
+      (select index ...)
+      (block index ...)
+      group
+      (group nat floe floe)
+      sieve
+      (sieve floe floe floe)
+      (partition [floe floe] ...)
+      (if floe floe)
+      (if floe floe floe)
+      amp
+      (amp floe)
+      pass
+      (pass floe)
+      <<
+      (<< floe)
+      (<< floe floe)
+      >>
+      (>> floe)
+      (>> floe floe)
+      (loop floe)
+      (loop floe floe)
+      (loop floe floe floe)
+      (loop floe floe floe floe)
+      (loop2 floe floe floe)
+      appleye
+      (qi:* expr ...)
+      (#%blanket-template (expr expr ... __ expr ...))
+      (#%fine-template (expr expr ... _ expr ...))
+      (#%partial-application-form (expr expr ...))
+      (#%deforestable identifier identifier deforestable-clause ...)]
+[deforestable-clause (f floe)
+                     (e expr)]
+[expr a-racket-expression]
+[index exact-positive-integer?]
+[nat exact-nonnegative-integer?]
+[identifier a-racket-identifier]]

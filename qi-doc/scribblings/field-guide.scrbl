@@ -298,7 +298,7 @@ Qi aims to produce good error messages that convey what the problem is and clear
 
 @bold{Common example}: Attempting to use a Qi macro in one module without @racketlink[provide]{providing} it from the module where it is defined -- note that Qi macros must be provided as @racket[(provide (for-space qi mac))]. See @secref["Using_Macros" #:doc '(lib "qi/scribblings/qi.scrbl")] for more on this.
 
-@subsubsection{Contract Violation}
+@subsubsection{@racket[map]/@racket[filter] Contract Violation}
 
 @codeblock{
 ; map: contract violation
@@ -307,6 +307,8 @@ Qi aims to produce good error messages that convey what the problem is and clear
 }
 
 @bold{Meaning}: The interpreter attempted to apply a function to arguments but found that an argument was not of the expected type.
+
+@bold{Common example}: Using @racket[map] or @racket[filter] without first @racket[(require qi/list)]. The built-in Racket versions are @emph{functions} that expect the input list argument at a specific position (i.e., on the right), whereas the Qi versions are @emph{macros} that are invariant to threading direction and expect precisely one input -- the list itself.
 
 @bold{Common example}: Using a nested flow (such as a @racket[tee] junction or an @racket[effect]) within a right-threading flow and assuming that the input arguments would be passed on the right. At the moment, Qi does not propagate the threading direction to nested clauses. You could either use a fresh right threading form or indicate the argument positions explicitly in the nested flow using an @seclink["Templates_and_Partial_Application"]{argument template}.
 

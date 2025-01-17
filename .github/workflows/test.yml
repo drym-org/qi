@@ -36,7 +36,7 @@ jobs:
       - name: Check Dependencies
         run: make check-deps
       - name: Run Tests
-        run: make test
+        run: make test-all
   coverage:
     needs: test
     runs-on: ubuntu-latest

@@ -18,8 +18,7 @@
 
 (provide form-position?
          attach-form-property
-         tag-form-syntax
-         get-form-property)
+         tag-form-syntax)
 
 (require (only-in racket/function
                   curry))
@@ -42,9 +41,6 @@
 
 (define (attach-form-property stx)
   (syntax-property stx 'nonterminal 'floe))
-
-(define (get-form-property stx)
-  (syntax-property stx 'nonterminal))
 
 ;; This traverses a syntax object and indiscriminately tags every node
 ;; as a form. If this operation were applied to syntax in the real

@@ -103,7 +103,13 @@
                  #'(thread (#%blanket-template
                             ((#%host-expression f)
                              (#%host-expression 1)
-                             __)))))
+                             __))))
+    (test-expand "#%deforestable"
+                 #'(#%deforestable name info (floe 0) (expr 0))
+                 #'(#%deforestable name
+                                   info
+                                   (floe (gen (#%host-expression 0)))
+                                   (expr (#%host-expression 0)))))
    (test-suite
     "utils"
     ;; this is just temporary until we properly track source expressions through
@@ -143,7 +149,8 @@
                                  (esc (#%host-expression f))
                                  (#%blanket-template ((#%host-expression 1) __ (#%host-expression 4)))
                                  (#%blanket-template ((#%host-expression 4) __))
-                                 (#%fine-template ((#%host-expression 4) _))))))
+                                 (#%fine-template ((#%host-expression 4) _))
+                                 (#%deforestable map info (floe (amp (esc (#%host-expression f)))) (expr 3))))))
                  '(flow  (gen f)
                          ground
                          (select 1 2)
@@ -174,7 +181,8 @@
                          f
                          (1 __ 4)
                          (4 __)
-                         (4 _))))))
+                         (4 _)
+                         (map (>< f) 3))))))
 
 (module+ main
   (void

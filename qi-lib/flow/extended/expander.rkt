@@ -10,7 +10,8 @@
                                 [tee -<]
                                 [amp ><]
                                 [sep △]
-                                [collect ▽])))
+                                [collect ▽]
+                                [NOT !])))
 
 (require syntax-spec-v2
          "../space.rkt"
@@ -182,6 +183,13 @@ core language's use of #%app, etc.).
     clos
     (clos onex:closed-floe)
     (esc ex:racket-expr)
+    (~> ((~literal lambda) e ...)
+        #'(esc (lambda e ...)))
+    (~> ((~literal λ) e ...)
+        #'(lambda e ...))
+
+    ;; core form to express deforestable operations
+    (#%deforestable name:id info:id e:deforestable-clause ...)
 
     ;; backwards compat macro extensibility via Racket macros
     (~> ((~var ext-form (starts-with "qi:")) expr ...)
@@ -236,6 +244,10 @@ core language's use of #%app, etc.).
     (~> f:id
         #:with spaced-f (introduce-qi-syntax #'f)
         #'(esc spaced-f)))
+
+  (nonterminal deforestable-clause
+    ((~datum floe) e:closed-floe)
+    ((~datum expr) g:racket-expr))
 
   (nonterminal arg-stx
     (~datum _)

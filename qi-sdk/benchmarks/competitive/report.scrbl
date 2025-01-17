@@ -50,7 +50,8 @@
   (provide qi-filter-map-prog
            qi-filter-map-foldl-prog
            qi-long-pipeline-prog
-           qi-range-map-car-prog)
+           qi-range-map-car-prog
+	   qi-range-map-take-prog)
 
   (define impl-label "Qi")
 
@@ -64,17 +65,26 @@
 
   (define qi-long-pipeline-prog
     (make-vlib/prog impl-label
-                    (flow (~>> range
-                               (filter odd?)
-                               (map sqr)
-                               values
-                               (filter (lambda (v) (< (remainder v 10) 5)))
-                               (map (lambda (v) (* v 2)))
-                               (foldl + 0)))))
+                    (λ (high)
+                      (~>> ()
+                        (range high)
+                        (filter odd?)
+                        (map sqr)
+                        values
+                        (filter (lambda (v) (< (remainder v 10) 5)))
+                        (map (lambda (v) (* v 2)))
+                        (foldl + 0)))))
 
   (define qi-range-map-car-prog
     (make-vlib/prog impl-label
-                    (flow (~>> range (map sqr) car))))
+                    (λ (high)
+                      (~>> () (range high) (map sqr) car))))
+
+  (define qi-range-map-take-prog
+    (make-vlib/prog impl-label
+      (lambda (high)
+        (define n (add1 (quotient high 3)))
+        (~>> () (range high) (map sqr) (take _ n)))))
   )
 
 @(module qi-deforested racket/base
@@ -86,7 +96,8 @@
   (provide qi/d-filter-map-prog
            qi/d-filter-map-foldl-prog
            qi/d-long-pipeline-prog
-           qi/d-range-map-car-prog)
+           qi/d-range-map-car-prog
+	   qi/d-range-map-take-prog)
 
   (define impl-label "Qi deforested")
 
@@ -100,21 +111,31 @@
 
   (define qi/d-long-pipeline-prog
     (make-vlib/prog impl-label
-                    (flow (~>> range
-                               (filter odd?)
-                               (map sqr)
-                               values
-                               (filter (lambda (v) (< (remainder v 10) 5)))
-                               (map (lambda (v) (* v 2)))
-                               (foldl + 0)))))
+                    (λ (high)
+                      (~>> ()
+                        (range high)
+                        (filter odd?)
+                        (map sqr)
+                        values
+                        (filter (lambda (v) (< (remainder v 10) 5)))
+                        (map (lambda (v) (* v 2)))
+                        (foldl + 0)))))
 
   (define qi/d-range-map-car-prog
     (make-vlib/prog impl-label
-                    (flow (~>> range (map sqr) car))))
+                    (λ (high)
+                      (~>> () (range high) (map sqr) car))))
+
+  (define qi/d-range-map-take-prog
+    (make-vlib/prog impl-label
+      (lambda (high)
+        (define n (add1 (quotient high 3)))
+        (~>> () (range high) (map sqr) (take n)))))
+
   )
 
 @(require 'qi-default
-         'qi-deforested)
+          'qi-deforested)
 
 @(define benchmarks-specs
   (list
@@ -133,7 +154,11 @@
    (vlib/spec 'range-map-car
           identity
           (list qi/d-range-map-car-prog
-                qi-range-map-car-prog))))
+                qi-range-map-car-prog))
+   (vlib/spec 'range-map-take
+              identity
+	      (list qi/d-range-map-take-prog
+	      	    qi-range-map-take-prog))))
 
 @; Processing ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 @define[profile (hash-ref vlib/profiles config-profile)]

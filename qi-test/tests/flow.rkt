@@ -286,9 +286,15 @@
                    10
                    "normal racket expressions"))
     (test-suite
+     "lambda escape shortcut"
+     (check-equal? ((☯ (lambda (v) v)) 3) 3)
+     (check-equal? ((☯ (λ (v) v)) 3) 3)
+     (check-equal? ((☯ (λ () 3))) 3))
+    (test-suite
      "elementary boolean gates"
      (test-suite
       "AND"
+      (check-equal? ((☯ &) 3 5 7) 7)
       (check-equal? ((☯ AND) #f) #f)
       (check-equal? ((☯ AND) 3) 3)
       (check-equal? ((☯ AND) 3 5 7) 7)
@@ -297,6 +303,7 @@
       (check-equal? ((☯ AND) #f #f #f) #f))
      (test-suite
       "OR"
+      (check-equal? ((☯ ∥) 3 5 7) 3)
       (check-equal? ((☯ OR) #f) #f)
       (check-equal? ((☯ OR) 3) 3)
       (check-equal? ((☯ OR) 3 5 7) 3)
@@ -305,6 +312,7 @@
       (check-equal? ((☯ OR) #f #f #f) #f))
      (test-suite
       "NOT"
+      (check-false ((☯ !) 3))
       (check-false ((☯ NOT) 3))
       (check-true ((☯ NOT) #f)))
      (test-suite

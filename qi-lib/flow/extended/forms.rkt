@@ -7,7 +7,9 @@
                     (rename-out [thread-right ~>>]
                                 [crossover X]
                                 [relay* ==*]
-                                [effect ε])))
+                                [effect ε]
+                                [AND &]
+                                [OR ∥])))
 
 (require (for-syntax racket/base
                      "syntax.rkt"
@@ -17,7 +19,7 @@
          "../../macro.rkt"
          (only-in "../space.rkt"
                   define-for-qi)
-         "impl.rkt")
+         "runtime.rkt")
 
 ;;; Predicates
 

@@ -18,7 +18,6 @@
          double-values)
 
 (require (only-in math sqr)
-         (only-in racket/list range)
          qi
          qi/list)
 
@@ -43,8 +42,9 @@
   [else (~> (-< sub1
                 (- 2)) (>< pingala) +)])
 
-(define-flow (eratosthenes n)
-  (~> (-< (gen null) (~>> add1 (range 2) △))
+(define (eratosthenes n)
+  (~> ()
+      (-< (gen null) (~>> (range 2 (add1 n)) △))
       (feedback (while (~> (block 1) live?))
                 (then (~> 1> reverse))
                 (-< (~> (select 1 2) X cons)
@@ -77,24 +77,26 @@
        (map sqr)
        (foldl + 0)))
 
-(define-flow range-map-car
-  (~>> (range 0)
+(define (range-map-car n)
+  (~>> ()
+       (range 0 n)
        (map sqr)
        car))
 
-(define-flow range-map-sum
+(define (range-map-sum n)
   ;; TODO: this should be written as (apply +)
   ;; and that should be normalized to (foldr/l + 0)
   ;; (depending on which of foldl/foldr is more performant)
-  (~>> (range 0) (map sqr) (foldr + 0)))
+  (~>> () (range 0 n) (map sqr) (foldr + 0)))
 
-(define-flow long-functional-pipeline
-  (~>> (range 0)
+(define (long-functional-pipeline n)
+  (~>> ()
+       (range 0 n)
        (filter odd?)
        (map sqr)
        values
-       (filter (λ (v) (< (remainder v 10) 5)))
-       (map (λ (v) (* 2 v)))
+       (filter (~> (remainder 10) (< 5)))
+       (map (* 2))
        (foldl + 0)))
 
 ;; (define filter-double

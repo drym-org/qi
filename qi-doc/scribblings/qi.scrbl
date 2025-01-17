@@ -19,7 +19,7 @@ An embeddable, general-purpose language to allow convenient framing of programmi
 Tired of writing long functional pipelines with nested syntax like this?
 @racketblock[(map _f (filter _g (vector->list _my-awesome-data)))]
 Then Qi is for you!
-@racketblock[(~>> (_my-awesome-data) vector->list (filter _g) (map _f))]
+@racketblock[(~> (_my-awesome-data) vector->list (filter _g) (map _f))]
 But wait, there's more: Qi isn't just a turbo-charged threading language. It
 supports multiple values and a suite of other operators for describing
 computations:
@@ -40,6 +40,7 @@ This site hosts @emph{user} documentation. If you are interested in contributing
 @include-section["tutorial.scrbl"]
 @include-section["interface.scrbl"]
 @include-section["forms.scrbl"]
+@include-section["list-operations.scrbl"]
 @include-section["macros.scrbl"]
 @include-section["field-guide.scrbl"]
 @include-section["principles.scrbl"]
