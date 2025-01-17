@@ -74,7 +74,7 @@ Deforestable version of @racket[filter] from @racketmodname[racket/base].
   #:contracts
   ((proc (-> any/c any/c)))]{
 
-Deforestable version of @racket[map] from @racketmodname[racket/base]. Note that, unlike the Racket version, this accepts only one argument. For the "zip"-like behavior with multiple list inputs, see @racket[zip].
+Deforestable version of @racket[map] from @racketmodname[racket/base]. Note that, unlike the Racket version, this accepts only one argument. For the "zip"-like behavior with multiple list inputs, see @racket[△].
 
 }
 

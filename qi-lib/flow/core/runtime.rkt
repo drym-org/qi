@@ -17,6 +17,7 @@
          feedback-times
          feedback-while
          kw-helper
+         singleton?
          zip-with)
 
 (require racket/match
@@ -171,25 +172,36 @@
 
 (define for-all andmap)
 
+(define (singleton? seq)
+  ;; cheap check to see if a list is of length 1,
+  ;; instead of traversing to compute the length
+  (and (not (empty? seq))
+       (empty? (rest seq))))
+
 (define (~zip-with op seqs truncate)
-  (if (empty? seqs)
-      null
-      (if (exists empty? seqs)
-       (if (for-all empty? seqs)
-           null
-           (if truncate
-               null
-               (apply raise-arity-error
-                      'zip-with
-                      0
-                      (first (filter (negate empty?) seqs)))))
-       (let ([vs (map first seqs)])
-         (append (values->list (apply op vs))
-                 (~zip-with op (map rest seqs) truncate))))))
+  (if (exists empty? seqs)
+      (if (for-all empty? seqs)
+          null
+          (if truncate
+              null
+              (apply raise-arity-error
+                     'zip-with
+                     0
+                     (first (filter (negate empty?) seqs)))))
+      (let ([vs (map first seqs)])
+        (append (values->list (apply op vs))
+                (~zip-with op (map rest seqs) truncate)))))
 
 (define (zip-with op)
   (λ seqs
-    (apply values (apply ~zip-with (list op seqs #true)))))
+    (if (empty? seqs)
+        (values)
+        (let ([v (first seqs)])
+          (if (list? v)
+              (apply values (apply ~zip-with (list op seqs #true)))
+              (raise-argument-error 'zip-with
+                                    "list?"
+                                    v))))))
 
 ;; from mischief/function - requiring it runs aground
 ;; of some "name is protected" error while building docs, not sure why;

@@ -183,7 +183,7 @@ for the forms are run.
 
   (define (~zip . vs)
     (apply
-     (☯ (zip +))
+     (☯ (△ +))
      vs))
 
   (define (run)

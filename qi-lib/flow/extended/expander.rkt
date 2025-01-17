@@ -102,8 +102,6 @@ core language's use of #%app, etc.).
              (report-syntax-error this-syntax
                "(>< flo)"
                "amp expects a single flow specification, but it received many."))
-    (zip op:closed-floe)
-    zip
     pass
     (pass f:closed-floe)
     sep

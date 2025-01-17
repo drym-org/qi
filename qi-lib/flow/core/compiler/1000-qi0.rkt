@@ -59,7 +59,6 @@
     ;; map and filter
     [e:amp-form (amp-parser #'e)] ; NOTE: technically not core
     [e:pass-form (pass-parser #'e)] ; NOTE: technically not core
-    [e:zip-form (zip-parser #'e)]
     ;; prisms
     [e:sep-form (sep-parser #'e)]
     [(~or* (~datum ▽) (~datum collect))
@@ -167,15 +166,17 @@ already handled during expansion by Syntax Spec.
 
   (define (sep-parser stx)
     (syntax-parse stx
-      [_:id
-       #'(qi0->racket (if (esc list?)
-                          (#%fine-template (apply values _))
-                          (#%fine-template (raise-argument-error '△
-                                                                 "list?"
-                                                                 _))))]
-      [(_ onex:clause)
-       #'(λ (v . vs)
-           ((qi0->racket (~> △ (>< (#%fine-template (apply (qi0->racket onex) _ vs))))) v))]))
+      [(_ op:clause)
+       #'(zip-with (qi0->racket op))]
+      [_:id #'(λ args
+                (if (singleton? args)
+                    (let ([v (first args)])
+                      (if (list? v)
+                          (apply values v)  ; fast path to the basic △ behavior
+                          (raise-argument-error '△
+                                                "list?"
+                                                v)))
+                    (apply (qi0->racket (△ _)) args)))]))
 
   (define (select-parser stx)
     (syntax-parse stx
@@ -336,12 +337,6 @@ already handled during expansion by Syntax Spec.
        #'(qi0->racket ==)]
       [(_ onex:clause)
        #'(curry map-values (qi0->racket onex))]))
-
-  (define (zip-parser stx)
-    (syntax-parse stx
-      [(_ op:clause)
-       #'(zip-with (qi0->racket op))]
-      [_:id #'(qi0->racket (zip (esc list)))]))
 
   (define (pass-parser stx)
     (syntax-parse stx

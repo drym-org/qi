@@ -16,7 +16,6 @@
                       amp
                       tee
                       relay
-                      zip
                       gen
                       pass
                       sep
@@ -54,9 +53,6 @@
     [(relay
       expr ...)
      #`(== #,@(map prettify-flow-syntax (syntax->list #'(expr ...))))]
-    [(zip
-      expr ...)
-     #`(zip #,@(map prettify-flow-syntax (syntax->list #'(expr ...))))]
     [(gen
       expr ...)
      #`(gen #,@(map prettify-flow-syntax (syntax->list #'(expr ...))))]
