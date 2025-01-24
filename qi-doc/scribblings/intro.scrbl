@@ -71,26 +71,26 @@ Qi is a hosted language on the @hyperlink["https://racket-lang.org/"]{Racket pla
 
 @subsection{About Qi's Release Practices}
 
-Qi follows the @hyperlink["http://timothyfitz.com/2009/02/10/continuous-deployment-at-imvu-doing-the-impossible-fifty-times-a-day/"]{continuous deployment} model of development. This means that fresh changes are immediately pushed to the main branch of development after they pass a rigorous and comprehensive suite of tests.
+Qi breaks with traditional Racket package development and occasionally ships breaking changes in a @hyperlink["https://semver.org/"]{SemVer}-style major release. For that reason, in some cases when using Qi as a dependency, it is advisable to pin to a Qi tag using a Git @tech{package source} rather than follow the main "qi" Racket @tech{package source}. Keep reading for details and examples.
 
-Furthermore, Qi packages on the Racket package index point to this main branch on the source host, so that running @racket[raco pkg install qi] or @racket[raco pkg update qi] will always get the version on the @racket[main] branch, reflecting the latest improvements.
+Qi follows the @hyperlink["http://timothyfitz.com/2009/02/10/continuous-deployment-at-imvu-doing-the-impossible-fifty-times-a-day/"]{continuous deployment} model of development. This means that fresh changes are pushed to the main branch of development after they pass a rigorous and comprehensive suite of tests and thorough code review. Additionally, Qi packages on the Racket package index point to this main branch on the source host, so that running @racket[raco pkg install qi] or @racket[raco pkg update qi] will always get the version on the @racket[main] branch, reflecting the latest improvements.
 
-This doesn't mean that you must use this version, however. The expressiveness of modern version control systems allows us to define diverse versioning protocols directly on the versioning backend to best support diverse usage needs. Towards this end, Qi follows these conventions:
+This doesn't mean that you must use this version, however. The expressiveness of modern version control systems allows us to define diverse versioning protocols directly on the versioning backend (e.g., Git) to best support diverse usage needs. Towards this end, Qi follows these conventions:
 
 @itemlist[#:style 'ordered
   @item{Each significant new release has a tagged version, which is static and immutable.}
   @item{Each legacy release has a "maintenance" branch that will be stable without any backwards incompatible changes or new features, and will be supported with bug fixes as needed.}
 ]
 
-Together, these practices decouple development from use, effectively eliminating the problem of backwards compatibility. Specifically, Qi may occasionally change in a way that might traditionally be labeled "backwards-incompatible," but by relying on a version tag with either of the above semantics, such a change would not affect your application unless you are interested in the new features and until such a time as you are ready to upgrade. Thus, it gives users flexibility and stability without compromising the freedom to innovate and remedy past missteps for developers of Qi.
+Now, traditionally, we may have grown accustomed to depending on a certain version of a package "or newer" (as are the semantics of using a Racket, rather than Git, @tech{package source}), so that we never have to update the dependency specification to get the latest improvements. We believe that this convention needlessly overburdens development while threatening application stability, requiring us to choose one or the other.
 
-In case you need to rely on a version with either of the above semantics, we recommend declaring a Git @tech{package source} in your @racket[info.rkt], instead of a Racket @tech{package source}. Like this:
+But instead, by relying on a version with either of the above semantics, we gain stability and flexibility as users of Qi without compromising the freedom to innovate and remedy past missteps for developers of Qi. This style of dependency can be accomplished by using a Git @tech{package source} in your @racket[info.rkt], instead of a Racket @tech{package source}. Like this:
 
 @codeblock{
   (define deps '("git://github.com/drym-org/qi.git#v5.0"))
 }
 
-Now, traditionally, we may have grown accustomed to depending on a certain version of a package "or newer" (as are the semantics of using a Racket, rather than Git, @tech{package source}), so that we never have to update the dependency specification to get the latest improvements. We believe that this is a fragile convention that simultaneously overburdens development while threatening application stability. It's inadvisable for the same reason that mutability in programs is inadvisable, that is, introducing superfluous coupling and incurring the attendant risks. After all, any introduced bug is technically backwards-incompatible, as, indeed, is the fix for the bug! On the other hand, the branch strategy above supports these semantics to a sensible extent -- that of receiving necessary bug fixes, but not gratuitous "improvements" that may unwittingly break your application, even if they aren't intended to be backwards-incompatible.
+In addition, as part of each release, backwards incompatibilities are publicly announced and an effort is made to work with dependent package and application developers to ensure compatibility with the latest release, further bridging the gap to Racket's package management practices. Thus, in practice, outside of a production deployment, relying on the Racket @tech{package source} should be fine.
 
 @section{Relationship to the Threading Macro}
 
