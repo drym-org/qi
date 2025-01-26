@@ -41,6 +41,7 @@
     (check-equal? (~>> (3 4) + number->string (string-append "a")) "a7")
     (check-equal? (~> ((list 3 4 5)) △ (>< sqr) +) 50 "legitimate input to the sep form")
     (check-equal? (~>> ((list 3 4 5)) △ (>< sqr) +) 50 "legitimate input to the sep form")
+    (check-equal? (~> ('(a b) '(1 2)) △ ▽) '(a 1 b 2) "multiple list inputs with △ as the first flow")
     (check-equal? (~> (5 20 3)
                       (group 1
                              (~>
