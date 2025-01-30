@@ -38,13 +38,12 @@
 
   ;; (as name) → (~> (esc (λ (x) (set! name x))) ⏚)
   ;; TODO: use a box instead of set!
-  (define (rewrite-all-bindings stx)
-    (find-and-map/qi (syntax-parser
-                       [((~datum as) x ...)
-                        #:with (x-val ...) (generate-temporaries (attribute x))
-                        #'(thread (esc (λ (x-val ...) (set! x x-val) ...)) ground)]
-                       [_ this-syntax])
-                     stx))
+  (define rewrite-binding
+    (syntax-parser
+      [((~datum as) x ...)
+       #:with (x-val ...) (generate-temporaries (attribute x))
+       #'(thread (esc (λ (x-val ...) (set! x x-val) ...)) ground)]
+      [_ this-syntax]))
 
   (define (bound-identifiers stx)
     (let ([ids null])
@@ -68,6 +67,5 @@
     ;; TODO: use syntax-parse and match ~> specifically.
     ;; Since macros are expanded "outside in," presumably
     ;; it will naturally wrap the outermost ~>
-    (wrap-with-scopes (rewrite-all-bindings stx)
+    (wrap-with-scopes (find-and-map/qi rewrite-binding stx)
                       (bound-identifiers stx))))
-
