@@ -27,10 +27,10 @@ This tutorial is distributed using the @seclink["top" #:indirect? #t #:doc '(lib
 
 @subsection[#:tag "tutorial-installation"]{Installation}
 
-If you don't already have @seclink["top" #:indirect? #t #:doc '(lib "from-template/scribblings/from-template.scrbl")]{Racket Templates} installed, you'll need to run this first:
+If you don't already have @seclink["top" #:indirect? #t #:doc '(lib "raco-new/scribblings/raco-new.scrbl")]{Racket Templates} installed, you'll need to run this first:
 
 @codeblock{
-  raco pkg install from-template
+  raco pkg install new
 }
 
 And then, downloading the tutorial is as simple as:
