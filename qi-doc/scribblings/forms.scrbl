@@ -27,7 +27,7 @@ The symbol @racket[expr] is typically used in this sense to indicate a Racket no
 
 @tech{floe} is not to be confused with @tech{flow}. The relationship between the two is one of syntax and semantics, that is, the meaning of a @tech{floe} is a @tech{flow}.
 
-The full surface syntax of Qi is given below. Note that this expands to a @seclink["The_Qi_Core_Language"]{smaller core language} before being @seclink["It_s_Languages_All_the_Way_Down"]{compiled to Racket}. It does not include the @seclink["List_Operations"]{list-oriented forms}, which may be added via @racket[(require qi/list)].
+The full surface syntax of Qi is given below. Note that this expands to a @seclink["The_Qi_Core_Language"]{smaller core language} before being @seclink["It_s_Languages_All_the_Way_Down"]{compiled to Racket}. Additionally, Qi's syntax (i.e., @tech{floe}) may be extended by writing @secref["Qi_Macros"]. In particular, the @seclink["List_Operations"]{list-oriented forms} (not included here) may be added via @racket[(require qi/list)].
 
 @racketgrammar*[
 [floe @#,seclink["The_Qi_Core_Language"]{core-form}

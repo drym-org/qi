@@ -12,7 +12,7 @@
 
 @title[#:tag "Qi_Macros"]{Qi Macros}
 
-Qi may be extended in much the same way as Racket -- using @tech/reference{macros}. Qi macros are indistinguishable from built-in Qi forms during the macro expansion phase, just as user-defined Racket macros are indistinguishable from macros that are part of the Racket language. This allows us to have the same syntactic freedom with Qi as we are used to with Racket, from being able to @seclink["Adding_New_Language_Features"]{add new language features} to implementing @seclink["Writing_Languages_in_Qi"]{entire new languages} in Qi.
+Qi may be extended in much the same way as Racket -- using @tech/reference{macros}. Qi macros are @techlink[#:key "floe"]{indistinguishable from built-in Qi forms} during the macro expansion phase, just as user-defined Racket macros are indistinguishable from macros that are part of the Racket language. This allows us to have the same syntactic freedom with Qi as we are used to with Racket, from being able to @seclink["Adding_New_Language_Features"]{add new language features} to implementing @seclink["Writing_Languages_in_Qi"]{entire new languages} in Qi.
 
 For more on how this is accomplished under the hood, see @secref["It_s_Languages_All_the_Way_Down"].
 
@@ -202,7 +202,7 @@ In general, macros that define new languages are called @deftech{interface macro
 
 @subsection{Embedded Languages}
 
-One class of language has as many @tech["interface macros"] as there are forms in the language, so that the language seamlessly extends the host language. Such languages are called embedded languages or @deftech{embedded DSLs}. Examples of embedded languages in the Racket ecosystem include @seclink["top" #:indirect? #t #:doc '(lib "deta/deta.scrbl")]{Deta}, @seclink["top" #:indirect? #t #:doc '(lib "sawzall-doc/sawzall.scrbl")]{Sawzall}, Racket's built-in @seclink["contracts" #:doc '(lib "scribblings/reference/reference.scrbl")]{contract DSL}, @seclink["top" #:indirect? #t #:doc '(lib "contract/social/scribblings/social-contract.scrbl")]{Social Contract}, and @seclink["top" #:indirect? #t #:doc '(lib "scribblings/megaparsack.scrbl")]{Megaparsack}.
+One class of language has as many @tech{interface macros} as there are forms in the language, so that the language seamlessly extends the host language. Such languages are called embedded languages or @deftech{embedded DSLs}. Examples of embedded languages in the Racket ecosystem include @seclink["top" #:indirect? #t #:doc '(lib "deta/deta.scrbl")]{Deta}, @seclink["top" #:indirect? #t #:doc '(lib "sawzall-doc/sawzall.scrbl")]{Sawzall}, Racket's built-in @seclink["contracts" #:doc '(lib "scribblings/reference/reference.scrbl")]{contract DSL}, @seclink["top" #:indirect? #t #:doc '(lib "contract/social/scribblings/social-contract.scrbl")]{Social Contract}, and @seclink["top" #:indirect? #t #:doc '(lib "scribblings/megaparsack.scrbl")]{Megaparsack}.
 
 Embedded languages implicitly inherit the semantics of the host language (but may define and employ custom semantics, even predominantly). With Qi as the host language, this means that such languages are inherently flow-oriented, and could range from general-purpose "dialects" of Qi to specialized DSLs. They are perhaps the most common type of language one might write in Qi.
 
@@ -212,7 +212,7 @@ If there is an existing such language already implemented in Racket that you'd l
 
 @subsection{Hosted Languages}
 
-It is also possible to implement your language as a @emph{single} macro or a small set of mutually reliant macros, with the bulk of the forms of the language specified as expansion rules within these macros. Such a language is called a @emph{hosted} language or @deftech{hosted DSL}, and each of the @tech["interface macros"] it is made up of could be considered to be hosted sublanguages. Examples of hosted languages include Racket's @racket[match], and Qi itself, and typically (as in these examples) they are defined via a single interface macro containing all of the rules of the language.
+It is also possible to implement your language as a @emph{single} macro or a small set of mutually reliant macros, with the bulk of the forms of the language specified as expansion rules within these macros. Such a language is called a @emph{hosted} language or @deftech{hosted DSL}, and each of the @tech{interface macros} it is made up of could be considered to be hosted sublanguages. Examples of hosted languages include Racket's @racket[match], and Qi itself, and typically (as in these examples) they are defined via a single interface macro containing all of the rules of the language.
 
 The advantage of writing a hosted DSL, in general, is that by introducing a level of indirection between your code and the host-language (e.g. Racket or Qi) expander, you gain access to a distinct namespace that does not interfere with the names in the host language, allowing you greater syntactic freedom (for instance, to name your forms @racket[and] and @racket[if], which would otherwise collide with forms of the same name in the host language). In addition, you gain control over the expansion process, allowing you to, for instance, add a custom compiler to optimize the expanded forms of your language before host language expansion takes over.
 
