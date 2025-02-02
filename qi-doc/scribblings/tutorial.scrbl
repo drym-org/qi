@@ -23,11 +23,11 @@ They contain similar material, but the interactive version includes additional s
 
 @section{Interactive Tutorial}
 
-This tutorial is distributed using the @seclink["top" #:indirect? #t #:doc '(lib "raco-new/scribblings/raco-new.scrbl")]{Racket Templates} package, and contains the same material as the documentation-based tutorial, but also includes additional material such as exercises, all presented in an interactive format.
+This tutorial is distributed using the @seclink["top" #:indirect? #t #:doc '(lib "new/scribblings/new.scrbl")]{Racket Templates} package, and contains the same material as the documentation-based tutorial, but also includes additional material such as exercises, all presented in an interactive format.
 
 @subsection[#:tag "tutorial-installation"]{Installation}
 
-If you don't already have @seclink["top" #:indirect? #t #:doc '(lib "raco-new/scribblings/raco-new.scrbl")]{Racket Templates} installed, you'll need to run this first:
+If you don't already have @seclink["top" #:indirect? #t #:doc '(lib "new/scribblings/new.scrbl")]{Racket Templates} installed, you'll need to run this first:
 
 @codeblock{
   raco pkg install new
