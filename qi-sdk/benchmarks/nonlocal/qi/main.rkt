@@ -64,40 +64,40 @@
 ;;   (~> △ (>< (if odd? sqr ⏚)) ▽))
 
 (define-flow filter-map
-  (~>> (filter odd?)
-       (map sqr)))
+  (~> (filter odd?)
+      (map sqr)))
 
 (define-flow filter-map-foldr
-  (~>> (filter odd?)
-       (map sqr)
-       (foldr + 0)))
+  (~> (filter odd?)
+      (map sqr)
+      (foldr + 0)))
 
 (define-flow filter-map-foldl
-  (~>> (filter odd?)
-       (map sqr)
-       (foldl + 0)))
+  (~> (filter odd?)
+      (map sqr)
+      (foldl + 0)))
 
 (define (range-map-car n)
-  (~>> ()
-       (range 0 n)
-       (map sqr)
-       car))
+  (~> ()
+      (range 0 n)
+      (map sqr)
+      car))
 
 (define (range-map-sum n)
   ;; TODO: this should be written as (apply +)
   ;; and that should be normalized to (foldr/l + 0)
   ;; (depending on which of foldl/foldr is more performant)
-  (~>> () (range 0 n) (map sqr) (foldr + 0)))
+  (~> () (range 0 n) (map sqr) (foldr + 0)))
 
 (define (long-functional-pipeline n)
-  (~>> ()
-       (range 0 n)
-       (filter odd?)
-       (map sqr)
-       values
-       (filter (~> (remainder 10) (< 5)))
-       (map (* 2))
-       (foldl + 0)))
+  (~> ()
+      (range 0 n)
+      (filter odd?)
+      (map sqr)
+      values
+      (filter (~> (remainder 10) (< 5)))
+      (map (* 2))
+      (foldl + 0)))
 
 ;; (define filter-double
 ;;   (map (☯ (when odd?
