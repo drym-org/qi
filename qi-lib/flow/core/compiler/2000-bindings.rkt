@@ -67,5 +67,8 @@
     ;; TODO: use syntax-parse and match ~> specifically.
     ;; Since macros are expanded "outside in," presumably
     ;; it will naturally wrap the outermost ~>
-    (wrap-with-scopes (find-and-map/qi rewrite-binding stx)
-                      (bound-identifiers stx))))
+    (let ([ids (bound-identifiers stx)])
+      (if (null? ids)
+          stx
+          (wrap-with-scopes (find-and-map/qi rewrite-binding stx)
+                            (bound-identifiers stx))))))
