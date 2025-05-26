@@ -9,7 +9,10 @@
 (require syntax/parse/define
          (for-syntax racket/base
                      syntax/parse/lib/function-header
-                     "flow/aux-syntax.rkt")
+                     "flow/aux-syntax.rkt"
+                     racket/syntax)
+         (only-in "flow/core/compiler/0005-inline.rkt"
+                  flowdef)
          "flow.rkt"
          (only-in "private/util.rkt"
                   define-alias
@@ -37,12 +40,17 @@
 (define-alias π flow-lambda)
 (define-alias flow-λ flow-lambda)
 
+;; TODO: disallow set! of these bindings to anything else
 (define-syntax-parser define-flow
   [(_ ((~or* head:id head:function-header) . args:formals)
       clause:clause)
    #'(define head
        (flow-lambda args
-         clause))]
+                    clause))]
   [(_ name:id clause:clause)
-   #'(define name
-       (flow clause))])
+   #:with new-name (format-id #'hi "flow:~a" #'name)
+   #'(begin
+       (define-syntax name
+         (flowdef #'new-name #'clause))
+       (define new-name
+         (flow clause)))])
