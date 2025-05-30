@@ -35,7 +35,9 @@
                       (syntax->list #'(p t ... c))
                       stx)
         #'(thread _0 ... fused _1 ...)]
-       [((~datum thread) _0:non-fusable ...
+       ;; TODO: this is a temporary pattern fix we added
+       ;; to catch `map` in the leading position
+       [((~datum thread) (~and _0 (~not _:fst-syntax0)) ...
                          t1:fst-syntax0
                          t:fst-syntax ...
                          c:fsc-syntax
