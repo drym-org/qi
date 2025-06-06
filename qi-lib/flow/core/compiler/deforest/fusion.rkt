@@ -36,12 +36,11 @@
                       stx)
         #'(thread _0 ... fused _1 ...)]
        [((~datum thread) _0:non-fusable ...
-                         t1:fst-syntax0
-                         t:fst-syntax ...
+                         t:fst-syntax ...+
                          c:fsc-syntax
                          _1 ...)
         #:with fused (generate-fused-operation
-                      (syntax->list #'(list->cstream t1 t ... c))
+                      (syntax->list #'(list->cstream t ... c))
                       stx)
         #'(thread _0 ... fused _1 ...)]
        [((~datum thread) _0:non-fusable ...
@@ -54,7 +53,7 @@
                       stx)
         #'(thread _0 ... fused _1 ...)]
        [((~datum thread) _0:non-fusable ...
-                         f1:fst-syntax0
+                         f1:fst-syntax
                          f:fst-syntax ...+
                          _1 ...)
         #:with fused (generate-fused-operation

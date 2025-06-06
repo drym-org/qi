@@ -61,8 +61,8 @@
      "general"
      (test-not-deforested "does not deforest single stream component in isolation"
                           #'(~> (filter odd?)))
-     (test-not-deforested "does not deforest map in the head position"
-                          #'(~> (map sqr) (filter odd?)))
+     (test-deforested "deforests map in the head position"
+                      #'(~> (map sqr) (filter odd?)))
      (test-deforested "deforestation is invariant to threading direction"
                       #'(~>> values
                              (filter odd?)

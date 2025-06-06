@@ -1,7 +1,6 @@
 #lang racket/base
 
 (provide fsp-syntax
-         fst-syntax0
          fst-syntax
          fsc-syntax
 
@@ -101,10 +100,6 @@
   #:literal-sets (fs-literals)
   #:datum-literals (take)
   (pattern (#%deforestable take _info ((~datum expr) n))))
-
-(define-syntax-class fst-syntax0
-  (pattern (~or _:fst-filter
-                _:fst-filter-map)))
 
 (define-syntax-class fst-syntax
   (pattern (~or _:fst-filter
