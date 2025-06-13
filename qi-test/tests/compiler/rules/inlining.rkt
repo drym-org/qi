@@ -13,7 +13,8 @@
          (submod qi/flow/extended/expander invoke)
          qi/flow/core/compiler
          (for-template qi/flow/core/compiler)
-         qi/on)
+         qi/on
+         qi/flow)
 
 ;; NOTE: we may need to tag test syntax with `tag-form-syntax`
 ;; in some cases. See the comment on that function definition.
@@ -32,16 +33,33 @@
   (test-suite
    "inlining"
 
-   (test-suite
-    "does not inline and enter infinite loop"
-    (test-true "does not enter infinite loop"
-               (runs-within-time?
-                (thunk
-                 (expand
-                  #'(let ()
-                      (define-flow f (if odd? (~> add1 f) _))
-                      (f 4))))
-                1.0)))))
+   (test-true "does not enter infinite loop"
+              (runs-within-time?
+               (thunk
+                (expand
+                 #'(let ()
+                     (define-flow f (if odd? (~> add1 f) _))
+                     (f 4))))
+               1.0))
+   (test-equal? "does inline occurrences in sequence"
+                (caddr
+                 (syntax->datum
+                  (expand
+                   #'(let ()
+                       (define-flow f (if odd? (~> add1 f f) _))
+                       (f 4)))))
+                (caddr
+                 (syntax->datum
+                  (expand
+                   #'(let ()
+                       (define flow:f
+                         (flow
+                           (if odd?
+                               (~> add1
+                                   (if odd? (~> add1 flow:f flow:f) _)
+                                   (if odd? (~> add1 flow:f flow:f) _))
+                               _)))
+                       (flow:f 4))))))))
 
 (module+ main
   (void
