@@ -501,6 +501,10 @@
                    3)
                   4
                   "bindings in switch conditions shadow earlier conditions")
+    (check-equal? ((☯ (~> (not (ε (as v) null?))
+                          (gen v)))
+                   (list 1 2 3))
+                  (list 1 2 3))
     (check-exn exn:fail?
                (thunk
                 (convert-compile-time-error

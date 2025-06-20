@@ -111,7 +111,8 @@ core language's use of #%app, etc.).
     XOR
     (and f:closed-floe ...)
     (or f:closed-floe ...)
-    (not f:closed-floe)
+    (not f:floe)
+    #:binding (nest-one f nested)
     (all f:closed-floe)
     (any f:closed-floe)
     (select n:number ...)
