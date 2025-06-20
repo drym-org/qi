@@ -504,11 +504,17 @@
     (check-exn exn:fail?
                (thunk
                 (convert-compile-time-error
-                 ((☯ (~> (switch [(~> sqr (ε (as v) #t))
-                                  0])
+                 ((☯ (~> (switch [#true
+                                  (~> sqr (ε (as v) #t))])
                          (gen v)))
                   3)))
-               "switch does not bind downstream")
+               "switch consequent does not bind downstream")
+    (check-equal? ((☯ (~> (switch [(~> sqr (ε (as v) #t))
+                                   0])
+                          (gen v)))
+                   3)
+                  9
+                  "switch condition does bind downstream")
     (check-exn exn:fail?
                (thunk (convert-compile-time-error
                        ((☯ (~> (or (ε (as v)) 5) (+ v)))
@@ -544,6 +550,13 @@
     (test-equal? "==* binds a variable"
                  ((☯ (~> (==* (as v) _) (gen v)))
                   1 2 3)
+                 1)
+    (test-equal? "binding in `if`"
+                 ((☯ (~> (if (~> (as v) (gen v))
+                             #true
+                             #false)
+                         (gen v)))
+                  1)
                  1)
     ;; See issue #181
     ;; (test-exn "using a qi binding as a primitive flow"

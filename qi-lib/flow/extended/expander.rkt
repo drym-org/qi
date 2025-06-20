@@ -136,7 +136,8 @@ core language's use of #%app, etc.).
     (if condition:floe
         consequent:closed-floe
         alternative:closed-floe)
-    #:binding (nest-one condition [consequent alternative])
+    #:binding (nest-one condition
+                        [consequent alternative nested])
     (sieve condition:closed-floe
            sonex:closed-floe
            ronex:closed-floe)
