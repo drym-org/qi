@@ -125,7 +125,8 @@ core language's use of #%app, etc.).
     (fanout n:number)
     (fanout n:racket-expr)
     fanout
-    (group n:racket-expr e1:closed-floe e2:closed-floe)
+    (group n:racket-expr e1:floe e2:floe)
+    #:binding (nest-one e1 (nest-one e2 nested))
     group
     (~>/form (group arg ...)
              (report-syntax-error this-syntax

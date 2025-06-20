@@ -541,6 +541,10 @@
                          ▽))
                   odd?)
                  (list 1 3 5 7 9))
+    (test-equal? "==* binds a variable"
+                 ((☯ (~> (==* (as v) _) (gen v)))
+                  1 2 3)
+                 1)
     ;; See issue #181
     ;; (test-exn "using a qi binding as a primitive flow"
     ;;           exn:fail:contract:arity?
