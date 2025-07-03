@@ -982,7 +982,7 @@ A @racket[relay] binds downstream flows in a containing threading form, with lat
         (gen v))
 ]
 
-In an @racket[if] conditional form, variables bound in the condition bind the consequent and alternative flows, and do not bind downstream flows.
+In an @racket[if] conditional form, variables bound in the condition bind the consequent and alternative flows, and bind downstream flows. As neither consequent nor alternative flow will necessarily be evaluated, they do not bind downstream.
 
 @examples[
     #:eval eval-for-docs
@@ -1005,7 +1005,7 @@ Analogously, in a @racket[switch], variables bound in each condition bind the co
       [else "dog"])
 ]
 
-As @racket[switch] compiles to @racket[if], technically, earlier conditions bind all later switch clauses (and are shadowed by them), but this is considered an incidental implementation detail. Like @racket[if], @racket[switch] bindings are unavailable downstream.
+As @racket[switch] compiles to @racket[if], earlier conditions bind all later switch clauses (and are shadowed by them), and also bind downstream. Like @racket[if], @racket[switch] consequent flows do not bind downstream.
 
 @section{Identifiers}
 
