@@ -971,6 +971,16 @@ A @racket[tee] junction binds downstream flows in a containing threading form, w
                (~> 6 (as v))) (gen v))
 ]
 
+In a @racket[group], the "selection" flow binds the "remainder" flow and also binds downstream. The remainder flow only binds downstream.
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+    (~> (1 2 3) (group 1
+                       (as v)
+                       (~> (+ v) (as w))) (gen (+ v w)))
+]
+
 A @racket[relay] binds downstream flows in a containing threading form, with later tines shadowing earlier tines.
 
 @examples[
@@ -981,6 +991,8 @@ A @racket[relay] binds downstream flows in a containing threading form, with lat
             (as v))
         (gen v))
 ]
+
+@racket[==*] expands to @racket[group] and @racket[==], so its scoping rules derive from theirs in a straightforward way.
 
 In an @racket[if] conditional form, variables bound in the condition bind the consequent and alternative flows, and bind downstream flows. As neither consequent nor alternative flow will necessarily be evaluated, they do not bind downstream.
 
