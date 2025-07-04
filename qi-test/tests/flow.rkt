@@ -551,6 +551,13 @@
                          ▽))
                   odd?)
                  (list 1 3 5 7 9))
+    (test-equal? "group selection binds remainder binds downstream"
+                 ((☯ (~> (group 1
+                                (as v)
+                                (~> (+ v) (as w)))
+                         (gen (+ v w))))
+                  1 2 3)
+                 7)
     (test-equal? "==* binds a variable"
                  ((☯ (~> (==* (as v) _) (gen v)))
                   1 2 3)
