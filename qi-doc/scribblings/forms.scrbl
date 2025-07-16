@@ -971,6 +971,16 @@ A @racket[tee] junction binds downstream flows in a containing threading form, w
                (~> 6 (as v))) (gen v))
 ]
 
+In a @racket[group], the "selection" flow binds the "remainder" flow and also binds downstream. The remainder flow only binds downstream.
+
+@examples[
+    #:eval eval-for-docs
+    #:label #f
+    (~> (1 2 3) (group 1
+                       (as v)
+                       (~> (+ v) (as w))) (gen (+ v w)))
+]
+
 A @racket[relay] binds downstream flows in a containing threading form, with later tines shadowing earlier tines.
 
 @examples[
@@ -982,7 +992,9 @@ A @racket[relay] binds downstream flows in a containing threading form, with lat
         (gen v))
 ]
 
-In an @racket[if] conditional form, variables bound in the condition bind the consequent and alternative flows, and do not bind downstream flows.
+@racket[==*] expands to @racket[group] and @racket[==], so its scoping rules derive from theirs in a straightforward way.
+
+In an @racket[if] conditional form, variables bound in the condition bind the consequent and alternative flows, and bind downstream flows. As neither consequent nor alternative flow will necessarily be evaluated, they do not bind downstream.
 
 @examples[
     #:eval eval-for-docs
@@ -1005,7 +1017,7 @@ Analogously, in a @racket[switch], variables bound in each condition bind the co
       [else "dog"])
 ]
 
-As @racket[switch] compiles to @racket[if], technically, earlier conditions bind all later switch clauses (and are shadowed by them), but this is considered an incidental implementation detail. Like @racket[if], @racket[switch] bindings are unavailable downstream.
+As @racket[switch] compiles to @racket[if], earlier conditions bind all later switch clauses (and are shadowed by them), and also bind downstream. Like @racket[if], @racket[switch] consequent flows do not bind downstream.
 
 @section{Identifiers}
 

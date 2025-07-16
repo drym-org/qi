@@ -111,7 +111,8 @@ core language's use of #%app, etc.).
     XOR
     (and f:closed-floe ...)
     (or f:closed-floe ...)
-    (not f:closed-floe)
+    (not f:floe)
+    #:binding (nest-one f nested)
     (all f:closed-floe)
     (any f:closed-floe)
     (select n:number ...)
@@ -125,7 +126,8 @@ core language's use of #%app, etc.).
     (fanout n:number)
     (fanout n:racket-expr)
     fanout
-    (group n:racket-expr e1:closed-floe e2:closed-floe)
+    (group n:racket-expr e1:floe e2:floe)
+    #:binding (nest-one e1 (nest-one e2 nested))
     group
     (~>/form (group arg ...)
              (report-syntax-error this-syntax
@@ -135,7 +137,8 @@ core language's use of #%app, etc.).
     (if condition:floe
         consequent:closed-floe
         alternative:closed-floe)
-    #:binding (nest-one condition [consequent alternative])
+    #:binding (nest-one condition
+                        [consequent alternative nested])
     (sieve condition:closed-floe
            sonex:closed-floe
            ronex:closed-floe)
