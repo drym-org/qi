@@ -5,7 +5,7 @@
          (all-from-out "flow/extended/expander.rkt")
          (all-from-out "flow/extended/forms.rkt"))
 
-(require syntax-spec-v2
+(require syntax-spec-v3
          (for-syntax racket/base
                      syntax/parse
                      (only-in "private/util.rkt"
