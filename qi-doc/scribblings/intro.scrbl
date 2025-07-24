@@ -57,6 +57,10 @@ Qi is a hosted language on the @hyperlink["https://racket-lang.org/"]{Racket pla
 
  Qi is designed to be used in tandem with a host language, such as Racket itself. To use it in a Racket module, simply @racket[(require qi)].
 
+@subsection{Minimum Requirements}
+
+Qi is compatible with Racket versions more recent than (and including) @bold{8.10}.
+
 @section{Using Qi}
 
  Qi may be used in normal (e.g. Racket) code by employing an appropriate @seclink["Language_Interface"]{interface} form. These forms embed the Qi language into the host language, that is, they allow you to use Qi anywhere in your program, and provide shorthands for common cases.

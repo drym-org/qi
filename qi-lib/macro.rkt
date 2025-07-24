@@ -19,7 +19,7 @@
          (for-syntax qi/flow/aux-syntax)
          syntax/parse/define
          syntax/parse
-         syntax-spec-v2)
+         syntax-spec-v3)
 
 (begin-for-syntax
 
