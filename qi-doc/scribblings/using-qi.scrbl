@@ -247,6 +247,12 @@ The symmetry between arguments and return values is even more apparent and natur
 (~> () (time-apply + (list 1 2 3)) list)
 }
 
+… or, even more idiomatically:
+
+@codeblock{
+(~> (+ (list 1 2 3)) time-apply list)
+}
+
 @section{Making the Switch}
 
 Scheme code in the wild is littered with @racket[cond] expressions resembling these:
