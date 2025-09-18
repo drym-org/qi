@@ -13,7 +13,7 @@
                                 [collect ▽]
                                 [NOT !])))
 
-(require syntax-spec-v2
+(require syntax-spec-v3
          "../space.rkt"
          (for-syntax "../aux-syntax.rkt"
                      "syntax.rkt"
@@ -50,7 +50,7 @@ core language's use of #%app, etc.).
     #:description "a flow expression"
 
     f:floe
-    #:binding (nest-one f []))
+    #:binding (nest f []))
 
   ;; "floe" stands for "FLOw Expression" and is a _nonterminal_ that
   ;; expresses valid syntax for Qi expressions. It's analogous
@@ -64,18 +64,18 @@ core language's use of #%app, etc.).
     #:binding-space qi
 
     (as v:racket-var ...+)
-    #:binding (scope (bind v) nested)
+    #:binding (scope (bind v) ... nested)
 
     (thread f:floe ...)
-    #:binding (nest f nested)
+    #:binding (nest f ... nested)
 
     (tee f:floe ...)
-    #:binding (nest f nested)
+    #:binding (nest f ... nested)
     tee
     ;; Note: `#:binding nested` is the implicit binding rule here
 
     (relay f:floe ...)
-    #:binding (nest f nested)
+    #:binding (nest f ... nested)
     relay
 
     ;; [f nested] is the implicit binding rule
@@ -112,7 +112,7 @@ core language's use of #%app, etc.).
     (and f:closed-floe ...)
     (or f:closed-floe ...)
     (not f:floe)
-    #:binding (nest-one f nested)
+    #:binding (nest f nested)
     (all f:closed-floe)
     (any f:closed-floe)
     (select n:number ...)
@@ -127,7 +127,7 @@ core language's use of #%app, etc.).
     (fanout n:racket-expr)
     fanout
     (group n:racket-expr e1:floe e2:floe)
-    #:binding (nest-one e1 (nest-one e2 nested))
+    #:binding (nest e1 e2 nested)
     group
     (~>/form (group arg ...)
              (report-syntax-error this-syntax
@@ -137,8 +137,7 @@ core language's use of #%app, etc.).
     (if condition:floe
         consequent:closed-floe
         alternative:closed-floe)
-    #:binding (nest-one condition
-                        [consequent alternative nested])
+    #:binding (nest condition [consequent alternative nested])
     (sieve condition:closed-floe
            sonex:closed-floe
            ronex:closed-floe)
