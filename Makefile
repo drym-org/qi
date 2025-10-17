@@ -62,13 +62,13 @@ help:
 # Primarily for use by CI.
 # Installs dependencies as well as linking this as a package.
 install:
-	raco pkg install --deps search-auto --link $(PWD)/$(PACKAGE-NAME)-{lib,test,doc,probe} $(PWD)/$(PACKAGE-NAME)
+	raco pkg install --deps search-auto --link $(PWD)/$(PACKAGE-NAME)-{lib,test,doc,probe,redex} $(PWD)/$(PACKAGE-NAME)
 
 install-sdk:
 	raco pkg install --deps search-auto --link $(PWD)/$(PACKAGE-NAME)-sdk
 
 remove:
-	raco pkg remove $(PACKAGE-NAME)-{lib,test,doc,probe} $(PACKAGE-NAME)
+	raco pkg remove $(PACKAGE-NAME)-{lib,test,doc,probe,redex} $(PACKAGE-NAME)
 
 remove-sdk:
 	raco pkg remove $(PACKAGE-NAME)-sdk
@@ -91,7 +91,7 @@ build-docs:
 # Primarily for day-to-day dev.
 # Build libraries from source, build docs (if any), and check dependencies.
 build-all:
-	raco setup $(DEPS-FLAGS) --pkgs $(PACKAGE-NAME)-{lib,test,doc,probe} $(PACKAGE-NAME)
+	raco setup $(DEPS-FLAGS) --pkgs $(PACKAGE-NAME)-{lib,test,doc,probe,redex} $(PACKAGE-NAME)
 
 # Primarily for CI, for building backup docs that could be used in case
 # the main docs at docs.racket-lang.org become unavailable.
@@ -105,7 +105,7 @@ build-sdk:
 # (define clean '("compiled" "doc" "doc/<collect>")) to clean
 # generated docs, too.
 clean:
-	raco setup --fast-clean --pkgs $(PACKAGE-NAME)-{lib,test,doc,probe}
+	raco setup --fast-clean --pkgs $(PACKAGE-NAME)-{lib,test,doc,probe,redex}
 
 clean-sdk:
 	raco setup --fast-clean --pkgs $(PACKAGE-NAME)-sdk
@@ -116,7 +116,7 @@ clean-sdk:
 check-deps:
 	raco setup --no-docs $(DEPS-FLAGS) $(PACKAGE-NAME)
 
-test-all: test test-probe
+test-all: test test-probe test-redex
 
 # Suitable for both day-to-day dev and CI
 # Note: we don't test qi-doc since there aren't any tests there atm
@@ -157,6 +157,9 @@ test-compiler:
 
 test-probe:
 	raco test -exp $(PACKAGE-NAME)-probe
+
+test-redex:
+	raco test -exp $(PACKAGE-NAME)-redex
 
 test-with-errortrace:
 	racket -l errortrace -l racket -e '(require (submod "$(PACKAGE-NAME)-test/tests/qi.rkt" test))'
