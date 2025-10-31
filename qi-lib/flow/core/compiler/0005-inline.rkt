@@ -33,7 +33,9 @@
        #:declare id (static flowdef? "flow name")
        ;; def is now bound to the flowdef struct instance
        (define def (attribute id.value))
-       (flowdef-def def)]
+       (syntax-property (flowdef-def def)
+                        'qi-do-not-recurse
+                        #t)]
       [_ stx]))
 
   (define-and-register-pass 5 (inline-pass stx)
