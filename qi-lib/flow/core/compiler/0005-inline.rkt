@@ -5,6 +5,7 @@
 
 (require (for-syntax racket/base
                      racket/promise
+                     racket/syntax
                      syntax/parse
                      syntax/id-table
                      "../strategy.rkt"
@@ -29,6 +30,7 @@
 (begin-for-syntax
   (define ((inline-rewrite already-inlined-table) stx)
     (syntax-parse stx
+      #:track-literals
       #:datum-literals (#%host-expression
                         esc)
       [(esc (#%host-expression id))
@@ -38,15 +40,16 @@
                                       #false) #false
        ;; def is now bound to the flowdef struct instance
        (define def (attribute id.value))
+       (define inlinable-code (force (flowdef-expanded def)))
        (define already-inlined-table*
          (free-id-table-set already-inlined-table
                             #'id
                             #true))
-       (syntax-property (find-and-map/qi
-                         (inline-rewrite already-inlined-table*)
-                         (force (flowdef-expanded def)))
-                        'qi-do-not-recurse
-                        #t)]
+       (define inlined-def
+         (find-and-map/qi
+          (inline-rewrite already-inlined-table*)
+          inlinable-code))
+       (syntax-property inlined-def 'qi-do-not-recurse #t)]
       [_ stx]))
 
   (define-and-register-pass 5 (inline-pass stx)
