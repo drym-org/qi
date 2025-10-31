@@ -10,7 +10,8 @@
          (for-syntax racket/base
                      syntax/parse/lib/function-header
                      "flow/aux-syntax.rkt"
-                     racket/syntax)
+                     racket/syntax
+                     racket/promise)
          (only-in "flow/core/compiler/0005-inline.rkt"
                   flowdef)
          "flow.rkt"
@@ -50,9 +51,8 @@
                     clause))]
   [(_ name:id clause:clause)
    #:with new-name (format-id #'hi "flow:~a" #'name)
-   #:with expanded-flow (expand-flow #'clause)
    #'(begin
        (define-syntax name
-         (flowdef #'new-name #'expanded-flow))
+         (flowdef #'new-name (delay (expand-flow #'clause))))
        (define new-name
          (flow clause)))])

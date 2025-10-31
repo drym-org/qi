@@ -4,6 +4,7 @@
                      flowdef))
 
 (require (for-syntax racket/base
+                     racket/promise
                      syntax/parse
                      syntax/id-table
                      "../strategy.rkt"
@@ -11,7 +12,7 @@
          "../passes.rkt")
 
 (begin-for-syntax
-  (struct flowdef (name def)
+  (struct flowdef (name expanded)
     #:transparent
     #:property prop:set!-transformer
     (λ (flowdef-instance stx)
@@ -43,7 +44,7 @@
                             #true))
        (syntax-property (find-and-map/qi
                          (inline-rewrite already-inlined-table*)
-                         (flowdef-def def))
+                         (force (flowdef-expanded def)))
                         'qi-do-not-recurse
                         #t)]
       [_ stx]))

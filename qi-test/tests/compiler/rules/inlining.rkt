@@ -6,6 +6,7 @@
          rackunit
          rackunit/text-ui
          racket/function
+         racket/math
          ;; necessary to recognize and expand core forms correctly
          qi/flow/extended/expander
          ;; necessary to correctly expand the right-threading form
@@ -14,6 +15,7 @@
          qi/flow/core/compiler
          (for-template qi/flow/core/compiler)
          qi/on
+         qi/macro
          qi/flow)
 
 ;; NOTE: we may need to tag test syntax with `tag-form-syntax`
@@ -59,7 +61,14 @@
                                    (if odd? (~> add1 flow:f flow:f) _)
                                    (if odd? (~> add1 flow:f flow:f) _))
                                _)))
-                       (flow:f 4))))))))
+                       (flow:f 4))))))
+   (test-equal? "support macros defined after the flow"
+                (let ()
+                  (define-flow f (~> (pare sqr +) ▽))
+                  (define-qi-syntax-rule (pare car-flo cdr-flo)
+                    (group 1 car-flo cdr-flo))
+                  (on (3 6 9) f))
+                '(9 15))))
 
 (module+ main
   (void
