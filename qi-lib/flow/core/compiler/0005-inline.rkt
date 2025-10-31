@@ -5,6 +5,7 @@
 
 (require (for-syntax racket/base
                      syntax/parse
+                     syntax/id-table
                      "../strategy.rkt"
                      "../private/form-property.rkt")
          "../passes.rkt")
@@ -25,15 +26,24 @@
          (raise-syntax-error #f "set! not allowed!")]))))
 
 (begin-for-syntax
-  (define (inline-rewrite stx)
+  (define ((inline-rewrite already-inlined-table) stx)
     (syntax-parse stx
       #:datum-literals (#%host-expression
                         esc)
       [(esc (#%host-expression id))
        #:declare id (static flowdef? "flow name")
+       #:fail-when (free-id-table-ref already-inlined-table
+                                      #'id
+                                      #false) #false
        ;; def is now bound to the flowdef struct instance
        (define def (attribute id.value))
-       (syntax-property (flowdef-def def)
+       (define already-inlined-table*
+         (free-id-table-set already-inlined-table
+                            #'id
+                            #true))
+       (syntax-property (find-and-map/qi
+                         (inline-rewrite already-inlined-table*)
+                         (flowdef-def def))
                         'qi-do-not-recurse
                         #t)]
       [_ stx]))
@@ -42,7 +52,7 @@
     (attach-form-property
      (find-and-map/qi
       ;; "knapsack" problem
-      inline-rewrite ; don't use fixed-point finding
+      (inline-rewrite (make-immutable-free-id-table)) ; don't use fixed-point finding
       ;; check if identifier
       ;; check if bound to flowdef struct
       ;; then do inlining
