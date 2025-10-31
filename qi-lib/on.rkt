@@ -16,7 +16,8 @@
          "flow.rkt"
          (only-in "private/util.rkt"
                   define-alias
-                  params-parser))
+                  params-parser)
+         (submod "flow/extended/expander.rkt" invoke))
 
 (define-syntax-parser on
   [(_ args:subject)
@@ -49,8 +50,9 @@
                     clause))]
   [(_ name:id clause:clause)
    #:with new-name (format-id #'hi "flow:~a" #'name)
+   #:with expanded-flow (expand-flow #'clause)
    #'(begin
        (define-syntax name
-         (flowdef #'new-name #'clause))
+         (flowdef #'new-name #'expanded-flow))
        (define new-name
          (flow clause)))])
