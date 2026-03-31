@@ -509,6 +509,10 @@
                          (map sqr)
                          (map sqr))))
                  '(625 625 625 625 625))
+    (test-equal? "build-list"
+                 ((☯ (~> (build-list 5 (~> add1 sqr))
+                         (map sqr))))
+                 '(1 16 81 256 625))
     )))
 
 (module+ main

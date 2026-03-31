@@ -16,6 +16,28 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Producers
 
+(define-deforestable #:producer (build-list~ [expr init] [const n] [floe proc])
+  #:fallback
+  (lambda ()
+    (build-list n proc))
+  #:impl
+  (lambda (n proc)
+    (lambda (done skip yield)
+      (lambda (idx)
+        (cond ((< idx n)
+               (yield (proc idx) (add1 idx)))
+              (else (done))))))
+  #:prepare
+  (lambda (consing next)
+    (define/contract (something idx)
+      (-> exact-nonnegative-integer? any)
+      (next (consing idx)))
+    (lambda ()
+      (something init))))
+
+(define-qi-syntax-parser build-list
+  ((_:id n:expr proc) #'(build-list~ 0 n proc)))
+
 (define-deforestable #:producer list->cstream ;; => list->cstream->cstream-next
   #:fallback
   identity
@@ -31,6 +53,25 @@
         (next (consing lst))))
   #:contracts
   (list?))
+
+(define-deforestable #:producer (make-list~ [expr init] [const k] [const v])
+  #:fallback
+  (lambda ()
+    (make-list k v))
+  #:impl
+  (lambda (k v)
+    (lambda (done skip yield)
+      (lambda (idx)
+        (cond [(< idx k)
+               (yield v (add1 idx))]
+              [else (done)]))))
+  #:prepare
+  (lambda (consing next)
+    (lambda ()
+      (next (consing init)))))
+
+(define-qi-syntax-parser make-list
+  [(_:id k:expr v:expr) #'(make-list~ 0 k v)])
 
 (define-deforestable #:producer (range~ [expr low] [const high] [const step])
   #:fallback
@@ -69,25 +110,6 @@
   [_:id (report-syntax-error this-syntax
           "(range arg ...)"
           "range expects at least one argument")])
-
-(define-deforestable #:producer (make-list~ [expr init] [const k] [const v])
-  #:fallback
-  (lambda ()
-    (make-list k v))
-  #:impl
-  (lambda (k v)
-    (lambda (done skip yield)
-      (lambda (idx)
-        (cond [(< idx k)
-               (yield v (add1 idx))]
-              [else (done)]))))
-  #:prepare
-  (lambda (consing next)
-    (lambda ()
-      (next (consing init)))))
-
-(define-qi-syntax-parser make-list
-  [(_:id k:expr v:expr) #'(make-list~ 0 k v)])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Transformers

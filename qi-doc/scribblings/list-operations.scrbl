@@ -52,6 +52,25 @@ pipeline.
 
 @section{Producers}
 
+@defform[(build-list n proc)
+	 #:contracts
+	 ((n exact-nonnegative-integer?)
+	  (proc (-> exact-nonnegative-integer? any/c)))]{
+
+ Deforestable version of @racket[build-list] from @racketmodname[racket/base].
+
+}
+
+@defform[
+ (make-list k v)
+ #:contracts
+ ((k exact-nonnegative-integer?)
+  (v any/c))]{
+
+ Deforestable version of @racket[make-list] from @racketmodname[racket/list].
+
+}
+
 @defform*[
   ((range end)
    (range start end)
@@ -64,16 +83,6 @@ pipeline.
 Deforestable version of @racket[range] from @racketmodname[racket/list].
 
 By default @racket[start] is @racket[0] and @racket[step] is @racket[1].
-
-}
-
-@defform[
- (make-list k v)
- #:contracts
- ((k exact-nonnegative-integer?)
-  (v any/c))]{
-
- Deforestable version of @racket[make-list] from @racketmodname[racket/list].
 
 }
 
