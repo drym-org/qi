@@ -522,6 +522,11 @@
                          (map sqr)))
                   '(1 2 3) '(4 5 6))
                  '(1 4 9 16 25 36))
+    (test-equal? "append from flow and arguments"
+                 ((☯ (~> (append '(1 2 3))
+                         (map sqr)))
+                  '(4 5 6))
+                 '(1 4 9 16 25 36))
     )))
 
 (module+ main

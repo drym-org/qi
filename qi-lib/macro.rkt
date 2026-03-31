@@ -177,7 +177,7 @@
      #:fail-when (and (or (attribute transformer-kw)
                           (attribute consumer-kw))
                       (or (attribute prepare)
-                          (not (null? (syntax->list #'(rtacontract ...))))
+                          (not (null? (attribute rtacontract)))
                           (attribute restcontract)))
      "transformers and consumers must not specify prepare and contracts"
      #:fail-when (and (attribute producer-kw)
