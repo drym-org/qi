@@ -56,31 +56,35 @@
        ;; A static runtime contract is placed at the beginning of the
        ;; fused sequence. And runtime checks for consumers are in
        ;; their respective implementation procedure.
-       (with-syntax (((rt ...) (reverse (attribute t.state))))
-         (attach-form-property
-          #`(esc
-             (#%host-expression
-              (contract (-> #,@#'p.contract any)
-                        (p.prepare
-                         (lambda (state)
-                           (inline-consing state rt ...))
-                         (#,@#'c.end
-                          (inline-compose1 [t.next t.f
-                                                   '#,(prettify-flow-syntax ctx)
-                                                   '#,(build-source-location-vector
-                                                       (syntax-srcloc ctx))
-                                                   ] ...
-                                           p.next
-                                           )
-                          '#,(prettify-flow-syntax ctx)
-                          '#,(build-source-location-vector
-                              (syntax-srcloc ctx))))
-                        p.name
+       #:with (rt ...) (reverse (attribute t.state))
+       #:with (pcontract ...) (attribute p.contract)
+       #:with the-contract (if (attribute p.rcontract)
+                               #'(->* (pcontract ...) () #:rest p.rcontract any)
+                               #'(-> pcontract ... any))
+       (attach-form-property
+        #`(esc
+           (#%host-expression
+            (contract the-contract
+                      (p.prepare
+                       (lambda (state)
+                         (inline-consing state rt ...))
+                       (#,@#'c.end
+                        (inline-compose1 [t.next t.f
+                                                 '#,(prettify-flow-syntax ctx)
+                                                 '#,(build-source-location-vector
+                                                     (syntax-srcloc ctx))
+                                                 ] ...
+                                         p.next
+                                         )
                         '#,(prettify-flow-syntax ctx)
-                        #f
                         '#,(build-source-location-vector
-                            (syntax-srcloc ctx)))
-              )
-             )))]))
+                            (syntax-srcloc ctx))))
+                      p.name
+                      '#,(prettify-flow-syntax ctx)
+                      #f
+                      '#,(build-source-location-vector
+                          (syntax-srcloc ctx)))
+            )
+           ))]))
 
   )

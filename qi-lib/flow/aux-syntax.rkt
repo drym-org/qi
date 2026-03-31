@@ -65,4 +65,4 @@
 ;; convey a Racket runtime for macros in qi/list through to the code
 ;; generation stage of Qi compilation (and could be used by any similar
 ;; "deep" macros written by users).
-(struct deforestable-info [codegen runtime kind prepare rtacontract])
+(struct deforestable-info [codegen runtime kind prepare rtacontract restcontract])

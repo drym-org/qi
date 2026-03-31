@@ -34,7 +34,7 @@
 ;;
 
 (define-syntax-class fsp-new
-  #:attributes (contract prepare next name)
+  #:attributes (contract prepare next name rcontract)
   #:literal-sets (fs-literals)
   (pattern (#%deforestable _name _info arg:fsa ...)
            #:do ((define is (syntax-local-value #'_info)))
@@ -54,7 +54,8 @@
            #:attr prepare (apply (deforestable-info-prepare is) (syntax->list #'(arg.expr ...)))
            #:with runtime (deforestable-info-runtime is)
            #:attr next #'(runtime const.expr ...)
-           #:attr name #''name))
+           #:attr name #''name
+           #:attr rcontract (deforestable-info-restcontract is)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Fusable Stream Transformers

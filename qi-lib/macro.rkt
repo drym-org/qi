@@ -168,6 +168,7 @@
        (~optional (~seq #:prepare prepare))
        (~optional (~seq #:contracts (rtacontract ...))
                   #:defaults (((rtacontract 1) '())))
+       (~optional (~seq #:rest-contract restcontract))
        ) ...
       )
      #:fail-when (not (and (attribute codegen)
@@ -175,8 +176,9 @@
      "fallback and implementation are mandatory"
      #:fail-when (and (or (attribute transformer-kw)
                           (attribute consumer-kw))
-                      (attribute prepare)
-                      (attribute rtacontract))
+                      (or (attribute prepare)
+                          (not (null? (syntax->list #'(rtacontract ...))))
+                          (attribute restcontract)))
      "transformers and consumers must not specify prepare and contracts"
      #:fail-when (and (attribute producer-kw)
                       (not (attribute prepare)))
@@ -208,6 +210,9 @@
      #:with contracts (if (attribute producer-kw)
                           #'#'(rtacontract ...)
                           #'#f)
+     #:with rcontract (if (attribute restcontract)
+                          #'#'restcontract
+                          #'#f)
      #'(begin
 
          (define-inline (runtime-cstream-next rarg ...)
@@ -216,7 +221,7 @@
          ;; capture the codegen in an instance of
          ;; the compile time struct
          (define-syntax info
-           (deforestable-info codegen-f #'runtime-cstream-next kind prepare-f contracts))
+           (deforestable-info codegen-f #'runtime-cstream-next kind prepare-f contracts rcontract))
 
          (define-dsl-syntax df.name qi-macro
            (op-transformer #'df.name #'info #'op-spec)))]))

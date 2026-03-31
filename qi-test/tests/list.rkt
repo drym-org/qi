@@ -513,6 +513,15 @@
                  ((☯ (~> (build-list 5 (~> add1 sqr))
                          (map sqr))))
                  '(1 16 81 256 625))
+    (test-equal? "append from arguments"
+                 ((☯ (~> (append '(1 2 3) '(4 5 6))
+                         (map sqr))))
+                 '(1 4 9 16 25 36))
+    (test-equal? "append from flow"
+                 ((☯ (~> append
+                         (map sqr)))
+                  '(1 2 3) '(4 5 6))
+                 '(1 4 9 16 25 36))
     )))
 
 (module+ main

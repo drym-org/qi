@@ -38,6 +38,37 @@
 (define-qi-syntax-parser build-list
   ((_:id n:expr proc) #'(build-list~ 0 n proc)))
 
+(define-deforestable #:producer (append~ [expr alsts])
+  #:fallback
+  (lambda flsts
+    (apply append (append alsts flsts)))
+  #:impl
+  (lambda ()
+    (lambda (done skip yield)
+      (lambda (lsts0)
+        (define lsts
+          (let loop ((lsts lsts0))
+            (if (and (not (null? lsts))
+                     (null? (car lsts)))
+                (loop (cdr lsts))
+                lsts)))
+        (cond ((null? lsts)
+               (done))
+              ((list? (car lsts))
+               (yield (caar lsts) (cons (cdar lsts) (cdr lsts))))
+              ((null? (cdr lsts))
+               (yield (car lsts) '()))))))
+  #:prepare
+  (lambda (consing next)
+    (lambda flsts
+      (next (consing (append alsts flsts)))))
+  #:rest-contract
+  (listof list?))
+
+(define-qi-syntax-parser append
+  ((_:id lst ...) #'(append~ (list lst ...)))
+  (_:id #'(append~ '())))
+
 (define-deforestable #:producer list->cstream ;; => list->cstream->cstream-next
   #:fallback
   identity
@@ -49,8 +80,8 @@
               [else (yield (car state) (cdr state))]))))
   #:prepare
   (lambda (consing next)
-      (lambda (lst)
-        (next (consing lst))))
+    (lambda (lst)
+      (next (consing lst))))
   #:contracts
   (list?))
 
