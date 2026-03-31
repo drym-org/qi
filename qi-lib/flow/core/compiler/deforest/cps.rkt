@@ -62,32 +62,27 @@
                                #'(->* (pcontract ...) () #:rest p.rcontract any)
                                #'(-> pcontract ... any))
        #:with (cend ...) (attribute c.end)
-       #:with pretty-ctx (prettify-flow-syntax ctx)
-       ;#:with ctx-loc (build-source-location-vector (syntax-srcloc ctx))
+       #:with pretty-ctx #`'#,(prettify-flow-syntax ctx)
+       #:with ctx-loc #`'#,(build-source-location-vector (syntax-srcloc ctx))
        (attach-form-property
-        #`(esc
+        #'(esc
            (#%host-expression
             (contract the-contract
                       (p.prepare
                        (lambda (state)
                          (inline-consing state rt ...))
                        (cend ...
-                        (inline-compose1 [t.next t.f
-                                                 'pretty-ctx
-                                                 '#,(build-source-location-vector
-                                                     (syntax-srcloc ctx))
-                                                 ] ...
-                                         p.next
-                                         )
-                        'pretty-ctx
-                        '#,(build-source-location-vector
-                            (syntax-srcloc ctx))))
+                             (inline-compose1 [t.next t.f
+                                                      pretty-ctx
+                                                      ctx-loc
+                                                      ] ...
+                                              p.next
+                                              )
+                             pretty-ctx
+                             ctx-loc))
                       p.name
-                      'pretty-ctx
+                      pretty-ctx
                       #f
-                      '#,(build-source-location-vector
-                          (syntax-srcloc ctx)))
-            )
-           ))]))
+                      ctx-loc))))]))
 
   )
