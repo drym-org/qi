@@ -61,6 +61,24 @@ pipeline.
 
 }
 
+@defidform[append]{
+
+ @margin-note{Currently the lists provided as arguments are passed
+ first and only after them the lists from the upstream flow are
+ added. Therefore the (possibly non-list) tail must be a flowed-in
+ value if any lists are coming from upstream.}
+
+}
+
+@defform[#:link-target? #f
+ (append lst ...)
+ #:contracts
+ ((lst list?))]{
+
+ Deforestable version of @racket[append] from @racketmodname[racket/base].
+
+}
+
 @defform[
  (make-list k v)
  #:contracts
