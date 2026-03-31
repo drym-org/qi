@@ -61,6 +61,9 @@
        #:with the-contract (if (attribute p.rcontract)
                                #'(->* (pcontract ...) () #:rest p.rcontract any)
                                #'(-> pcontract ... any))
+       #:with (cend ...) (attribute c.end)
+       #:with pretty-ctx (prettify-flow-syntax ctx)
+       ;#:with ctx-loc (build-source-location-vector (syntax-srcloc ctx))
        (attach-form-property
         #`(esc
            (#%host-expression
@@ -68,19 +71,19 @@
                       (p.prepare
                        (lambda (state)
                          (inline-consing state rt ...))
-                       (#,@#'c.end
+                       (cend ...
                         (inline-compose1 [t.next t.f
-                                                 '#,(prettify-flow-syntax ctx)
+                                                 'pretty-ctx
                                                  '#,(build-source-location-vector
                                                      (syntax-srcloc ctx))
                                                  ] ...
                                          p.next
                                          )
-                        '#,(prettify-flow-syntax ctx)
+                        'pretty-ctx
                         '#,(build-source-location-vector
                             (syntax-srcloc ctx))))
                       p.name
-                      '#,(prettify-flow-syntax ctx)
+                      'pretty-ctx
                       #f
                       '#,(build-source-location-vector
                           (syntax-srcloc ctx)))
