@@ -56,33 +56,32 @@
        ;; A static runtime contract is placed at the beginning of the
        ;; fused sequence. And runtime checks for consumers are in
        ;; their respective implementation procedure.
-       #:with (rt ...) (reverse (attribute t.state))
-       #:with (pcontract ...) (attribute p.contract)
-       #:with the-contract (if (attribute p.rcontract)
-                               #'(->* (pcontract ...) () #:rest p.rcontract any)
-                               #'(-> pcontract ... any))
-       #:with (cend ...) (attribute c.end)
-       #:with pretty-ctx #`'#,(prettify-flow-syntax ctx)
-       #:with ctx-loc #`'#,(build-source-location-vector (syntax-srcloc ctx))
+       #:with (rt ...)
+       (reverse (attribute t.state))
+       #:with (pcontract ...)
+       (attribute p.contract)
+       #:with the-contract
+       (if (attribute p.rcontract)
+           #'(->* (pcontract ...) () #:rest p.rcontract any)
+           #'(-> pcontract ... any))
+       #:with (cend ...)
+       (attribute c.end)
+       #:with pretty-ctx
+       #`'#,(prettify-flow-syntax ctx)
+       #:with ctx-loc
+       #`'#,(build-source-location-vector (syntax-srcloc ctx))
+       #:with transformers
+       #'(inline-compose1
+          [t.next t.f pretty-ctx ctx-loc] ... p.next)
+       #:with fused
+       #'(p.prepare
+          (lambda (state)
+            (inline-consing state rt ...))
+          (cend ... transformers pretty-ctx ctx-loc))
        (attach-form-property
         #'(esc
            (#%host-expression
-            (contract the-contract
-                      (p.prepare
-                       (lambda (state)
-                         (inline-consing state rt ...))
-                       (cend ...
-                             (inline-compose1 [t.next t.f
-                                                      pretty-ctx
-                                                      ctx-loc
-                                                      ] ...
-                                              p.next
-                                              )
-                             pretty-ctx
-                             ctx-loc))
-                      p.name
-                      pretty-ctx
-                      #f
-                      ctx-loc))))]))
+            (contract the-contract fused
+                      p.name pretty-ctx #f ctx-loc))))]))
 
   )
