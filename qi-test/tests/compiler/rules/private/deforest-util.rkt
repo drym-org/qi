@@ -27,7 +27,7 @@
   (string-contains? (format "~a" exp) "cstream"))
 
 (define (range-deforested? exp)
-  (string-contains? (format "~a" exp) "range->cstream"))
+  (string-contains? (format "~a" exp) "range~-cstream"))
 
 (define (filter-deforested? exp)
   (string-contains? (format "~a" exp) "filter-cstream"))
@@ -60,4 +60,4 @@
   (string-contains? (format "~a" exp) "empty?-cstream"))
 
 (define (list-ref-deforested? exp)
-  (string-contains? (format "~a" exp) "list-ref-cstream"))
+  (string-contains? (format "~a" exp) "list-ref~-cstream"))
