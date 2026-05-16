@@ -83,6 +83,7 @@ build:
 	raco make -l qi -v
 
 design:
+	scribble ++style design/assets/css/style.css --html --dest design/language-composition/output --dest-name index design/language-composition/language-composition.scrbl
 	scribble ++style design/assets/css/style.css --html --dest design/pacman-streams/output --dest-name index design/pacman-streams/pacman.scrbl
 
 # Primarily for day-to-day dev.
