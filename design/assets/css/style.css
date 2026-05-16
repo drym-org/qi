@@ -1,0 +1,87 @@
+.tocsub {
+    background-color: #3e5ba9;
+    font-family: 'Candara', sans-serif;
+}
+
+.tocview {
+    background-color: #3e5ba9;
+    font-family: 'Candara', sans-serif;
+}
+
+.tocviewselflink {
+	color: #FDFBD4;
+}
+
+.tocviewtoggle {
+	color: #FDFBD4;
+}
+
+.tocviewlink {
+	color: #FDFBD4;
+}
+
+.tocset {
+    background-color: #3e5ba9;
+	border-color: #3e5ba9;
+    width: 14.5em;
+}
+
+.maincolumn {
+    margin-left: 17em;
+}
+
+.tocsubseclink {
+	color: #FDFBD4;
+}
+
+.tocsublinknumber {
+	color: #FDFBD4;
+}
+
+.RktSym {
+	color: #ED5F28;
+}
+
+.status-accepted {
+    color: #ED5F28;
+    font-style: italic;
+}
+
+.status-archived {
+    color: #8A6868;
+    font-style: italic;
+}
+
+.status-draft {
+    color: inherit;
+    font-style: italic;
+}
+
+body {
+    background-color: #FDFBD4;
+}
+
+p {
+  font-family: Constantia, "Palatino Linotype", Palatino, serif;
+  line-height: 1.25;
+}
+
+h2 {
+    font-family: 'Candara', sans-serif;
+}
+
+h3 {
+    font-family: 'Candara', sans-serif;
+}
+
+h4 {
+    font-family: 'Candara', sans-serif;
+}
+
+h5 {
+    font-family: 'Candara', sans-serif;
+}
+
+.SSubSubSubSection {
+    font-family: 'Candara', sans-serif;
+}
