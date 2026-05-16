@@ -82,6 +82,9 @@ remove-sdk:
 build:
 	raco make -l qi -v
 
+design:
+	scribble ++style design/assets/css/style.css --html --dest design/pacman-streams/output --dest-name index design/pacman-streams/pacman.scrbl
+
 # Primarily for day-to-day dev.
 # Build docs (if any).
 build-docs:
@@ -257,4 +260,4 @@ performance-report:
 performance-regression-report:
 	@racket $(PACKAGE-NAME)-sdk/benchmarks/report.rkt -r $(REF)
 
-.PHONY:	help install remove build build-docs build-all clean check-deps test-all test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-expander test-compiler test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile new-benchmarks new-benchmarks-preview benchmark-local benchmark-loading benchmark-selected-forms benchmark-competitive benchmark-nonlocal benchmark performance-report performance-regression-report
+.PHONY:	help install remove build build-docs build-all clean check-deps design test-all test test-flow test-on test-threading test-switch test-definitions test-macro test-util test-expander test-compiler test-probe test-with-errortrace errortrace errortrace-flow errortrace-on errortrace-threading errortrace-switch errortrace-definitions errortrace-macro errortrace-util errortrace-probe docs cover coverage-check coverage-report cover-coveralls profile new-benchmarks new-benchmarks-preview benchmark-local benchmark-loading benchmark-selected-forms benchmark-competitive benchmark-nonlocal benchmark performance-report performance-regression-report
