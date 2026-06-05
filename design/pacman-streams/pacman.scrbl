@@ -6,7 +6,7 @@
 
 @title{Virtual Multi-valued Streams @(linebreak) or, "Pac-Man Continuations" @(linebreak)}
 
-@centered{@bold{@tt{Technical Specification}}}
+@centered{@bold{@tt{Qi Improvement Proposal (QIP)}}}
 @centered{@bold{@tt{Status: @elem[#:style "status-accepted"]{@tt{ACCEPTED}}}}}
 
 @abstract{

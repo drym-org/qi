@@ -6,7 +6,7 @@
 
 @title{Language Extension Through Inheritance and Composition}
 
-@centered{@bold{@tt{Technical Specification}}}
+@centered{@bold{@tt{Qi Improvement Proposal (QIP)}}}
 @centered{@bold{@tt{Status: @elem[#:style "status-archived"]{@tt{ARCHIVED}}}}}
 
 @abstract{We look at a few different ways of extending a hosted language implemented in Syntax Spec. We describe a means of extension that affords the same flexibility to hosted languages that Syntax Spec already brings to the host language, that is, holistic and sound syntactic and runtime extensibility.}
