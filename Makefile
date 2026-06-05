@@ -19,6 +19,7 @@ help:
 	@echo "build - Compile libraries"
 	@echo "build-docs - Build docs"
 	@echo "build-standalone-docs - Build self-contained docs that could be hosted somewhere"
+	@echo "design - Build designs and QIPs"
 	@echo "build-all - Compile libraries, build docs, and check dependencies"
 	@echo "clean - remove all build artifacts"
 	@echo "clean-sdk - remove all build artifacts in SDK paths"
