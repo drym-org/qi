@@ -86,6 +86,7 @@ build:
 design:
 	scribble ++style design/assets/css/style.css --html --dest design/language-composition/output --dest-name index design/language-composition/language-composition.scrbl
 	scribble ++style design/assets/css/style.css --html --dest design/pacman-streams/output --dest-name index design/pacman-streams/pacman.scrbl
+	scribble ++style design/assets/css/style.css --html --dest design/core-streams/output --dest-name index design/core-streams/core-streams.scrbl
 
 # Primarily for day-to-day dev.
 # Build docs (if any).
