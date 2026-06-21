@@ -21,15 +21,15 @@
   ;; f : syntax? -> (or/c syntax? #f)
   (match stx
     [(? syntax?) (let ([stx^ (f stx)])
-                   (if stx^
-                       ;; we keep traversing the produced syntax
-                       ;; to transform nested syntax as needed
-                       (datum->syntax stx^
-                         (find-and-map f (syntax-e stx^))
-                         stx^
-                         stx^)
-                       ;; false was returned, so we stop
-                       stx))]
+                   (cond [(not stx^) stx] ; false was returned, so we stop
+                         [(syntax-property stx^ 'qi-do-not-recurse)
+                          (syntax-property-remove stx^ 'qi-do-not-recurse)]
+                         ;; we keep traversing the produced syntax
+                         ;; to transform nested syntax as needed
+                         [else (datum->syntax stx^
+                                 (find-and-map f (syntax-e stx^))
+                                 stx^
+                                 stx^)]))]
     [(cons a d) (cons (find-and-map f a)
                       (find-and-map f d))]
     [_ stx]))

@@ -5,6 +5,7 @@
 (require rackunit
          rackunit/text-ui
          (prefix-in normalize: "rules/normalize.rkt")
+         (prefix-in inline: "rules/inlining.rkt")
          (prefix-in deforest: "rules/deforest.rkt")
          (prefix-in full-cycle: "rules/full-cycle.rkt"))
 
@@ -15,6 +16,7 @@
    "Compiler rule tests"
 
    normalize:tests
+   inline:tests
    deforest:tests
    full-cycle:tests))
 
