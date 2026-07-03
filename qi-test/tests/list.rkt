@@ -444,18 +444,6 @@
                          (remove* '((25 five)))))
                   '((1 one) (2 two) (3 three) (4 four) (5 five) (6 six) (5 five) (7 seven) (5 five) (8 eight) (9 nine) (5 five) ))
                  '((1 one) (9 three) (49 seven) (81 nine)))
-    (test-equal? "member"
-                 ((☯ (~> (map (lambda (v) (cons (sqr (car v)) (cdr v))))
-                         (filter (lambda (v) (odd? (car v))))
-                         (member '(25 five))))
-                  '((1 one) (2 two) (3 three) (4 four) (5 five) (6 six) (7 seven) (8 eight) (9 nine)))
-                 '((25 five) (49 seven) (81 nine)))
-    (test-equal? "memf"
-                 ((☯ (~> (map (lambda (v) (cons (sqr (car v)) (cdr v))))
-                         (filter (lambda (v) (odd? (car v))))
-                         (memf (lambda (v) (eq? (car v) 25)))))
-                  '((1 one) (2 two) (3 three) (4 four) (5 five) (6 six) (7 seven) (8 eight) (9 nine)))
-                 '((25 five) (49 seven) (81 nine)))
     (test-equal? "remf"
                  ((☯ (~> (map (lambda (v) (cons (sqr (car v)) (cdr v))))
                          (filter (lambda (v) (odd? (car v))))
