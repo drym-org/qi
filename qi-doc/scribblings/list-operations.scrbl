@@ -221,53 +221,6 @@ Deforestable version of @racket[filter] from @racketmodname[racket/base].
 
 }
 
-@defform*[
- ((member v)
-  (member v proc))
- #:contracts
- ((v any/c)
-  (proc (-> any/c any/c)))]{
-
- Deforestable version of @racket[member] from @racketmodname[racket/base].
-
-}
-
-@defform[
- (memq v)
- #:contracts
- ((v any/c))]{
-
- Deforestable version of @racket[memq] from @racketmodname[racket/base].
-
-}
-
-@defform[
- (memv v)
- #:contracts
- ((v any/c))]{
-
- Deforestable version of @racket[memv] from @racketmodname[racket/base].
-
-}
-
-@defform[
- (memw v)
- #:contracts
- ((v any/c))]{
-
- Deforestable version of @racket[memw] from @racketmodname[racket/base].
-
-}
-
-@defform[
- (memf proc)
- #:contracts
- ((proc (-> any/c any/c)))]{
-
- Deforestable version of @racket[memf] from @racketmodname[racket/base].
-
-}
-
 @defidform[cddr]{
 
 Deforestable version of @racket[cddr] from @racketmodname[racket/base].
