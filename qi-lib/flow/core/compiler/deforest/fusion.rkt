@@ -23,6 +23,9 @@
                       _:fsp-new
                       _:fsc-new))))
 
+(define (expand-qi-syntax stx)
+  (expand-flow (introduce-qi-syntax stx)))
+
 (define (make-deforest-rewrite generate-fused-operation)
   (lambda (stx)
     (attach-form-property
@@ -44,8 +47,7 @@
         #:with fused (generate-fused-operation
                       (syntax->list
                        (with-syntax ((list->cstream
-                                      (expand-flow
-                                       (introduce-qi-syntax #'list->cstream))))
+                                      (expand-qi-syntax #'list->cstream)))
                          #'(list->cstream t ... c)))
                       stx)
         #'(thread _0 ... fused _1 ...)]
@@ -57,8 +59,7 @@
         #:with fused (generate-fused-operation
                       (syntax->list
                        (with-syntax ((cstream->list
-                                      (expand-flow
-                                       (introduce-qi-syntax #'cstream->list))))
+                                      (expand-qi-syntax #'cstream->list)))
                          #'(p t ... cstream->list)))
                       stx)
         #'(thread _0 ... fused _1 ...)]
@@ -69,11 +70,9 @@
         #:with fused (generate-fused-operation
                       (syntax->list
                        (with-syntax ((list->cstream
-                                      (expand-flow
-                                       (introduce-qi-syntax #'list->cstream)))
+                                      (expand-qi-syntax #'list->cstream))
                                      (cstream->list
-                                      (expand-flow
-                                       (introduce-qi-syntax #'cstream->list))))
+                                      (expand-qi-syntax #'cstream->list)))
                          ;; #'((#%deforestable list->cstream list->cstream-info) ...)
                          #'(list->cstream f1 f ... cstream->list)))
                       stx)
