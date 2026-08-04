@@ -9,7 +9,8 @@
          "../../strategy.rkt"
          (for-template "../../passes.rkt"
                        (submod "../../../../flow/extended/expander.rkt" invoke)
-                       "../../../../list.rkt")
+                       "../../../../list.rkt"
+                       (only-in "../../../space.rkt" introduce-qi-syntax))
          "../../private/form-property.rkt")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -44,8 +45,7 @@
                       (syntax->list
                        (with-syntax ((list->cstream
                                       (expand-flow
-                                       ((make-interned-syntax-introducer 'qi)
-                                        #'list->cstream))))
+                                       (introduce-qi-syntax #'list->cstream))))
                          #'(list->cstream t ... c)))
                       stx)
         #'(thread _0 ... fused _1 ...)]
@@ -58,8 +58,7 @@
                       (syntax->list
                        (with-syntax ((cstream->list
                                       (expand-flow
-                                       ((make-interned-syntax-introducer 'qi)
-                                        #'cstream->list))))
+                                       (introduce-qi-syntax #'cstream->list))))
                          #'(p t ... cstream->list)))
                       stx)
         #'(thread _0 ... fused _1 ...)]
@@ -71,12 +70,10 @@
                       (syntax->list
                        (with-syntax ((list->cstream
                                       (expand-flow
-                                       ((make-interned-syntax-introducer 'qi)
-                                        #'list->cstream)))
+                                       (introduce-qi-syntax #'list->cstream)))
                                      (cstream->list
                                       (expand-flow
-                                       ((make-interned-syntax-introducer 'qi)
-                                        #'cstream->list))))
+                                       (introduce-qi-syntax #'cstream->list))))
                          ;; #'((#%deforestable list->cstream list->cstream-info) ...)
                          #'(list->cstream f1 f ... cstream->list)))
                       stx)
