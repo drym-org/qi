@@ -1,8 +1,8 @@
 #lang racket/base
 
-(provide fst-new
-         fsp-new
-         fsc-new)
+(provide fst
+         fsp
+         fsc)
 
 (require syntax/parse
          "../../../aux-syntax.rkt"
@@ -33,7 +33,7 @@
 ;; used in the compiler to apply optimizations.
 ;;
 
-(define-syntax-class fsp-new
+(define-syntax-class fsp
   #:attributes (contract prepare next name rcontract)
   #:literal-sets (fs-literals)
   (pattern (#%deforestable _name _info arg:fsa ...)
@@ -69,7 +69,7 @@
 ;; It also allows `make-deforest-rewrire` to match it directly.
 ;;
 
-(define-syntax-class fst-new
+(define-syntax-class fst
   #:attributes (next f state)
   #:literal-sets (fs-literals)
   (pattern (#%deforestable name _info arg:fsa ...)
@@ -97,7 +97,7 @@
 ;; values from a sequence and create a single value from those.
 ;;
 
-(define-syntax-class fsc-new
+(define-syntax-class fsc
   #:attributes (end)
   #:literal-sets (fs-literals)
   (pattern (#%deforestable name _info arg:fsa ...)

@@ -50,9 +50,9 @@
   ;; Performs deforestation rewrite on the whole syntax tree.
   (define-and-register-deforest-pass (deforest-pass ops ctx)
     (syntax-parse (reverse ops)
-      [(c:fsc-new
-        t:fst-new ...
-        p:fsp-new)
+      [(c:fsc
+        t:fst ...
+        p:fsp)
        ;; A static runtime contract is placed at the beginning of the
        ;; fused sequence. And runtime checks for consumers are in
        ;; their respective implementation procedure.

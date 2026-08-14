@@ -19,9 +19,9 @@
 ;; Used only in deforest-rewrite to properly recognize the end of
 ;; fusable sequence.
 (define-syntax-class non-fusable
-  (pattern (~not (~or _:fst-new
-                      _:fsp-new
-                      _:fsc-new))))
+  (pattern (~not (~or _:fst
+                      _:fsp
+                      _:fsc))))
 
 (define (expand-qi-syntax stx)
   (expand-flow (introduce-qi-syntax stx)))
@@ -31,18 +31,18 @@
     (attach-form-property
      (syntax-parse stx
        [((~datum thread) _0:non-fusable ...
-                         p:fsp-new
+                         p:fsp
                          ;; There can be zero transformers here:
-                         t:fst-new ...
-                         c:fsc-new
+                         t:fst ...
+                         c:fsc
                          _1 ...)
         #:with fused (generate-fused-operation
                       (syntax->list #'(p t ... c))
                       stx)
         #'(thread _0 ... fused _1 ...)]
        [((~datum thread) _0:non-fusable ...
-                         t:fst-new ...+
-                         c:fsc-new
+                         t:fst ...+
+                         c:fsc
                          _1 ...)
         #:with fused (generate-fused-operation
                       (syntax->list
@@ -52,9 +52,9 @@
                       stx)
         #'(thread _0 ... fused _1 ...)]
        [((~datum thread) _0:non-fusable ...
-                         p:fsp-new
+                         p:fsp
                          ;; Must be 1 or more transformers here:
-                         t:fst-new ...+
+                         t:fst ...+
                          _1 ...)
         #:with fused (generate-fused-operation
                       (syntax->list
@@ -64,8 +64,8 @@
                       stx)
         #'(thread _0 ... fused _1 ...)]
        [((~datum thread) _0:non-fusable ...
-                         f1:fst-new
-                         f:fst-new ...+
+                         f1:fst
+                         f:fst ...+
                          _1 ...)
         #:with fused (generate-fused-operation
                       (syntax->list
