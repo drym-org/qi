@@ -123,9 +123,9 @@
     ;; (op e1 e2 e3) → (#%optimizable-app #,info [f e1] [e e2] [f e3])
     (syntax-parse spec
       #:datum-literals (op)
-      [(op [tag arg-name] ...)
+      [(op [tag arg-name] ...+)
        (syntax-parser
-         [(_ e ...)
+         [(_ e ...+)
           #:fail-unless (= (length (attribute e))
                            (length (attribute arg-name)))
           "Wrong number of arguments!"
