@@ -400,9 +400,87 @@
     (test-equal? "find odd name of 7"
                  ((☯ (~> (map (lambda (v) (cons (sqr (car v)) (cdr v))))
                          (filter (lambda (v) (odd? (car v))))
-                         (assq 49)))
+                         (assoc 49 eq?)))
                   '((1 one) (2 two) (3 three) (4 four) (5 five) (6 six) (7 seven) (8 eight) (9 nine)))
                  '(49 seven))
+    (test-suite "assoc"
+                (test-equal? "eq?"
+                             ((flow (~> (map (lambda (v) (cons (sqr (car v)) (cdr v))))
+                                        (assoc 49)))
+                              '((1 one) (2 two) (3 three) (4 four) (5 five) (6 six) (7 seven) (8 eight) (9 nine)))
+                             '(49 seven))
+                (test-equal? "eqv?"
+                             ((flow (~> (map (lambda (v) (cons (sqr (car v)) (cdr v))))
+                                        (assoc 49.0)))
+                              '((1.0 one) (2.0 two) (3.0 three) (4.0 four) (5.0 five) (6.0 six) (7.0 seven) (8.0 eight) (9.0 nine)))
+                             '(49.0 seven))
+                (test-equal? "equal?"
+                             ((flow (~> (map (lambda (v) (cons (list (sqr (caar v))) (cdr v))))
+                                        (assoc '(49.0))))
+                              '(((1.0) one) ((2.0) two) ((3.0) three) ((4.0) four) ((5.0) five) ((6.0) six) ((7.0) seven) ((8.0) eight) ((9.0) nine)))
+                             '((49.0) seven))
+                (test-equal? "equal-always?"
+                             ((flow (~> (map (lambda (v) (cons (box (sqr (unbox (car v)))) (cdr v))))
+                                        (assoc (box 49))))
+                              `((,(box 1) one) (,(box 2) two) (,(box 3) three) (,(box 4) four) (,(box 5) five) (,(box 6) six) (,(box 7) seven) (,(box 8) eight) (,(box 9) nine)))
+                             `(,(box 49) seven)))
+    (test-suite "assq"
+                (test-equal? "eq?"
+                             ((flow (~> (map (lambda (v) (cons (sqr (car v)) (cdr v))))
+                                        (assq 49)))
+                              '((1 one) (2 two) (3 three) (4 four) (5 five) (6 six) (7 seven) (8 eight) (9 nine)))
+                             '(49 seven))
+                (test-false "eqv?"
+                             ((flow (~> (map (lambda (v) (cons (sqr (car v)) (cdr v))))
+                                        (assq 49.0)))
+                              '((1.0 one) (2.0 two) (3.0 three) (4.0 four) (5.0 five) (6.0 six) (7.0 seven) (8.0 eight) (9.0 nine))))
+                (test-false "equal?"
+                             ((flow (~> (map (lambda (v) (cons (list (sqr (caar v))) (cdr v))))
+                                        (assq '(49.0))))
+                              '(((1.0) one) ((2.0) two) ((3.0) three) ((4.0) four) ((5.0) five) ((6.0) six) ((7.0) seven) ((8.0) eight) ((9.0) nine))))
+                (test-false "equal-always?"
+                             ((flow (~> (map (lambda (v) (cons (box (sqr (unbox (car v)))) (cdr v))))
+                                        (assq (box 49))))
+                              `((,(box 1) one) (,(box 2) two) (,(box 3) three) (,(box 4) four) (,(box 5) five) (,(box 6) six) (,(box 7) seven) (,(box 8) eight) (,(box 9) nine)))))
+    (test-suite "assv"
+                (test-equal? "eq?"
+                             ((flow (~> (map (lambda (v) (cons (sqr (car v)) (cdr v))))
+                                        (assv 49)))
+                              '((1 one) (2 two) (3 three) (4 four) (5 five) (6 six) (7 seven) (8 eight) (9 nine)))
+                             '(49 seven))
+                (test-equal? "eqv?"
+                             ((flow (~> (map (lambda (v) (cons (sqr (car v)) (cdr v))))
+                                        (assv 49.0)))
+                              '((1.0 one) (2.0 two) (3.0 three) (4.0 four) (5.0 five) (6.0 six) (7.0 seven) (8.0 eight) (9.0 nine)))
+                             '(49.0 seven))
+                (test-false "equal?"
+                             ((flow (~> (map (lambda (v) (cons (list (sqr (caar v))) (cdr v))))
+                                        (assv '(49.0))))
+                              '(((1.0) one) ((2.0) two) ((3.0) three) ((4.0) four) ((5.0) five) ((6.0) six) ((7.0) seven) ((8.0) eight) ((9.0) nine))))
+                (test-false "equal-always?"
+                             ((flow (~> (map (lambda (v) (cons (box (sqr (unbox (car v)))) (cdr v))))
+                                        (assv (box 49))))
+                              `((,(box 1) one) (,(box 2) two) (,(box 3) three) (,(box 4) four) (,(box 5) five) (,(box 6) six) (,(box 7) seven) (,(box 8) eight) (,(box 9) nine)))))
+    (test-suite "assw"
+                (test-equal? "eq?"
+                             ((flow (~> (map (lambda (v) (cons (sqr (car v)) (cdr v))))
+                                        (assw 49)))
+                              '((1 one) (2 two) (3 three) (4 four) (5 five) (6 six) (7 seven) (8 eight) (9 nine)))
+                             '(49 seven))
+                (test-equal? "eqv?"
+                             ((flow (~> (map (lambda (v) (cons (sqr (car v)) (cdr v))))
+                                        (assw 49.0)))
+                              '((1.0 one) (2.0 two) (3.0 three) (4.0 four) (5.0 five) (6.0 six) (7.0 seven) (8.0 eight) (9.0 nine)))
+                             '(49.0 seven))
+                (test-equal? "equal?"
+                             ((flow (~> (map (lambda (v) (cons (list (sqr (caar v))) (cdr v))))
+                                        (assw '(49.0))))
+                              '(((1.0) one) ((2.0) two) ((3.0) three) ((4.0) four) ((5.0) five) ((6.0) six) ((7.0) seven) ((8.0) eight) ((9.0) nine)))
+                             '((49.0) seven))
+                (test-false "equal-always?"
+                             ((flow (~> (map (lambda (v) (cons (box (sqr (unbox (car v)))) (cdr v))))
+                                        (assw (box 49))))
+                              `((,(box 1) one) (,(box 2) two) (,(box 3) three) (,(box 4) four) (,(box 5) five) (,(box 6) six) (,(box 7) seven) (,(box 8) eight) (,(box 9) nine)))))
     #;(test-equal? "count with predicate"
                    ((☯ (~> (range 20)
                          (filter odd?)
@@ -414,6 +492,12 @@
                          (filter odd?)
                          (map sqr)
                          (index-of 25))))
+                 2)
+    (test-equal? "index-of/eq?"
+                 ((☯ (~> (range 20)
+                         (filter odd?)
+                         (map sqr)
+                         (index-of 25 eq?))))
                  2)
     (test-equal? "assf"
                  ((☯ (~> (map (lambda (v) (cons (sqr (car v)) (cdr v))))
@@ -632,6 +716,12 @@
                  ((☯ (~> (map (lambda (v) (cons (sqr (car v)) (cdr v))))
                          (filter (lambda (v) (odd? (car v))))
                          (indexes-of '(25 five))))
+                  '((1 one) (2 two) (3 three) (4 four) (5 five) (6 six) (5 five) (7 seven) (5 five) (8 eight) (9 nine) (5 five)))
+                 '(2 3 5 7))
+    (test-equal? "indexes-of/equal?"
+                 ((☯ (~> (map (lambda (v) (cons (sqr (car v)) (cdr v))))
+                         (filter (lambda (v) (odd? (car v))))
+                         (indexes-of '(25 five) equal?)))
                   '((1 one) (2 two) (3 three) (4 four) (5 five) (6 six) (5 five) (7 seven) (5 five) (8 eight) (9 nine) (5 five)))
                  '(2 3 5 7))
     (test-equal? "indexes-where"
