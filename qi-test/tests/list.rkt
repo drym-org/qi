@@ -267,6 +267,36 @@
                          car))
                   (list 1 2 3))
                  1)
+    (test-equal? "filter..cdr"
+                 ((☯ (~> (filter odd?)
+                         cdr))
+                  (list 1 2 3))
+                 '(3))
+    (test-equal? "filter..rest"
+                 ((☯ (~> (filter odd?)
+                         rest))
+                  (list 1 2 3))
+                 '(3))
+    (test-equal? "filter..cddr"
+                 ((☯ (~> (filter odd?)
+                         cddr))
+                  (list 1 2 3 4 5))
+                 '(5))
+    (test-equal? "filter..cdddr"
+                 ((☯ (~> (filter odd?)
+                         cdddr))
+                  (list 1 2 3 4 5 6 7))
+                 '(7))
+    (test-equal? "filter..cddddr"
+                 ((☯ (~> (filter odd?)
+                         cddddr))
+                  (list 1 2 3 4 5 6 7 8 9))
+                 '(9))
+    (test-equal? "filter..cdddddr"
+                 ((☯ (~> (filter odd?)
+                         cdddddr))
+                  (list 1 2 3 4 5 6 7 8 9 10 11))
+                 '(11))
     (test-equal? "filter..foldl"
                  ((☯ (~> (filter odd?)
                          (foldl + 0)))
@@ -438,12 +468,130 @@
                          (remove '(25 five))))
                   '((1 one) (2 two) (3 three) (4 four) (5 five) (6 six) (7 seven) (8 eight) (9 nine)))
                  '((1 one) (9 three) (49 seven) (81 nine)))
+    (test-equal? "remove/proc"
+                 ((☯ (~> (map (lambda (v) (cons (sqr (car v)) (cdr v))))
+                         (filter (lambda (v) (odd? (car v))))
+                         (remove '(25 five) equal?)))
+                  '((1 one) (2 two) (3 three) (4 four) (5 five) (6 six) (7 seven) (8 eight) (9 nine)))
+                 '((1 one) (9 three) (49 seven) (81 nine)))
+    (test-suite "remq"
+                (test-equal? "eq?"
+                             ((flow (~> (filter odd?)
+                                        (map sqr)
+                                        (remq 25)))
+                              '(1 2 3 4 5 6 7 8 9))
+                             '(1 9 49 81))
+                (test-equal? "eqv?"
+                             ((flow (~> (map sqr)
+                                        (remq 25.0)))
+                              (list 1.0 3.0 5.0 7.0 9.0))
+                             '(1.0 9.0 25.0 49.0 81.0))
+                (test-equal? "equal?"
+                             ((flow (~> (map (lambda (v) (list (sqr (car v)))))
+                                        (remq '(25))))
+                              '((1) (3) (5) (7) (9)))
+                             '((1) (9) (25) (49) (81))))
+    (test-suite "remv"
+                (test-equal? "eq?"
+                             ((flow (~> (filter odd?)
+                                        (map sqr)
+                                        (remv 25)))
+                              '(1 2 3 4 5 6 7 8 9))
+                             '(1 9 49 81))
+                (test-equal? "eqv?"
+                             ((flow (~> (map sqr)
+                                        (remv 25.0)))
+                              (list 1.0 3.0 5.0 7.0 9.0))
+                             '(1.0 9.0 49.0 81.0))
+                (test-equal? "equal?"
+                             ((flow (~> (map (lambda (v) (list (sqr (car v)))))
+                                        (remv '(25))))
+                              '((1) (3) (5) (7) (9)))
+                             '((1) (9) (25) (49) (81))))
+    (test-suite "remw"
+                (test-equal? "eq?"
+                             ((flow (~> (filter odd?)
+                                        (map sqr)
+                                        (remw 25)))
+                              '(1 2 3 4 5 6 7 8 9))
+                             '(1 9 49 81))
+                (test-equal? "eqv?"
+                             ((flow (~> (map sqr)
+                                        (remw 25.0)))
+                              (list 1.0 3.0 5.0 7.0 9.0))
+                             '(1.0 9.0 49.0 81.0))
+                (test-equal? "equal?"
+                             ((flow (~> (map (lambda (v) (list (sqr (car v)))))
+                                        (remw '(25))))
+                              '((1) (3) (5) (7) (9)))
+                             '((1) (9) (49) (81)))
+                (test-equal? "equal-always?"
+                             ((flow (~> (map (lambda (v) (box (sqr (unbox v)))))
+                                        (remw (box 25))))
+                              (list (box 1) (box 3) (box 5) (box 7) (box 9)))
+                             (list (box 1) (box 9) (box 25) (box 49) (box 81))))
     (test-equal? "remove*"
                  ((☯ (~> (map (lambda (v) (cons (sqr (car v)) (cdr v))))
                          (filter (lambda (v) (odd? (car v))))
                          (remove* '((25 five)))))
                   '((1 one) (2 two) (3 three) (4 four) (5 five) (6 six) (5 five) (7 seven) (5 five) (8 eight) (9 nine) (5 five) ))
                  '((1 one) (9 three) (49 seven) (81 nine)))
+    (test-suite "remq*"
+                (test-equal? "eq?"
+                             ((flow (~> (filter odd?)
+                                        (map sqr)
+                                        (remq* '(25))))
+                              '(1 2 3 4 5 6 7 8 9 5))
+                             '(1 9 49 81))
+                (test-equal? "eqv?"
+                             ((flow (~> (map sqr)
+                                        (remq* '(25.0))))
+                              (list 1.0 3.0 5.0 7.0 9.0 5.0))
+                             '(1.0 9.0 25.0 49.0 81.0 25.0))
+                (test-equal? "equal?"
+                             ((flow (~> (map (lambda (v) (list (sqr (car v)))))
+                                        (remq* '(25))))
+                              '((1) (3) (5) (7) (9) (5)))
+                             '((1) (9) (25) (49) (81) (25))))
+    (test-suite "remv*"
+                (test-equal? "eq?"
+                             ((flow (~> (filter odd?)
+                                        (map sqr)
+                                        (remv* '(25))))
+                              '(1 2 3 4 5 6 7 8 9))
+                             '(1 9 49 81))
+                (test-equal? "eqv?"
+                             ((flow (~> (map sqr)
+                                        (remv* '(25.0))))
+                              (list 1.0 3.0 5.0 7.0 9.0))
+                             '(1.0 9.0 49.0 81.0))
+                (test-equal? "equal?"
+                             ((flow (~> (map (lambda (v) (list (sqr (car v)))))
+                                        (remv* '((25)))))
+                              '((1) (3) (5) (7) (9)))
+                             '((1) (9) (25) (49) (81))))
+    (test-suite "remw*"
+                (test-equal? "eq?"
+                             ((flow (~> (filter odd?)
+                                        (map sqr)
+                                        (remw* '(25))))
+                              '(1 2 3 4 5 6 7 8 9))
+                             '(1 9 49 81))
+                (test-equal? "eqv?"
+                             ((flow (~> (map sqr)
+                                        (remw* '(25.0))))
+                              (list 1.0 3.0 5.0 7.0 9.0))
+                             '(1.0 9.0 49.0 81.0))
+                (test-equal? "equal?"
+                             ((flow (~> (map (lambda (v) (list (sqr (car v)))))
+                                        (remw* '((25)))))
+                              '((1) (3) (5) (7) (9)))
+                             '((1) (9) (49) (81)))
+                (test-equal? "equal-always?"
+                             ((flow (~> (map (lambda (v) (box (sqr (unbox v)))))
+                                        (remw* (list (box 25)))))
+                              (list (box 1) (box 3) (box 5) (box 7) (box 9)))
+                             (list (box 1) (box 9) (box 25) (box 49) (box 81))))
     (test-equal? "remf"
                  ((☯ (~> (map (lambda (v) (cons (sqr (car v)) (cdr v))))
                          (filter (lambda (v) (odd? (car v))))
