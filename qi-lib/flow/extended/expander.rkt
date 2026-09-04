@@ -249,7 +249,8 @@ core language's use of #%app, etc.).
 
   (nonterminal deforestable-clause
     ((~datum floe) e:closed-floe)
-    ((~datum expr) g:racket-expr))
+    ((~datum expr) g:racket-expr)
+    ((~datum const) g:racket-expr))
 
   (nonterminal arg-stx
     (~datum _)

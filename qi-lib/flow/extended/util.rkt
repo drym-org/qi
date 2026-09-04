@@ -36,7 +36,8 @@
                       loop
                       loop2
                       clos
-                      #%deforestable)
+                      #%deforestable
+                      list-ref*)
     [(thread
       expr ...)
      #`(~> #,@(map prettify-flow-syntax (syntax->list #'(expr ...))))]
@@ -119,6 +120,14 @@
       expr ...)
      #`(clos #,@(map prettify-flow-syntax (syntax->list #'(expr ...))))]
     [(esc expr) (prettify-flow-syntax #'expr)]
+    [(#%deforestable list-ref* _info
+                     ((~datum expr) (#%host-expression n))
+                     ((~datum expr) (#%host-expression (quote (~datum list-ref)))))
+     #'(list-ref n)]
+    [(#%deforestable list-ref* _info
+                     ((~datum expr) (#%host-expression n))
+                     ((~datum expr) (#%host-expression (quote name))))
+     #'name]
     [(#%deforestable name _info ((~or* (~datum floe) (~datum expr)) expr) ...)
      #`(name #,@(map prettify-flow-syntax (syntax->list #'(expr ...))))]
     [expr #'expr]))

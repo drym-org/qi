@@ -413,15 +413,16 @@ already handled during expansion by Syntax Spec.
   (define (deforestable-clause-parser c)
     (syntax-parse c
       [((~datum floe) e) #'(qi0->racket e)]
-      [((~datum expr) e) #'e]))
+      [((~datum expr) e) #'e]
+      [((~datum const) e) #'e]))
 
   (define (deforestable-parser e)
     (syntax-parse e
       #:datum-literals (#%deforestable)
       [(#%deforestable _name info c ...)
-       (let ([es^ (map deforestable-clause-parser (attribute c))])
-         (match-let ([(deforestable-info codegen) (syntax-local-value #'info)])
-           (apply codegen es^)))]))
+       (let ([es^ (map deforestable-clause-parser (attribute c))]
+             [codegen (deforestable-info-codegen (syntax-local-value #'info))])
+         (apply codegen es^))]))
 
   (define (blanket-template-form-parser stx)
     (syntax-parse stx

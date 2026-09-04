@@ -6,9 +6,11 @@
                      syntax/parse)
          syntax/parse
          "syntax.rkt"
-         "../../passes.rkt"
          "../../strategy.rkt"
-         (for-template "../../passes.rkt")
+         (for-template "../../passes.rkt"
+                       (submod "../../../../flow/extended/expander.rkt" invoke)
+                       "../../../../list.rkt"
+                       (only-in "../../../space.rkt" introduce-qi-syntax))
          "../../private/form-property.rkt")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -17,47 +19,62 @@
 ;; Used only in deforest-rewrite to properly recognize the end of
 ;; fusable sequence.
 (define-syntax-class non-fusable
-  (pattern (~not (~or _:fst-syntax
-                      _:fsp-syntax
-                      _:fsc-syntax))))
+  (pattern (~not (~or _:fst
+                      _:fsp
+                      _:fsc))))
+
+(define (expand-qi-syntax stx)
+  (expand-flow (introduce-qi-syntax stx)))
 
 (define (make-deforest-rewrite generate-fused-operation)
   (lambda (stx)
     (attach-form-property
      (syntax-parse stx
        [((~datum thread) _0:non-fusable ...
-                         p:fsp-syntax
+                         p:fsp
                          ;; There can be zero transformers here:
-                         t:fst-syntax ...
-                         c:fsc-syntax
+                         t:fst ...
+                         c:fsc
                          _1 ...)
         #:with fused (generate-fused-operation
                       (syntax->list #'(p t ... c))
                       stx)
         #'(thread _0 ... fused _1 ...)]
        [((~datum thread) _0:non-fusable ...
-                         t:fst-syntax ...+
-                         c:fsc-syntax
+                         t:fst ...+
+                         c:fsc
                          _1 ...)
         #:with fused (generate-fused-operation
-                      (syntax->list #'(list->cstream t ... c))
+                      (syntax->list
+                       (with-syntax ((list->cstream
+                                      (expand-qi-syntax #'list->cstream)))
+                         #'(list->cstream t ... c)))
                       stx)
         #'(thread _0 ... fused _1 ...)]
        [((~datum thread) _0:non-fusable ...
-                         p:fsp-syntax
+                         p:fsp
                          ;; Must be 1 or more transformers here:
-                         t:fst-syntax ...+
+                         t:fst ...+
                          _1 ...)
         #:with fused (generate-fused-operation
-                      (syntax->list #'(p t ... cstream->list))
+                      (syntax->list
+                       (with-syntax ((cstream->list
+                                      (expand-qi-syntax #'cstream->list)))
+                         #'(p t ... cstream->list)))
                       stx)
         #'(thread _0 ... fused _1 ...)]
        [((~datum thread) _0:non-fusable ...
-                         f1:fst-syntax
-                         f:fst-syntax ...+
+                         f1:fst
+                         f:fst ...+
                          _1 ...)
         #:with fused (generate-fused-operation
-                      (syntax->list #'(list->cstream f1 f ... cstream->list))
+                      (syntax->list
+                       (with-syntax ((list->cstream
+                                      (expand-qi-syntax #'list->cstream))
+                                     (cstream->list
+                                      (expand-qi-syntax #'cstream->list)))
+                         ;; #'((#%deforestable list->cstream list->cstream-info) ...)
+                         #'(list->cstream f1 f ... cstream->list)))
                       stx)
         #'(thread _0 ... fused _1 ...)]
        ;; return the input syntax unchanged if no rules

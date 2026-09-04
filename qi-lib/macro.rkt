@@ -10,7 +10,8 @@
 (require (for-syntax racket/base
                      racket/format
                      racket/match
-                     racket/list)
+                     racket/list
+                     racket/syntax)
          (only-in "flow/extended/expander.rkt"
                   qi-macro
                   esc
@@ -19,7 +20,8 @@
          (for-syntax qi/flow/aux-syntax)
          syntax/parse/define
          syntax/parse
-         syntax-spec-v3)
+         syntax-spec-v3
+         racket/performance-hint)
 
 (begin-for-syntax
 
@@ -121,7 +123,7 @@
     ;; (op e1 e2 e3) → (#%optimizable-app #,info [f e1] [e e2] [f e3])
     (syntax-parse spec
       #:datum-literals (op)
-      [(op [tag arg-name] ...)
+      [(op [tag arg-name] ...+)
        (syntax-parser
          [(_ e ...+)
           #:fail-unless (= (length (attribute e))
@@ -140,10 +142,52 @@
          ;; so no special error handling needed here
          [_:id #`(#%deforestable #,name #,info)])])))
 
+(begin-for-syntax
+  (define-syntax-class dffmls
+    #:attributes (name spec arg args?)
+    #:description "deforestable formals"
+    (pattern name:id
+             #:attr spec #'()
+             #:attr arg #'()
+             #:attr args? #f)
+    (pattern (name:id (_typ _arg) ...+)
+             #:attr spec #'((_typ _arg) ...)
+             #:attr arg #'(_arg ...)
+             #:attr args? #t)))
+
 (define-syntax define-deforestable
   (syntax-parser
-    [(_ (name spec ...+) codegen)
-     #:with ([_typ arg] ...) #'(spec ...)
+    [(_
+      (~or (~and #:transformer transformer-kw)
+           (~and #:consumer consumer-kw)
+           (~and #:producer producer-kw))
+      df:dffmls
+      (~alt
+       (~optional (~seq #:fallback codegen))
+       (~optional (~seq #:impl ((~literal lambda) (rarg ...) rbody ...)))
+       (~optional (~seq #:prepare prepare))
+       (~optional (~seq #:contracts (rtacontract ...))
+                  #:defaults (((rtacontract 1) '())))
+       (~optional (~seq #:rest-contract restcontract))
+       ) ...
+      )
+     #:fail-when (not (and (attribute codegen)
+                           (attribute rbody)))
+     "fallback and implementation are mandatory"
+     #:fail-when (and (or (attribute transformer-kw)
+                          (attribute consumer-kw))
+                      (or (attribute prepare)
+                          (not (null? (attribute rtacontract)))
+                          (attribute restcontract)))
+     "transformers and consumers must not specify prepare and contracts"
+     #:fail-when (and (attribute producer-kw)
+                      (not (attribute prepare)))
+     "producers must specify prepare"
+     #:with (spec ...) #'df.spec
+     #:with (arg ...) #'df.arg
+     #:with op-spec (if (attribute df.args?)
+                       #'(op spec ...)
+                       #'op)
      #:with codegen-f #'(lambda (arg ...)
                           ;; var bindings vs pattern bindings
                           ;; arg are syntax objects but we can't
@@ -151,24 +195,33 @@
                           ;; we use with-syntax to handle them
                           ;; as pattern bindings
                           (with-syntax ([arg arg] ...)
-                            codegen))
+                            #'codegen))
+     #:with prepare-f (if (attribute producer-kw)
+                          #'(lambda (arg ...)
+                              (with-syntax ([arg arg] ...)
+                                #'prepare))
+                          #'#f)
+     #:with kind (cond ((attribute transformer-kw) #''T)
+                       ((attribute consumer-kw) #''C)
+                       ((attribute producer-kw) #''P))
+     #:with runtime-cstream-next (format-id this-syntax
+                                            "~a-cstream-next"
+                                            #'df.name)
+     #:with contracts (if (attribute producer-kw)
+                          #'#'(rtacontract ...)
+                          #'#f)
+     #:with rcontract (if (attribute restcontract)
+                          #'#'restcontract
+                          #'#f)
      #'(begin
+
+         (define-inline (runtime-cstream-next rarg ...)
+           rbody ...)
 
          ;; capture the codegen in an instance of
          ;; the compile time struct
          (define-syntax info
-           (deforestable-info codegen-f))
+           (deforestable-info codegen-f #'runtime-cstream-next kind prepare-f contracts rcontract))
 
-         (define-dsl-syntax name qi-macro
-           (op-transformer #'name #'info #'(op spec ...))))]
-    [(_ name:id codegen)
-     #:with codegen-f #'(lambda () codegen)
-     #'(begin
-
-         ;; capture the codegen in an instance of
-         ;; the compile time struct
-         (define-syntax info
-           (deforestable-info codegen-f))
-
-         (define-dsl-syntax name qi-macro
-           (op-transformer #'name #'info #'op)))]))
+         (define-dsl-syntax df.name qi-macro
+           (op-transformer #'df.name #'info #'op-spec)))]))
