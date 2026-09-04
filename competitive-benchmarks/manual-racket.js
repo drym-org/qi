@@ -15,6 +15,24 @@ AddOnLoad(function() {
     }
 })
 
+// for copies that start in Racket code, strip out extra newlines
+AddOnLoad(function() {
+  const codeBlocks = document.getElementsByClassName("SCodeFlow");
+  for (var i = 0; i < codeBlocks.length; i++) {
+    var codeBlock = codeBlocks[i];
+    console.log("add");
+    codeBlock.addEventListener('copy', function(e) {
+      var selection = window.getSelection();
+      var text = selection.toString();
+      var codeText = text.replace(/\n\n/g, '\n');
+      if (text != codeText) {
+        e.preventDefault();
+        e.clipboardData.setData('text/plain', codeText);
+      }
+    })
+  }
+})
+
 // cache of source urls
 var cache = {};
 
@@ -91,8 +109,8 @@ var prefixes = { "github.com": "tree",
 
 
 function AddSourceUrl(source, mod_path, collection, info) {
-    // multi is encoded as an array, empty as false
-    single_collection = (typeof collection === "string");
+    // multi is encoded as an array, single is either false or a string
+    single_collection = (collection === false || typeof collection === "string");
 
     var parsed = source && mod_path && ParseSource(source, mod_path, single_collection);
 
