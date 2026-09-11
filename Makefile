@@ -247,7 +247,7 @@ benchmark-loading:
 	racket $(PACKAGE-NAME)-sdk/benchmarks/loading/report.rkt
 
 benchmark-selected-forms:
-	@echo "Use 'racket $(PACKAGE-NAME)-sdk/benchmarks/local/report.rkt' directly, with -s form-name for each form."
+	@echo "Use 'racket $(PACKAGE-NAME)-sdk/benchmarks/local/report.rkt' or 'racket $(PACKAGE-NAME)-sdk/benchmarks/nonlocal/report-competitive.rkt' directly, with -s form-name for each form."
 
 benchmark-competitive:
 	cd $(PACKAGE-NAME)-sdk/benchmarks/nonlocal; racket report-competitive.rkt
