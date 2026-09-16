@@ -19,7 +19,8 @@
          kw-helper
          singleton?
          zip-with
-         compose-with-values)
+         compose-with-values
+         compose1-with-values)
 
 (require racket/match
          (only-in racket/function
@@ -41,6 +42,21 @@
    #'(call-with-values
       (λ ()
         (compose-with-values args g ...))
+      f)])
+
+;; This differs from compose-with-values only in the handling of
+;; the initial arguments to a pipeline, where this expects a
+;; single argument, while the other supports any number.
+;; Within the composition, any number of values may be
+;; passed between functions, so this isn't like Racket's
+;; compose1 vs compose.
+(define-syntax-parser compose1-with-values
+  [(_ arg)
+   #'arg]
+  [(_ args f g ...)
+   #'(call-with-values
+      (λ ()
+        (compose1-with-values args g ...))
       f)])
 
 (define (kw-helper f args)

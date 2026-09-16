@@ -168,9 +168,12 @@ already handled during expansion by Syntax Spec.
        #:with (reversed-f ...) (reverse
                                 (syntax->list
                                  #'((qi0->racket f) ...)))
-       #'(λ args
+       #'(case-λ
+          [(x) (compose1-with-values x
+                                     reversed-f ...)]
+          [args
            (compose-with-values args
-                                reversed-f ...))]))
+                                reversed-f ...)])]))
 
   (define (sep-parser stx)
     (syntax-parse stx
