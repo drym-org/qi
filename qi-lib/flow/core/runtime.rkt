@@ -238,8 +238,15 @@
      (keyword-apply f ks vs xs))))
 
 (define (relay . fs)
-  (λ args
-    (apply values (~zip-with call (list fs args) #false))))
+  (case-λ [(v)
+           (if (singleton? fs)
+               ((car fs) v)
+               (raise-arguments-error 'relay
+                                      "more flows than values"
+                                      "flows" fs
+                                      "values" v))]
+          [args
+           (apply values (~zip-with call (list fs args) #false))]))
 
 (define (repeat-values n . vs)
   (apply values (apply append (make-list n vs))))
