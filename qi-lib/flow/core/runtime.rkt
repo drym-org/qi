@@ -18,7 +18,9 @@
          feedback-while
          kw-helper
          singleton?
-         zip-with)
+         zip-with
+         compose-with-values
+         compose1-with-values)
 
 (require racket/match
          (only-in racket/function
@@ -32,6 +34,30 @@
 
 (define-syntax-parse-rule (values->list body:expr ...+)
   (call-with-values (λ () body ...) list))
+
+(define-syntax-parser compose-with-values
+  [(_ args)
+   #'(apply values args)]
+  [(_ args f g ...)
+   #'(call-with-values
+      (λ ()
+        (compose-with-values args g ...))
+      f)])
+
+;; This differs from compose-with-values only in the handling of
+;; the initial arguments to a pipeline, where this expects a
+;; single argument, while the other supports any number.
+;; Within the composition, any number of values may be
+;; passed between functions, so this isn't like Racket's
+;; compose1 vs compose.
+(define-syntax-parser compose1-with-values
+  [(_ arg)
+   #'arg]
+  [(_ args f g ...)
+   #'(call-with-values
+      (λ ()
+        (compose1-with-values args g ...))
+      f)])
 
 (define (kw-helper f args)
   (make-keyword-procedure
@@ -212,8 +238,15 @@
      (keyword-apply f ks vs xs))))
 
 (define (relay . fs)
-  (λ args
-    (apply values (~zip-with call (list fs args) #false))))
+  (case-λ [(v)
+           (if (singleton? fs)
+               ((car fs) v)
+               (raise-arguments-error 'relay
+                                      "more flows than values"
+                                      "flows" fs
+                                      "values" v))]
+          [args
+           (apply values (~zip-with call (list fs args) #false))]))
 
 (define (repeat-values n . vs)
   (apply values (apply append (make-list n vs))))
