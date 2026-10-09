@@ -51,7 +51,7 @@
 ;; passed between functions, so this isn't like Racket's
 ;; compose1 vs compose.
 (define-syntax-parser compose1-with-values
-  [(_ f arg)
+  [(_ arg f)
    #'(f arg)]
   [(_ arg f g ...+)
    #'(call-with-values

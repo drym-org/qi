@@ -287,8 +287,7 @@ already handled during expansion by Syntax Spec.
        ;; for literally indicated N
        ;; TODO: implement this as an optimization instead
        #`(case-λ [(v)
-                  (apply values
-                         #,@(make-list (syntax->datum #'n) #'v))]
+                  (values #,@(make-list (syntax->datum #'n) #'v))]
                  [args
                   (apply values
                          (append #,@(make-list (syntax->datum #'n) #'args)))])]
