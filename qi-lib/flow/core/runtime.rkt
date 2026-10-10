@@ -238,7 +238,7 @@
      (keyword-apply f ks vs xs))))
 
 (define (relay . fs)
-  (case-λ [(v)
+  (case-lambda [(v)
            (if (singleton? fs)
                ((car fs) v)
                (raise-arguments-error 'relay
