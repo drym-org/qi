@@ -3,6 +3,7 @@
 (provide tests)
 
 (require qi
+         qi/list
          rackunit
          rackunit/text-ui
          (only-in math sqr))
@@ -28,7 +29,19 @@
                       (~>> (memq n)))
                     (list ((t 3) 1 2 3)
                           ((t 0) 1 2 3)))
-                  '((3) #f)))
+                  '((3) #f))
+    ;; A test that exercises inlining. This doesn't actually verify
+    ;; that inlining was performed. We'll need more tests for that
+    ;; (e.g., testing the compiler rewrites, not just the output)
+    (check-equal? (let ()
+                    (define-flow my-filter
+                      (filter odd?))
+                    (define-flow my-map
+                      (map sqr))
+                    (define-flow my-filter-map
+                      (~> my-filter my-map))
+                    (my-filter-map (list 1 2 3 4 5)))
+                  '(1 9 25)))
 
    (test-suite
     "define-switch"

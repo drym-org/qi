@@ -22,125 +22,129 @@
   ;; this is a macro so it receives the entire expression
   ;; (qi0->racket ...). We use cadr here to parse the
   ;; contained expression.
-  (syntax-parse (cadr (syntax->list stx))
+  (define argument-stx (cadr (syntax->list stx)))
+  (syntax-track-origin
+   (syntax-parse argument-stx
 
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ;;;; Core language forms ;;;;
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     ;;;; Core language forms ;;;;
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-    ;; A note regarding symbolic aliases like ~>, ⏚ and △:
-    ;;
-    ;; These aren't technically part of the core language
-    ;; as they aren't directly part of the syntax
-    ;; spec in the expander (which includes only, e.g.,
-    ;; thread and tee and so on). Instead, they are simply
-    ;; aliased at the module level there when provided.
-    ;; Yet, during code generation in the present module,
-    ;; it's more convenient to express expansions
-    ;; using these symbolic aliases, and that's the
-    ;; reason we retain these in the patterns below. As
-    ;; these patterns are matched as _datum literals_,
-    ;; it doesn't matter that they aren't actually the
-    ;; literal core forms declared in the expander.
+     ;; A note regarding symbolic aliases like ~>, ⏚ and △:
+     ;;
+     ;; These aren't technically part of the core language
+     ;; as they aren't directly part of the syntax
+     ;; spec in the expander (which includes only, e.g.,
+     ;; thread and tee and so on). Instead, they are simply
+     ;; aliased at the module level there when provided.
+     ;; Yet, during code generation in the present module,
+     ;; it's more convenient to express expansions
+     ;; using these symbolic aliases, and that's the
+     ;; reason we retain these in the patterns below. As
+     ;; these patterns are matched as _datum literals_,
+     ;; it doesn't matter that they aren't actually the
+     ;; literal core forms declared in the expander.
 
-    [((~datum gen) ex:expr ...)
-     #'(λ _ (values ex ...))]
-    ;; pass-through (identity flow)
-    [(~datum _) #'values]
-    ;; routing
-    [(~or* (~datum ⏚) (~datum ground)) ; NOTE: technically not core
-     #'(qi0->racket (select))]
-    [((~or* (~datum ~>) (~datum thread)) onex:clause ...)
-     #`(compose . #,(reverse
-                     (syntax->list
-                      #'((qi0->racket onex) ...))))]
-    [e:relay-form (relay-parser #'e)]
-    [e:tee-form (tee-parser #'e)]
-    ;; map and filter
-    [e:amp-form (amp-parser #'e)] ; NOTE: technically not core
-    [e:pass-form (pass-parser #'e)] ; NOTE: technically not core
-    ;; prisms
-    [e:sep-form (sep-parser #'e)]
-    [(~or* (~datum ▽) (~datum collect))
-     #'list]
-    ;; predicates
-    [(~or* (~datum NOT) (~datum !))
-     #'not]
-    [(~datum XOR)
-     #'parity-xor]
-    [((~datum and) onex:clause ...)
-     #'(conjoin (qi0->racket onex) ...)]
-    [((~datum or) onex:clause ...)
-     #'(disjoin (qi0->racket onex) ...)]
-    [((~datum not) onex:clause) ; NOTE: technically not core
-     #'(negate (qi0->racket onex))]
-    [((~datum all) onex:clause)
-     #`(give (curry andmap (qi0->racket onex)))]
-    [((~datum any) onex:clause)
-     #'(give (curry ormap (qi0->racket onex)))]
+     [((~datum gen) ex:expr ...)
+      #'(λ _ (values ex ...))]
+     ;; pass-through (identity flow)
+     [(~datum _) #'values]
+     ;; routing
+     [(~or* (~datum ⏚) (~datum ground)) ; NOTE: technically not core
+      #'(qi0->racket (select))]
+     [((~or* (~datum ~>) (~datum thread)) onex:clause ...)
+      #`(compose . #,(reverse
+                      (syntax->list
+                       #'((qi0->racket onex) ...))))]
+     [e:relay-form (relay-parser #'e)]
+     [e:tee-form (tee-parser #'e)]
+     ;; map and filter
+     [e:amp-form (amp-parser #'e)] ; NOTE: technically not core
+     [e:pass-form (pass-parser #'e)] ; NOTE: technically not core
+     ;; prisms
+     [e:sep-form (sep-parser #'e)]
+     [(~or* (~datum ▽) (~datum collect))
+      #'list]
+     ;; predicates
+     [(~or* (~datum NOT) (~datum !))
+      #'not]
+     [(~datum XOR)
+      #'parity-xor]
+     [((~datum and) onex:clause ...)
+      #'(conjoin (qi0->racket onex) ...)]
+     [((~datum or) onex:clause ...)
+      #'(disjoin (qi0->racket onex) ...)]
+     [((~datum not) onex:clause) ; NOTE: technically not core
+      #'(negate (qi0->racket onex))]
+     [((~datum all) onex:clause)
+      #`(give (curry andmap (qi0->racket onex)))]
+     [((~datum any) onex:clause)
+      #'(give (curry ormap (qi0->racket onex)))]
 
-    ;; selection
-    [e:select-form (select-parser #'e)]
-    [e:block-form (block-parser #'e)]
-    [e:group-form (group-parser #'e)]
-    ;; conditionals
-    [e:if-form (if-parser #'e)]
-    [e:sieve-form (sieve-parser #'e)]
-    [e:partition-form (partition-parser #'e)]
-    ;; exceptions
-    [e:try-form (try-parser #'e)]
-    ;; folds
-    [e:fold-left-form (fold-left-parser #'e)]
-    [e:fold-right-form (fold-right-parser #'e)]
-    ;; high-level routing
-    [e:fanout-form (fanout-parser #'e)]
-    ;; looping
-    [e:feedback-form (feedback-parser #'e)]
-    [e:loop-form (loop-parser #'e)]
-    [((~datum loop2) pred:clause mapex:clause combex:clause)
-     #'(letrec ([loop2 (qi0->racket (if pred
-                                        (~> (== (-< (esc cdr)
-                                                    (~> (esc car) mapex)) _)
-                                            (group 1 _ combex)
-                                            (esc loop2))
-                                        (select 2)))])
-         loop2)]
-    ;; towards universality
-    [(~datum appleye)
-     #'call]
-    [e:clos-form (clos-parser #'e)]
-    [e:deforestable-form (deforestable-parser #'e)]
-    ;; escape hatch for racket expressions or anything
-    ;; to be "passed through"
-    [((~datum esc) ex:expr)
-     #'ex]
+     ;; selection
+     [e:select-form (select-parser #'e)]
+     [e:block-form (block-parser #'e)]
+     [e:group-form (group-parser #'e)]
+     ;; conditionals
+     [e:if-form (if-parser #'e)]
+     [e:sieve-form (sieve-parser #'e)]
+     [e:partition-form (partition-parser #'e)]
+     ;; exceptions
+     [e:try-form (try-parser #'e)]
+     ;; folds
+     [e:fold-left-form (fold-left-parser #'e)]
+     [e:fold-right-form (fold-right-parser #'e)]
+     ;; high-level routing
+     [e:fanout-form (fanout-parser #'e)]
+     ;; looping
+     [e:feedback-form (feedback-parser #'e)]
+     [e:loop-form (loop-parser #'e)]
+     [((~datum loop2) pred:clause mapex:clause combex:clause)
+      #'(letrec ([loop2 (qi0->racket (if pred
+                                         (~> (== (-< (esc cdr)
+                                                     (~> (esc car) mapex)) _)
+                                             (group 1 _ combex)
+                                             (esc loop2))
+                                         (select 2)))])
+          loop2)]
+     ;; towards universality
+     [(~datum appleye)
+      #'call]
+     [e:clos-form (clos-parser #'e)]
+     [e:deforestable-form (deforestable-parser #'e)]
+     ;; escape hatch for racket expressions or anything
+     ;; to be "passed through"
+     [((~datum esc) ex:expr)
+      #'ex]
 
-    ;;; Miscellaneous
+     ;;; Miscellaneous
 
-    ;; Partial application with syntactically pre-supplied arguments
-    ;; in a blanket template
-    [((~datum #%blanket-template) e)
-     (blanket-template-form-parser this-syntax)]
+     ;; Partial application with syntactically pre-supplied arguments
+     ;; in a blanket template
+     [((~datum #%blanket-template) e)
+      (blanket-template-form-parser this-syntax)]
 
-    ;; Fine-grained template-based application
-    ;; This handles templates that indicate a specific number of template
-    ;; variables (i.e. expected arguments). The semantics of template-based
-    ;; application here is fulfilled by the fancy-app module. In order to use
-    ;; it, we simply use the #%app macro provided by fancy-app instead of the
-    ;; implicit one used for function application in racket/base.
-    ;; "prarg" = "pre-supplied argument"
-    [((~datum #%fine-template) (prarg-pre ... (~datum _) prarg-post ...))
-     #'(fancy:#%app prarg-pre ... _ prarg-post ...)]
+     ;; Fine-grained template-based application
+     ;; This handles templates that indicate a specific number of template
+     ;; variables (i.e. expected arguments). The semantics of template-based
+     ;; application here is fulfilled by the fancy-app module. In order to use
+     ;; it, we simply use the #%app macro provided by fancy-app instead of the
+     ;; implicit one used for function application in racket/base.
+     ;; "prarg" = "pre-supplied argument"
+     [((~datum #%fine-template) (prarg-pre ... (~datum _) prarg-post ...))
+      #'(fancy:#%app prarg-pre ... _ prarg-post ...)]
 
-    ;; If in the course of optimization we ever end up with a fully
-    ;; simplified host expression, the compiler would a priori reject it as
-    ;; not being a core Qi expression. So we add this extra rule here
-    ;; to simply pass this expression through.
-    ;; TODO: should `#%host-expression` be formally declared as being part
-    ;; of the core language by including it in the syntax-spec grammar
-    ;; in extended/expander.rkt?
-    [((~datum #%host-expression) hex)
-     this-syntax]))
+     ;; If in the course of optimization we ever end up with a fully
+     ;; simplified host expression, the compiler would a priori reject it as
+     ;; not being a core Qi expression. So we add this extra rule here
+     ;; to simply pass this expression through.
+     ;; TODO: should `#%host-expression` be formally declared as being part
+     ;; of the core language by including it in the syntax-spec grammar
+     ;; in extended/expander.rkt?
+     [((~datum #%host-expression) hex)
+      this-syntax])
+   argument-stx
+   #'qi0->racket))
 
 #|
 
