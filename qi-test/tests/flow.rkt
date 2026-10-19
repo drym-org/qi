@@ -867,7 +867,11 @@
      (check-equal? ((☯ (sort < __ #:key sqr))
                     3 1 2)
                    (list 1 4 9)
-                   "keyword arguments in a vindaloo blanket template"))
+                   "keyword arguments in a vindaloo blanket template")
+     (check-exn exn:fail?
+                (thunk (convert-compile-time-error
+                        (☯ (__ 4))))
+                "blanket template used in application position"))
     (test-suite
      "fine template with single argument"
      (check-false ((☯ (apply > _))
