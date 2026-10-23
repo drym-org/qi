@@ -214,6 +214,8 @@ core language's use of #%app, etc.).
     (#%blanket-template (arg:arg-stx ...))
     (~> f:blanket-template-form
         #'(#%blanket-template f))
+    (~> ((~datum __) _e ...) (report-syntax-error this-syntax
+                               "(f pre-arg ... __ post-arg ...)"))
 
     (#%fine-template (arg:arg-stx ...))
     (~> f:fine-template-form

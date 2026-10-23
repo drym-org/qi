@@ -46,10 +46,9 @@
      (check-exn exn:fail:contract?
                 (thunk ((flow (get-f 1)) 2))
                 "fully qualified function is still treated as a partial application")
-     ;; As this is a syntax error, it can't be written as a unit test
-     ;; (check-exn exn:fail:contract?
-     ;;            (thunk (flow (get-f)))
-     ;;            "empty partial application isn't allowed")
+     (check-exn exn:fail?
+                (thunk (convert-compile-time-error (flow (get-f))))
+                "empty partial application isn't allowed")
      (check-equal? ((flow (esc (get-f 1))) 2)
                    3
                    "fully qualified function used as a flow must still use esc")
@@ -838,12 +837,10 @@
                    "cba"
                    "curried foldl")
      (check-equal? (((☯ (const 3)))) 3 "partial application with no arguments")
-     ;; As this is now a syntax error, it can't be written as a unit test
-     ;; (check-exn exn:fail?
-     ;;            (thunk ((☯ (+))
-     ;;                    5 7 8))
-     ;;            "function isn't curried when no arguments are provided")
-     )
+     (check-exn exn:fail?
+                (thunk (convert-compile-time-error
+                        ((☯ (+)) 5 7 8)))
+                "function isn't curried when no arguments are provided"))
     (test-suite
      "blanket template"
      (check-equal? ((☯ (+ __))) 0)
@@ -867,7 +864,11 @@
      (check-equal? ((☯ (sort < __ #:key sqr))
                     3 1 2)
                    (list 1 4 9)
-                   "keyword arguments in a vindaloo blanket template"))
+                   "keyword arguments in a vindaloo blanket template")
+     (check-exn exn:fail?
+                (thunk (convert-compile-time-error
+                        (☯ (__ 4))))
+                "blanket template used in application position"))
     (test-suite
      "fine template with single argument"
      (check-false ((☯ (apply > _))
