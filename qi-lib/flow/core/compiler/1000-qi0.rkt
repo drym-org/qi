@@ -10,8 +10,8 @@
                      syntax/parse
                      "../syntax.rkt"
                      "../../aux-syntax.rkt"
-                     (only-in racket/list make-list)
-                     ))
+                     (only-in racket/list make-list))
+         syntax/parse/define)
 
 (begin-for-syntax
   (define-and-register-pass 1000 (qi0-wrapper stx)
@@ -51,9 +51,7 @@
     [(~or* (~datum ⏚) (~datum ground)) ; NOTE: technically not core
      #'(qi0->racket (select))]
     [((~or* (~datum ~>) (~datum thread)) onex:clause ...)
-     #`(compose . #,(reverse
-                     (syntax->list
-                      #'((qi0->racket onex) ...))))]
+     (thread-parser #'(~> onex ...))]
     [e:relay-form (relay-parser #'e)]
     [e:tee-form (tee-parser #'e)]
     ;; map and filter
@@ -164,19 +162,31 @@ already handled during expansion by Syntax Spec.
 
 (begin-for-syntax
 
+  (define (thread-parser stx)
+    (syntax-parse stx
+      [(_ f ...)
+       #:with (reversed-f ...) (reverse
+                                (syntax->list
+                                 #'((qi0->racket f) ...)))
+       #'(case-lambda
+          [(x) (compose1-with-values x
+                                     reversed-f ...)]
+          [args
+           (compose-with-values args
+                                reversed-f ...)])]))
+
   (define (sep-parser stx)
     (syntax-parse stx
       [(_ op:clause)
        #'(zip-with (qi0->racket op))]
-      [_:id #'(λ args
-                (if (singleton? args)
-                    (let ([v (first args)])
-                      (if (list? v)
-                          (apply values v)  ; fast path to the basic △ behavior
-                          (raise-argument-error '△
-                                                "list?"
-                                                v)))
-                    (apply (qi0->racket (△ _)) args)))]))
+      [_:id #'(case-lambda
+                [(v) (if (list? v)
+                         (apply values v)  ; fast path to the basic △ behavior
+                         (raise-argument-error '△
+                                               "list?"
+                                               v))]
+                [args
+                 (apply (qi0->racket (△ _)) args)])]))
 
   (define (select-parser stx)
     (syntax-parse stx
@@ -232,30 +242,46 @@ already handled during expansion by Syntax Spec.
       [(_ flo
           [error-condition-flo error-handler-flo]
           ...+)
-       #'(λ args
-           (with-handlers ([(qi0->racket error-condition-flo)
-                            (λ (e)
-                              ;; TODO: may be good to support reference to the
-                              ;; error via a binding / syntax parameter
-                              (apply (qi0->racket error-handler-flo) args))]
-                           ...)
-             (apply (qi0->racket flo) args)))]))
+       ;; TODO: may be good to support reference to the
+       ;; error via a binding / syntax parameter
+       #'(case-lambda
+           [(v)
+            (with-handlers ([(qi0->racket error-condition-flo)
+                             (λ (e)
+                               ((qi0->racket error-handler-flo) v))]
+                            ...)
+              ((qi0->racket flo) v))]
+           [args
+            (with-handlers ([(qi0->racket error-condition-flo)
+                             (λ (e)
+                               (apply (qi0->racket error-handler-flo) args))]
+                            ...)
+              (apply (qi0->racket flo) args))])]))
 
   (define (if-parser stx)
     (syntax-parse stx
       [(_ consequent:clause
           alternative:clause)
-       #'(λ (f . args)
-           (if (apply f args)
-               (apply (qi0->racket consequent) args)
-               (apply (qi0->racket alternative) args)))]
+       #'(case-lambda
+           [(f v)
+            (if (f v)
+                ((qi0->racket consequent) v)
+                ((qi0->racket alternative) v))]
+           [(f . args)
+            (if (apply f args)
+                (apply (qi0->racket consequent) args)
+                (apply (qi0->racket alternative) args))])]
       [(_ condition:clause
           consequent:clause
           alternative:clause)
-       #'(λ args
-           (if (apply (qi0->racket condition) args)
-               (apply (qi0->racket consequent) args)
-               (apply (qi0->racket alternative) args)))]))
+       #'(case-lambda
+           [(v) (if ((qi0->racket condition) v)
+                    ((qi0->racket consequent) v)
+                    ((qi0->racket alternative) v))]
+           [args
+            (if (apply (qi0->racket condition) args)
+                (apply (qi0->racket consequent) args)
+                (apply (qi0->racket alternative) args))])]))
 
   (define (fanout-parser stx)
     (syntax-parse stx
@@ -264,14 +290,21 @@ already handled during expansion by Syntax Spec.
        ;; a slightly more efficient compile-time implementation
        ;; for literally indicated N
        ;; TODO: implement this as an optimization instead
-       #`(λ args
-           (apply values
-                  (append #,@(make-list (syntax->datum #'n) #'args))) )]
+       #`(case-lambda
+           [(v)
+            (values #,@(make-list (syntax->datum #'n) #'v))]
+           [args
+            (apply values
+                   (append #,@(make-list (syntax->datum #'n) #'args)))])]
       [(_ n:expr)
-       #'(lambda args
-           (apply values
-                  (apply append
-                         (make-list n args))))]))
+       #'(case-lambda
+           [(v)
+            (apply values
+                   (make-list n v))]
+           [args
+            (apply values
+                   (apply append
+                          (make-list n args)))])]))
 
   (define (feedback-parser stx)
     (syntax-parse stx
@@ -283,9 +316,13 @@ already handled during expansion by Syntax Spec.
                          (qi0->racket thenex))]
       [(_ ((~datum while) tilex:clause)
           ((~datum then) thenex:clause))
-       #'(λ (f . args)
-           (apply (qi0->racket (feedback (while tilex) (then thenex) (esc f)))
-                  args))]
+       #'(case-lambda
+           [(f v)
+            ((qi0->racket (feedback (while tilex) (then thenex) (esc f)))
+             v)]
+           [(f . args)
+            (apply (qi0->racket (feedback (while tilex) (then thenex) (esc f)))
+                   args)])]
       [(_ ((~datum while) tilex:clause) onex:clause)
        #'(qi0->racket (feedback (while tilex) (then _) onex))]
       [(_ ((~datum while) tilex:clause))
@@ -293,31 +330,51 @@ already handled during expansion by Syntax Spec.
       [(_ n:expr
           ((~datum then) thenex:clause)
           onex:clause)
-       #'(lambda args
-           (apply (feedback-times (qi0->racket onex) n (qi0->racket thenex))
-                  args))]
+       #'(case-lambda
+           [(v)
+            ((feedback-times (qi0->racket onex) n (qi0->racket thenex))
+             v)]
+           [args
+            (apply (feedback-times (qi0->racket onex) n (qi0->racket thenex))
+                   args)])]
       [(_ n:expr
           ((~datum then) thenex:clause))
-       #'(λ (f . args)
-           (apply (qi0->racket (feedback n (then thenex) (esc f))) args))]
+       #'(case-lambda
+           [(f v)
+            ((qi0->racket (feedback n (then thenex) (esc f))) v)]
+           [(f . args)
+            (apply (qi0->racket (feedback n (then thenex) (esc f))) args)])]
       [(_ n:expr onex:clause)
        #'(qi0->racket (feedback n (then _) onex))]
       [(_ onex:clause)
-       #'(λ (n . args)
-           (apply (qi0->racket (feedback n onex)) args))]
+       #'(case-lambda
+           [(n v)
+            ((qi0->racket (feedback n onex)) v)]
+           [(n . args)
+            (apply (qi0->racket (feedback n onex)) args)])]
       [_:id
-       #'(λ (n flo . args)
-           (apply (qi0->racket (feedback n (esc flo)))
-                  args))]))
+       #'(case-lambda
+           [(n flo v)
+            ((qi0->racket (feedback n (esc flo)))
+             v)]
+           [(n flo . args)
+            (apply (qi0->racket (feedback n (esc flo)))
+                   args)])]))
 
   (define (tee-parser stx)
     (syntax-parse stx
       [((~or* (~datum -<) (~datum tee)) onex:clause ...)
-       #'(λ args
-           (apply values
-                  (append (values->list
-                           (apply (qi0->racket onex) args))
-                          ...)))]
+       #'(case-lambda
+           [(v)
+            (apply values
+                   (append (values->list
+                            ((qi0->racket onex) v))
+                           ...))]
+           [args
+            (apply values
+                   (append (values->list
+                            (apply (qi0->racket onex) args))
+                           ...))])]
       [(~or* (~datum -<) (~datum tee))
        #'repeat-values]))
 
@@ -398,8 +455,12 @@ already handled during expansion by Syntax Spec.
       [_:id
        #:do [(define chirality (syntax-property stx 'chirality))]
        (if (and chirality (eq? chirality 'right))
-           #'(λ (f . args) (apply curryr f args))
-           #'(λ (f . args) (apply curry f args)))]
+           #'(case-lambda
+               [(f v) (curryr f v)]
+               [(f . args) (apply curryr f args)])
+           #'(case-lambda
+               [(f v) (curry f v)]
+               [(f . args) (apply curry f args)]))]
       [(_ onex:clause)
        #:do [(define chirality (syntax-property stx 'chirality))]
        (if (and chirality (eq? chirality 'right))

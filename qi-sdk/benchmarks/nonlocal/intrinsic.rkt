@@ -50,6 +50,7 @@
             [exerciser (bm-exerciser spec)]
             [f (eval
                 ;; the first datum in the benchmark name needs to be a function name
-                (read (open-input-string (bm-name spec))) namespace)]
+                (read (open-input-string (bm-name spec)))
+                namespace)]
             [n-times (bm-times spec)])
         (run-nonlocal-benchmark name exerciser f n-times)))))

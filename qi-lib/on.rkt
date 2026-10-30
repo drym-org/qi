@@ -37,6 +37,10 @@
 (define-alias π flow-lambda)
 (define-alias flow-λ flow-lambda)
 
+;; Potentially set a syntax parameter here
+;; to signal to the qi compiler to use
+;; compose rather than call-with-values
+;; See PR #191
 (define-syntax-parser define-flow
   [(_ ((~or* head:id head:function-header) . args:formals)
       clause:clause)
