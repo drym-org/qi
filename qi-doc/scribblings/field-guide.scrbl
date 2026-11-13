@@ -310,7 +310,7 @@ Qi aims to produce good error messages that convey what the problem is and clear
 
 @bold{Common example}: Using @racket[map] or @racket[filter] without first @racket[(require qi/list)]. The built-in Racket versions are @emph{functions} that expect the input list argument at a specific position (i.e., on the right), whereas the Qi versions are @emph{macros} that are invariant to threading direction and expect precisely one input -- the list itself.
 
-@bold{Common example}: Using a nested flow (such as a @racket[tee] junction or an @racket[effect]) within a right-threading flow and assuming that the input arguments would be passed on the right. At the moment, Qi does not propagate the threading direction to nested clauses. You could either use a fresh right threading form or indicate the argument positions explicitly in the nested flow using an @seclink["Templates_and_Partial_Application"]{argument template}.
+@bold{Common example}: Using a (perhaps deeply) nested flow (such as a @racket[tee] junction or an @racket[effect]) within a containing right-threading form and assuming that the input arguments would be passed in the leading (left) position. As Qi propagates the threading direction to nested flows, partial applications accept arguments on the side dictated by the nearest containing threading form (i.e., in this example, on the right). You could either use a fresh left threading form locally or indicate the argument positions explicitly in the nested flow using an @seclink["Templates_and_Partial_Application"]{argument template}.
 
 @subsubsection{Compose: Contract Violation}
 

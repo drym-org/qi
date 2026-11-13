@@ -10,6 +10,7 @@
          racket/list
          racket/string
          racket/function
+         racket/set
          racket/format
          racket/sandbox
          (except-in "private/util.rkt"
@@ -647,16 +648,188 @@
                     "p" "q")
                    "abpq"
                    "right-threading without template")
+     (test-suite
+      "chirality"
+      (test-suite
+       "not"
+       (let ([s (set 1 2 3)])
+         (check-true ((☯ (~>> string->number (set-member? s)))
+                      "3")
+                     "right-threading preserves chirality")
+         (check-false ((☯ (~>> string->number (not (set-member? s))))
+                       "3")
+                      "right-threading preserves chirality")))
+      (test-suite
+       "><"
+       (check-equal? ((☯ (~>> (>< (string-append "a" "b"))
+                              string-append))
+                      "p" "q")
+                     "abpabq"))
+      (test-suite
+       "~>"
+       (check-equal? ((☯ (~>> (~> (string-append "a" "b"))
+                              string-append))
+                      "p" "q")
+                     "pqab"
+                     "nested left threading overrides right chirality"))
+      (test-suite
+       "~>>"
+       (check-equal? ((☯ (~> (~>> (string-append "a" "b"))
+                              string-append))
+                      "p" "q")
+                     "abpq"
+                     "nested right threading overrides left chirality"))
+      (test-suite
+       "-<"
+       (check-equal? ((☯ (~>> (-< (string-append "a")
+                                  (string-append "b"))
+                              string-append))
+                      "p" "q")
+                     "apqbpq"))
+      (test-suite
+       "=="
+       (check-equal? ((☯ (~>> (== (string-append "a")
+                                  (string-append "b"))
+                              string-append))
+                      "p" "q")
+                     "apbq"))
+      (test-suite
+       "pass"
+       (let ([odd-string? (λ (_ignored v)
+                            (odd? (string->number v)))])
+         (check-equal? ((☯ (~>> (pass (odd-string? 'ignored))
+                                string-append))
+                        "1" "2" "3")
+                       "13")))
+      (test-suite
+       "sep"
+       (check-equal? ((☯ (~>> (△ (string-append "Q")) ▽))
+                      '("a" "b" "c") '("p" "q" "r"))
+                     (list "Qap" "Qbq" "Qcr")))
+      (test-suite
+       "and"
+       (check-equal? ((☯ (~>> (and (string-append "a")
+                                   (string-append "b"))))
+                      "p" "q")
+                     "bpq"))
+      (test-suite
+       "or"
+       (check-equal? ((☯ (~>> (or (string-append "a")
+                                  (string-append "b"))))
+                      "p" "q")
+                     "apq"))
+      (test-suite
+       "all"
+       (check-true ((☯ (~>> (all (< 3))))
+                    4 5)))
+      (test-suite
+       "any"
+       (check-true ((☯ (~>> (any (< 3))))
+                    4 5)))
+      (test-suite
+       "group"
+       (check-equal? ((☯ (~>> (group 1
+                                     (string-append "a")
+                                     (string-append "b"))
+                              string-append))
+                      "p" "q")
+                     "apbq"))
+      (test-suite
+       "if"
+       (let ([odd-string? (λ (_ignored v)
+                            (odd? (string->number v)))])
+         (check-equal? ((☯ (~>> (if (odd-string? 'ignored)
+                                    (string-append "0")
+                                    (string-append "2"))))
+                       "1")
+                       "01")))
+      (test-suite
+       "sieve"
+       (let ([odd-string? (λ (_ignored v)
+                            (odd? (string->number v)))])
+         (check-equal? ((☯ (~>> (sieve (odd-string? 'ignored)
+                                       (string-append "0")
+                                       (string-append "2"))
+                                string-append))
+                        "1" "2")
+                       "0122")))
+      (test-suite
+       "partition"
+       (let ([a? (λ (_ignored v)
+                   (equal? "a" v))]
+             [b? (λ (_ignored v)
+                   (equal? "b" v))])
+         (check-equal? ((☯ (~>> (partition [(a? 'ignored) (string-append "p")]
+                                           [(b? 'ignored) (string-append "q")])
+                                string-append))
+                        "a" "b")
+                       "paqb")))
+      (test-suite
+       "try"
+       (let ([raise-e (λ (_ignored v)
+                        (when (equal? "a" v)
+                          (raise "b")))]
+             [a? (λ (_ignored v)
+                   (equal? "a" v))]
+             [b? (λ (_ignored v)
+                   (equal? "b" v))])
+         (check-equal? ((☯ (~>> (try (raise-e 'ignored)
+                                  [(a? 'ignored) (string-append "p")]
+                                  [(b? 'ignored) (string-append "q")])))
+                        "a")
+                       "qa")))
+      (test-suite
+       "<<"
+       (check-equal? ((☯ (~>> (<< (string-append "p") "")))
+                      "a" "b" "c")
+                     "papbpc"))
+      (test-suite
+       ">>"
+       (check-equal? ((☯ (~>> (>> (string-append "p") "")))
+                      "a" "b" "c")
+                     "pcpbpa"))
+      (test-suite
+       "feedback"
+       (check-equal? ((☯ (~>> (feedback 3 (string-append "p"))))
+                      "a")
+                     "pppa")
+       (let ([short? (λ (_ignored v) (< (string-length v) 3))])
+         (check-equal? ((☯ (~>> (feedback (while (short? 'ignored))
+                                          (then (string-append "q"))
+                                          (string-append "p"))))
+                        "a")
+                       "qppa")))
+      (test-suite
+       "loop"
+       (let ([short? (case-lambda [(_ignored v) (< (string-length v) 3)]
+                                  [(_ignored) #false])])
+         (check-equal? ((☯ (~>> (loop (short? 'ignored)
+                                  (string-append "p")
+                                  (string-append "q")
+                                  (string-append "r"))))
+                        "a")
+                       "qpar")))
+      (test-suite
+       "loop2"
+       (let ([not-null? (case-lambda [(_ignored acc) (not (null? acc))]
+                                     [(_ignored acc _v) (not (null? acc))])])
+         (check-equal? ((☯ (~>> (loop2 (not-null? 'ignored)
+                                       (string-append "p")
+                                       (string-append "q"))))
+                        (list "a") "")
+                       "qpa")))
+      (test-suite
+       "clos"
+       (check-equal? (((☯ (~>> (clos (string-append "p"))))
+                       "a") "b")
+                     "bpa") ; pab?
+       (check-equal? (((☯ (~> (clos (string-append "p"))))
+                       "a") "b")
+                     "bap")))
      (check-equal? ((☯ (~>> △ (sort < #:key sqr)))
                     (list 2 1 3))
                    (list 1 4 9)
                    "pre-supplied keyword arguments with right chirality")
-     ;; TODO: propagate threading side to nested clauses
-     ;; (check-equal? (on ("p" "q")
-     ;;                   (~>> (>< (string-append "a" "b"))
-     ;;                        string-append))
-     ;;               "abpabq"
-     ;;               "right-threading without template")
      (check-equal? ((☯ (thread-right add1
                                      (* 2)
                                      number->string

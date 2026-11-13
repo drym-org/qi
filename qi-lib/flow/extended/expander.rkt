@@ -69,11 +69,19 @@ core language's use of #%app, etc.).
     (thread f:floe ...)
     #:binding (nest f ... nested)
 
+    (~>/form (tee f ...)
+             #:when (eq? 'right (syntax-property this-syntax 'chirality))
+             #:with (ff ...) (map make-right-chiral (syntax->list #'(f ...)))
+             (syntax-property #'(tee ff ...) 'chirality 'wrong))
     (tee f:floe ...)
     #:binding (nest f ... nested)
     tee
     ;; Note: `#:binding nested` is the implicit binding rule here
 
+    (~>/form (relay f ...)
+             #:when (eq? 'right (syntax-property this-syntax 'chirality))
+             #:with (ff ...) (map make-right-chiral (syntax->list #'(f ...)))
+             (syntax-property #'(relay ff ...) 'chirality 'wrong))
     (relay f:floe ...)
     #:binding (nest f ... nested)
     relay
@@ -94,6 +102,10 @@ core language's use of #%app, etc.).
     (~> ((~literal _) arg ...) #'(#%fine-template (_ arg ...)))
     _
     ground
+    (~>/form (amp f)
+             #:when (eq? 'right (syntax-property this-syntax 'chirality))
+             #:with ff (make-right-chiral #'f)
+             (syntax-property #'(amp ff) 'chirality 'wrong))
     amp
     (amp f:closed-floe)
     (~>/form (amp f0:clause f:clause ...)
@@ -102,18 +114,46 @@ core language's use of #%app, etc.).
              (report-syntax-error this-syntax
                "(>< flo)"
                "amp expects a single flow specification, but it received many."))
+    (~>/form (pass f)
+             #:when (eq? 'right (syntax-property this-syntax 'chirality))
+             #:with ff (make-right-chiral #'f)
+             (syntax-property #'(pass ff) 'chirality 'wrong))
     pass
     (pass f:closed-floe)
+    (~>/form (sep f)
+             #:when (eq? 'right (syntax-property this-syntax 'chirality))
+             #:with ff (make-right-chiral #'f)
+             (syntax-property #'(sep ff) 'chirality 'wrong))
     sep
     (sep f:closed-floe)
     collect
     NOT
     XOR
+    (~>/form (and f ...)
+             #:when (eq? 'right (syntax-property this-syntax 'chirality))
+             #:with (ff ...) (map make-right-chiral (syntax->list #'(f ...)))
+             (syntax-property #'(and ff ...) 'chirality 'wrong))
     (and f:closed-floe ...)
+    (~>/form (or f ...)
+             #:when (eq? 'right (syntax-property this-syntax 'chirality))
+             #:with (ff ...) (map make-right-chiral (syntax->list #'(f ...)))
+             (syntax-property #'(or ff ...) 'chirality 'wrong))
     (or f:closed-floe ...)
+    (~>/form (not f)
+             #:when (eq? 'right (syntax-property this-syntax 'chirality))
+             #:with ff (make-right-chiral #'f)
+             (syntax-property #'(not ff) 'chirality 'wrong))
     (not f:floe)
     #:binding (nest f nested)
+    (~>/form (all f)
+             #:when (eq? 'right (syntax-property this-syntax 'chirality))
+             #:with ff (make-right-chiral #'f)
+             (syntax-property #'(all ff) 'chirality 'wrong))
     (all f:closed-floe)
+    (~>/form (any f)
+             #:when (eq? 'right (syntax-property this-syntax 'chirality))
+             #:with ff (make-right-chiral #'f)
+             (syntax-property #'(any ff) 'chirality 'wrong))
     (any f:closed-floe)
     (select n:number ...)
     (~>/form (select arg ...)
@@ -126,18 +166,31 @@ core language's use of #%app, etc.).
     (fanout n:number)
     (fanout n:racket-expr)
     fanout
+    (~>/form (group n f1 f2)
+             #:when (eq? 'right (syntax-property this-syntax 'chirality))
+             #:with ff1 (make-right-chiral #'f1)
+             #:with ff2 (make-right-chiral #'f2)
+             (syntax-property #'(group n ff1 ff2) 'chirality 'wrong))
     (group n:racket-expr e1:floe e2:floe)
     #:binding (nest e1 e2 nested)
     group
     (~>/form (group arg ...)
              (report-syntax-error this-syntax
                "(group <number> <selection flow> <remainder flow>)"))
+    (~>/form (if f ...)
+             #:when (eq? 'right (syntax-property this-syntax 'chirality))
+             #:with (ff ...) (map make-right-chiral (syntax->list #'(f ...)))
+             (syntax-property #'(if ff ...) 'chirality 'wrong))
     (if consequent:closed-floe
         alternative:closed-floe)
     (if condition:floe
         consequent:closed-floe
         alternative:closed-floe)
     #:binding (nest condition [consequent alternative nested])
+    (~>/form (sieve f ...)
+             #:when (eq? 'right (syntax-property this-syntax 'chirality))
+             #:with (ff ...) (map make-right-chiral (syntax->list #'(f ...)))
+             (syntax-property #'(sieve ff ...) 'chirality 'wrong))
     (sieve condition:closed-floe
            sonex:closed-floe
            ronex:closed-floe)
@@ -145,20 +198,49 @@ core language's use of #%app, etc.).
     (~>/form (sieve arg ...)
              (report-syntax-error this-syntax
                "(sieve <predicate flow> <selection flow> <remainder flow>)"))
+    (~>/form (partition [f g] ...)
+             #:when (eq? 'right (syntax-property this-syntax 'chirality))
+             #:with (ff ...) (map make-right-chiral (syntax->list #'(f ...)))
+             #:with (gg ...) (map make-right-chiral (syntax->list #'(g ...)))
+             (syntax-property #'(partition [ff gg] ...) 'chirality 'wrong))
     (partition)
     (partition [cond:closed-floe body:closed-floe] ...+)
+    (~>/form (try f [e h] ...)
+             #:when (eq? 'right (syntax-property this-syntax 'chirality))
+             #:with ff (make-right-chiral #'f)
+             #:with (ee ...) (map make-right-chiral (syntax->list #'(e ...)))
+             #:with (hh ...) (map make-right-chiral (syntax->list #'(h ...)))
+             (syntax-property #'(try ff [ee hh] ...) 'chirality 'wrong))
     (try flo:closed-floe
       [error-condition-flo:closed-floe error-handler-flo:closed-floe]
       ...+)
     (~>/form (try arg ...)
              (report-syntax-error this-syntax
                "(try <flo> [error-predicate-flo error-handler-flo] ...)"))
+    (~>/form (>> f ...)
+             #:when (eq? 'right (syntax-property this-syntax 'chirality))
+             #:with (ff ...) (map make-right-chiral (syntax->list #'(f ...)))
+             (syntax-property #'(>> ff ...) 'chirality 'wrong))
     >>
     (>> fn:closed-floe init:closed-floe)
     (>> fn:closed-floe)
+    (~>/form (<< f ...)
+             #:when (eq? 'right (syntax-property this-syntax 'chirality))
+             #:with (ff ...) (map make-right-chiral (syntax->list #'(f ...)))
+             (syntax-property #'(<< ff ...) 'chirality 'wrong))
     <<
     (<< fn:closed-floe init:closed-floe)
     (<< fn:closed-floe)
+    (~>/form (feedback (p f) ... g)
+             #:when (eq? 'right (syntax-property this-syntax 'chirality))
+             #:with (ff ...) (map make-right-chiral (syntax->list #'(f ...)))
+             #:with gg (make-right-chiral #'g)
+             (syntax-property #'(feedback (p ff) ... gg) 'chirality 'wrong))
+    (~>/form (feedback n:number (p f) ... g)
+             #:when (eq? 'right (syntax-property this-syntax 'chirality))
+             #:with (ff ...) (map make-right-chiral (syntax->list #'(f ...)))
+             #:with gg (make-right-chiral #'g)
+             (syntax-property #'(feedback n (p ff) ... gg) 'chirality 'wrong))
     (feedback ((~datum while) tilex:closed-floe)
               ((~datum then) thenex:closed-floe)
               onex:closed-floe)
@@ -174,11 +256,19 @@ core language's use of #%app, etc.).
     (feedback n:racket-expr onex:closed-floe)
     (feedback onex:closed-floe)
     feedback
+    (~>/form (loop f ...)
+             #:when (eq? 'right (syntax-property this-syntax 'chirality))
+             #:with (ff ...) (map make-right-chiral (syntax->list #'(f ...)))
+             (syntax-property #'(loop ff ...) 'chirality 'wrong))
     (loop pred:closed-floe mapex:closed-floe combex:closed-floe retex:closed-floe)
     (loop pred:closed-floe mapex:closed-floe combex:closed-floe)
     (loop pred:closed-floe mapex:closed-floe)
     (loop mapex:closed-floe)
     loop
+    (~>/form (loop2 f ...)
+             #:when (eq? 'right (syntax-property this-syntax 'chirality))
+             #:with (ff ...) (map make-right-chiral (syntax->list #'(f ...)))
+             (syntax-property #'(loop2 ff ...) 'chirality 'wrong))
     (loop2 pred:closed-floe mapex:closed-floe combex:closed-floe)
     appleye
     (~> (~literal apply) #'appleye)
