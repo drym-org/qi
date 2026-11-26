@@ -3,7 +3,12 @@
 (provide flow
          ☯
          (all-from-out "flow/extended/expander.rkt")
-         (all-from-out "flow/extended/forms.rkt"))
+         (all-from-out "flow/extended/forms.rkt")
+         ;; Needed due to binding spaces "quirk"
+         ;; See https://github.com/drym-org/qi/wiki/Qi-Compiler-Sync-Sept-2-2022#binding-spaces-quirk
+         (for-space qi
+                    (rename-out [~flow flow]
+                                [~☯ ☯])))
 
 (require syntax-spec-v3
          (for-syntax racket/base
@@ -12,7 +17,9 @@
                               report-syntax-error))
          "flow/extended/expander.rkt"
          "flow/core/compiler.rkt"
-         "flow/extended/forms.rkt"
+         (rename-in "flow/extended/forms.rkt"
+                    [flow ~flow]
+                    [☯ ~☯])
          (for-syntax "flow/extended/util.rkt")
          (only-in "private/util.rkt"
                   define-alias))

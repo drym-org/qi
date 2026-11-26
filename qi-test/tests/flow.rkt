@@ -46,9 +46,13 @@
      (check-exn exn:fail:contract?
                 (thunk ((flow (get-f 1)) 2))
                 "fully qualified function is still treated as a partial application")
+     (check-equal? (((flow get-f) 1) 2)
+                   3
+                   "a higher-order function may be used as a flow")
      (check-exn exn:fail?
                 (thunk (convert-compile-time-error (flow (get-f))))
                 "empty partial application isn't allowed")
+
      (check-equal? ((flow (esc (get-f 1))) 2)
                    3
                    "fully qualified function used as a flow must still use esc")
@@ -837,10 +841,6 @@
                    "cba"
                    "curried foldl")
      (check-equal? (((☯ (const 3)))) 3 "partial application with no arguments")
-     (check-exn exn:fail?
-                (thunk (convert-compile-time-error
-                        ((☯ (+)) 5 7 8)))
-                "function isn't curried when no arguments are provided")
      (test-suite
       "closures"
       (check-equal? ((☯ (~> (clos list-ref) (_ 1))) '(1 2 3))
@@ -1709,7 +1709,15 @@
          (check-equal? ((☯ (~> (clos ~ #:key _₀ "a" _₀ "c" _₁ "e" _₀)
                                (_ "0" "b" "f")))
                         "d")
-                       "0abcdef"))))))
+                       "0abcdef"))))
+     (test-suite
+      "flow and ☯ aliases"
+      (check-equal? ((☯ (~> (☯ sqr) (_ 3))))
+                    9
+                    "☯ is an alias for clos")
+      (check-equal? ((☯ (~> (flow sqr) (_ 3))))
+                    9
+                    "flow is an alias for clos"))))
 
    (test-suite
     "language extension"

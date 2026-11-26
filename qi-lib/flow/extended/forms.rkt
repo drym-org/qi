@@ -18,7 +18,8 @@
          "expander.rkt"
          "../../macro.rkt"
          (only-in "../space.rkt"
-                  define-for-qi)
+                  define-for-qi
+                  define-qi-alias)
          "runtime.rkt")
 
 ;;; Predicates
@@ -160,6 +161,10 @@
 
 (define-qi-syntax-rule (rectify v:expr ...)
   (if live? _ (gen v ...)))
+
+(define-qi-alias flow clos)
+
+(define-qi-alias ☯ clos)
 
 ;;; High level circuit elements
 
