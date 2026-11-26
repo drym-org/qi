@@ -18,7 +18,8 @@
          fold-right-form
          loop-form
          clos-form
-         deforestable-form)
+         deforestable-form
+         replace-with-variables)
 
 (require syntax/parse)
 
@@ -139,3 +140,21 @@ See comments in flow.rkt for more details.
 (define-syntax-class deforestable-form
   (pattern
    ((~datum #%deforestable) arg ...)))
+
+(define (replace-with-variables what inlist varlist)
+  (cond [(null? inlist) null]
+        [(null? varlist) inlist]
+        [else
+         (let ([a (car inlist)]
+               [as (cdr inlist)]
+               [var (car varlist)]
+               [vars (cdr varlist)])
+           (if (eq? what (syntax-e a))
+               (cons var
+                     (replace-with-variables what
+                                             as
+                                             vars))
+               (cons a
+                     (replace-with-variables what
+                                             as
+                                             varlist))))]))

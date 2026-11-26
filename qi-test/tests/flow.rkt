@@ -840,7 +840,13 @@
      (check-exn exn:fail?
                 (thunk (convert-compile-time-error
                         ((☯ (+)) 5 7 8)))
-                "function isn't curried when no arguments are provided"))
+                "function isn't curried when no arguments are provided")
+     (test-suite
+      "closures"
+      (check-equal? ((☯ (~> (clos list-ref) (_ 1))) '(1 2 3))
+                    2)
+      (check-equal? ((☯ (~>> (clos list-ref) (_ '(1 2 3)))) 1)
+                    2)))
     (test-suite
      "blanket template"
      (check-equal? ((☯ (+ __))) 0)
@@ -1650,7 +1656,60 @@
                    '("ba" "ca" "da")
                    "clos respects threading direction at the site of definition")
      (check-equal? ((☯ (~> (-< (~> second (clos *)) _) map)) (list 1 2 3))
-                   '(2 4 6))))
+                   '(2 4 6))
+     (check-equal? ((☯ (~> (clos +) (_ 4))) 1 2 3)
+                   10
+                   "closure may be applied using an application template")
+     (check-equal? ((☯ (~> (clos *) (fanout 3) compose apply)) 5)
+                   125
+                   "closures may be operated on using ordinary flows")
+     (test-suite
+      "blanket templates"
+      (check-equal? ((☯ (~> (clos string-append "a" __₁ "b" __₀ "c") (_ "q"))) "p")
+                    "apbqc")
+      (check-equal? ((☯ (~> (clos string-append "a" __₀ "b" __₁ "c") (_ "q"))) "p")
+                    "aqbpc")
+      ;; TODO: keyword arguments (lexical, unlike fine template which supports dynamic)
+      ;; are currently not supported in closures with blanket templates.
+      ;; (test-suite
+      ;;  "keyword arguments"
+      ;;  (let ([~ (λ (#:key init . args)
+      ;;             (apply string-append init args))])
+      ;;    (check-equal? ((☯ (~> (clos ~ #:key "0" __₁ "b" __₀ "e")
+      ;;                          (_ "c" "d")))
+      ;;                   "a")
+      ;;                  "0abcde")
+      ;;    (check-equal? ((☯ (~> (clos ~ "a" __₀ "d" __₁ #:key "0")
+      ;;                          (_ "b" "c")))
+      ;;                   "e" "f")
+      ;;                  "0abcdef")))
+      )
+     (test-suite
+      "fine templates"
+      (check-equal? ((☯ (~> (clos string-append "a" _₁ "c" _₀ _₁ "f")
+                            (_ "d")))
+                     "b" "e")
+                    "abcdef")
+      (check-equal? ((☯ (~> (clos string-append "a" _₀ "c" _₁ "e" _₀)
+                            (_ "b" "f")))
+                     "d")
+                    "abcdef")
+      (test-suite
+       "keyword arguments"
+       (let ([~ (λ (#:key init . args)
+                  (apply string-append init args))])
+         (check-equal? ((☯ (~> (clos ~ #:key _₁ "a" _₀ "c" _₁ "e" _₀)
+                               (_ "b" "f")))
+                        "0" "d")
+                       "0abcdef")
+         (check-equal? ((☯ (~> (clos ~ "a" _₀ "c" _₁ #:key _₁ "e" _₀)
+                               (_ "b" "f")))
+                        "d" "0")
+                       "0abcdef")
+         (check-equal? ((☯ (~> (clos ~ #:key _₀ "a" _₀ "c" _₁ "e" _₀)
+                               (_ "0" "b" "f")))
+                        "d")
+                       "0abcdef"))))))
 
    (test-suite
     "language extension"

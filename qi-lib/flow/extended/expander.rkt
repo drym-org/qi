@@ -182,8 +182,19 @@ core language's use of #%app, etc.).
     (loop2 pred:closed-floe mapex:closed-floe combex:closed-floe)
     appleye
     (~> (~literal apply) #'appleye)
+    (~>/form (clos f)
+             #:when (eq? 'right (syntax-property this-syntax 'chirality))
+             #'(clos f __₀ __₁))
+    (~>/form (clos f)
+             #'(clos f __₁ __₀))
+    (~>/form (clos onex prarg-pre ... (~datum __₁) prarg-mid ... (~datum __₀) prarg-post ...)
+             #'(clos onex #:left (prarg-pre ...) (prarg-mid ...) (prarg-post ...)))
+    (~>/form (clos onex prarg-pre ... (~datum __₀) prarg-mid ... (~datum __₁) prarg-post ...)
+             #'(clos onex #:right (prarg-pre ...) (prarg-mid ...) (prarg-post ...)))
     clos
-    (clos onex:closed-floe)
+    (clos onex:closed-floe #:left (prarg-pre:racket-expr ...) (prarg-mid:racket-expr ...) (prarg-post:racket-expr ...))
+    (clos onex:closed-floe #:right (prarg-pre:racket-expr ...) (prarg-mid:racket-expr ...) (prarg-post:racket-expr ...))
+    (clos onex:closed-floe a:closure-arg ...)
     (esc ex:racket-expr)
     (~> ((~literal lambda) e ...)
         #'(esc (lambda e ...)))
@@ -254,11 +265,16 @@ core language's use of #%app, etc.).
     ((~datum expr) g:racket-expr)
     ((~datum const) g:racket-expr))
 
+  (nonterminal closure-arg
+    (~datum _₁)
+    (~datum _₀)
+    k:keyword
+    e:racket-expr)
+
   (nonterminal arg-stx
     (~datum _)
     (~datum __)
     k:keyword
-
     e:racket-expr))
 
 
