@@ -425,7 +425,9 @@ Note that the symbol form uses Unicode @code{0x2225} corresponding to LaTeX's @c
 )]{
   Compose @tech{flows} in sequence, from left to right. In the metaphor of an analog electrical circuit, you could think of this as a wire.
 
-  @racket[~>] "threads" the arguments in the leading position, while @racket[~>>] threads them in the trailing position. Argument positions may also be explicitly indicated via a @seclink["Templates_and_Partial_Application"]{template}, either individually or en masse.
+  @racket[~>] "threads" the arguments in the leading position in any @seclink["Templates_and_Partial_Application"]{partial application} flows, while @racket[~>>] threads them in the trailing position. Argument positions may also be explicitly indicated via a @seclink["Templates_and_Partial_Application"]{template}, either individually or en masse.
+
+  The "chirality," or side on which arguments are expected in partial application flows, is propagated to nested flows and may be modulated by other, nested, threading forms.
 
 @examples[
     #:eval eval-for-docs
