@@ -59,10 +59,29 @@
         (compose1-with-values arg g ...))
       f)])
 
+#|
+Goals:
+1. need to handle kwargs in any position
+2. correct reduction of arity for runtime
+3. blame the correct party (either lexical or runtime)
+   in case of invalid args
+   -> same for closures, there will be three parties,
+      lexical, environment, and final
+|#
 (define (kw-helper f args)
-  (make-keyword-procedure
-   (λ (kws kws-vs . pos)
-     (keyword-apply f kws kws-vs (append args pos)))))
+  ;; this is at phase 0
+  (let-values ([(required-kws optional-kws) (procedure-keywords f)]
+               [(arity) (procedure-arity f)]
+               [(f-name) (object-name f)])
+    (procedure-reduce-keyword-arity
+     (make-keyword-procedure
+      (λ (kws kws-vs . pos)
+        (keyword-apply f kws kws-vs (append args pos))))
+     ;; arity
+     (arity-at-least 0)
+     required-kws
+     optional-kws
+     (string->symbol (format "kw:~a" f-name)))))
 
 ;; we use a lambda to capture the arguments at runtime
 ;; since they aren't available at compile time

@@ -865,6 +865,16 @@
                     3 1 2)
                    (list 1 4 9)
                    "keyword arguments in a vindaloo blanket template")
+     (test-suite
+      "keyword argument order"
+      (check-equal? ((☯ (sort < #:key sqr __))
+                     3 1 2)
+                    (list 1 4 9)
+                    "keyword arguments are accepted in any order")
+      (check-equal? ((☯ (sort < #:key sqr __ 2))
+                     3 1)
+                    (list 1 4 9)
+                    "keyword arguments are accepted in any order"))
      (check-exn exn:fail?
                 (thunk (convert-compile-time-error
                         (☯ (__ 4))))
