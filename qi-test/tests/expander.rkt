@@ -37,10 +37,16 @@
 
    (test-suite
     "rules"
-    (test-expand "basic expansion"
-                 #'(~> sqr add1)
-                 #'(thread (esc (#%host-expression sqr))
-                           (esc (#%host-expression add1))))
+
+    (test-suite
+     "~>"
+     (test-expand "basic expansion"
+                  #'(~> sqr add1)
+                  #'(thread (esc (#%host-expression sqr))
+                            (esc (#%host-expression add1))))
+     (test-expand "identifier form"
+                  #'~>
+                  #'thread))
 
     (test-expand "if"
                  #'(if p c a)

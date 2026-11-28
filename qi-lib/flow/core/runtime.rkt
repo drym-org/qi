@@ -3,6 +3,8 @@
 (provide give
          map-values
          filter-values
+         thread-fn
+         tee-fn
          partition-values
          relay
          loom-compose
@@ -153,6 +155,21 @@
 (define (filter-values f . args)
   (apply values (filter f args)))
 
+(define (thread-fn . fs)
+  (λ args
+    (apply
+     (apply compose (reverse fs))
+     args)))
+
+(define (tee-fn . fs)
+  (λ args
+    (apply values
+           (append-map
+            (λ (f)
+              (call-with-values (λ () (apply f args))
+                                list))
+            fs))))
+
 ;; partition arguments by the first matching condition, then feed the
 ;; accumulated subsequences into associated bodies.
 ;; - c+bs is a list of pair?
@@ -238,15 +255,16 @@
      (keyword-apply f ks vs xs))))
 
 (define (relay . fs)
-  (case-lambda [(v)
-           (if (singleton? fs)
-               ((car fs) v)
-               (raise-arguments-error 'relay
-                                      "more flows than values"
-                                      "flows" fs
-                                      "values" v))]
-          [args
-           (apply values (~zip-with call (list fs args) #false))]))
+  (case-lambda
+    [(v)
+     (if (singleton? fs)
+         ((car fs) v)
+         (raise-arguments-error 'relay
+                                "more flows than values"
+                                "flows" fs
+                                "values" v))]
+    [args
+     (apply values (~zip-with call (list fs args) #false))]))
 
 (define (repeat-values n . vs)
   (apply values (apply append (make-list n vs))))

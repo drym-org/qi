@@ -620,7 +620,20 @@
                                (string-append "a" _ "b")))
                     5)
                    "a12b"
-                   "named threading form"))
+                   "named threading form")
+     (test-suite
+      "bingdi inversion"
+      (check-equal? ((☯ (~> ~> (_ "a" "b" "c")))
+                     string-append string-upcase)
+                    "ABC")
+      (check-equal? ((☯ (~> ~> (_)))
+                     + sqr)
+                    0)
+      (check-exn exn:fail?
+                 (thunk ((☯ (~> ~> (_)))
+                         sqr add1)))
+      (check-equal? ((☯ (~> ~> (_ "a" "b" "c") ▽)))
+                    (list "a" "b" "c"))))
     (test-suite
      "~>>"
      (check-equal? ((☯ (~>> add1
@@ -676,9 +689,16 @@
                    "a"))
     (test-suite
      "-<"
-     (check-equal? ((☯ (~> -< ▽))
-                    3 1 2)
-                   (list 1 2 1 2 1 2))
+     (test-suite
+      "bingdi inversion"
+      (check-equal? ((☯ (~> -< (_ 3 1 2 4) ▽))
+                     + *)
+                    (list 10 24))
+      (check-equal? ((☯ (~> -< (_ 3 1 2 4)))
+                     +)
+                    10)
+      (check-equal? ((☯ (~> -< (_ 3 1 2 4) ▽)))
+                    null))
      (check-equal? ((☯ (~> (-< sqr add1) ▽))
                     5)
                    (list 25 6))
@@ -739,13 +759,24 @@
                 (thunk ((☯ (~> (== ⏚ add1) ▽))
                         5 7 8))
                 "relay elements must be in one-to-one correspondence with input")
-     (check-equal? ((☯ (~> (gen sqr 1 2 3) == ▽)))
-                   (list 1 4 9)
-                   "relay when used as an identifier") ; TODO: review this
      (check-equal? ((☯ (~> (relay sqr add1) ▽))
                     5 7)
                    (list 25 8)
-                   "named relay form"))
+                   "named relay form")
+     (test-suite
+      "bingdi inversion"
+      (check-equal? ((☯ (~> == (_ 1 2 3) ▽))
+                     add1 sqr sub1)
+                    (list 2 4 2))
+      (check-equal? ((☯ (~> == (_ 1)))
+                     add1)
+                    2)
+      (check-equal? ((☯ (~> == (_) ▽)))
+                    null)
+      (check-exn exn:fail?
+                 (thunk ((☯ (~> == (_ 1 2 3) ▽))
+                         add1 sub1))
+                 "mismatched cardinality of functions and arguments")))
     (test-suite
      "==*"
      (check-equal? ((☯ (~> (==* add1 sub1 +) ▽))
@@ -1507,9 +1538,6 @@
     "higher-order flows"
     (test-suite
      "><"
-     (check-equal? ((☯ (~> >< ▽))
-                    sqr 3 5)
-                   (list 9 25))
      (check-equal? ((☯ (~> (>< sqr) ▽))
                     3 5)
                    (list 9 25))
@@ -1532,7 +1560,19 @@
      (check-exn exn:fail?
                 (thunk (convert-compile-time-error
                         (☯ (>< sqr add1))))
-                "amp expects exactly one argument"))
+                "amp expects exactly one argument")
+     (test-suite
+      "bingdi inversion"
+      (check-equal? ((☯ (~> >< (_ 3 5) ▽))
+                     sqr)
+                    (list 9 25))
+      (check-exn exn:fail?
+                 (thunk ((☯ (~> >< (_ 3 5) ▽))
+                         sqr add1))
+                 "amp does not accept more than one flow parameter")
+      (check-exn exn:fail?
+                 (thunk ((☯ (~> >< (_ 3 5) ▽))))
+                 "amp does not accept less than one flow parameter")))
     (test-suite
      "pass"
      (check-equal? ((☯ (~> pass ▽))
@@ -1642,19 +1682,6 @@
      (check-equal? ((☯ (~> (== (~>> (clos string-append)) _) map)) "a" (list "b" "c" "d"))
                    '("ba" "ca" "da")
                    "clos respects threading direction at the site of definition")
-     (check-equal? ((☯ (~> (== (~> (-< (gen string-append)
-                                       _)
-                                   clos)
-                               _)
-                           map)) "a" (list "b" "c" "d"))
-                   '("ab" "ac" "ad"))
-     (check-equal? ((☯ (~> (== (~>> (-< (gen string-append)
-                                        _)
-                                    clos)
-                               _)
-                           map)) "a" (list "b" "c" "d"))
-                   '("ba" "ca" "da")
-                   "clos respects threading direction at the site of definition")
      (check-equal? ((☯ (~> (-< (~> second (clos *)) _) map)) (list 1 2 3))
                    '(2 4 6))
      (check-equal? ((☯ (~> (clos +) (_ 4))) 1 2 3)
@@ -1709,7 +1736,24 @@
          (check-equal? ((☯ (~> (clos ~ #:key _₀ "a" _₀ "c" _₁ "e" _₀)
                                (_ "0" "b" "f")))
                         "d")
-                       "0abcdef"))))))
+                       "0abcdef"))))
+     (test-suite
+      "bingdi inversion"
+      (check-equal? ((☯ (~> (-< (~> (gen string-append)
+                                    clos
+                                    (_ "a"))
+                                _)
+                            map))
+                     (list "b" "c" "d"))
+                    '("ab" "ac" "ad"))
+      (check-equal? ((☯ (~> (-< (~>> (gen string-append)
+                                     clos
+                                     (_ "a"))
+                                _)
+                            map))
+                     (list "b" "c" "d"))
+                    '("ba" "ca" "da")
+                    "clos respects threading direction at the site of definition"))))
 
    (test-suite
     "language extension"

@@ -66,6 +66,7 @@ core language's use of #%app, etc.).
     (as v:racket-var ...+)
     #:binding (scope (bind v) ... nested)
 
+    thread
     (thread f:floe ...)
     #:binding (nest f ... nested)
 
@@ -182,18 +183,28 @@ core language's use of #%app, etc.).
     (loop2 pred:closed-floe mapex:closed-floe combex:closed-floe)
     appleye
     (~> (~literal apply) #'appleye)
+    (~> (~literal clos)
+        #:when (eq? 'right (syntax-property this-syntax 'chirality))
+        #'(clos __₀ __₁))
+    (~> (~literal clos)
+        #'(clos __₁ __₀))
     (~>/form (clos f)
              #:when (eq? 'right (syntax-property this-syntax 'chirality))
              #'(clos f __₀ __₁))
     (~>/form (clos f)
              #'(clos f __₁ __₀))
+    (~>/form (clos (~datum __₁) (~datum __₀))
+             #'(clos #:left () () ()))
+    (~>/form (clos (~datum __₀) (~datum __₁))
+             #'(clos #:right () () ()))
     (~>/form (clos onex prarg-pre ... (~datum __₁) prarg-mid ... (~datum __₀) prarg-post ...)
              #'(clos onex #:left (prarg-pre ...) (prarg-mid ...) (prarg-post ...)))
     (~>/form (clos onex prarg-pre ... (~datum __₀) prarg-mid ... (~datum __₁) prarg-post ...)
              #'(clos onex #:right (prarg-pre ...) (prarg-mid ...) (prarg-post ...)))
-    clos
     (clos onex:closed-floe #:left (prarg-pre:racket-expr ...) (prarg-mid:racket-expr ...) (prarg-post:racket-expr ...))
     (clos onex:closed-floe #:right (prarg-pre:racket-expr ...) (prarg-mid:racket-expr ...) (prarg-post:racket-expr ...))
+    (clos #:left () () ())
+    (clos #:right () () ())
     (clos onex:closed-floe a:closure-arg ...)
     (esc ex:racket-expr)
     (~> ((~literal lambda) e ...)

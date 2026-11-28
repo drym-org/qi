@@ -9,6 +9,7 @@
          try-form
          feedback-form
          amp-form
+         thread-form
          relay-form
          tee-form
          fanout-form
@@ -94,6 +95,12 @@ See comments in flow.rkt for more details.
    (~or* (~datum ><) (~datum amp)))
   (pattern
    ((~or* (~datum ><) (~datum amp)) arg ...)))
+
+(define-syntax-class thread-form
+  (pattern
+   (~or* (~datum ~>) (~datum thread)))
+  (pattern
+   ((~or* (~datum ~>) (~datum thread)) arg ...)))
 
 (define-syntax-class relay-form
   (pattern

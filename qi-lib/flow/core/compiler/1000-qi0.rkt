@@ -50,8 +50,7 @@
     ;; routing
     [(~or* (~datum ⏚) (~datum ground)) ; NOTE: technically not core
      #'(qi0->racket (select))]
-    [((~or* (~datum ~>) (~datum thread)) onex:clause ...)
-     (thread-parser #'(~> onex ...))]
+    [e:thread-form (thread-parser #'e)]
     [e:relay-form (relay-parser #'e)]
     [e:tee-form (tee-parser #'e)]
     ;; map and filter
@@ -173,7 +172,8 @@ already handled during expansion by Syntax Spec.
                                      reversed-f ...)]
           [args
            (compose-with-values args
-                                reversed-f ...)])]))
+                                reversed-f ...)])]
+      [_:id #'thread-fn]))
 
   (define (sep-parser stx)
     (syntax-parse stx
@@ -376,7 +376,7 @@ already handled during expansion by Syntax Spec.
                             (apply (qi0->racket onex) args))
                            ...))])]
       [(~or* (~datum -<) (~datum tee))
-       #'repeat-values]))
+       #'tee-fn]))
 
   (define (relay-parser stx)
     (syntax-parse stx
@@ -386,12 +386,12 @@ already handled during expansion by Syntax Spec.
        ;; review this – this "map" behavior may not be natural
        ;; for relay. And map-values should probably end up being
        ;; used in a compiler optimization
-       #'map-values]))
+       #'relay]))
 
   (define (amp-parser stx)
     (syntax-parse stx
       [_:id
-       #'(qi0->racket ==)]
+       #'(curry map-values)]
       [(_ onex:clause)
        #'(curry map-values (qi0->racket onex))]))
 
@@ -468,6 +468,10 @@ already handled during expansion by Syntax Spec.
                                 (~> (gen args) △)
                                 (gen prarg-post ...))
                             onex)))]
+      [(_ #:right () () ())
+       #'(λ (f) (curryr f))]
+      [(_ #:left () () ())
+       #'(λ (f) (curry f))]
       [(_ onex arg ...)
        #:when (memq '_₁ (syntax->datum #'(arg ...)))
        #:with (envpos ...) (filter (λ (s)
@@ -483,16 +487,7 @@ already handled during expansion by Syntax Spec.
                                                     (attribute apparg)
                                                     (attribute envarg))
        #'(λ (envarg ...)
-           (fancy:#%app (qi0->racket onex) combarg ...))]
-      [_:id
-       #:do [(define chirality (syntax-property stx 'chirality))]
-       (if (and chirality (eq? chirality 'right))
-           #'(case-lambda
-               [(f v) (curryr f v)]
-               [(f . args) (apply curryr f args)])
-           #'(case-lambda
-               [(f v) (curry f v)]
-               [(f . args) (apply curry f args)]))]))
+           (fancy:#%app (qi0->racket onex) combarg ...))]))
 
   (define (deforestable-clause-parser c)
     (syntax-parse c
